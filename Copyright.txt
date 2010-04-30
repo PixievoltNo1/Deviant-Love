@@ -1,0 +1,7 @@
+All .html, .js., and .json files except jquery.js are copyrighted by Pikadude No. 1 (http://harrigan.org/pikadudeno1 and http://pikadudeno1.deviantart.com) and made available under the terms of the GNU General Public License (see License.txt).
+
+jquery.js is also made available under the terms of the GNU General Public License, but is copyrighted by the jQuery Project (http://jquery.org).
+
+Fella.png, Gallery.png, Profile.png, and Random.png are copyrighted by deviantART (http://www.deviantart.com). They reserve all rights to these images, but it is assumed that their use in a deviantART enhancement constitutes fair use.
+
+The Deviant Love heart is of uncertain copyright status - it is drawn by Pikadude No. 1 as a reproduction of a heart owned by deviantART. Assuming Pikadude No. 1 owns the copyright, it is also made available under the terms of the GNU General Public License.

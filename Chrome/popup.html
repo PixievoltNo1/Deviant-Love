@@ -1,0 +1,162 @@
+<!--
+	This file is part of Deviant Love.
+	Copyright 2010 Pikadude No. 1
+	Check core.js for the complete legal stuff.
+-->
+<html>
+<style type="text/css">
+body {
+	color: #000000;
+	font-family: sans-serif;
+}
+* {
+	-webkit-box-sizing: border-box;
+	box-sizing: border-box; /* For future-proofing */
+}
+#preparationScreen, #mainScreen > div {
+	width: 420px;
+}
+#preparationScreen {
+	height: 120px;
+	cursor: wait;
+}
+#scanMessage {
+	font-size: 200%;
+	margin-bottom: 10px;
+}
+#mainScreen > div {
+	border: 1px solid #000000;
+}
+#mainScreen > div + div {
+	border-top: 0;
+}
+#scanResults {
+	height: 50px;
+	background: url("48Icon.png") no-repeat 5px 0;
+	background-color: #FFB216;
+	padding-left: 58px;
+	font-size: 16px;
+}
+#scanResults, #tipOfTheMoment {
+	display: table-cell;
+	vertical-align: middle;
+}
+#faveCount, #deviantCount {
+	font-weight: bold;
+}
+#lovedArtists {
+	height: 26em;
+}
+#lovedArtists, .closerLook {
+	background-color: #FF0B2F;
+}
+.deviant {
+	background-color: #FF879D;
+	cursor: pointer;
+}
+.deviant:hover {
+	background-color: #FFA4B2;
+}
+.deviant.opened {
+	background-color: #FF6982;
+	cursor: default;
+}
+.deviant + .deviant {
+	margin-top: 1px;
+}
+.deviantFaves {
+	display: inline-block;
+	width: 3em;
+	text-align: right;
+	font-weight: bold;
+	margin-right: 0.2em;
+}
+.deviantFaves:before {
+	content: "(";
+}
+.deviantFaves:after {
+	content: ")";
+}
+.closerLook {
+	display: -webkit-box;
+	display: box; /* For future-proofing */
+	-webkit-box-orient: horizontal;
+	box-orient: horizontal; /* For future-proofing */
+	cursor: auto;
+}
+.deviantDetails {
+	width: 80px;
+	padding: 4px;
+	text-align: center;
+}
+.avatar {
+	background-color: #FFFFFF;
+	-webkit-box-shadow: rgba(0, 0, 0, 0.8) 2px 2px 2px;
+	box-shadow: rgba(0, 0, 0, 0.8) 2px 2px 2px; /* For future-proofing */
+}
+.deviantLinks {
+	height: 22px;
+	position: relative;
+	margin-top: 4px;
+}
+.profileLink, .galleryLink {
+	position: absolute;
+	width: 22px;
+	height: 22px;
+}
+.profileLink {
+	top: 0;
+	left: 12px;
+	background-image: url(Profile.png);
+}
+.galleryLink {
+	top: 0;
+	right: 12px;
+	background-image: url(Gallery.png);
+}
+.deviationList {
+	-webkit-box-flex: 1;
+	box-flex: 1; /* For future-proofing */
+	padding: 0 0.2em;
+	background-color: #FFCCD6;
+}
+#tipOfTheMoment {
+	background-color: #FFB92D;
+	font-size: 12px;
+	height: 21px; /* 1px added for the bottom border */
+	padding-left: 3px;
+	position: relative;
+}
+#tipOfTheMoment > img {
+	float: left;
+	margin-right: 3px;
+}
+</style>
+<script type="text/javascript" src="jquery.js"></script>
+<script type="text/javascript" src="core.js"></script>
+<script type="text/javascript">
+var bgPage = chrome.extension.getBackgroundPage();
+$(document).ready( function() {
+	chrome.tabs.getSelected(null, function(buddyTab) {
+		if (buddyTab.url.indexOf("chrome-extension://") != 0) {
+			$(document).delegate("a", "mouseup", function() {
+				window.open(this.href);
+			} );
+			chrome.tabs.sendRequest(buddyTab.id, {action: "getLove"}, function(love) {
+				fulfillPurpose({doc: $("body"), state: bgPage.popupStates[buddyTab.id], feedHref: love.feedHref});
+				$(window).bind("keydown", function(event) { if (event.keyCode == 68) { // D
+					window.open("popup.html#" + love.feedHref);
+				} } );
+			} );
+		} else {
+			if (bgPage.popupStates[buddyTab.id] === undefined) {
+				bgPage.popupStates[buddyTab.id] = {};
+			}
+			fulfillPurpose({doc: $("body"), state: bgPage.popupStates[buddyTab.id], feedHref: location.hash.slice(1)});
+		}
+	} );
+} );
+</script>
+<body>
+</body>
+</html>

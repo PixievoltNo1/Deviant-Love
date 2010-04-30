@@ -1,0 +1,5 @@
+- Rewrite the CSS to use hsl colors
+- Enable Deviant Love to scan the specific part of the Faves page that the user is on
+- Create the 128 icon
+- Add the find bar
+- Show something nice when an avatar is loading
