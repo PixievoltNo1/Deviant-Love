@@ -131,21 +131,14 @@ function fulfillPurpose(popup) {
 		}, 10);
 	}
 	function tipOfTheMoment() {
-		switch(localStorage.getItem("nextTip")) {
-			case null:
-			case "1":
-				$("#tipOfTheMoment", popup.doc).html(chrome.i18n.getMessage("tipOfTheMoment1"));
-				localStorage.nextTip = "2";
-			break;
-			case "2":
-				$("#tipOfTheMoment", popup.doc).html(chrome.i18n.getMessage("tipOfTheMoment2"));
-				localStorage.nextTip = "3";
-			break;
-			case "3":
-				$("#tipOfTheMoment", popup.doc).html(chrome.i18n.getMessage("tipOfTheMoment3"));
-				localStorage.nextTip = "1";
-			break;
-		}
+		// localStorage.nextTip is 1-based, but JavaScript array indexes are 0-based. Oh well.
+		var nextTip = localStorage.nextTip || 1;
+		$.getJSON(chrome.i18n.getMessage("tipsFile"), function(tips) {
+			$("#tipOfTheMoment", popup.doc).html(tips[nextTip - 1]);
+			nextTip++;
+			if (nextTip > tips.length) {nextTip = 1}
+			localStorage.nextTip = nextTip;
+		} );
 	}
 	function eventSetup() {
 		$("#lovedArtists", popup.doc).delegate(".deviant:not(.opened)", "click", function() {

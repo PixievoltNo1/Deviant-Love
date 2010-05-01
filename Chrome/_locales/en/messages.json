@@ -14,7 +14,7 @@
 		"message": "$1 deviations scanned"
 	},
 	"scanError": {
-		"message": "Communication with deviantART was unsuccessful. If you close and re-open this pop-up, you might have better luck next time."
+		"message": "Communication with deviantART was unsuccessful. If you close and re-open this popup, you might have better luck next time."
 	},
 	"scanResultsLine1": {
 		"message": "This page has $1 faves",
@@ -32,14 +32,8 @@
 		"message": "Gallery",
 		"description": "Tooltip for the gallery link"
 	},
-	"tipOfTheMoment1": {
-		"message": "<img src='Random.png'> Love a <a href='http://www.deviantart.com/random/deviant'>random deviant</a> (but don't be creepy).",
-		"description": "One of the three tipsOfTheMoment will be chosen to be displayed at the bottom of the Deviant Love popup"
-	},
-	"tipOfTheMoment2": {
-		"message": "<img src='Pikadude.png'> You can show your love for Deviant Love at <a href='http://fav.me/d2my13o'>its deviation page</a>."
-	},
-	"tipOfTheMoment3": {
-		"message": "<img src='Fella.png'> There's lots of love-worthy art to be found at <a href='http://today.deviantart.com/dds/'>Daily Deviations</a>."
+	"tipsFile": {
+		"message": "_locales/en/TipOfTheMoment.json",
+		"description": "This file holds the tips that appear at the bottom of the Deviant Love popup"
 	}
 }
