@@ -2,7 +2,10 @@
 	"name": "__MSG_extName__",
 	"version": "1.0.2",
 	"description": "__MSG_extDesc__",
-	"icons": {"48": "48Icon.png"},
+	"icons": {
+		"48": "48Icon.png",
+		"128": "128Icon.png"
+	},
 	"default_locale": "en",
 	
 	"background_page": "background.html",
