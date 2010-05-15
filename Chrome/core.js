@@ -152,8 +152,10 @@ function fulfillPurpose(popup) {
 			deviantDetails.append($("<a>", {"href": deviant.profileURL}) // Note two opening parens and only one closing paren
 				.append($("<img>", {src: deviant.avatar, "class": "avatar", width: 50, height: 50})));
 			deviantDetails.append($("<div>", {"class": "deviantLinks"}) // Ditto
-				.append($("<a>", {"href": deviant.profileURL, "class": "profileLink"}))
-				.append($("<a>", {"href": deviant.galleryURL, "class": "galleryLink"})));
+				.append($("<a>", {"href": deviant.profileURL, "class": "profileLink",
+					title: chrome.i18n.getMessage("profile")}))
+				.append($("<a>", {"href": deviant.galleryURL, "class": "galleryLink",
+					title: chrome.i18n.getMessage("gallery")})));
 			deviantDetails.appendTo(closerLook);
 			
 			var deviationList = $("<div>", {"class": "deviationList"});
