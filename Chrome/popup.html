@@ -3,10 +3,11 @@
 	Copyright 2010 Pikadude No. 1
 	Check core.js for the complete legal stuff.
 -->
+<!doctype html>
 <html>
 <style type="text/css">
 body {
-	color: #000000;
+	color: black;
 	font-family: sans-serif;
 }
 * {
@@ -25,7 +26,7 @@ body {
 	margin-bottom: 10px;
 }
 #mainScreen > div {
-	border: 1px solid #000000;
+	border: 1px solid black;
 }
 #mainScreen > div + div {
 	border-top: 0;
@@ -33,7 +34,7 @@ body {
 #scanResults {
 	height: 50px;
 	background: url("48Icon.png") no-repeat 5px 0;
-	background-color: #FFB216;
+	background-color: hsl(40, 100%, 60%);
 	padding-left: 58px;
 	font-size: 16px;
 }
@@ -48,18 +49,17 @@ body {
 	height: 26em;
 }
 #lovedArtists, .closerLook {
-	background-color: #FF0B2F;
+	background-color: hsl(350, 100%, 54%);
 }
-.deviant {
-	background-color: #FF879D;
+.deviant:not(.opened) {
+	background-color: hsl(350, 100%, 78%);
 	cursor: pointer;
 }
 .deviant:hover {
-	background-color: #FFA4B2;
+	background-color: hsl(350, 100%, 82%);
 }
 .deviant.opened {
-	background-color: #FF6982;
-	cursor: default;
+	background-color: hsl(350, 100%, 74%);
 }
 .deviant + .deviant {
 	margin-top: 1px;
@@ -90,9 +90,9 @@ body {
 	text-align: center;
 }
 .avatar {
-	background-color: #FFFFFF;
-	-webkit-box-shadow: rgba(0, 0, 0, 0.8) 2px 2px 2px;
-	box-shadow: rgba(0, 0, 0, 0.8) 2px 2px 2px; /* For future-proofing */
+	background-color: white;
+	-webkit-box-shadow: hsla(0, 0%, 0%, 0.8) 2px 2px 2px;
+	box-shadow: hsla(0, 0%, 0%, 0.8) 2px 2px 2px; /* For future-proofing */
 }
 .deviantLinks {
 	height: 22px;
@@ -118,10 +118,10 @@ body {
 	-webkit-box-flex: 1;
 	box-flex: 1; /* For future-proofing */
 	padding: 0 0.2em;
-	background-color: #FFCCD6;
+	background-color: hsl(350, 100%, 90%);
 }
 #tipOfTheMoment {
-	background-color: #FFB92D;
+	background-color: hsl(40, 100%, 65%);
 	font-size: 12px;
 	height: 21px; /* 1px added for the bottom border */
 	padding-left: 3px;
