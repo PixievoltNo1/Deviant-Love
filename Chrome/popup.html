@@ -138,23 +138,14 @@ body {
 var bgPage = chrome.extension.getBackgroundPage();
 $(document).ready( function() {
 	chrome.tabs.getSelected(null, function(buddyTab) {
-		if (buddyTab.url.indexOf("chrome-extension://") != 0) {
-			$(document).delegate("a", "mouseup", function() {
-				window.open(this.href);
-			} );
-			chrome.tabs.sendRequest(buddyTab.id, {action: "getLove"}, function(love) {
-				fulfillPurpose({doc: $("body"), state: bgPage.popupStates[buddyTab.id], feedHref: love.feedHref});
-				$(window).bind("keydown", function(event) { if (event.keyCode == 68) { // D
-					window.open("popup.html#" + love.feedHref);
-				} } );
-			} );
-		} else {
-			if (bgPage.popupStates[buddyTab.id] === undefined) {
-				bgPage.popupStates[buddyTab.id] = {};
-			}
-			fulfillPurpose({doc: $("body"), state: bgPage.popupStates[buddyTab.id], feedHref: location.hash.slice(1)});
-		}
+		chrome.tabs.sendRequest(buddyTab.id, {action: "getLove"}, function(love) {
+			fulfillPurpose({doc: $("body"), state: bgPage.popupStates[buddyTab.id],
+				feedHref: love.feedHref, pageType: love.pageType});
+		} );
 	} );
+} );
+$(document).delegate("a", "mouseup", function() {
+	window.open(this.href);
 } );
 </script>
 <body>

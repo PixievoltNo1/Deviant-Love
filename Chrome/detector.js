@@ -12,7 +12,7 @@ if (location.hash == "" || location.hash.indexOf("#_featured") == 0) {
 	var feedHref = baseFeedHref;
 } else if (location.hash.indexOf("#_browse") == 0) {
 	var pageType = "allFaves";
-	var feedHref = feedHref.replace(/(favby%3A.+)%2F[0-9]+(&)/, "$1$2");
+	var feedHref = baseFeedHref.replace(/(favby%3A.+)%2F[0-9]+(&)/, "$1$2");
 } else if (location.hash.charAt(1) == "/") {
 	if (!pageType) { throw "STOP! Hammertime." } // This content script started running on a deviation page, so don't allow the heart to appear.
 } else {
