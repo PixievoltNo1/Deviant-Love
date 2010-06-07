@@ -20,5 +20,6 @@
 		"run_at": "document_end"
 	}],
 	
-	"permissions": ["tabs", "http://*.deviantart.com/"]
+	"permissions": ["tabs", "http://*.deviantart.com/"],
+	"minimum_chrome_version": "5"
 }
