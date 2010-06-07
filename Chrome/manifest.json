@@ -16,7 +16,8 @@
 	},
 	"content_scripts": [{
 		"matches": ["http://*.deviantart.com/favourites/*"],
-		"js": ["jquery.js", "detector.js"]
+		"js": ["detector.js"],
+		"run_at": "document_end"
 	}],
 	
 	"permissions": ["tabs", "http://*.deviantart.com/"]

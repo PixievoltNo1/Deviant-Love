@@ -4,7 +4,8 @@
 	Check core.js for the complete legal stuff.
 */
 if (!baseFeedHref) {
-	var baseFeedHref = $('link[rel="alternate"][type="application/rss+xml"]').attr("href");
+	var baseFeedHref = document.querySelector('link[rel="alternate"][type="application/rss+xml"]')
+		.getAttribute("href");
 }
 if (location.hash == "" || location.hash.indexOf("#_featured") == 0) {
 	var pageType = "featured";
@@ -20,7 +21,7 @@ if (location.hash == "" || location.hash.indexOf("#_featured") == 0) {
 	// TODO: Rewrite feedHref to use the ID number of this collection
 }
 
-// var deviantName = jQuery(".gruserbadge h1 a").text();
+// var deviantName = document.querySelector(".gruserbadge a.u").innerText;
 chrome.extension.sendRequest({action: "showLove"});
 chrome.extension.onRequest.addListener( function(thing, buddy, callback) {switch (thing.action) {
 	case "getLove":
