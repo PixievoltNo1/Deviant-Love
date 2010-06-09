@@ -7,8 +7,14 @@
 		"message": "An artist-centered view of a deviantART Faves page",
 		"description": "Extension's description as it appears on Chrome's Extensions page"
 	},
-	"scanMessage": {
-		"message": "Scanning Faves page..."
+	"scanningFeatured": {
+		"message": "Scanning featured faves..."
+	},
+	"scanningAll": {
+		"message": "Scanning all faves..."
+	},
+	"scanningCollection": {
+		"message": "Scanning Collection..."
 	},
 	"scanProgress": {
 		"message": "$1 deviations scanned"
@@ -16,13 +22,17 @@
 	"scanError": {
 		"message": "Communication with deviantART was unsuccessful. If you close and re-open this popup, you might have better luck next time."
 	},
-	"scanResultsLine1": {
-		"message": "This page has $1 faves",
-		"description": "First line of the Deviant Love popup's header"
+	"scanFeaturedResultsLine1": {
+		"message": "This page has $1 featured faves"
+	},
+	"scanAllResultsLine1": {
+		"message": "This page has $1 faves"
+	},
+	"scanCollectionResultsLine1": {
+		"message": "This Collection has $1 faves"
 	},
 	"scanResultsLine2": {
-		"message": "from $1 different artists!",
-		"description": "Second line of the Deviant Love popup's header"
+		"message": "from $1 different artists!"
 	},
 	"profile": {
 		"message": "Profile",
