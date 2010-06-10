@@ -9,7 +9,7 @@
 <script>
 var popupStates = {};
 chrome.extension.onRequest.addListener( function(thing, buddy) {switch (thing.action) {
-	case "showLove":
+	case "newLove":
 		popupStates[buddy.tab.id] = {};
 		chrome.pageAction.show(buddy.tab.id);
 	break;

@@ -6,35 +6,46 @@
 
 var baseFeedHref = document.querySelector('link[rel="alternate"][type="application/rss+xml"]')
 	.getAttribute("href");
-var pageType, feedHref, firstInit = true;
+var pageType, feedHref;
 	
 function findLove() {
+	// var deviantName = document.querySelector(".gruserbadge a.u").innerText;
 	if (location.hash == "" || location.hash.indexOf("#_featured") == 0) {
 		pageType = "featured";
-		feedHref = baseFeedHref;
+		document.body.removeEventListener("DOMSubtreeModified", CollectionCheck, false);
+		checkNewness(baseFeedHref);
 	} else if (location.hash.indexOf("#_browse") == 0) {
 		pageType = "allFaves";
-		feedHref = baseFeedHref.replace(/(favby%3A.+?)%2F[0-9]+(&)/, "$1$2");
+		document.body.removeEventListener("DOMSubtreeModified", CollectionCheck, false);
+		checkNewness(baseFeedHref.replace(/(favby%3A.+?)%2F[0-9]+(&)/, "$1$2"));
 	} else if (location.hash.charAt(1) == "/") {
-		return; // This content script started running on a deviation page, so don't allow the heart to appear.
+		// This is a deviation page, so do nothing
 	} else {
-		pageType = "collection";
-		var haystack = document.querySelector('.folderview-control').className; // The collection ID is in here somewhere
-		// TODO: The above querySelector may return null if dA changes their layout. Rewrite this to fail gracefully.
-		var collectionID = /gallery-([0-9]+)/.exec(haystack)[1];
-		feedHref = baseFeedHref.replace(/(favby%3A.+?%2F)[0-9]+(&)/, "$1" + collectionID + "$2");
+		// This is a Collection. Its ID number is hiding in an element of class "folderview-control folderview-control-gallery-<collectionID>".
+		// Said element may be present now or in the future.
+		CollectionCheck();
+		document.body.addEventListener("DOMSubtreeModified", CollectionCheck, false);
 	}
-	// var deviantName = document.querySelector(".gruserbadge a.u").innerText;
-	
-	chrome.extension.sendRequest({action: "showLove"});
-	if (firstInit) {
-		firstInit = false;
-		chrome.extension.onRequest.addListener( function(thing, buddy, callback) {switch (thing.action) {
-			case "getLove":
-				callback({"feedHref": feedHref, "pageType": pageType});
-			break;
-		}} );
+	function CollectionCheck() {
+		var IDHolder = document.querySelector('.folderview-control');
+		if (IDHolder === null) { return; }
+		var CollectionID = /gallery-([0-9]+)/.exec(IDHolder.className)[1];
+		pageType = "collection";
+		checkNewness(baseFeedHref.replace(/(favby%3A.+?%2F)[0-9]+(&)/, "$1" + CollectionID + "$2"));
 	}
 }
 findLove();
 addEventListener("hashchange", findLove, false);
+
+function checkNewness(possibleNewness) {
+	if (possibleNewness != feedHref) {
+		feedHref = possibleNewness;
+		// background.html most be notified of this newness!
+		chrome.extension.sendRequest({action: "newLove"});
+	}
+}
+chrome.extension.onRequest.addListener( function(thing, buddy, callback) {switch (thing.action) {
+	case "getLove":
+		callback({"feedHref": feedHref, "pageType": pageType});
+	break;
+}} );
