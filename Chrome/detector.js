@@ -11,6 +11,10 @@ var pageType, feedHref;
 function findLove() {
 	// var deviantName = document.querySelector(".gruserbadge a.u").innerText;
 	if (location.hash == "" || location.hash.indexOf("#_featured") == 0) {
+		// On occasion, you can spot a wild search component prowling through the URLs of such Faves pages as LostKitten's.
+		// In order for this code to work properly, it must be shot. Cruel, but that's extension development.
+		if (location.search != "") {location.search = ""}
+		
 		pageType = "featured";
 		document.body.removeEventListener("DOMSubtreeModified", CollectionCheck, false);
 		checkNewness(baseFeedHref);
