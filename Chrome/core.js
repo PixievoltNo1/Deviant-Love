@@ -43,7 +43,18 @@ function fulfillPurpose(popup) {
 		}, 10);
 	} else {
 		var preparationScreen = $("<div>", {id: "preparationScreen"}).appendTo(popup.doc);
-		$("<div>", {id: "scanMessage"}).text(chrome.i18n.getMessage("scanMessage"))
+		switch (popup.pageType) {
+			case "featured":
+				var scanning = "scanningFeatured";
+			break;
+			case "allFaves":
+				var scanning = "scanningAll";
+			break;
+			case "collection":
+				var scanning = "scanningCollection";
+			break;
+		}
+		$("<div>", {id: "scanMessage"}).text(chrome.i18n.getMessage(scanning))
 			.appendTo(preparationScreen);
 		var scanProgress = $("<div>", {id: "scanProgress"}).appendTo(preparationScreen);
 		$.ajaxSetup({
@@ -98,9 +109,20 @@ function fulfillPurpose(popup) {
 	function deviantDisplay() {
 		mainScreen.appendTo(popup.doc);
 		
+		switch (popup.pageType) {
+			case "featured":
+				var scanResultsLine1 = "scanFeaturedResultsLine1";
+			break;
+			case "allFaves":
+				var scanResultsLine1 = "scanAllResultsLine1";
+			break;
+			case "collection":
+				var scanResultsLine1 = "scanCollectionResultsLine1";
+			break;
+		}
 		$("<div>", {id: "scanResults"})
 			.append($("<div>", {id: "scanResultsLine1"}).html(chrome.i18n.getMessage(
-				"scanResultsLine1", '<span id="faveCount">' + totalDeviations.toString() + '</span>')))
+				scanResultsLine1, '<span id="faveCount">' + totalDeviations.toString() + '</span>')))
 			.append($("<div>", {id: "scanResultsLine2"}).html(chrome.i18n.getMessage(
 				"scanResultsLine2", '<span id="deviantCount">' + deviantList.length.toString() + '</span>')))
 			.appendTo(mainScreen);
