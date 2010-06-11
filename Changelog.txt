@@ -1,3 +1,0 @@
-1.0 (Apr 3, 2010): Initial (short-lived) release
-1.0.1 (Apr 3, 2010): Corrected the extension's link to its deviation page
-1.0.2 (Apr 13, 2010): Middle-clicking a link in Deviant Love now works just like middle-clicking a link in a Web page, and a bug was fixed that would cause odd things to happen if you opened the popup, closed it before it was done scanning, and then opened it again.
