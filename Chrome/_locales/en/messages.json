@@ -1,8 +1,4 @@
 {
-	"extName": {
-		"message": "Deviant Love",
-		"description": "Extension's name as it appears on Chrome's Extensions page"
-	},
 	"extDesc": {
 		"message": "An artist-centered view of a deviantART Faves page",
 		"description": "Extension's description as it appears on Chrome's Extensions page"
