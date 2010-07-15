@@ -4,4 +4,4 @@
 	- Eliminate dependency on chrome.i18n (create new functions l10nText & l10nFile)
 	- Eliminate dependency on localStorage
 	- Make dependency on CSS Transitions optional (or wait for Firefox 4.0)
-	- Figure out how to display the Deviant Love popup
+	[CANCELLED] Figure out how to display the Deviant Love popup

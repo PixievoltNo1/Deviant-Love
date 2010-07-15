@@ -1,12 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<overlay id="DeviantLove-overlay" xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+<?xml-stylesheet href="chrome://DeviantLove/content/overlay.css"?>
+<overlay id="Deviant-Love-overlay" xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
 	<script src="overlay.js"/>
 
 	<hbox id="urlbar-icons">
-		<image id="Deviant-Love-Heart" class="urlbar-icon"
-			src="chrome://DeviantLove/content/16Icon.png" popup="Deviant-Love" tooltiptext="Deviant Love" position="1"/>
+		<button id="Deviant-Love-Heart" class="plain urlbar-icon" tooltiptext="Deviant Love" position="1"/>
 	</hbox>
-	<panel id="Deviant-Love" position="after_end">
-		<iframe src="chrome://DeviantLove/content/popup.html"/>
-	</panel>
 </overlay>
