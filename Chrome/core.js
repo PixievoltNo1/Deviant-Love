@@ -31,18 +31,18 @@ function fulfillPurpose(popup) {
 		$("<div>").css({
 			width: popup.state.mainScreenWidth || 10,
 			height: popup.state.mainScreenHeight || 10
-		}).appendTo(popup.doc);
+		}).appendTo(document.body);
 		setTimeout(function() {
-			popup.doc.empty();
+			$("body").empty();
 			if (popup.state.doc) {
-				mainScreen = $((popup.doc[0].ownerDocument).importNode(popup.state.doc, true)).appendTo(popup.doc);
-				$("#lovedArtists", popup.doc).scrollTop(popup.state.scrollPos);
+				mainScreen = $(document.importNode(popup.state.doc, true)).appendTo(document.body);
+				$("#lovedArtists").scrollTop(popup.state.scrollPos);
 				eventSetup();
 				tipOfTheMoment();
 			} else { deviantDisplay() }
 		}, 10);
 	} else {
-		var preparationScreen = $("<div>", {id: "preparationScreen"}).appendTo(popup.doc);
+		var preparationScreen = $("<div>", {id: "preparationScreen"}).appendTo(document.body);
 		switch (popup.pageType) {
 			case "featured":
 				var scanning = "scanningFeatured";
@@ -107,7 +107,7 @@ function fulfillPurpose(popup) {
 		}
 	}
 	function deviantDisplay() {
-		mainScreen.appendTo(popup.doc);
+		mainScreen.appendTo(document.body);
 		
 		switch (popup.pageType) {
 			case "featured":
@@ -156,15 +156,15 @@ function fulfillPurpose(popup) {
 		// localStorage.nextTip is 1-based, but JavaScript array indexes are 0-based. Oh well.
 		var nextTip = localStorage.nextTip || 1;
 		$.getJSON(chrome.i18n.getMessage("tipsFile"), function(tips) {
-			$("#tipOfTheMoment", popup.doc).html(tips[nextTip - 1]);
+			$("#tipOfTheMoment").html(tips[nextTip - 1]);
 			nextTip++;
 			if (nextTip > tips.length) {nextTip = 1}
 			localStorage.nextTip = nextTip;
 		} );
 	}
 	function eventSetup() {
-		$("#lovedArtists", popup.doc).delegate(".deviant:not(.opened)", "click", function() {
-			$(".closerLook", popup.doc).parent().removeClass("opened").end().css("-webkit-transition-duration", ".39s")
+		$("#lovedArtists").delegate(".deviant:not(.opened)", "click", function() {
+			$(".closerLook").parent().removeClass("opened").end().css("-webkit-transition-duration", ".39s")
 				.one("webkitTransitionEnd", function() { $(this).remove(); } ).height(0);
 			
 			var deviant = deviantBag[$(".deviantName", this).text()];
@@ -197,9 +197,9 @@ function fulfillPurpose(popup) {
 		} ).scroll(function() {popup.state.scrollPos = $(this).scrollTop()});
 	}
 	function scrollToDeviationList() {
-		// For the most part, it's actually easier NOT to use jQuery here.
-		var lovedArtistsElem = $("#lovedArtists", popup.doc)[0];
-		var openedDeviantElem = $(".opened.deviant", popup.doc)[0];
+		// It's actually easier NOT to use jQuery here.
+		var lovedArtistsElem = document.getElementById("lovedArtists");
+		var openedDeviantElem = document.querySelector(".opened.deviant");
 		var scroll = lovedArtistsElem.scrollTop;
 		if (scroll + lovedArtistsElem.clientHeight <
 			openedDeviantElem.offsetTop + openedDeviantElem.offsetHeight) {

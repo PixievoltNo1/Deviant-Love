@@ -13,7 +13,7 @@ var bgPage = chrome.extension.getBackgroundPage();
 $(document).ready( function() {
 	chrome.tabs.getSelected(null, function(buddyTab) {
 		chrome.tabs.sendRequest(buddyTab.id, {action: "getLove"}, function(love) {
-			fulfillPurpose({doc: $("body"), state: bgPage.popupStates[buddyTab.id],
+			fulfillPurpose({state: bgPage.popupStates[buddyTab.id],
 				feedHref: love.feedHref, pageType: love.pageType});
 		} );
 	} );
