@@ -5,19 +5,38 @@
 -->
 <!doctype html>
 <html>
-<link rel="stylesheet" href="builtinskin.css" type="text/css">
+<link rel="stylesheet" href="core/builtinskin.css" type="text/css">
 <script type="text/javascript" src="jquery.js"></script>
-<script type="text/javascript" src="core.js"></script>
+<script type="text/javascript" src="core/core.js"></script>
 <script type="text/javascript">
-var bgPage = chrome.extension.getBackgroundPage();
 $(document).ready( function() {
-	chrome.tabs.getSelected(null, function(buddyTab) {
-		chrome.tabs.sendRequest(buddyTab.id, {action: "getLove"}, function(love) {
-			fulfillPurpose({state: bgPage.popupStates[buddyTab.id],
-				feedHref: love.feedHref, pageType: love.pageType});
-		} );
-	} );
+	$("body").css({margin: 0});
+	chrome.extension.sendRequest({action: "popupSetup", width: document.body.offsetWidth + "px"},
+		function(initData) {
+			setL10n(initData.l10n);
+			fulfillPurpose(initData.pageType);
+			listenIn(chrome.extension.connect({name: "fetchFeedData"}));
+		}
+	)
 } );
+function listenIn(port) {
+	port.onMessage.addListener(function(thing) {collectData(thing)});
+}
+chrome.extension.onRequest.addListener(function(thing, buddy, callback) {switch (thing.action) {
+	case "changeTip":
+		tipOfTheMoment(thing.tip);
+		callback();
+	break;
+	case "scanningComplete":
+		scanDone_startFun(thing.tip);
+	break;
+	case "scanError":
+		scanError();
+	break;
+}});
+function scanRetry() {
+	chrome.extension.sendRequest({action: "scanRetry"});
+}
 $(document).delegate("a", "mouseup", function() {
 	window.open(this.href);
 } );

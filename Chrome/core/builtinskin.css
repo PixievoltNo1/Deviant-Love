@@ -1,24 +1,35 @@
 body {
+	background-color: white;
 	color: black;
 	font-family: sans-serif;
+	width: 444px;
 }
 * {
 	-moz-box-sizing: border-box;
 	-webkit-box-sizing: border-box;
 	box-sizing: border-box; /* For future-proofing */
 }
-#preparationScreen, #mainScreen > div {
-	width: 420px;
-}
-#preparationScreen {
-	height: 120px;
-	cursor: wait;
+body > div {
+	position: fixed;
+	top: 12px;
+	bottom: 12px;
+	left: 12px;
+	right: 12px;
 }
 #scanMessage {
 	font-size: 200%;
 	margin-bottom: 10px;
 }
+#mainScreen {
+	display: -moz-box;
+	display: -webkit-box;
+	display: box; /* For future-proofing */
+	-moz-box-orient: vertical;
+	-webkit-box-orient: vertical;
+	box-orient: vertical; /* For future-proofing */
+}
 #mainScreen > div {
+	width: 420px;
 	border: 1px solid black;
 }
 #mainScreen > div + div {
@@ -39,7 +50,9 @@ body {
 	font-weight: bold;
 }
 #lovedArtists {
-	height: 26em;
+	-moz-box-flex: 1;
+	-webkit-box-flex: 1;
+	box-flex: 1; /* For future-proofing */
 }
 #lovedArtists, .closerLook {
 	background-color: hsl(350, 100%, 54%);
@@ -123,7 +136,7 @@ body {
 	padding-left: 3px;
 	position: relative;
 }
-#tipOfTheMoment > img {
+#tOTMIcon {
 	float: left;
 	margin-right: 3px;
 }

@@ -7,14 +7,16 @@
 var baseFeedHref = document.querySelector('link[rel="alternate"][type="application/rss+xml"]')
 	.getAttribute("href");
 var pageType, feedHref;
-	
+
 function findLove() {
 	// var deviantName = document.querySelector(".gruserbadge a.u").innerText;
 	if (location.hash == "" || location.hash.indexOf("#_featured") == 0) {
 		// On occasion, you can spot a wild search component prowling through the URLs of such Faves pages as LostKitten's.
-		// In order for this code to work properly, it must be shot. Cruel, but that's extension development.
-		if (location.search != "") {location.search = ""}
-		
+		// These wild search components specify Collection IDs, which make baseFeedHref point to the wrong file.
+		// In order for this code to work properly, they must be shot. Cruel, but that's extension development.
+		// Avoid killing harmless search components such as ?offset=24.
+		if (location.search != "" && location.search.search(/\d+/) == 1) {location.search = ""}
+
 		pageType = "featured";
 		document.body.removeEventListener("DOMSubtreeModified", CollectionCheck, false);
 		checkNewness(baseFeedHref);
@@ -44,12 +46,18 @@ addEventListener("hashchange", findLove, false);
 function checkNewness(possibleNewness) {
 	if (possibleNewness != feedHref) {
 		feedHref = possibleNewness;
-		// background.html most be notified of this newness!
-		chrome.extension.sendRequest({action: "newLove"});
+		// For background.html
+		chrome.extension.sendRequest({action: "showLove"});
+		// For manager.js - they may become a separate function
+		popupStage = "uninitialized";
+		popup.src = "";
 	}
 }
 chrome.extension.onRequest.addListener( function(thing, buddy, callback) {switch (thing.action) {
-	case "getLove":
-		callback({"feedHref": feedHref, "pageType": pageType});
+	case "getFeedHref":
+		callback(feedHref);
+	break;
+	case "getPageType":
+		callback(pageType);
 	break;
 }} );

@@ -1,7 +1,4 @@
 - Add the find bar
 - Show something nice when an avatar is loading
 - Port to Firefox
-	- Eliminate dependency on chrome.i18n (create new functions l10nText & l10nFile)
-	- Eliminate dependency on localStorage
 	- Make dependency on CSS Transitions optional (or wait for Firefox 4.0)
-	[CANCELLED] Figure out how to display the Deviant Love popup

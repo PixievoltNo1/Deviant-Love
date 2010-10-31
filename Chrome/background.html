@@ -5,14 +5,123 @@
 -->
 <!doctype html>
 <html>
+<script src="jquery.js"></script>
 <script>
-var popupStates = {};
-chrome.extension.onRequest.addListener( function(thing, buddy) {switch (thing.action) {
-	case "newLove":
-		popupStates[buddy.tab.id] = {};
+var tips, popupText;
+chrome.extension.onRequest.addListener( function(thing, buddy, callback) {switch (thing.action) {
+	case "showLove":
 		chrome.pageAction.show(buddy.tab.id);
 	break;
+	case "popupSetup":
+		if (popupText == undefined) {
+			$.getJSON(chrome.i18n.getMessage("popupTextFile"), function(goodStuff) {
+				popupText = goodStuff;
+				huggle();
+			})
+		} else { huggle(); }
+		function huggle() {
+			chrome.tabs.sendRequest(buddy.tab.id, {action: "getPageType"}, function(pageType) {
+				callback({"pageType": pageType, "l10n": popupText});
+			} );
+		}
+
+		chrome.tabs.sendRequest(buddy.tab.id, {action: "popupReady", width: thing.width})
+	break;
+	case "popupActivation":
+		if (thing.popupStage == "love") {
+			getTip(function(tip) {chrome.tabs.sendRequest(buddy.tab.id,
+				{action: "changeTip", "tip": tip}, callback)});
+		} else {
+			callback();
+		}
+	break;
 }} );
+chrome.pageAction.onClicked.addListener( function(buddy) {
+	chrome.tabs.sendRequest(buddy.id, {action: "spark"});
+} );
+function getTip(callback) {
+	// localStorage.nextTip is 1-based, but JavaScript array indexes are 0-based. Oh well.
+	var nextTip = localStorage.nextTip || 1;
+	if (tips == undefined) {
+		$.getJSON(chrome.i18n.getMessage("tipsFile"), function(tops) {
+			tips = tops;
+			tap();
+		})
+	} else { tap(); }
+	function tap() {
+		callback(tips[nextTip - 1]);
+		nextTip++;
+		if (nextTip > tips.length) {nextTip = 1}
+		localStorage.nextTip = nextTip;
+	}
+}
+chrome.extension.onConnect.addListener( function(port) {
+	var buddyActive = true, resume, currentXHR, currentURL;
+	chrome.extension.onRequest.addListener(stateChangeReaction);
+	function stateChangeReaction(thing, buddy) {if (buddy.tab.id == port.sender.tab.id) {
+		if (thing.action == "popupActivation") {
+			buddyActive = true;
+			if (resume) {
+				resume();
+				resume = null;
+			}
+		} else if (thing.action == "popupDeactivation") {
+			buddyActive = false;
+		}
+	}}
+	var ajaxSettings = {
+		dataType: "xml",
+		beforeSend: function(XHR) {currentXHR = XHR},
+		success: scanFeed,
+		error: function() {
+			chrome.extension.onRequest.addListener( function scanRetry(thing, buddy, callback) {
+				if (buddy.tab.id == port.sender.tab.id && thing.action == "scanRetry") {
+					$.ajax( $.extend( {}, ajaxSettings, {url: currentURL} ) );
+					chrome.extension.onRequest.removeListener(scanRetry);
+				}
+			} );
+			chrome.tabs.sendRequest(port.sender.tab.id, {action: "scanError"});
+			}
+	};
+	chrome.tabs.sendRequest(port.sender.tab.id, {action: "getFeedHref"}, function(feedHref) {
+		currentURL = feedHref;
+		$.ajax( $.extend( {}, ajaxSettings, {url: currentURL} ) );
+	} );
+	function scanFeed(feed) {
+		var data = [];
+		$("item", feed).each( function() {
+			var item = {
+				deviationName: $("title:eq(0)", this).text(),
+				deviationPage: $("link", this).text(),
+				artistName: $('[role="author"]:eq(0)', this).text(),
+				artistAvatar: $('[role="author"]:eq(1)', this).text(),
+				artistProfile: $("copyright", this).attr("url")
+			};
+			item.artistGallery = item.artistProfile + "/gallery/";
+			data.push(item);
+		} );
+		port.postMessage(data);
+		var nextPage = $('channel > [rel="next"]', feed);
+		if (nextPage.length >= 1) {
+			currentURL = nextPage.attr("href");
+			if (buddyActive) {
+				$.ajax( $.extend( {}, ajaxSettings, {url: currentURL} ) );
+			} else {
+				resume = function() {$.ajax( $.extend( {}, ajaxSettings, {url: currentURL} ) )};
+			}
+		} else {
+			getTip(function(tip) {
+				chrome.extension.onRequest.removeListener(stateChangeReaction);
+				chrome.tabs.sendRequest(port.sender.tab.id, {action: "scanningComplete", "tip": tip});
+				port.disconnect();
+			});
+		}
+	}
+	port.onDisconnect.addListener(function() {
+		currentXHR.abort();
+		chrome.extension.onRequest.removeListener(stateChangeReaction);
+	})
+} );
 </script>
 <body></body>
 </html>
