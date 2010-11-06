@@ -1,0 +1,21 @@
+= OH HAI =
+
+This is where the geekery that goes into Deviant Love happens. If you do not wish to partake in the geekery, but rather seek to install Deviant Love or have it described to you, see [[http://fav.me/d2my13o|its page on deviantART]].
+
+= To Engage In Chrome/Chromium Geekery =
+
+No special tools are needed! The Chrome folder is the unpacked Deviant Love extension, ready for hacking or testing! To run the unpacked extension in Chrome/Chromium, go to [[http://code.google.com/chrome/extensions/getstarted.html]] and skip ahead to the "Load the extension" step.
+
+= To Engage In Firefox Geekery =
+
+Well, umm, some of the Firefox files are kept in the Chrome folder, haha. In order to get a working Firefox extension, you must copy folders like so:
+* Chrome/core/ → Firefox/content/core/
+* Chrome/_locales/ → Firefox/_locales/
+
+To test the Firefox extension, I recommend following [[https://developer.mozilla.org/en/Building_an_Extension#Test|these directions]].
+
+To avoid duplicate files across the two forms of Deviant Love, .gitignore will prevent Git from allowing the Firefox copies to be committed, so make sure that if you change anything it gets copied back. Consider using a tool such as [[http://rsync.samba.org/|rsync]] to keep each folder pair synchronized.
+
+= KTHXBAI =
+
+If you have any questions, feel free to either send me a dA Note or leave a comment on [[http://fav.me/d2my13o|the deviation page]], whichever you feel is more appropriate.

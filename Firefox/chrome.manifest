@@ -1,5 +1,5 @@
 content   DeviantLove        content/
-locale    DeviantLove   en   locale/en/
+locale    DeviantLove   en   _locales/en/
 
 
 overlay   chrome://browser/content/browser.xul   chrome://DeviantLove/content/overlay.xul
