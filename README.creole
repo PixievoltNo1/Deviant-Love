@@ -10,7 +10,7 @@ No special tools are needed! The Chrome folder is the unpacked Deviant Love exte
 
 Well, umm, some of the Firefox files are kept in the Chrome folder, haha. In order to get a working Firefox extension, you must copy folders like so:
 * Chrome/core/ → Firefox/content/core/
-* Chrome/_locales/ → Firefox/_locales/
+* Chrome/_locales/ → Firefox/_locales/ (it is not necessary to copy messages.json files)
 
 To test the Firefox extension, I recommend following [[https://developer.mozilla.org/en/Building_an_Extension#Test|these directions]].
 

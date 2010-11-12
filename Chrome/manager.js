@@ -40,6 +40,11 @@ chrome.extension.onRequest.addListener( function(thing, buddy, callback) {switch
 	break;
 }} );
 
+addEventListener("resize", function() {
+	popupCSS.height = (window.innerHeight - 22) + "px";
+	if (popupState == "inactive") { popupCSS.bottom = window.innerHeight + "px"; }
+}, false);
+
 function activate(popupText) {
 	if (popupStage == "uninitialized") {
 		chrome.extension.onRequest.addListener( function popupReady(thing, buddy, callback) {
