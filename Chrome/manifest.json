@@ -15,7 +15,7 @@
 	},
 	"content_scripts": [{
 		"matches": ["http://*.deviantart.com/favourites/*"],
-		"js": ["manager.js", "detector.js"],
+		"js": ["core/detector.js", "manager.js"],
 		"run_at": "document_end"
 	}],
 

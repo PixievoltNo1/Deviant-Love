@@ -4,6 +4,11 @@
 	Check core.js for the complete legal stuff.
 */
 
+function loveDetector(onDetection, favesWindow) {
+var win = favesWindow || window;
+var document = win.document;
+var location = win.location;
+
 var baseFeedHref = document.querySelector('link[rel="alternate"][type="application/rss+xml"]')
 	.getAttribute("href");
 var pageType, feedHref;
@@ -24,8 +29,8 @@ function findLove() {
 		pageType = "allFaves";
 		document.body.removeEventListener("DOMSubtreeModified", CollectionCheck, false);
 		checkNewness(baseFeedHref.replace(/(favby%3A.+?)%2F[0-9]+(&)/, "$1$2"));
-	} else if (location.hash.charAt(1) == "/") {
-		// This is a deviation page, so do nothing
+	} else if (location.hash.charAt(1) == "/" || location.hash.indexOf("#_edit_") == 0) {
+		// This is a deviation or edit page, so do nothing
 	} else {
 		// This is a Collection. Its ID number is hiding in an element of class "folderview-control folderview-control-gallery-<collectionID>".
 		// Said element may be present now or in the future.
@@ -41,23 +46,13 @@ function findLove() {
 	}
 }
 findLove();
-addEventListener("hashchange", findLove, false);
+win.addEventListener("hashchange", findLove, false);
 
 function checkNewness(possibleNewness) {
 	if (possibleNewness != feedHref) {
 		feedHref = possibleNewness;
-		// For background.html
-		chrome.extension.sendRequest({action: "showLove"});
-		// For manager.js - they may become a separate function
-		popupStage = "uninitialized";
-		popup.src = "";
+		onDetection({"feedHref": feedHref, "pageType": pageType}, win);
 	}
 }
-chrome.extension.onRequest.addListener( function(thing, buddy, callback) {switch (thing.action) {
-	case "getFeedHref":
-		callback(feedHref);
-	break;
-	case "getPageType":
-		callback(pageType);
-	break;
-}} );
+
+}
