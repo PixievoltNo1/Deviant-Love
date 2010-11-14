@@ -15,6 +15,12 @@
 	You should have received a copy of the GNU General Public License
 	along with Deviant Love.  If not, see <http://www.gnu.org/licenses/>.
 */
+/* Defined elsewhere:
+	- $ (jQuery)
+	- New Array methods in ECMAScript 5th Edition
+	- scanRetry function
+	- cssTransitions object
+*/
 
 function fulfillPurpose(pageType) {
 	var deviantList = [];
@@ -107,8 +113,13 @@ function fulfillPurpose(pageType) {
 		// Set up interaction
 		// TODO: Make this browser-agnostic
 		$("#lovedArtists").delegate(".deviant:not(.opened)", "click", function() {
-			$(".closerLook").parent().removeClass("opened").end().css("-webkit-transition-duration", ".39s")
-				.one("webkitTransitionEnd", function() { $(this).remove(); } ).height(0);
+			$(".opened.deviant").removeClass("opened");
+			if (!cssTransitions) {
+				$(".closerLook").remove();
+			} else {
+				$(".closerLook").one(cssTransitions.eventName,
+					function() { $(this).remove(); } ).height(0);
+			}
 
 			var deviant = deviantBag[$(".deviantName", this).text()];
 			var closerLook = $("<div>", {"class": "closerLook"});
@@ -132,9 +143,13 @@ function fulfillPurpose(pageType) {
 			deviationList.appendTo(closerLook);
 
 			closerLook.css("overflow", "hidden").appendTo(this);
-			var closerLookHeight = closerLook.height();
-			closerLook.height(0).css("-webkit-transition", "height 0.4s ease")
-				.one("webkitTransitionEnd", scrollToDeviationList).height(closerLookHeight);
+			if (!cssTransitions) {
+				scrollToDeviationList();
+			} else {
+				var closerLookHeight = closerLook.height();
+				closerLook.height(0).css(cssTransitions.propertyName, "height 0.4s ease")
+					.one(cssTransitions.eventName, scrollToDeviationList).height(closerLookHeight);
+			}
 			$(this).addClass("opened");
 		} );
 

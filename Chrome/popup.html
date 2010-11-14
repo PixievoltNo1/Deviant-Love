@@ -37,6 +37,10 @@ chrome.extension.onRequest.addListener(function(thing, buddy, callback) {switch 
 function scanRetry() {
 	chrome.extension.sendRequest({action: "scanRetry"});
 }
+var cssTransitions = {
+	eventName: "webkitTransitionEnd",
+	propertyName: "-webkit-transition"
+};
 $(document).delegate("a", "click", function(event) {
 	if (event.button == 0) { window.open(this.href); }
 	event.preventDefault();
