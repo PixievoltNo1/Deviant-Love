@@ -55,4 +55,7 @@ function checkNewness(possibleNewness) {
 	}
 }
 
+return function cleanup() {
+	win.removeEventListener("hashchange", findLove, false);
+}
 }

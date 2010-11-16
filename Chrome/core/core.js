@@ -111,7 +111,6 @@ function fulfillPurpose(pageType) {
 		tipOfTheMoment(firstTip);
 
 		// Set up interaction
-		// TODO: Make this browser-agnostic
 		$("#lovedArtists").delegate(".deviant:not(.opened)", "click", function() {
 			$(".opened.deviant").removeClass("opened");
 			if (!cssTransitions) {
