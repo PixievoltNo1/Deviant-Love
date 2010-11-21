@@ -59,7 +59,7 @@ loveDetector( function(newPageData) {
 	popup.src = "";
 } );
 
-function activate(popupText) {
+function activate() {
 	if (popupStage == "uninitialized") {
 		chrome.extension.onRequest.addListener( function popupReady(thing, buddy, callback) {
 			if (thing.action == "popupReady") {
