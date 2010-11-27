@@ -29,7 +29,7 @@ shieldCSS.WebkitTransition = "opacity 0.6s linear";
 document.body.appendChild(shield);
 var popupState = "inactive";
 var popupStage = "uninitialized";
-var pageData = {};
+var pageData = findLove();
 
 chrome.extension.onRequest.addListener( function(thing, buddy, callback) {switch (thing.action) {
 	case "spark":
@@ -46,18 +46,12 @@ chrome.extension.onRequest.addListener( function(thing, buddy, callback) {switch
 		callback(pageData.pageType);
 	break;
 }} );
+chrome.extension.sendRequest({action: "showLove"});
 
 addEventListener("resize", function() {
 	popupCSS.height = (window.innerHeight - 22) + "px";
 	if (popupState == "inactive") { popupCSS.bottom = window.innerHeight + "px"; }
 }, false);
-
-loveDetector( function(newPageData) {
-	pageData = newPageData;
-	chrome.extension.sendRequest({action: "showLove"});
-	popupStage = "uninitialized";
-	popup.src = "";
-} );
 
 function activate() {
 	if (popupStage == "uninitialized") {

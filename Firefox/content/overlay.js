@@ -28,7 +28,7 @@ window.addEventListener("load", function() {
 		if (!win.DeviantLove &&
 			(/http:\/\/[a-zA-Z\d\-]+\.deviantart\.com\/favourites\//).test(win.location)) {
 			win.DeviantLove = {};
-			if (!goodies.loveDetector) {loadGoodies();};
+			if (!goodies.findLove) {loadGoodies();};
 			win.DeviantLove.popup = goodies.$("#DeviantLovePopup", win.document);
 			if (win.DeviantLove.popup.length > 0) {
 				win.DeviantLove.shield = goodies.$("#DeviantLoveShield", win.document);
@@ -59,19 +59,14 @@ window.addEventListener("load", function() {
 					}).attr("id", "DeviantLoveShield").appendTo(win.document.body);
 				win.DeviantLove.popupState = "inactive";
 			}
-			win.DeviantLove.cleanup = goodies.loveDetector(loveFound, win);
+			win.DeviantLove.pageData = goodies.findLove(win);
 		}
-	}
-	function loveFound(pageData, win) {
-		win.DeviantLove.pageData = pageData;
-		checkLove();
 	}
 	document.getElementById("appcontent").addEventListener("pagehide", function(event) {
 		var win = event.originalTarget.defaultView;
 		if (win.DeviantLove) {
 			win.DeviantLove.popup.stop(true, true);
 			win.DeviantLove.shield.stop(true, true);
-			win.DeviantLove.cleanup();
 			win.DeviantLove = null;
 			checkLove();
 		}
@@ -82,7 +77,7 @@ window.addEventListener("load", function() {
 
 	var heart = document.getElementById("Deviant-Love-Heart");
 	function checkLove() {
-		var lovePresent = Boolean(content.DeviantLove && content.DeviantLove.pageData);
+		var lovePresent = Boolean(content.DeviantLove);
 		heart.hidden = !lovePresent;
 	}
 	heart.addEventListener("command", function() {
@@ -106,5 +101,4 @@ window.addEventListener("load", function() {
 		DLove.shield.show().animate({opacity: "0"}, 600, "linear").unbind("click");
 		DLove.popupState = "deactivating";
 	}
-	// TODO: function deactivate
 }, false);
