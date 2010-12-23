@@ -65,9 +65,7 @@ function activate() {
 		} );
 		popup.src = chrome.extension.getURL("popup.html");
 	} else {
-		chrome.extension.sendRequest({action: "popupActivation", "popupStage": popupStage}, function() {
-			reveal();
-		} );
+		chrome.extension.sendRequest({action: "popupActivation", "popupStage": popupStage}, reveal);
 	}
 	popupCSS.display = "";
 	shieldCSS.display = "";

@@ -7,24 +7,16 @@
 <html>
 <script src="core/jquery.js"></script>
 <script>
-var tips, popupText;
 chrome.extension.onRequest.addListener( function(thing, buddy, callback) {switch (thing.action) {
 	case "showLove":
 		chrome.pageAction.show(buddy.tab.id);
 	break;
 	case "popupSetup":
-		if (popupText == undefined) {
-			$.getJSON(chrome.i18n.getMessage("popupTextFile"), function(goodStuff) {
-				popupText = goodStuff;
-				huggle();
-			})
-		} else { huggle(); }
-		function huggle() {
+		getL10nFile("popupText", function(l10n) {
 			chrome.tabs.sendRequest(buddy.tab.id, {action: "getPageType"}, function(pageType) {
-				callback({"pageType": pageType, "l10n": popupText});
+				callback({"pageType": pageType, "l10n": l10n});
 			} );
-		}
-
+		} );
 		chrome.tabs.sendRequest(buddy.tab.id, {action: "popupReady", width: thing.width})
 	break;
 	case "popupActivation":
@@ -39,21 +31,27 @@ chrome.extension.onRequest.addListener( function(thing, buddy, callback) {switch
 chrome.pageAction.onClicked.addListener( function(buddy) {
 	chrome.tabs.sendRequest(buddy.id, {action: "spark"});
 } );
+var l10n = {};
+function getL10nFile(fileName, callback) {
+	if (l10n[fileName]) {
+		callback(l10n[fileName]);
+	} else {
+		$.get(chrome.i18n.getMessage(fileName + "File"), function(fileText) {
+			var newData = JSON.parse(fileText.match(/\{[\s\S]*\}|\[[\s\S]*\]/)[0]);
+			l10n[fileName] = newData;
+			callback(newData);
+		}, "text")
+	}
+}
 function getTip(callback) {
 	// localStorage.nextTip is 1-based, but JavaScript array indexes are 0-based. Oh well.
 	var nextTip = localStorage.nextTip || 1;
-	if (tips == undefined) {
-		$.getJSON(chrome.i18n.getMessage("tipsFile"), function(tops) {
-			tips = tops;
-			tap();
-		})
-	} else { tap(); }
-	function tap() {
+	getL10nFile("tips", function(tips) {
 		callback(tips[nextTip - 1]);
 		nextTip++;
 		if (nextTip > tips.length) {nextTip = 1}
 		localStorage.nextTip = nextTip;
-	}
+	} );
 }
 chrome.extension.onConnect.addListener( function(port) {
 	var buddyActive = true, resume, currentXHR, currentURL;

@@ -1,4 +1,4 @@
-{
+var popupText = {
 	"scanningFeatured": "Scanning featured faves...",
 	"scanningAll": "Scanning all faves...",
 	"scanningCollection": "Scanning Collection...",
