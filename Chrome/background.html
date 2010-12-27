@@ -17,7 +17,7 @@ chrome.extension.onRequest.addListener( function(thing, buddy, callback) {switch
 				callback({"pageType": pageType, "l10n": l10n});
 			} );
 		} );
-		chrome.tabs.sendRequest(buddy.tab.id, {action: "popupReady", width: thing.width})
+		chrome.tabs.sendRequest(buddy.tab.id, {action: "popupReady"})
 	break;
 	case "popupActivation":
 		if (thing.popupStage == "love") {

@@ -10,8 +10,7 @@
 <script type="text/javascript" src="core/core.js"></script>
 <script type="text/javascript">
 $(document).ready( function() {
-	$("body").css({margin: 0});
-	chrome.extension.sendRequest({action: "popupSetup", width: document.body.offsetWidth + "px"},
+	chrome.extension.sendRequest({action: "popupSetup"},
 		function(initData) {
 			setL10n(initData.l10n);
 			fulfillPurpose(initData.pageType);

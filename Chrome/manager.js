@@ -8,6 +8,7 @@ var popup = document.createElement("iframe"), popupCSS = popup.style;
 popupCSS.border = "2px solid black";
 popupCSS.borderTop = "0";
 popupCSS.height = (window.innerHeight - 22) + "px";
+popupCSS.width = "444px";
 popupCSS.position = "fixed";
 popupCSS.right = "50px";
 popupCSS.bottom = window.innerHeight + "px";
@@ -55,10 +56,9 @@ addEventListener("resize", function() {
 
 function activate() {
 	if (popupStage == "uninitialized") {
-		chrome.extension.onRequest.addListener( function popupReady(thing, buddy, callback) {
+		chrome.extension.onRequest.addListener( function popupReady(thing) {
 			if (thing.action == "popupReady") {
 				popupStage = "scanning";
-				popupCSS.width = thing.width;
 				reveal();
 				chrome.extension.onRequest.removeListener(popupReady);
 			}

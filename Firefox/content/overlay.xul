@@ -3,6 +3,11 @@
 <overlay id="Deviant-Love-overlay" xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
 	<script src="overlay.js"/>
 	<hbox id="urlbar-icons">
-		<button id="Deviant-Love-Heart" class="plain urlbar-icon" tooltiptext="Deviant Love" position="1" hidden="true"/>
+		<button id="Deviant-Love-Heart" class="plain urlbar-icon"
+			tooltiptext="Deviant Love" position="1" hidden="true" />
 	</hbox>
+	<broadcasterset id="mainBroadcasterSet"> 
+		<broadcaster id="DeviantLoveSidebar" group="sidebar"
+			sidebarurl="chrome://DeviantLove/content/sidebar.html" sidebartitle="Deviant Love" />
+	</broadcasterset>
 </overlay>

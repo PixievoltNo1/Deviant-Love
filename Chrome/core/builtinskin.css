@@ -2,7 +2,7 @@ body {
 	background-color: white;
 	color: black;
 	font-family: sans-serif;
-	width: 444px;
+	margin: 0;
 }
 * {
 	-moz-box-sizing: border-box;
@@ -29,22 +29,17 @@ body > div {
 	box-orient: vertical; /* For future-proofing */
 }
 #mainScreen > div {
-	width: 420px;
 	border: 1px solid black;
 }
 #mainScreen > div + div {
 	border-top: 0;
 }
 #scanResults {
-	height: 50px;
-	background: url("48Icon.png") no-repeat 5px 0;
+	background: url("48Icon.png") no-repeat;
+	background-position: 5px center;
 	background-color: hsl(40, 100%, 60%);
+	padding: 5px;
 	padding-left: 58px;
-	font-size: 16px;
-}
-#scanResults, #tipOfTheMoment {
-	display: table-cell;
-	vertical-align: middle;
 }
 #faveCount, #deviantCount {
 	font-weight: bold;
@@ -130,13 +125,14 @@ body > div {
 	background-color: hsl(350, 100%, 90%);
 }
 #tipOfTheMoment {
-	background-color: hsl(40, 100%, 65%);
-	font-size: 12px;
-	height: 21px; /* 1px added for the bottom border */
-	padding-left: 3px;
 	position: relative;
+	background-color: hsl(40, 100%, 65%);
+	font-size: 75%;
+	padding: 3px;
+	padding-left: 22px;
 }
 #tOTMIcon {
-	float: left;
-	margin-right: 3px;
+	position: absolute;
+	top: 3px;
+	left: 3px;
 }
