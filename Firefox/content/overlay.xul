@@ -1,9 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<?xml-stylesheet href="chrome://DeviantLove/content/overlay.css"?>
-<overlay id="Deviant-Love-overlay" xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
-	<script src="overlay.js"/>
-
-	<hbox id="urlbar-icons">
-		<button id="Deviant-Love-Heart" class="plain urlbar-icon" tooltiptext="Deviant Love" position="1"/>
-	</hbox>
-</overlay>
