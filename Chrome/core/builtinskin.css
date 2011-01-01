@@ -28,10 +28,10 @@ body > div {
 	-webkit-box-orient: vertical;
 	box-orient: vertical; /* For future-proofing */
 }
-#mainScreen > div {
+#mainScreen > * {
 	border: 1px solid black;
 }
-#mainScreen > div + div {
+#mainScreen > * + * {
 	border-top: 0;
 }
 #scanResults {
@@ -43,6 +43,36 @@ body > div {
 }
 #faveCount, #deviantCount {
 	font-weight: bold;
+}
+#findBar {
+	display: -moz-box;
+	display: -webkit-box;
+	display: box; /* For future-proofing */
+	-moz-box-orient: horizontal;
+	-webkit-box-orient: horizontal;
+	box-orient: horizontal; /* For future-proofing */
+	padding: 1px;
+}
+#findBar > * {
+	display: block;
+	margin: 1px;
+}
+#query {
+	-moz-box-flex: 1;
+	-webkit-box-flex: 1;
+	box-flex: 1; /* For future-proofing */
+}
+#findBar button {
+	width: 16px;
+	background-position: center;
+	background-repeat: no-repeat;
+	border: 0;
+}
+#goFind {
+	background: url("SilkIcons/magnifier.png");
+}
+#noFind {
+	background: url("SilkIcons/cancel.png");
 }
 #lovedArtists {
 	-moz-box-flex: 1;

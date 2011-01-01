@@ -1,4 +1,5 @@
-- Add the find bar
+* Add the find bar
+	- Add &, /, and ~ operators
 - Apply extra CSS for artists that are on the user's deviantWATCH for deviations
 - Show something nice when an avatar is loading
 - Port to Firefox

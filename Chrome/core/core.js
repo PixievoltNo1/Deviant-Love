@@ -93,16 +93,23 @@ function fulfillPurpose(pageType) {
 			.append($("<div>", {id: "scanResultsLine2"}).html(l10n.scanResultsLine2.replace("$1",
 				'<span id="deviantCount">' + deviantList.length.toString() + '</span>')))
 			.appendTo(mainScreen);
+		$("<form>", {id: "findBar"})
+			.append($("<input>", {type: "text", id: "query"}))
+			.append($("<button>", {id: "goFind"}))
+			.append($("<button>", {id: "noFind"}))
+			.appendTo(mainScreen);
+		// jQuery apparently refuses to set a button's type. "it causes problems in IE", they say.
+		$("#goFind")[0].setAttribute("type", "submit");
+		$("#noFind")[0].setAttribute("type", "button");
+		if ($("#query")[0].placeholder !== undefined) {
+			$("#query")[0].placeholder = l10n.queryPlaceholder;
+		} else {
+			// TODO: Add the placeholder text the hard way
+		}
 		var lovedArtists = $("<div>", {id: "lovedArtists"})
-			.css({"overflow-y": "auto", "overflow-x": "hidden"});
-			// don't call appendTo until we're done with this
-		deviantList.forEach( function(deviant) {
-			$("<div>", {"class": "deviant", id: "deviant_" + deviant.name})
-				.append($("<span>", {"class": "deviantFaves"}).text(deviant.deviations.length))
-				.append($("<span>", {"class": "deviantName"}).text(deviant.name))
-				.appendTo(lovedArtists);
-		} );
-		lovedArtists.appendTo(mainScreen);
+			.css({"overflow-y": "auto", "overflow-x": "hidden"})
+			.append(snackOnMyWrath(deviantList))
+			.appendTo(mainScreen);
 		if (lovedArtists.css("position") == "static") { lovedArtists.css("position", "relative") } // Needed for scrollToDeviationList. It's as weird as it to ensure future compatibility with the skinning feature.
 		$("<div>", {id: "tipOfTheMoment"})
 			.append($("<img>", {id: "tOTMIcon"}))
@@ -121,27 +128,8 @@ function fulfillPurpose(pageType) {
 			}
 
 			var deviant = deviantBag[$(".deviantName", this).text()];
-			var closerLook = $("<div>", {"class": "closerLook"});
-
-			var deviantDetails = $("<div>", {"class": "deviantDetails"});
-			deviantDetails.append($("<a>", {"href": deviant.profileURL}) // Note two opening parens and only one closing paren
-				.append($("<img>", {src: deviant.avatar, "class": "avatar", width: 50, height: 50})));
-			deviantDetails.append($("<div>", {"class": "deviantLinks"}) // Ditto
-				.append($("<a>", {"href": deviant.profileURL, "class": "profileLink",
-					title: l10n.profileLinkDescription}))
-				.append($("<a>", {"href": deviant.galleryURL, "class": "galleryLink",
-					title: l10n.galleryLinkDescription})));
-			deviantDetails.appendTo(closerLook);
-
-			var deviationList = $("<div>", {"class": "deviationList"});
-			deviant.deviations.forEach( function(deviation) {
-				$("<div>", {"class": "deviation"})
-					.append($("<a>", {href: deviation.URL}).text(deviation.name))
-					.appendTo(deviationList)
-			} );
-			deviationList.appendTo(closerLook);
-
-			closerLook.css("overflow", "hidden").appendTo(this);
+			var closerLook = buildCloserLook(deviant, deviant.deviations);
+			closerLook.appendTo(this);
 			if (!cssTransitions) {
 				scrollToDeviationList();
 			} else {
@@ -151,8 +139,80 @@ function fulfillPurpose(pageType) {
 			}
 			$(this).addClass("opened");
 		} );
+		$("#findBar").submit(findStuff);
+		$("#noFind").bind("click", function() {
+			if (mainScreen.hasClass("lookWhatIFound")) {
+				mainScreen.removeClass("lookWhatIFound");
+				$("#lovedArtists").empty().append(snackOnMyWrath(deviantList));
+			}
+		} );
 
 		$("body").css("cursor", "");
+	}
+	function findStuff(event) {
+		event.preventDefault();
+		if (queryTroubleCheck() != false) { return };
+		
+		// Everything related to advanced operators is being disabled for the 1.1 release, to avoid delaying it even further.
+		/*
+		var firstSplit = $("#query").val().split("~");
+		var ignoreList = firstSplit.slice(1);
+		var queryChunks = firstSplit[0].split("&");
+		*/
+		/* Temporary replacement */ var queryChunks = [$("#query").val()];
+		
+		// ignoreList = ignoreList.map( function(ignore) {return ignore.trim().toLowerCase()} );
+		queryChunks = queryChunks.map( function(chunk) {return chunk.trim().toLowerCase()} );
+		var checkDeviants = queryChunks.every( function(chunk) {
+			return (/[a-zA-Z0-9\-]+/).exec(chunk)[0] == chunk;
+		} );
+		
+		var deviantMatches = [];
+		var deviationMatches = [];
+		deviantList.forEach( function(deviant) {
+			if (checkDeviants && isMatch(deviant.name)) {
+				deviantMatches.push(deviant);
+			}
+			var deviantDeviationMatches = [];
+			deviant.deviations.forEach( function(deviation) {
+				if (isMatch(deviation.name)) {
+					deviantDeviationMatches.push(deviation);
+				}
+			} );
+			if (deviantDeviationMatches.length > 0) {
+				deviationMatches.push({"deviant": deviant, "deviations": deviantDeviationMatches});
+			}
+		} );
+		function isMatch(needle) {
+			needle = needle.toLowerCase();
+			/*
+			ignoreList.forEach( function(ignore) {
+				// My research tells me String.replace will only replace the first instance of its first parameter, unless said parameter is a global RegExp.
+				// But ignoreList doesn't consist of global RegExps, it consists of strings. The workaround?
+				needle = needle.split(ignore).join("~");
+			} );
+			*/
+			return queryChunks.every( function(chunk) {
+				return needle.indexOf(chunk) != -1;
+			} );
+		}
+		
+		$("#mainScreen").addClass("lookWhatIFound");
+		var lovedArtists = $("#lovedArtists").empty();
+		// TODO: Handle the "no results of any sort" case
+		if (deviantMatches.length > 0) {
+			lovedArtists.append( $("<div>", {"class": "foundHeader"})
+				.text(l10n.foundDeviants.replace("$1", deviantMatches.length)) )
+				.append(snackOnMyWrath(deviantMatches));
+		}
+		if (deviationMatches.length > 0) {
+			deviationMatches.forEach( function(found) {
+				lovedArtists.append( $("<div>", {"class": "foundHeader"})
+					.text(l10n.foundDeviations
+						.replace("$1", found.deviations.length).replace("$2", found.deviant.name))
+					.append(buildCloserLook(found.deviant,found.deviations)) );
+			} );
+		}
 	}
 }
 
@@ -162,7 +222,7 @@ function setL10n(object) {
 	// In the future, this will need to handle what happens when fulfillPurpose has already been called.
 }
 function tipOfTheMoment(tip) {
-	$("#tOTMIcon").attr("src", tip.icon);
+	$("#tOTMIcon").attr("src", "core/" + tip.icon);
 	$("#tOTMText").html(tip.html);
 }
 function scrollToDeviationList() {
@@ -179,4 +239,46 @@ function scrollToDeviationList() {
 		scroll = openedDeviantElem.offsetTop;
 	}
 	lovedArtistsElem.scrollTop = scroll;
+}
+// snackOnMyWrath and buildCloserLook are needed by both scanDone_startFun and findStuff
+function snackOnMyWrath(finkRats) {
+	// "You have energy like a little angry battery with no friends."
+	var rageDressing = $();
+	finkRats.forEach( function(deviant) {
+		rageDressing = rageDressing.add( $("<div>", {"class": "deviant", id: "deviant_" + deviant.name})
+			.append($("<span>", {"class": "deviantFaves"}).text(deviant.deviations.length))
+			.append($("<span>", {"class": "deviantName"}).text(deviant.name)) );
+	} );
+	return rageDressing; // on a salad of evil
+}
+function buildCloserLook(deviant, deviations) {
+	var closerLook = $("<div>", {"class": "closerLook"}).css("overflow", "hidden");
+
+	var deviantDetails = $("<div>", {"class": "deviantDetails"});
+	deviantDetails.append($("<a>", {"href": deviant.profileURL}) // Note two opening parens and only one closing paren
+		.append($("<img>", {src: deviant.avatar, "class": "avatar", width: 50, height: 50})));
+	deviantDetails.append($("<div>", {"class": "deviantLinks"}) // Ditto
+		.append($("<a>", {"href": deviant.profileURL, "class": "profileLink",
+			title: l10n.profileLinkName}))
+		.append($("<a>", {"href": deviant.galleryURL, "class": "galleryLink",
+			title: l10n.galleryLinkName})));
+	deviantDetails.appendTo(closerLook);
+
+	var deviationList = $("<div>", {"class": "deviationList"});
+	deviations.forEach( function(deviation) {
+		$("<div>", {"class": "deviation"})
+			.append($("<a>", {href: deviation.URL}).text(deviation.name))
+			.appendTo(deviationList)
+	} );
+	deviationList.appendTo(closerLook);
+
+	return closerLook;
+}
+function queryTroubleCheck() {
+// Returns false if there are no troubles, true if there is a trouble not worth reporting to the user, and an object otherwise
+	var query = $("#query").val();
+	
+	if (query.length == 0) { return true };
+	
+	return false;
 }

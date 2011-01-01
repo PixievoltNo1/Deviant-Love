@@ -9,6 +9,9 @@ var popupText = {
 	"scanAllResultsLine1": "This page has $1 faves",
 	"scanCollectionResultsLine1": "This Collection has $1 faves",
 	"scanResultsLine2": "from $1 different artists!",
-	"profileLinkDescription": "Profile",
-	"galleryLinkDescription": "Gallery"
+	"queryPlaceholder": "Find an artist or deviation (exact phrase matches only)",
+	"foundDeviants": "Found $1 deviant(s)",
+	"foundDeviations": "Found $1 deviation(s) from $2",
+	"profileLinkName": "Profile",
+	"galleryLinkName": "Gallery"
 }
