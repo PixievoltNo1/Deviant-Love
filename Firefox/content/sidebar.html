@@ -10,9 +10,54 @@
 <script type="text/javascript" src="core/jquery.js"></script>
 <script type="text/javascript" src="core/core.js"></script>
 <script type="text/javascript">
+var currentXHR;
 $(document).ready( function() {
 	window.DeviantLove = true;
+	setL10n(top.DeviantLove.popupText);
+	rawk();
 } );
+function restart() {
+	if (currentXHR) {currentXHR.abort();};
+	$("body").empty();
+	rawk();
+}
+function rawk() {
+	var pageData = top.DeviantLove.currentPageData;
+	fulfillPurpose(pageData.pageType, pageData.ownerOrTitle);
+	var currentURL;
+	var scanSettings = {
+		dataType: "xml",
+		beforeSend: function(XHR) {currentXHR = XHR},
+		success: scanFeed,
+		error: function() {
+			// TODO: Write this
+			}
+	};
+	currentURL = pageData.feedHref;
+	$.ajax( $.extend( {}, scanSettings, {url: currentURL} ) );
+	function scanFeed(feed) {
+		var data = [];
+		$("item", feed).each( function() {
+			var item = {
+				deviationName: $("title:eq(0)", this).text(),
+				deviationPage: $("link", this).text(),
+				artistName: $('[role="author"]:eq(0)', this).text(),
+				artistAvatar: $('[role="author"]:eq(1)', this).text(),
+				artistProfile: $("copyright", this).attr("url")
+			};
+			item.artistGallery = item.artistProfile + "/gallery/";
+			data.push(item);
+		} );
+		collectData(data);
+		var nextPage = $('channel > [rel="next"]', feed);
+		if (nextPage.length >= 1) {
+			currentURL = nextPage.attr("href");
+			$.ajax( $.extend( {}, scanSettings, {url: currentURL} ) );
+		} else {
+			// scanDone_startFun(top.DeviantLove.getTip());
+		}
+	}
+}
 if (document.createElement("i").style.MozTransition !== undefined) {
 	var cssTransitions = {
 		eventName: "transitionend",
@@ -22,5 +67,5 @@ if (document.createElement("i").style.MozTransition !== undefined) {
 	var cssTransitions = false;
 }
 </script>
-<body>I like chocolate milk.</body>
+<body></body>
 </html>

@@ -13,24 +13,24 @@ var DeviantLove = {};
 
 window.addEventListener("load", function() {
 	var currentFocus = 0;
-	function loadDetector() {
-		var loader = Components.classes["@mozilla.org/moz/jssubscript-loader;1"]
-			.getService(Components.interfaces.mozIJSSubScriptLoader);
-		loader.loadSubScript("chrome://DeviantLove/content/core/detector.js", DeviantLove);
-	}
-	document.getElementById("appcontent").addEventListener("DOMContentLoaded", setup, false);
-	document.getElementById("appcontent").addEventListener("pageshow", setup, false);
+	var loader = Components.classes["@mozilla.org/moz/jssubscript-loader;1"]
+		.getService(Components.interfaces.mozIJSSubScriptLoader);
+	
+	gBrowser.addEventListener("DOMContentLoaded", setup, false);
+	gBrowser.addEventListener("pageshow", setup, false);
 	function setup(event) {
 		var doc = event.originalTarget;
 		if (!doc.DeviantLove &&
 			(/http:\/\/[a-zA-Z\d\-]+\.deviantart\.com\/favourites\//).test(doc.URL)) {
 			doc.DeviantLove = {};
-			if (!DeviantLove.findLove) {loadDetector();};
+			if (!DeviantLove.findLove) {
+				loader.loadSubScript("chrome://DeviantLove/content/core/detector.js", DeviantLove);
+			};
 			doc.DeviantLove.pageData = DeviantLove.findLove(doc.defaultView);
 			checkLove();
 		}
 	}
-	document.getElementById("appcontent").addEventListener("pagehide", function(event) {
+	gBrowser.addEventListener("pagehide", function(event) {
 		var doc = event.originalTarget;
 		if (doc.DeviantLove) {
 			doc.DeviantLove = null;
@@ -50,12 +50,22 @@ window.addEventListener("load", function() {
 		if (doc.DeviantLove.focus == currentFocus) {
 			toggleSidebar("DeviantLoveSidebar");
 		} else {
+			if (!DeviantLove.popupText) {
+				loader.loadSubScript("chrome://DeviantLove/locale/popupText.js", DeviantLove);
+			}
 			DeviantLove.currentPageData = doc.DeviantLove.pageData;
 			doc.DeviantLove.focus = ++currentFocus;
 			if (document.getElementById("sidebar").contentWindow.DeviantLove) {
-				// TODO: Communicate with the sidebar to get it restarted
+				document.getElementById("sidebar").contentWindow.restart();
 			}
 			toggleSidebar("DeviantLoveSidebar", true);
 		}
 	}, false);
+}, false);
+
+window.addEventListener("unload", function() {
+	if (document.getElementById("sidebar").getAttribute("src") ==
+		document.getElementById("DeviantLoveSidebar").getAttribute("sidebarurl")) {
+		toggleSidebar();
+	}
 }, false);
