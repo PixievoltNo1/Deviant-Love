@@ -14,6 +14,13 @@ var currentXHR;
 $(document).ready( function() {
 	window.DeviantLove = true;
 	setL10n(top.DeviantLove.popupText);
+	var reloadButton = top.document.getElementById("DeviantLoveReload");
+	reloadButton.addEventListener("command", restart, false);
+	reloadButton.hidden = false;
+	$(window).bind("unload", function() {
+		reloadButton.hidden = true;
+		reloadButton.removeEventListener("command", restart, false);
+	});
 	rawk();
 } );
 function restart() {
@@ -23,6 +30,11 @@ function restart() {
 }
 function rawk() {
 	var pageData = top.DeviantLove.currentPageData;
+	if (!pageData) {
+		// The sidebar was left open when the user closed the browser. Close it now.
+		// Tried handling this in the overlay script, but toggleSidebar wasn't doing anything in load or unload handlers.
+		top.toggleSidebar();
+	}
 	fulfillPurpose(pageData.pageType, pageData.ownerOrTitle);
 	var currentURL;
 	var scanSettings = {

@@ -10,4 +10,8 @@
 		<broadcaster id="DeviantLoveSidebar" group="sidebar"
 			sidebarurl="chrome://DeviantLove/content/sidebar.html" sidebartitle="Deviant Love" />
 	</broadcasterset>
+	<!-- Deviant Love doesn't actually need a reload button, but it's the most concise way to inform the user that the sidebar's report is static. -->
+	<sidebarheader id="sidebar-header">
+		<button id="DeviantLoveReload" label="Reload" position="2" hidden="true" />
+	</sidebarheader>
 </overlay>

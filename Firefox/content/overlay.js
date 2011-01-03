@@ -62,10 +62,3 @@ window.addEventListener("load", function() {
 		}
 	}, false);
 }, false);
-
-window.addEventListener("unload", function() {
-	if (document.getElementById("sidebar").getAttribute("src") ==
-		document.getElementById("DeviantLoveSidebar").getAttribute("sidebarurl")) {
-		toggleSidebar();
-	}
-}, false);
