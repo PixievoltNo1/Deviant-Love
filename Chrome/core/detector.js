@@ -21,7 +21,7 @@ function findLove(favesWindow) {
 	}
 	// While the mechanism for declaring RSS feeds is standardized, the dA layout is not and can change. Be careful!
 	var ownerOrTitle, element;
-	if (pageType == "collection") {
+	if (pageType != "collection") {
 		element = document.querySelector(".gruserbadge a.u");
 		ownerOrTitle = element ? element.textContent : "???????";
 	} else {
