@@ -19,10 +19,10 @@
 	- $ (jQuery)
 	- New Array methods in ECMAScript 5th Edition
 	- scanRetry function
-	- cssTransitions object
+	- displayType string
 */
 
-function fulfillPurpose(pageType) {
+function fulfillPurpose(pageType, ownerOrTitle) {
 	var deviantList = [];
 	var deviantBag = {};
 	var totalDeviations = 0;
@@ -82,16 +82,30 @@ function fulfillPurpose(pageType) {
 		// Construct the UI
 		var mainScreen = $("<div>", {id: "mainScreen"});
 		mainScreen.appendTo(document.body);
-		var scanResultsLine1Text = ({
-			featured: l10n.scanFeaturedResultsLine1,
-			allFaves: l10n.scanAllResultsLine1,
-			collection: l10n.scanCollectionResultsLine1
-		})[pageType];
-		$("<div>", {id: "scanResults"})
-			.append($("<div>", {id: "scanResultsLine1"}).html(scanResultsLine1Text.replace("$1",
-				'<span id="faveCount">' + totalDeviations.toString() + '</span>')))
-			.append($("<div>", {id: "scanResultsLine2"}).html(l10n.scanResultsLine2.replace("$1",
-				'<span id="deviantCount">' + deviantList.length.toString() + '</span>')))
+		var scanResults = $("<div>", {id: "scanResults"});
+		if (displayType == "popup") {
+			var scanResultsLine1Text = ({
+				featured: l10n.scanFeaturedResultsPopupLine1,
+				allFaves: l10n.scanAllResultsPopupLine1,
+				collection: l10n.scanCollectionResultsPopupLine1
+			})[pageType];
+			scanResults.append($("<div>").html(scanResultsLine1Text.replace("$1",
+				'<span class="dynamic">' + totalDeviations.toString() + '</span>')));
+		} else { // displayType == "sidebar"
+			if (/[\<\>\&]/.test("ownerOrTitle")) {ownerOrTitle = "?????????";};
+			var scanResultsLine1Text = pageType == "collection" ?
+				l10n.scanCollectionResultsSidebarLine1 :
+				l10n.scanNonCollectionResultsSidebarLine1;
+			var scanResultsLine2Text = pageType == "featured" ?
+				l10n.scanFeaturedResultsSidebarLine2 :
+				l10n.scanNonFeaturedResultsSidebarLine2;
+			scanResults.append($("<div>").html(scanResultsLine1Text.replace("$1",
+				'<span class="dynamic">' + ownerOrTitle + '</span>')))
+				.append($("<div>").html(scanResultsLine2Text.replace("$1",
+				'<span class="dynamic">' + totalDeviations.toString() + '</span>')))
+		}
+		scanResults.append($("<div>").html(l10n.scanResultsLastLine.replace("$1",
+			'<span class="dynamic">' + deviantList.length.toString() + '</span>')))
 			.appendTo(mainScreen);
 		$("<form>", {id: "findBar"})
 			.append($("<input>", {type: "text", id: "query"}))
@@ -120,25 +134,23 @@ function fulfillPurpose(pageType) {
 		// Set up interaction
 		$("#lovedArtists").delegate(".deviant:not(.opened)", "click", function() {
 			$(".opened.deviant").removeClass("opened");
-			if (!cssTransitions) {
-				$(".closerLook").remove();
-			} else {
-				$(".closerLook").one(cssTransitions.eventName,
-					function() { $(this).remove(); } ).height(0);
-			}
+			$(".deviant > .closerLook").animate({height: 0}, {
+				duration: 400,
+				easing: "swing",
+				complete: function() {$(this).remove();}
+			})
 
 			var deviant = deviantBag[$(".deviantName", this).text()];
 			var closerLook = buildCloserLook(deviant, deviant.deviations);
-			closerLook.appendTo(this);
-			if (!cssTransitions) {
-				scrollToDeviationList();
-			} else {
-				var closerLookHeight = closerLook.height();
-				closerLook.height(0).css(cssTransitions.propertyName, "height 0.4s ease")
-					.one(cssTransitions.eventName, scrollToDeviationList).height(closerLookHeight);
-			}
-			$(this).addClass("opened");
+			$(this).append(closerLook).addClass("opened");
+			var closerLookHeight = closerLook.height();
+			closerLook.height(0).animate({height: closerLookHeight}, {
+				duration: 400,
+				easing: "swing",
+				step: scrollToDeviationList
+			});
 		} );
+		// TODO: As the user types in #query, run their input through queryTroubleCheck, and if it returns a string, display it.
 		$("#findBar").submit(findStuff);
 		$("#noFind").bind("click", function() {
 			if (mainScreen.hasClass("lookWhatIFound")) {
@@ -152,21 +164,21 @@ function fulfillPurpose(pageType) {
 	function findStuff(event) {
 		event.preventDefault();
 		if (queryTroubleCheck() != false) { return };
-		
-		// Everything related to advanced operators is being disabled for the 1.1 release, to avoid delaying it even further.
+
+		// Everything related to advanced operators is being disabled for the 2.0 release, to avoid delaying it even further.
 		/*
 		var firstSplit = $("#query").val().split("~");
 		var ignoreList = firstSplit.slice(1);
 		var queryChunks = firstSplit[0].split("&");
 		*/
 		/* Temporary replacement */ var queryChunks = [$("#query").val()];
-		
+
 		// ignoreList = ignoreList.map( function(ignore) {return ignore.trim().toLowerCase()} );
 		queryChunks = queryChunks.map( function(chunk) {return chunk.trim().toLowerCase()} );
 		var checkDeviants = queryChunks.every( function(chunk) {
 			return (/[a-zA-Z0-9\-]+/).exec(chunk)[0] == chunk;
 		} );
-		
+
 		var deviantMatches = [];
 		var deviationMatches = [];
 		deviantList.forEach( function(deviant) {
@@ -196,7 +208,7 @@ function fulfillPurpose(pageType) {
 				return needle.indexOf(chunk) != -1;
 			} );
 		}
-		
+
 		$("#mainScreen").addClass("lookWhatIFound");
 		var lovedArtists = $("#lovedArtists").empty();
 		// TODO: Handle the "no results of any sort" case
@@ -207,10 +219,12 @@ function fulfillPurpose(pageType) {
 		}
 		if (deviationMatches.length > 0) {
 			deviationMatches.forEach( function(found) {
+				var closerLook = buildCloserLook(found.deviant, found.deviations);
 				lovedArtists.append( $("<div>", {"class": "foundHeader"})
 					.text(l10n.foundDeviations
-						.replace("$1", found.deviations.length).replace("$2", found.deviant.name))
-					.append(buildCloserLook(found.deviant,found.deviations)) );
+						.replace("$1", found.deviations.length).replace("$2", found.deviant.name)) )
+					.append(closerLook);
+				closerLook.height(closerLook.height()); // Sounds a bit silly but the CSS needs it.
 			} );
 		}
 	}
@@ -252,6 +266,7 @@ function snackOnMyWrath(finkRats) {
 	return rageDressing; // on a salad of evil
 }
 function buildCloserLook(deviant, deviations) {
+// Anything relying on this function will need to make sure that returned element's CSS height is set to its natural height. The CSS assumes that that has been done.
 	var closerLook = $("<div>", {"class": "closerLook"}).css("overflow", "hidden");
 
 	var deviantDetails = $("<div>", {"class": "deviantDetails"});
@@ -275,10 +290,15 @@ function buildCloserLook(deviant, deviations) {
 	return closerLook;
 }
 function queryTroubleCheck() {
-// Returns false if there are no troubles, true if there is a trouble not worth reporting to the user, and an object otherwise
+// Returns false if there are no troubles, true if there is a trouble not worth reporting to the user, and a message string otherwise
 	var query = $("#query").val();
-	
+
 	if (query.length == 0) { return true };
-	
+
+	var invalidChar = query.search(/[^a-zA-Z0-9 \_\'\"\+\.\,\$\?\:\-]/);
+	if (invalidChar != -1) {
+		return l10n.findErrorForbiddenCharacter.replace("$1", query.charAt(invalidChar));
+	}
+
 	return false;
 }

@@ -7,12 +7,26 @@
 <html>
 <title>Deviant Love Sidebar</title>
 <link rel="stylesheet" href="core/builtinskin.css" type="text/css">
+<style type="text/css">
+body > div { /* width and height TBD in JavaScript */}
+body { overflow: hidden; }
+#lovedArtists { height: 1px; /* Firefox 3.6 will not shrink lovedArtists by itself */ }
+a { text-decoration: underline; }
+/* These colors were chosen to match what the user sees in the Chrome version */
+a:link { color: #00E; }
+a:visited { color: #551A8B; }
+</style>
 <script type="text/javascript" src="core/jquery.js"></script>
 <script type="text/javascript" src="core/core.js"></script>
 <script type="text/javascript">
-var currentXHR;
+var currentXHR, displayType = "sidebar";
 $(document).ready( function() {
 	window.DeviantLove = true;
+	$("body").css({
+		"-moz-box-sizing": "border-box",
+		"height": $(window).height(),
+		"margin": 0
+	});
 	setL10n(top.DeviantLove.popupText);
 	var reloadButton = top.document.getElementById("DeviantLoveReload");
 	reloadButton.addEventListener("command", restart, false);
@@ -57,6 +71,7 @@ function rawk() {
 				artistAvatar: $('[role="author"]:eq(1)', this).text(),
 				artistProfile: $("copyright", this).attr("url")
 			};
+			// TODO: item.artistProfile is undefined. Figure out what causes that and work something out.
 			item.artistGallery = item.artistProfile + "/gallery/";
 			data.push(item);
 		} );
@@ -66,18 +81,19 @@ function rawk() {
 			currentURL = nextPage.attr("href");
 			$.ajax( $.extend( {}, scanSettings, {url: currentURL} ) );
 		} else {
-			// scanDone_startFun(top.DeviantLove.getTip());
+			scanDone_startFun(top.DeviantLove.getTip());
 		}
 	}
 }
-if (document.createElement("i").style.MozTransition !== undefined) {
-	var cssTransitions = {
-		eventName: "transitionend",
-		propertyName: "-moz-transition"
-	};
-} else {
-	var cssTransitions = false;
-}
+$(document).delegate("a", "click", function(event) {
+	// TODO: Figure out how to handle this in Firefox and do it
+	event.preventDefault();
+} );
+$(window).bind("resize", function() {
+	var screenSize = document.styleSheets[1].cssRules[0].style;
+	screenSize.setProperty("width", $(window).width() + "px", "");
+	screenSize.setProperty("height", $(window).height() + "px", "");
+} );
 </script>
 <body></body>
 </html>

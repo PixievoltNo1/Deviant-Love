@@ -2,19 +2,12 @@ body {
 	background-color: white;
 	color: black;
 	font-family: sans-serif;
-	margin: 0;
-}
-* {
-	-moz-box-sizing: border-box;
-	-webkit-box-sizing: border-box;
-	box-sizing: border-box; /* For future-proofing */
 }
 body > div {
-	position: fixed;
-	top: 12px;
-	bottom: 12px;
-	left: 12px;
-	right: 12px;
+	padding: 12px;
+	-moz-box-sizing: border-box;
+	-webkit-box-sizing: border-box;
+	box-sizing: border-box;
 }
 #scanMessage {
 	font-size: 200%;
@@ -23,10 +16,10 @@ body > div {
 #mainScreen {
 	display: -moz-box;
 	display: -webkit-box;
-	display: box; /* For future-proofing */
+	display: box;
 	-moz-box-orient: vertical;
 	-webkit-box-orient: vertical;
-	box-orient: vertical; /* For future-proofing */
+	box-orient: vertical;
 }
 #mainScreen > * {
 	border: 1px solid black;
@@ -41,26 +34,28 @@ body > div {
 	padding: 5px;
 	padding-left: 58px;
 }
-#faveCount, #deviantCount {
+#scanResults .dynamic {
 	font-weight: bold;
 }
 #findBar {
 	display: -moz-box;
 	display: -webkit-box;
-	display: box; /* For future-proofing */
+	display: box;
 	-moz-box-orient: horizontal;
 	-webkit-box-orient: horizontal;
-	box-orient: horizontal; /* For future-proofing */
+	box-orient: horizontal;
 	padding: 1px;
+	background-color: hsl(55, 100%, 55%);
 }
 #findBar > * {
 	display: block;
 	margin: 1px;
+	padding: 0;
 }
 #query {
 	-moz-box-flex: 1;
 	-webkit-box-flex: 1;
-	box-flex: 1; /* For future-proofing */
+	box-flex: 1;
 }
 #findBar button {
 	width: 16px;
@@ -74,10 +69,18 @@ body > div {
 #noFind {
 	background: url("SilkIcons/cancel.png");
 }
+.foundHeader {
+	padding: 0.1em 0.5em;
+	font-weight: bold;
+	background-color: hsl(55, 100%, 66%);
+}
+.foundHeader:nth-child(n+2) {
+	border-top: 1px solid hsl(55, 100%, 48%)
+}
 #lovedArtists {
 	-moz-box-flex: 1;
 	-webkit-box-flex: 1;
-	box-flex: 1; /* For future-proofing */
+	box-flex: 1;
 }
 #lovedArtists, .closerLook {
 	background-color: hsl(350, 100%, 54%);
@@ -108,16 +111,9 @@ body > div {
 .deviantFaves::after {
 	content: ")";
 }
-.closerLook {
-	display: -moz-box;
-	display: -webkit-box;
-	display: box; /* For future-proofing */
-	-moz-box-orient: horizontal;
-	-webkit-box-orient: horizontal;
-	box-orient: horizontal; /* For future-proofing */
-}
 .deviantDetails {
-	width: 80px;
+	float: left;
+	width: 72px;
 	padding: 4px;
 	text-align: center;
 }
@@ -125,7 +121,7 @@ body > div {
 	background-color: white;
 	-moz-box-shadow: hsla(0, 0%, 0%, 0.8) 2px 2px 2px;
 	-webkit-box-shadow: hsla(0, 0%, 0%, 0.8) 2px 2px 2px;
-	box-shadow: hsla(0, 0%, 0%, 0.8) 2px 2px 2px; /* For future-proofing */
+	box-shadow: hsla(0, 0%, 0%, 0.8) 2px 2px 2px;
 }
 .deviantLinks {
 	height: 22px;
@@ -148,9 +144,8 @@ body > div {
 	background-image: url(Gallery.png);
 }
 .deviationList {
-	-moz-box-flex: 1;
-	-webkit-box-flex: 1;
-	box-flex: 1; /* For future-proofing */
+	margin-left: 80px;
+	height: 100%;
 	padding: 0 0.2em;
 	background-color: hsl(350, 100%, 90%);
 }

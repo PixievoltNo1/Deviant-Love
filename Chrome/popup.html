@@ -6,10 +6,19 @@
 <!doctype html>
 <html>
 <link rel="stylesheet" href="core/builtinskin.css" type="text/css">
+<style type="text/css">
+body > div { height: 100%; }
+</style>
 <script type="text/javascript" src="core/jquery.js"></script>
 <script type="text/javascript" src="core/core.js"></script>
 <script type="text/javascript">
+var displayType = "popup";
 $(document).ready( function() {
+	$("body").css({
+		"-webkit-box-sizing": "border-box",
+		"height": $(window).height(),
+		"margin": 0
+	});
 	chrome.extension.sendRequest({action: "popupSetup"},
 		function(initData) {
 			setL10n(initData.l10n);
@@ -36,13 +45,12 @@ chrome.extension.onRequest.addListener(function(thing, buddy, callback) {switch 
 function scanRetry() {
 	chrome.extension.sendRequest({action: "scanRetry"});
 }
-var cssTransitions = {
-	eventName: "webkitTransitionEnd",
-	propertyName: "-webkit-transition"
-};
 $(document).delegate("a", "click", function(event) {
 	if (event.button == 0) { window.open(this.href); }
 	event.preventDefault();
+} );
+$(window).bind("resize", function() {
+	$("body").height($(window).height());
 } );
 </script>
 <body></body>
