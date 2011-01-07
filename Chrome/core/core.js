@@ -118,7 +118,7 @@ function fulfillPurpose(pageType, ownerOrTitle) {
 		if ($("#query")[0].placeholder !== undefined) {
 			$("#query")[0].placeholder = l10n.queryPlaceholder;
 		} else {
-			// TODO: Add the placeholder text the hard way
+			$("#query").addClass("placeholder").val(l10n.queryPlaceholder);
 		}
 		var lovedArtists = $("<div>", {id: "lovedArtists"})
 			.css({"overflow-y": "auto", "overflow-x": "hidden"})
@@ -150,6 +150,17 @@ function fulfillPurpose(pageType, ownerOrTitle) {
 				step: scrollToDeviationList
 			});
 		} );
+		if ($("#query").hasClass("placeholder")) {
+			$("#query").bind("focus", function() {
+				if ($(this).hasClass("placeholder")) {
+					$(this).val("").removeClass("placeholder");
+				}
+			} ).bind("blur", function() {
+				if ($(this).val() == "") {
+					$(this).addClass("placeholder").val(l10n.queryPlaceholder);
+				}
+			} )
+		}
 		// TODO: As the user types in #query, run their input through queryTroubleCheck, and if it returns a string, display it.
 		$("#findBar").submit(findStuff);
 		$("#noFind").bind("click", function() {
@@ -293,7 +304,7 @@ function queryTroubleCheck() {
 // Returns false if there are no troubles, true if there is a trouble not worth reporting to the user, and a message string otherwise
 	var query = $("#query").val();
 
-	if (query.length == 0) { return true };
+	if (query.length == 0 || $("#query").hasClass("placeholder")) { return true };
 
 	var invalidChar = query.search(/[^a-zA-Z0-9 \_\'\"\+\.\,\$\?\:\-]/);
 	if (invalidChar != -1) {

@@ -14,7 +14,7 @@ Well, umm, some of the Firefox files are kept in the Chrome folder, haha. In ord
 
 To test the Firefox extension, I recommend following [[https://developer.mozilla.org/en/Building_an_Extension#Test|these directions]].
 
-To avoid duplicate files across the two forms of Deviant Love, .gitignore will prevent Git from allowing the Firefox copies to be committed, so make sure that if you change anything it gets copied back. Consider using a tool such as [[http://rsync.samba.org/|rsync]] to keep each folder pair synchronized.
+To avoid duplicate files across the two forms of Deviant Love, .gitignore will prevent Git from allowing the Firefox copies to be committed, so make sure that if you change anything it gets copied back. Consider using a tool such as [[http://rsync.samba.org/|rsync]] to keep each folder pair synchronized, or use tools such as [[http://schinagl.priv.at/nt/hardlinkshellext/hardlinkshellext.html|Link Shell Extension]] or [[http://en.wikipedia.org/wiki/Symbolic_link|symbolic links]] to make the Firefox folders simply access the Chrome folders.
 
 = KTHXBAI =
 

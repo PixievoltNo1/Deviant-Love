@@ -10,11 +10,12 @@
 <style type="text/css">
 body > div { /* width and height TBD in JavaScript */}
 body { overflow: hidden; }
+.placeholder { color: rgb(169, 169, 169); }
 #lovedArtists { height: 1px; /* Firefox 3.6 will not shrink lovedArtists by itself */ }
 a { text-decoration: underline; }
-/* These colors were chosen to match what the user sees in the Chrome version */
-a:link { color: #00E; }
-a:visited { color: #551A8B; }
+/* These colors were chosen to match what the user sees in the Chrome version on Windows */
+a:link { color: rgb(0, 0, 238); }
+a:visited { color: rgb(85, 26, 139); }
 </style>
 <script type="text/javascript" src="core/jquery.js"></script>
 <script type="text/javascript" src="core/core.js"></script>
@@ -71,7 +72,7 @@ function rawk() {
 				artistAvatar: $('[role="author"]:eq(1)', this).text(),
 				artistProfile: $("copyright", this).attr("url")
 			};
-			// TODO: item.artistProfile is undefined. Figure out what causes that and work something out.
+			item.artistProfile = "http://" + item.artistName.toLowerCase() + ".deviantart.com"; // Setting this the way I did in Chrome wasn't working.
 			item.artistGallery = item.artistProfile + "/gallery/";
 			data.push(item);
 		} );
