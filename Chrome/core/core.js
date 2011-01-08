@@ -120,6 +120,7 @@ function fulfillPurpose(pageType, ownerOrTitle) {
 		} else {
 			$("#query").addClass("placeholder").val(l10n.queryPlaceholder);
 		}
+		$("<div>", {id: "queryError"}).hide().appendTo(mainScreen);
 		var lovedArtists = $("<div>", {id: "lovedArtists"})
 			.css({"overflow-y": "auto", "overflow-x": "hidden"})
 			.append(snackOnMyWrath(deviantList))
@@ -161,11 +162,19 @@ function fulfillPurpose(pageType, ownerOrTitle) {
 				}
 			} )
 		}
-		// TODO: As the user types in #query, run their input through queryTroubleCheck, and if it returns a string, display it.
+		$("#query").bind("input", function(event) {
+			var checkResult = queryTroubleCheck();
+			if (typeof checkResult == "string") {
+				$("#queryError").text(checkResult).show();
+			} else {
+				$("#queryError").hide();
+			}
+		} );
 		$("#findBar").submit(findStuff);
 		$("#noFind").bind("click", function() {
 			if (mainScreen.hasClass("lookWhatIFound")) {
 				mainScreen.removeClass("lookWhatIFound");
+				lovedArtists.removeClass("noResults");
 				$("#lovedArtists").empty().append(snackOnMyWrath(deviantList));
 			}
 		} );
@@ -222,7 +231,10 @@ function fulfillPurpose(pageType, ownerOrTitle) {
 
 		$("#mainScreen").addClass("lookWhatIFound");
 		var lovedArtists = $("#lovedArtists").empty();
-		// TODO: Handle the "no results of any sort" case
+		if (deviantMatches.length == 0 && deviationMatches.length == 0) {
+			lovedArtists.text(l10n.foundNothing).addClass("noResults")
+			return;
+		}
 		if (deviantMatches.length > 0) {
 			lovedArtists.append( $("<div>", {"class": "foundHeader"})
 				.text(l10n.foundDeviants.replace("$1", deviantMatches.length)) )

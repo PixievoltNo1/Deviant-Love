@@ -17,6 +17,7 @@ var popupText = {
 	"findErrorForbiddenCharacter": "deviantART doesn't allow the use of $1 in deviant or deviation names.",
 	"foundDeviants": "Found $1 deviant(s)",
 	"foundDeviations": "Found $1 deviation(s) from $2",
+	"foundNothing": "Sorry, there are no matches!",
 	"profileLinkName": "Profile",
 	"galleryLinkName": "Gallery"
 }

@@ -57,6 +57,10 @@ body > div {
 	-webkit-box-flex: 1;
 	box-flex: 1;
 }
+#queryError {
+	background-color: hsl(55, 100%, 82%);
+	padding: 2px;
+}
 #findBar button {
 	width: 16px;
 	background-position: center;
@@ -68,14 +72,19 @@ body > div {
 }
 #noFind {
 	background: url("SilkIcons/cancel.png");
+	display: none;
+}
+.lookWhatIFound #noFind {
+	display: block;
 }
 .foundHeader {
 	padding: 0.1em 0.5em;
 	font-weight: bold;
 	background-color: hsl(55, 100%, 66%);
 }
-.foundHeader:nth-child(n+2) {
-	border-top: 1px solid hsl(55, 100%, 48%)
+#lovedArtists.noResults {
+	background-color: hsl(55, 100%, 94%);
+	padding: 2px;
 }
 #lovedArtists {
 	-moz-box-flex: 1;
