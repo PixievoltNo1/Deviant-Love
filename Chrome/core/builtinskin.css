@@ -3,11 +3,19 @@ body {
 	color: black;
 	font-family: sans-serif;
 }
+a img {
+	border: 0;
+}
 body > div {
-	padding: 12px;
 	-moz-box-sizing: border-box;
 	-webkit-box-sizing: border-box;
 	box-sizing: border-box;
+}
+.popup > div {
+	padding: 12px;
+}
+.sidebar > div {
+	padding: 8px;
 }
 #scanMessage {
 	font-size: 200%;

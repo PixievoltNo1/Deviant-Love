@@ -2,5 +2,5 @@
 	- Add &, /, and ~ operators
 - Apply extra CSS for artists that are on the user's deviantWATCH for deviations
 - Show something nice when an avatar is loading
-- Port to Firefox
+* Port to Firefox
 	* Make dependency on CSS Transitions optional

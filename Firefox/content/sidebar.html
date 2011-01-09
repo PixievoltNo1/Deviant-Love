@@ -9,7 +9,7 @@
 <link rel="stylesheet" href="core/builtinskin.css" type="text/css">
 <style type="text/css">
 body > div { /* width and height TBD in JavaScript */}
-body { overflow: hidden; }
+/* body { overflow: hidden; } */
 .placeholder { color: rgb(169, 169, 169); }
 #lovedArtists { height: 1px; /* Firefox 3.6 will not shrink lovedArtists by itself */ }
 a { text-decoration: underline; }
@@ -23,11 +23,7 @@ a:visited { color: rgb(85, 26, 139); }
 var currentXHR, displayType = "sidebar";
 $(document).ready( function() {
 	window.DeviantLove = true;
-	$("body").css({
-		"-moz-box-sizing": "border-box",
-		"height": $(window).height(),
-		"margin": 0
-	});
+	$("body").css("margin", 0);
 	setL10n(top.DeviantLove.popupText);
 	var reloadButton = top.document.getElementById("DeviantLoveReload");
 	reloadButton.addEventListener("command", restart, false);
@@ -51,16 +47,16 @@ function rawk() {
 		top.toggleSidebar();
 	}
 	fulfillPurpose(pageData.pageType, pageData.ownerOrTitle);
-	var currentURL;
+	var currentURL = pageData.feedHref;
 	var scanSettings = {
 		dataType: "xml",
 		beforeSend: function(XHR) {currentXHR = XHR},
 		success: scanFeed,
-		error: function() {
-			// TODO: Write this
-			}
+		error: scanError
 	};
-	currentURL = pageData.feedHref;
+	window.scanRetry = function() {
+		$.ajax( $.extend( {}, scanSettings, {url: currentURL} ) );
+	}
 	$.ajax( $.extend( {}, scanSettings, {url: currentURL} ) );
 	function scanFeed(feed) {
 		var data = [];
@@ -87,8 +83,15 @@ function rawk() {
 	}
 }
 $(document).delegate("a", "click", function(event) {
-	// TODO: Figure out how to handle this in Firefox and do it
 	event.preventDefault();
+} ).delegate("a", "mouseup", function(event) {
+	// Mimic Chrome behavior
+	var where = top.whereToOpenLink(event);
+	if (where == "current") {
+		top.gBrowser.selectedTab = top.gBrowser.addTab(this.href);
+	} else {
+		top.openUILinkIn(this.href, where);
+	}
 } );
 $(window).bind("resize", function() {
 	var screenSize = document.styleSheets[1].cssRules[0].style;
@@ -96,5 +99,5 @@ $(window).bind("resize", function() {
 	screenSize.setProperty("height", $(window).height() + "px", "");
 } );
 </script>
-<body></body>
+<body class="sidebar"></body>
 </html>
