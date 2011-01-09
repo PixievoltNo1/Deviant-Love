@@ -7,6 +7,15 @@
 <html>
 <script src="core/jquery.js"></script>
 <script>
+chrome.extension.onRequestExternal.addListener( function(thing, buddy) {
+	if (buddy.id == "fnnoehpencpimghpdpcdiecpkffgjdkl" &&
+		thing.action == "obsolete" && thing.reachedFinal >= 2.0) {
+		webkitNotifications.createNotification("core/48Icon.png",
+			"Thanks for trying a preview release of Deviant Love! :-)",
+			"The final release is available, and the stable release has been updated to it. It's time to uninstall the preview release."
+		).show();
+	}
+} );
 chrome.extension.onRequest.addListener( function(thing, buddy, callback) {switch (thing.action) {
 	case "showLove":
 		chrome.pageAction.show(buddy.tab.id);
