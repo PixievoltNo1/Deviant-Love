@@ -133,7 +133,7 @@ function fulfillPurpose(pageType, ownerOrTitle) {
 		tipOfTheMoment(firstTip);
 
 		// Set up interaction
-		$("#lovedArtists").delegate(".deviant:not(.opened)", "click", function() {
+		lovedArtists.delegate(".deviant:not(.opened)", "click", function() {
 			$(".opened.deviant").removeClass("opened");
 			$(".deviant > .closerLook").animate({height: 0}, {
 				duration: 400,
@@ -174,8 +174,7 @@ function fulfillPurpose(pageType, ownerOrTitle) {
 		$("#noFind").bind("click", function() {
 			if (mainScreen.hasClass("lookWhatIFound")) {
 				mainScreen.removeClass("lookWhatIFound");
-				lovedArtists.removeClass("noResults");
-				$("#lovedArtists").empty().append(snackOnMyWrath(deviantList));
+				lovedArtists.removeClass("noResults").empty().append(snackOnMyWrath(deviantList));
 			}
 		} );
 
@@ -230,7 +229,7 @@ function fulfillPurpose(pageType, ownerOrTitle) {
 		}
 
 		$("#mainScreen").addClass("lookWhatIFound");
-		var lovedArtists = $("#lovedArtists").empty();
+		var lovedArtists = $("#lovedArtists").empty().removeClass("noResults");
 		if (deviantMatches.length == 0 && deviationMatches.length == 0) {
 			lovedArtists.text(l10n.foundNothing).addClass("noResults")
 			return;
