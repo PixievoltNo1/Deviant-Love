@@ -3,6 +3,7 @@
 	"version": "1.99.1",
 	"description": "__MSG_extDesc__",
 	"icons": {
+		"16": "core/16Icon.png",
 		"48": "core/48Icon.png",
 		"128": "128Icon.png"
 	},
