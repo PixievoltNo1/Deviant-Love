@@ -66,13 +66,13 @@ window.addEventListener("load", function() {
 
 DeviantLove.getTip = function() {
 	if (!DeviantLove.tips) {
-		DeviantLove.loader.loadSubScript("chrome://DeviantLove/locale/TipOfTheMoment.js");
+		DeviantLove.loader.loadSubScript("chrome://DeviantLove/locale/TipOfTheMoment.js", DeviantLove);
 	}
 	// Unlike in the Chrome version, there is no need for discrepancies between nextTip and JavaScript array indexes.
 	var nextTip = Application.prefs.getValue("extensions.deviantlove.nexttip", 0);
-	var returnValue = tips[nextTip];
+	var returnValue = DeviantLove.tips[nextTip];
 	nextTip++;
-	if (nextTip == tips.length) {nextTip = 0;};
+	if (nextTip == DeviantLove.tips.length) {nextTip = 0;};
 	Application.prefs.setValue("extensions.deviantlove.nexttip", nextTip);
 	return returnValue;
 }
