@@ -19,8 +19,9 @@ a:visited { color: rgb(85, 26, 139); }
 </style>
 <script type="text/javascript" src="core/jquery.js"></script>
 <script type="text/javascript" src="core/core.js"></script>
+<script type="text/javascript" src="core/scanner.js"></script>
 <script type="text/javascript">
-var currentXHR, displayType = "sidebar";
+var scannerController, displayType = "sidebar";
 $(document).ready( function() {
 	window.DeviantLove = true;
 	$("body").css("margin", 0);
@@ -35,7 +36,7 @@ $(document).ready( function() {
 	rawk();
 } );
 function restart() {
-	if (currentXHR) {currentXHR.abort();};
+	scannerController.cancel();
 	$("body").empty();
 	rawk();
 }
@@ -47,40 +48,12 @@ function rawk() {
 		top.toggleSidebar();
 	}
 	fulfillPurpose(pageData.pageType, pageData.ownerOrTitle);
-	var currentURL = pageData.feedHref;
-	var scanSettings = {
-		dataType: "xml",
-		beforeSend: function(XHR) {currentXHR = XHR},
-		success: scanFeed,
-		error: scanError
-	};
-	window.scanRetry = function() {
-		$.ajax( $.extend( {}, scanSettings, {url: currentURL} ) );
-	}
-	$.ajax( $.extend( {}, scanSettings, {url: currentURL} ) );
-	function scanFeed(feed) {
-		var data = [];
-		$("item", feed).each( function() {
-			var item = {
-				deviationName: $("title:eq(0)", this).text(),
-				deviationPage: $("link", this).text(),
-				artistName: $('[role="author"]:eq(0)', this).text(),
-				artistAvatar: $('[role="author"]:eq(1)', this).text(),
-				artistProfile: $("copyright", this).attr("url")
-			};
-			item.artistProfile = "http://" + item.artistName.toLowerCase() + ".deviantart.com"; // Setting this the way I did in Chrome wasn't working.
-			item.artistGallery = item.artistProfile + "/gallery/";
-			data.push(item);
-		} );
-		collectData(data);
-		var nextPage = $('channel > [rel="next"]', feed);
-		if (nextPage.length >= 1) {
-			currentURL = nextPage.attr("href");
-			$.ajax( $.extend( {}, scanSettings, {url: currentURL} ) );
-		} else {
-			scanDone_startFun(top.DeviantLove.getTip());
-		}
-	}
+	scannerController = researchLove(pageData.feedHref, {
+		faves: collectData,
+		onFavesError: scanError,
+		onDone: function() { scanDone_startFun(top.DeviantLove.getTip()); }
+	});
+	window.scanRetry = scannerController.favesRetry;
 }
 $(document).delegate("a", "click", function(event) {
 	event.preventDefault();
