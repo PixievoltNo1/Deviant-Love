@@ -54,6 +54,17 @@ addEventListener("resize", function() {
 	if (popupState == "inactive") { popupCSS.bottom = window.innerHeight + "px"; }
 }, false);
 
+document.querySelector(".folderview-art").addEventListener("mouseover", function(event) {
+	var thing = event.target;
+	if (thing.webkitMatchesSelector("a.u")) {
+		chrome.extension.sendRequest({action: "showArtistLove", artist: thing.textContent});
+		thing.addEventListener("mouseout", function byebye() {
+			chrome.extension.sendRequest({action: "noArtistLove"});
+			thing.removeEventListener("mouseout", byebye, false);
+		}, false);
+	}
+}, false);
+
 function activate() {
 	if (popupStage == "uninitialized") {
 		chrome.extension.onRequest.addListener( function popupReady(thing) {

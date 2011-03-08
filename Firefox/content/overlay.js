@@ -62,6 +62,10 @@ window.addEventListener("load", function() {
 			toggleSidebar("DeviantLoveSidebar", true);
 		}
 	}, false);
+	
+	document.getElementById("contentAreaContextMenu").addEventListener("popupshowing", function() {
+		// TODO: Do a thing with gContextMenu.target.mozMatchesSelector(".folderview-art a.u")
+	}, false);
 }, false);
 
 DeviantLove.getTip = function() {

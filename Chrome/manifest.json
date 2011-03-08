@@ -20,6 +20,6 @@
 		"run_at": "document_end"
 	}],
 
-	"permissions": ["tabs", "http://*.deviantart.com/"],
+	"permissions": ["tabs", "contextMenus", "http://*.deviantart.com/"],
 	"minimum_chrome_version": "7"
 }
