@@ -26,6 +26,7 @@ function fulfillPurpose(pageType, ownerOrTitle) {
 	var deviantList = [];
 	var deviantBag = {};
 	var totalDeviations = 0;
+	var firstDeviant;
 	// When a deviant is recorded, a reference should be added to both the list and the bag.
 
 	$("body").css("cursor", "wait");
@@ -68,6 +69,10 @@ function fulfillPurpose(pageType, ownerOrTitle) {
 				scanRetry();
 			} )
 			.appendTo(preparationScreen);
+	}
+	window.showDeviant = function(deviantName) {
+	// This will be replaced by scanDone_startFun.
+		firstDeviant = deviantName;
 	}
 	window.scanDone_startFun = function(firstTip) {
 		deviantList.sort(function orderMostLoved(a, b) {
@@ -151,7 +156,7 @@ function fulfillPurpose(pageType, ownerOrTitle) {
 				step: scrollToDeviationList
 			});
 		} );
-		if ($("#query").hasClass("placeholder")) {
+		if ($("#query").hasClass("placeholder")) { // Placeholder attribute emulation
 			$("#query").bind("focus", function() {
 				if ($(this).hasClass("placeholder")) {
 					$(this).val("").removeClass("placeholder");
@@ -171,13 +176,20 @@ function fulfillPurpose(pageType, ownerOrTitle) {
 			}
 		} );
 		$("#findBar").submit(findStuff);
-		$("#noFind").bind("click", function() {
-			if (mainScreen.hasClass("lookWhatIFound")) {
-				mainScreen.removeClass("lookWhatIFound");
-				lovedArtists.removeClass("noResults").empty().append(snackOnMyWrath(deviantList));
-			}
-		} );
+		$("#noFind").bind("click", normalMode);
+		
+		// Handle requests for a particular deviant that were made elsewhere (e.g. context menu)
+		$.fx.off = true;
+		$("#deviant_" + firstDeviant).trigger("click")
+			.get(0).scrollIntoView();
+		$.fx.off = false;
+		window.showDeviant = function(deviantName) {
+			normalMode();
+			$("#deviant_" + deviantName).trigger("click")
+				.get(0).scrollIntoView();
+		}
 
+		// All done, now go play!
 		$("body").css("cursor", "");
 	}
 	function findStuff(event) {
@@ -250,6 +262,12 @@ function fulfillPurpose(pageType, ownerOrTitle) {
 			} );
 		}
 	}
+	function normalMode() {
+		if (mainScreen.hasClass("lookWhatIFound")) {
+			mainScreen.removeClass("lookWhatIFound");
+			lovedArtists.removeClass("noResults").empty().append(snackOnMyWrath(deviantList));
+		}
+	}
 }
 
 var l10n;
@@ -262,6 +280,7 @@ function tipOfTheMoment(tip) {
 	$("#tOTMText").html(tip.html);
 }
 function scrollToDeviationList() {
+// Differs from the DOM method scrollIntoView in that it doesn't align .opened.deviant with either the top or bottom of the display area unless that is necessary to keep it in view
 	// It's actually easier NOT to use jQuery here.
 	var lovedArtistsElem = document.getElementById("lovedArtists");
 	var openedDeviantElem = document.querySelector(".opened.deviant");

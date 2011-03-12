@@ -6,6 +6,7 @@
 <!doctype html>
 <html>
 <script src="core/jquery.js"></script>
+<script src="_locales/en/contextMenu.js"></script>
 <script>
 chrome.extension.onRequest.addListener( function(thing, buddy, callback) {switch (thing.action) {
 	case "showLove":
@@ -26,6 +27,18 @@ chrome.extension.onRequest.addListener( function(thing, buddy, callback) {switch
 		} else {
 			callback();
 		}
+	break;
+	case "showArtistLove":
+		chrome.contextMenus.create({
+			title: artistCheckText.replace("$1", thing.artist),
+			contexts: ["link"],
+			onclick: function() {
+				// TODO: Write this. This will probably be just a sendRequest to buddy.tab.id
+			}
+		});
+	break;
+	case "noArtistLove":
+		chrome.contextMenus.removeAll();
 	break;
 }} );
 chrome.pageAction.onClicked.addListener( function(buddy) {

@@ -41,7 +41,7 @@ window.addEventListener("load", function() {
 	// From https://developer.mozilla.org/en/Code_snippets/Tabbed_browser#Detecting_tab_selection
 	gBrowser.tabContainer.addEventListener("TabSelect", checkLove, false);
 
-	var heart = document.getElementById("Deviant-Love-Heart");
+	var heart = document.getElementById("DeviantLoveHeart");
 	function checkLove() {
 		var lovePresent = Boolean(content.document.DeviantLove);
 		heart.hidden = !lovePresent;
@@ -63,8 +63,20 @@ window.addEventListener("load", function() {
 		}
 	}, false);
 	
+	var artistCheck = document.getElementById("DeviantLoveArtistCheck");
 	document.getElementById("contentAreaContextMenu").addEventListener("popupshowing", function() {
-		// TODO: Do a thing with gContextMenu.target.mozMatchesSelector(".folderview-art a.u")
+		if (gContextMenu.target.mozMatchesSelector(".folderview-art a.u")) {
+			if (!DeviantLove.artistCheckText) {
+				loader.loadSubScript("chrome://DeviantLove/locale/contextMenu.js", DeviantLove);
+			}
+			artistCheck.label = DeviantLove.artistCheckText.replace("$1", gContextMenu.target.textContent);
+			artistCheck.hidden = false;
+		} else {
+			artistCheck.hidden = true;
+		}
+	}, false);
+	artistCheck.addEventListener("command", function() {
+		// TODO: Write this
 	}, false);
 }, false);
 
