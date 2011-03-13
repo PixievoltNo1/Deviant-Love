@@ -36,9 +36,13 @@ body > div {
 	border-top: 0;
 }
 #scanResults {
-	background: url("48Icon.png") no-repeat;
-	background-position: 5px center;
-	background-color: hsl(40, 100%, 60%);
+	background: url("48Icon.png"), -moz-linear-gradient(top, hsl(40, 100%, 70%), hsl(40, 100%, 50%));
+	background: url("48Icon.png"), -webkit-gradient(linear, left top, left bottom,
+		from(hsl(40, 100%, 70%)), to(hsl(40, 100%, 50%)));
+	background: url("48Icon.png"), linear-gradient(top, hsl(40, 100%, 70%), hsl(40, 100%, 50%));
+	background-position: 5px center, 0 0;
+	background-repeat: no-repeat, repeat;
+	/* background-color: hsl(40, 100%, 60%); */
 	padding: 5px;
 	padding-left: 58px;
 }
@@ -100,17 +104,20 @@ body > div {
 	box-flex: 1;
 }
 #lovedArtists, .closerLook {
-	background-color: hsl(350, 100%, 54%);
+	background: hsl(350, 100%, 54%);
 }
 .deviant:not(.opened) {
-	background-color: hsl(350, 100%, 78%);
+	background: hsl(350, 100%, 78%);
 	cursor: pointer;
 }
 .deviant:hover {
-	background-color: hsl(350, 100%, 82%);
+	background: -moz-linear-gradient(top, hsl(350, 100%, 88%), hsl(350, 100%, 82%));
+	background: -webkit-gradient(linear, left top, left bottom,
+		from(hsl(350, 100%, 88%)), to(hsl(350, 100%, 82%)));
+	background: linear-gradient(top, hsl(350, 100%, 88%), hsl(350, 100%, 82%));
 }
 .deviant.opened {
-	background-color: hsl(350, 100%, 74%);
+	background: hsl(350, 100%, 74%);
 }
 .deviant + .deviant {
 	margin-top: 1px;
