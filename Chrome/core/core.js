@@ -179,10 +179,12 @@ function fulfillPurpose(pageType, ownerOrTitle) {
 		$("#noFind").bind("click", normalMode);
 		
 		// Handle requests for a particular deviant that were made elsewhere (e.g. context menu)
-		$.fx.off = true;
-		$("#deviant_" + firstDeviant).trigger("click")
-			.get(0).scrollIntoView();
-		$.fx.off = false;
+		if (firstDeviant) {
+			$.fx.off = true;
+			$("#deviant_" + firstDeviant).trigger("click")
+				.get(0).scrollIntoView();
+			$.fx.off = false;
+		}
 		window.showDeviant = function(deviantName) {
 			normalMode();
 			$("#deviant_" + deviantName).trigger("click")
