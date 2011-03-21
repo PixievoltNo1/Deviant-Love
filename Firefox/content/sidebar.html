@@ -51,6 +51,8 @@ function rawk() {
 	scannerController = researchLove(pageData.feedHref, {
 		faves: collectData,
 		onFavesError: scanError,
+		watched: collectWatchlist,
+		onWatchError: watchError,
 		onDone: function() { scanDone_startFun(top.DeviantLove.getTip()); }
 	});
 	window.scanRetry = scannerController.favesRetry;

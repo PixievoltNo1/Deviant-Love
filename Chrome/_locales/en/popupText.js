@@ -5,6 +5,8 @@ var popupText = {
 	"scanProgress": "$1 deviations scanned",
 	"scanError": "Communication with deviantART was unsuccessful.",
 	"scanErrorRetry": "Try again",
+	"watchSuccess": "Successfully retrieved your watch list",
+	"watchFailure": "Attempting to check your watch list failed",
 	"scanFeaturedResultsPopupLine1": "This page has $1 featured faves",
 	"scanAllResultsPopupLine1": "This page has $1 faves",
 	"scanCollectionResultsPopupLine1": "This Collection has $1 faves",
@@ -18,6 +20,7 @@ var popupText = {
 	"foundDeviants": "Found $1 deviant(s)",
 	"foundDeviations": "Found $1 deviation(s) from $2",
 	"foundNothing": "Sorry, there are no matches!",
+	"watchingThisArtist": "You are watching this artist's deviations",
 	"profileLinkName": "Profile",
 	"galleryLinkName": "Gallery"
 }

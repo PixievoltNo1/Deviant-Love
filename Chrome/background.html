@@ -57,7 +57,7 @@ function getTip(callback) {
 chrome.extension.onConnect.addListener( function(port) {
 	chrome.tabs.sendRequest(port.sender.tab.id, {action: "getFeedHref"}, function(feedHref) {
 		var scannerController = researchLove(feedHref, {
-			faves: function(data) { port.postMessage(data); },
+			faves: function(data) { port.postMessage({whatsUp: "faves", "data": data}); },
 			onFavesError: function() {
 				chrome.extension.onRequest.addListener( function scanRetry(thing, buddy, callback) {
 					if (buddy.tab.id == port.sender.tab.id && thing.action == "scanRetry") {
@@ -65,8 +65,10 @@ chrome.extension.onConnect.addListener( function(port) {
 						chrome.extension.onRequest.removeListener(scanRetry);
 					}
 				} );
-				chrome.tabs.sendRequest(port.sender.tab.id, {action: "scanError"});
+				port.postMessage({whatsUp: "scanError"});
 			},
+			watched: function(data) { port.postMessage({whatsUp: "watched", "data": data}); },
+			onWatchError: function() { port.postMessage({whatsUp: "watchError"}); },
 			onDone: function() {
 				getTip(function(tip) {
 					chrome.extension.onRequest.removeListener(stateChangeReaction);

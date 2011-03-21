@@ -26,6 +26,7 @@ function fulfillPurpose(pageType, ownerOrTitle) {
 	var deviantList = [];
 	var deviantBag = {};
 	var totalDeviations = 0;
+	var watchedArtists;
 	// When a deviant is recorded, a reference should be added to both the list and the bag.
 
 	$("body").css("cursor", "wait");
@@ -37,6 +38,7 @@ function fulfillPurpose(pageType, ownerOrTitle) {
 	})[pageType];
 	$("<div>", {id: "scanMessage"}).text(scanMessageText).appendTo(preparationScreen);
 	var scanProgress = $("<div>", {id: "scanProgress"}).appendTo(preparationScreen);
+	var watchStatus = $("<div>", {id: "watchStatus"}).appendTo(preparationScreen);
 	window.collectData = function(newData) {
 		newData.forEach(function(item) {
 			if (!deviantBag[item.artistName]) {
@@ -69,6 +71,13 @@ function fulfillPurpose(pageType, ownerOrTitle) {
 			} )
 			.appendTo(preparationScreen);
 	}
+	window.collectWatchlist = function(list) {
+		watchedArtists = list;
+		watchStatus.text(l10n.watchSuccess);
+	}
+	window.watchError = function() {
+		watchStatus.text(l10n.watchFailure);
+	}
 	window.scanDone_startFun = function(firstTip) {
 		deviantList.sort(function orderMostLoved(a, b) {
 			if (a.deviations.length != b.deviations.length) {
@@ -77,12 +86,22 @@ function fulfillPurpose(pageType, ownerOrTitle) {
 				return a.name.toLowerCase().localeCompare(b.name.toLowerCase());
 			}
 		});
+		if (watchedArtists) {
+			watchedArtists.forEach(function(awesome) {
+				if (deviantBag[awesome]) {
+					deviantBag[awesome].watched = true;
+				}
+			});
+		}
 		preparationScreen.remove();
 
 		// Construct the UI
 		var mainScreen = $("<div>", {id: "mainScreen"});
 		mainScreen.appendTo(document.body);
 		var scanResults = $("<div>", {id: "scanResults"});
+		if (!watchedArtists) {
+			$("<div>", {id: "watchFailure", title: l10n.watchFailure}).appendTo(scanResults);
+		}
 		if (displayType == "popup") {
 			var scanResultsLine1Text = ({
 				featured: l10n.scanFeaturedResultsPopupLine1,
@@ -281,9 +300,14 @@ function snackOnMyWrath(finkRats) {
 	// "You have energy like a little angry battery with no friends."
 	var rageDressing = $();
 	finkRats.forEach( function(deviant) {
-		rageDressing = rageDressing.add( $("<div>", {"class": "deviant", id: "deviant_" + deviant.name})
-			.append($("<span>", {"class": "deviantFaves"}).text(deviant.deviations.length))
-			.append($("<span>", {"class": "deviantName"}).text(deviant.name)) );
+		var deviantElem = $("<div>", {"class": "deviant", id: "deviant_" + deviant.name})
+			.append($("<span>", {"class": "deviantFaves"}).text(deviant.deviations.length));
+		if (deviant.watched) {
+			deviantElem.append($("<div>", {"class": "deviationWatch",
+				"title": l10n.watchingThisArtist}).html("&nbsp;"));
+		}
+		deviantElem.append($("<span>", {"class": "deviantName"}).text(deviant.name));
+		rageDressing = rageDressing.add(deviantElem);
 	} );
 	return rageDressing; // on a salad of evil
 }

@@ -21,6 +21,9 @@ body > div {
 	font-size: 200%;
 	margin-bottom: 10px;
 }
+#scanProgress {
+	margin-bottom: 8px;
+}
 #mainScreen {
 	display: -moz-box;
 	display: -webkit-box;
@@ -44,6 +47,14 @@ body > div {
 }
 #scanResults .dynamic {
 	font-weight: bold;
+}
+#watchFailure {
+	float: right;
+	width: 20px;
+	height: 20px;
+	background: url("Failed.png"), url("Watch.png");
+	background-position: center, center;
+	background-repeat: no-repeat, no-repeat;
 }
 #findBar {
 	display: -moz-box;
@@ -127,6 +138,14 @@ body > div {
 }
 .deviantFaves::after {
 	content: ")";
+}
+.deviationWatch {
+	display: inline-block;
+	width: 22px;
+	background: url("DeviationWatch.png");
+	background-position: center;
+	background-repeat: no-repeat;
+	margin-right: 0.2em;
 }
 .deviantDetails {
 	float: left;
