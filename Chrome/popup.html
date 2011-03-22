@@ -23,28 +23,32 @@ $(document).ready( function() {
 		function(initData) {
 			setL10n(initData.l10n);
 			fulfillPurpose(initData.pageType);
-			listenIn(chrome.extension.connect({name: "fetchFeedData"}));
+			chrome.extension.connect({name: "fetchFeedData"}).onMessage.addListener(collectResearch);
 		}
 	)
 } );
-function listenIn(port) {
-	port.onMessage.addListener(function(thing) {collectData(thing)});
-}
+function collectResearch(thing) {switch (thing.whatsUp) {
+	case "faves": collectData(thing.data); break;
+	case "scanError": scanError(); break;
+	case "watched": collectWatchlist(thing.data); break;
+	case "watchError": watchError(); break;
+}}
 chrome.extension.onRequest.addListener(function(thing, buddy, callback) {switch (thing.action) {
+	case "scanningComplete":
+		// This message can't be received through the port because manager.js needs to receive it, too
+		scanDone_startFun(thing.tip);
+	break;
 	case "changeTip":
 		tipOfTheMoment(thing.tip);
 		callback();
-	break;
-	case "scanningComplete":
-		scanDone_startFun(thing.tip);
-	break;
-	case "scanError":
-		scanError();
 	break;
 }});
 function scanRetry() {
 	chrome.extension.sendRequest({action: "scanRetry"});
 }
+$.fn.tooltip = function(tooltipText) {
+	return this.attr("title", tooltipText);
+};
 $(document).delegate("a", "click", function(event) {
 	if (event.button == 0) { window.open(this.href); }
 	event.preventDefault();

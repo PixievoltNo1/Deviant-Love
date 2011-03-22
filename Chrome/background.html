@@ -6,6 +6,7 @@
 <!doctype html>
 <html>
 <script src="core/jquery.js"></script>
+<script src="core/scanner.js"></script>
 <script src="_locales/en/contextMenu.js"></script>
 <script>
 chrome.extension.onRequest.addListener( function(thing, buddy, callback) {switch (thing.action) {
@@ -67,71 +68,41 @@ function getTip(callback) {
 	} );
 }
 chrome.extension.onConnect.addListener( function(port) {
-	var buddyActive = true, resume, currentXHR, currentURL;
-	chrome.extension.onRequest.addListener(stateChangeReaction);
-	function stateChangeReaction(thing, buddy) {if (buddy.tab.id == port.sender.tab.id) {
-		if (thing.action == "popupActivation") {
-			buddyActive = true;
-			if (resume) {
-				resume();
-				resume = null;
-			}
-		} else if (thing.action == "popupDeactivation") {
-			buddyActive = false;
-		}
-	}}
-	var ajaxSettings = {
-		dataType: "xml",
-		beforeSend: function(XHR) {currentXHR = XHR},
-		success: scanFeed,
-		error: function() {
-			chrome.extension.onRequest.addListener( function scanRetry(thing, buddy, callback) {
-				if (buddy.tab.id == port.sender.tab.id && thing.action == "scanRetry") {
-					$.ajax( $.extend( {}, ajaxSettings, {url: currentURL} ) );
-					chrome.extension.onRequest.removeListener(scanRetry);
-				}
-			} );
-			chrome.tabs.sendRequest(port.sender.tab.id, {action: "scanError"});
-			}
-	};
 	chrome.tabs.sendRequest(port.sender.tab.id, {action: "getFeedHref"}, function(feedHref) {
-		currentURL = feedHref;
-		$.ajax( $.extend( {}, ajaxSettings, {url: currentURL} ) );
-	} );
-	function scanFeed(feed) {
-		var data = [];
-		$("item", feed).each( function() {
-			var item = {
-				deviationName: $("title:eq(0)", this).text(),
-				deviationPage: $("link", this).text(),
-				artistName: $('[role="author"]:eq(0)', this).text(),
-				artistAvatar: $('[role="author"]:eq(1)', this).text(),
-				artistProfile: $("copyright", this).attr("url")
-			};
-			item.artistGallery = item.artistProfile + "/gallery/";
-			data.push(item);
-		} );
-		port.postMessage(data);
-		var nextPage = $('channel > [rel="next"]', feed);
-		if (nextPage.length >= 1) {
-			currentURL = nextPage.attr("href");
-			if (buddyActive) {
-				$.ajax( $.extend( {}, ajaxSettings, {url: currentURL} ) );
-			} else {
-				resume = function() {$.ajax( $.extend( {}, ajaxSettings, {url: currentURL} ) )};
+		var scannerController = researchLove(feedHref, {
+			faves: function(data) { port.postMessage({whatsUp: "faves", "data": data}); },
+			onFavesError: function() {
+				chrome.extension.onRequest.addListener( function scanRetry(thing, buddy, callback) {
+					if (buddy.tab.id == port.sender.tab.id && thing.action == "scanRetry") {
+						scannerController.favesRetry();
+						chrome.extension.onRequest.removeListener(scanRetry);
+					}
+				} );
+				port.postMessage({whatsUp: "scanError"});
+			},
+			watched: function(data) { port.postMessage({whatsUp: "watched", "data": data}); },
+			onWatchError: function() { port.postMessage({whatsUp: "watchError"}); },
+			onDone: function() {
+				getTip(function(tip) {
+					chrome.extension.onRequest.removeListener(stateChangeReaction);
+					chrome.tabs.sendRequest(port.sender.tab.id, {action: "scanningComplete", "tip": tip});
+					port.disconnect();
+				});
 			}
-		} else {
-			getTip(function(tip) {
-				chrome.extension.onRequest.removeListener(stateChangeReaction);
-				chrome.tabs.sendRequest(port.sender.tab.id, {action: "scanningComplete", "tip": tip});
-				port.disconnect();
-			});
-		}
-	}
-	port.onDisconnect.addListener(function() {
-		currentXHR.abort();
-		chrome.extension.onRequest.removeListener(stateChangeReaction);
-	})
+		});
+		chrome.extension.onRequest.addListener(stateChangeReaction);
+		function stateChangeReaction(thing, buddy) {if (buddy.tab.id == port.sender.tab.id) {
+			if (thing.action == "popupDeactivation") {
+				scannerController.pause();
+			} else if (thing.action == "popupActivation") {
+				scannerController.resume();
+			}
+		}}
+		port.onDisconnect.addListener(function() {
+			scannerController.cancel();
+			chrome.extension.onRequest.removeListener(stateChangeReaction);
+		})
+	} );
 } );
 </script>
 <body></body>
