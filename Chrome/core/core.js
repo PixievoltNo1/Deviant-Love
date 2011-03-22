@@ -100,7 +100,7 @@ function fulfillPurpose(pageType, ownerOrTitle) {
 		mainScreen.appendTo(document.body);
 		var scanResults = $("<div>", {id: "scanResults"});
 		if (!watchedArtists) {
-			$("<div>", {id: "watchFailure", title: l10n.watchFailure}).appendTo(scanResults);
+			$("<div>", {id: "watchFailure"}).tooltip(l10n.watchFailure).appendTo(scanResults);
 		}
 		if (displayType == "popup") {
 			var scanResultsLine1Text = ({
@@ -303,8 +303,8 @@ function snackOnMyWrath(finkRats) {
 		var deviantElem = $("<div>", {"class": "deviant", id: "deviant_" + deviant.name})
 			.append($("<span>", {"class": "deviantFaves"}).text(deviant.deviations.length));
 		if (deviant.watched) {
-			deviantElem.append($("<div>", {"class": "deviationWatch",
-				"title": l10n.watchingThisArtist}).html("&nbsp;"));
+			deviantElem.append($("<div>", {"class": "deviationWatch"}).html("&nbsp;")
+				.tooltip(l10n.watchingThisArtist));
 		}
 		deviantElem.append($("<span>", {"class": "deviantName"}).text(deviant.name));
 		rageDressing = rageDressing.add(deviantElem);
