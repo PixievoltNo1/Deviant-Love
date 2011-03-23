@@ -47,6 +47,7 @@ $(document).ready( function() {
 function restart() {
 	scannerController.cancel();
 	$("body").empty();
+	delete top.DeviantLove.currentScanData;
 	rawk();
 }
 function rawk() {
@@ -57,14 +58,20 @@ function rawk() {
 		top.toggleSidebar();
 	}
 	fulfillPurpose(pageData.pageType, pageData.ownerOrTitle);
-	scannerController = researchLove(pageData.feedHref, {
-		faves: collectData,
-		onFavesError: scanError,
-		watched: collectWatchlist,
-		onWatchError: watchError,
-		onDone: function() { scanDone_startFun(top.DeviantLove.getTip()); }
-	});
-	window.scanRetry = scannerController.favesRetry;
+	if (!top.DeviantLove.currentScanData) {
+		scannerController = researchLove(pageData.feedHref, {
+			faves: collectData,
+			onFavesError: scanError,
+			watched: collectWatchlist,
+			onWatchError: watchError,
+			onDone: function() {
+				top.DeviantLove.currentScanData = scanDone_startFun(top.DeviantLove.getTip());
+			}
+		});
+		window.scanRetry = scannerController.favesRetry;
+	} else {
+		restore(top.DeviantLove.currentScanData, top.DeviantLove.getTip());
+	}
 }
 $.fn.tooltipPlugin = $.fn.tooltip;
 $.fn.tooltip = function(tooltipText) {

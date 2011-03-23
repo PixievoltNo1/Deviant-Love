@@ -55,6 +55,7 @@ window.addEventListener("load", function() {
 				loader.loadSubScript("chrome://DeviantLove/locale/popupText.js", DeviantLove);
 			}
 			DeviantLove.currentPageData = doc.DeviantLove.pageData;
+			delete DeviantLove.currentScanData;
 			doc.DeviantLove.focus = ++currentFocus;
 			if (document.getElementById("sidebar").contentWindow.DeviantLove) {
 				document.getElementById("sidebar").contentWindow.restart();

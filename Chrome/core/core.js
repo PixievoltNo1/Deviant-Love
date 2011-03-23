@@ -62,11 +62,14 @@ function fulfillPurpose(pageType, ownerOrTitle) {
 	}
 	window.scanError = function() {
 		$("body").css("cursor", "");
-		scanProgress.text(l10n.scanError);
+		scanProgress.hide();
+		watchStatus.hide();
+		$("<div>", {id: "scanError"}).text(l10n.scanError);
 		$("<input>", {type: "button", id: "retryButton", value: l10n.scanErrorRetry})
 			.bind("click", function() {
-				scanProgress.text("");
-				$(this).remove();
+				$(this).add("#scanError").remove();
+				scanProgress.show();
+				watchStatus.show();
 				$("body").css("cursor", "wait");
 				scanRetry();
 			} )
@@ -83,6 +86,15 @@ function fulfillPurpose(pageType, ownerOrTitle) {
 	window.watchError = function() {
 		watchStatus.text(l10n.watchFailure);
 	}
+	window.restore = function(data, firstTip) {
+		deviantList = data.deviantList;
+		deviantList.forEach(function(deviant) {
+			deviantBag[deviant.name] = deviant;
+			totalDeviations += deviant.deviations.length;
+		});
+		watchedArtists = data.watchRetrievalOK;
+		report(firstTip);
+	}
 	window.scanDone_startFun = function(firstTip) {
 		deviantList.sort(function orderMostLoved(a, b) {
 			if (a.deviations.length != b.deviations.length) {
@@ -98,9 +110,13 @@ function fulfillPurpose(pageType, ownerOrTitle) {
 				}
 			});
 		}
-		preparationScreen.remove();
-
+		
+		report(firstTip);
+		return {"deviantList": deviantList, watchRetrievalOK: Boolean(watchedArtists)}; // Needed by the Firefox version
+	}
+	function report(firstTip) {
 		// Construct the UI
+		preparationScreen.remove();
 		var mainScreen = $("<div>", {id: "mainScreen"});
 		mainScreen.appendTo(document.body);
 		var scanResults = $("<div>", {id: "scanResults"});
