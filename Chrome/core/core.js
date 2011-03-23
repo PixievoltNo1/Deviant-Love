@@ -75,6 +75,7 @@ function fulfillPurpose(pageType, ownerOrTitle) {
 	window.showDeviant = function(deviantName) {
 	// This will be replaced by scanDone_startFun.
 		firstDeviant = deviantName;
+	}
 	window.collectWatchlist = function(list) {
 		watchedArtists = list;
 		watchStatus.text(l10n.watchSuccess);
