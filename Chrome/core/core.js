@@ -300,9 +300,9 @@ function fulfillPurpose(pageType, ownerOrTitle) {
 		}
 	}
 	function normalMode() {
-		if (mainScreen.hasClass("lookWhatIFound")) {
-			mainScreen.removeClass("lookWhatIFound");
-			lovedArtists.removeClass("noResults").empty().append(snackOnMyWrath(deviantList));
+		if ($("#mainScreen").hasClass("lookWhatIFound")) {
+			$("#mainScreen").removeClass("lookWhatIFound");
+			$("#lovedArtists").removeClass("noResults").empty().append(snackOnMyWrath(deviantList));
 		}
 	}
 }
