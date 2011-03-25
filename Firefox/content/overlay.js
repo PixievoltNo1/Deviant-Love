@@ -66,7 +66,8 @@ window.addEventListener("load", function() {
 	
 	var artistCheck = document.getElementById("DeviantLoveArtistCheck");
 	document.getElementById("contentAreaContextMenu").addEventListener("popupshowing", function() {
-		if (gContextMenu.target.mozMatchesSelector(".folderview-art a.u")) {
+		if (gContextMenu.target.ownerDocument.DeviantLove &&
+			gContextMenu.target.mozMatchesSelector(".folderview-art a.u")) {
 			if (!DeviantLove.artistCheckText) {
 				loader.loadSubScript("chrome://DeviantLove/locale/contextMenu.js", DeviantLove);
 			}

@@ -45,6 +45,9 @@ chrome.extension.onRequest.addListener( function(thing, buddy, callback) {switch
 chrome.pageAction.onClicked.addListener( function(buddy) {
 	chrome.tabs.sendRequest(buddy.id, {action: "spark"});
 } );
+chrome.tabs.onSelectionChanged.addListener( function() {
+	chrome.contextMenus.removeAll();
+} );
 var l10n = {};
 function getL10nFile(fileName, callback) {
 	if (l10n[fileName]) {

@@ -64,6 +64,9 @@ document.querySelector(".folderview-art").addEventListener("mouseover", function
 		}, false);
 	}
 }, false);
+addEventListener("pagehide", function() {
+	chrome.extension.sendRequest({action: "noArtistLove"});
+}, false);
 
 function activate() {
 	if (popupStage == "uninitialized") {
