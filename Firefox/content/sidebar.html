@@ -45,7 +45,7 @@ $(document).ready( function() {
 	rawk();
 } );
 function restart() {
-	scannerController.cancel();
+	if (scannerController) {scannerController.cancel()};
 	$("body").empty();
 	delete top.DeviantLove.currentScanData;
 	rawk();
