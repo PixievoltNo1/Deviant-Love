@@ -46,23 +46,7 @@ window.addEventListener("load", function() {
 		var lovePresent = Boolean(content.document.DeviantLove);
 		heart.hidden = !lovePresent;
 	}
-	heart.addEventListener("command", function() {
-		var doc = content.document;
-		if (doc.DeviantLove.focus == currentFocus) {
-			toggleSidebar("DeviantLoveSidebar");
-		} else {
-			if (!DeviantLove.popupText) {
-				loader.loadSubScript("chrome://DeviantLove/locale/popupText.js", DeviantLove);
-			}
-			DeviantLove.currentPageData = doc.DeviantLove.pageData;
-			delete DeviantLove.currentScanData;
-			doc.DeviantLove.focus = ++currentFocus;
-			if (document.getElementById("sidebar").contentWindow.DeviantLove) {
-				document.getElementById("sidebar").contentWindow.restart();
-			}
-			toggleSidebar("DeviantLoveSidebar", true);
-		}
-	}, false);
+	heart.addEventListener("command", summonRawkitude, false);
 	
 	var artistCheck = document.getElementById("DeviantLoveArtistCheck");
 	document.getElementById("contentAreaContextMenu").addEventListener("popupshowing", function() {
@@ -77,9 +61,29 @@ window.addEventListener("load", function() {
 			artistCheck.hidden = true;
 		}
 	}, false);
-	artistCheck.addEventListener("command", function() {
-		// TODO: Write this
-	}, false);
+	artistCheck.addEventListener("command", summonRawkitude, false);
+	
+	function summonRawkitude(event) {
+		var doc = content.document;
+		if (doc.DeviantLove.focus == currentFocus &&
+			(this == heart || !document.getElementById("sidebar").contentWindow.DeviantLove)) {
+			toggleSidebar("DeviantLoveSidebar");
+		} else if (doc.DeviantLove.focus == currentFocus) { // && this == artistCheck && <Deviant Love is loaded in the sidebar>
+			document.getElementById("sidebar").contentWindow.showDeviant(gContextMenu.target.textContent);
+		} else {
+			if (!DeviantLove.popupText) {
+				loader.loadSubScript("chrome://DeviantLove/locale/popupText.js", DeviantLove);
+			}
+			DeviantLove.currentPageData = doc.DeviantLove.pageData;
+			if (this == artistCheck) {DeviantLove.firstDeviant = gContextMenu.target.textContent;};
+			delete DeviantLove.currentScanData;
+			doc.DeviantLove.focus = ++currentFocus;
+			if (document.getElementById("sidebar").contentWindow.DeviantLove) {
+				document.getElementById("sidebar").contentWindow.restart();
+			}
+			toggleSidebar("DeviantLoveSidebar", true);
+		}
+	}
 }, false);
 
 DeviantLove.getTip = function() {

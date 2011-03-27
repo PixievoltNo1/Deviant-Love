@@ -20,6 +20,7 @@
 	- New Array methods in ECMAScript 5th Edition
 	- scanRetry function
 	- displayType string
+	- $.fn.tooltip
 */
 
 function fulfillPurpose(pageType, ownerOrTitle) {
@@ -222,8 +223,10 @@ function fulfillPurpose(pageType, ownerOrTitle) {
 		}
 		window.showDeviant = function(deviantName) {
 			normalMode();
+			$.fx.off = (displayType == "popup");
 			$("#deviant_" + deviantName).trigger("click")
 				.get(0).scrollIntoView();
+			$.fx.off = false;
 		}
 
 		// All done, now go play!

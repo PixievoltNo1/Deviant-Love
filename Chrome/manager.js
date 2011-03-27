@@ -37,6 +37,9 @@ chrome.extension.onRequest.addListener( function(thing, buddy, callback) {switch
 		if (popupState == "inactive") {activate()} else
 		if (popupState == "active") {deactivate()};
 	break;
+	case "artistRequested":
+		activate(thing.artist);
+	break;
 	case "scanningComplete":
 		popupStage = "love";
 	break;
@@ -68,7 +71,7 @@ addEventListener("pagehide", function() {
 	chrome.extension.sendRequest({action: "noArtistLove"});
 }, false);
 
-function activate() {
+function activate(firstDeviant) {
 	if (popupStage == "uninitialized") {
 		chrome.extension.onRequest.addListener( function popupReady(thing) {
 			if (thing.action == "popupReady") {
@@ -77,9 +80,12 @@ function activate() {
 				chrome.extension.onRequest.removeListener(popupReady);
 			}
 		} );
-		popup.src = chrome.extension.getURL("popup.html");
+		popup.src = chrome.extension.getURL("popup.html" + (firstDeviant ? "#" + firstDeviant : ""));
+	} else if (popupStage == "scanning") {
+		chrome.extension.sendRequest({action: "resumeScan"});
+		reveal();
 	} else {
-		chrome.extension.sendRequest({action: "popupActivation", "popupStage": popupStage}, reveal);
+		chrome.extension.sendRequest({action: "sendTip"}, reveal);
 	}
 	popupCSS.display = "";
 	shieldCSS.display = "";
@@ -93,7 +99,7 @@ function activate() {
 }
 function deactivate() {
 	shield.removeEventListener("click", deactivate, false);
-	chrome.extension.sendRequest({action: "popupDeactivation"});
+	if (popupStage == "scanning") {chrome.extension.sendRequest({action: "pauseScan"})};
 	popup.addEventListener("webkitTransitionEnd", function hide() {
 		popupCSS.display = "none";
 		shieldCSS.display = "none";

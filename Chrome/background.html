@@ -21,20 +21,16 @@ chrome.extension.onRequest.addListener( function(thing, buddy, callback) {switch
 		} );
 		chrome.tabs.sendRequest(buddy.tab.id, {action: "popupReady"})
 	break;
-	case "popupActivation":
-		if (thing.popupStage == "love") {
-			getTip(function(tip) {chrome.tabs.sendRequest(buddy.tab.id,
-				{action: "changeTip", "tip": tip}, callback)});
-		} else {
-			callback();
-		}
+	case "sendTip":
+		getTip(function(tip) {chrome.tabs.sendRequest(buddy.tab.id,
+			{action: "changeTip", "tip": tip}, callback)});
 	break;
 	case "showArtistLove":
 		chrome.contextMenus.create({
 			title: artistCheckText.replace("$1", thing.artist),
 			contexts: ["link"],
 			onclick: function() {
-				// TODO: Write this. This will probably be just a sendRequest to buddy.tab.id
+				chrome.tabs.sendRequest(buddy.tab.id, {action: "artistRequested", artist: thing.artist});
 			}
 		});
 	break;
@@ -95,9 +91,9 @@ chrome.extension.onConnect.addListener( function(port) {
 		});
 		chrome.extension.onRequest.addListener(stateChangeReaction);
 		function stateChangeReaction(thing, buddy) {if (buddy.tab.id == port.sender.tab.id) {
-			if (thing.action == "popupDeactivation") {
+			if (thing.action == "pauseScan") {
 				scannerController.pause();
-			} else if (thing.action == "popupActivation") {
+			} else if (thing.action == "resumeScan") {
 				scannerController.resume();
 			}
 		}}

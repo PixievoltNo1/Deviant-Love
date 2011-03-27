@@ -58,6 +58,10 @@ function rawk() {
 		top.toggleSidebar();
 	}
 	fulfillPurpose(pageData.pageType, pageData.ownerOrTitle);
+	if (top.DeviantLove.firstDeviant) {
+		showDeviant(top.DeviantLove.firstDeviant);
+		delete top.DeviantLove.firstDeviant;
+	}
 	if (!top.DeviantLove.currentScanData) {
 		scannerController = researchLove(pageData.feedHref, {
 			faves: collectData,
