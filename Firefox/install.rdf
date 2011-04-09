@@ -3,22 +3,17 @@
   <Description about="urn:mozilla:install-manifest">
     <em:id>deviantlove@pikadudeno1.com</em:id>
     <em:type>2</em:type>
-    <em:localized>
-      <Description>
-        <em:locale>en</em:locale>
-        <em:name>Deviant Love</em:name>
-        <em:description>An artist-centered view of a deviantART Faves page</em:description>
-        <em:creator>Pikadude No. 1</em:creator>
-        <em:homepageURL>http://fav.me/d2my13o</em:homepageURL>
-      </Description>
-    </em:localized>
-    <em:version>2.0a1</em:version>
+	<em:name>Deviant Love</em:name>
+	<em:description>An artist-centered view of a deviantART Faves page</em:description>
+	<em:creator>Pikadude No. 1</em:creator>
+	<em:homepageURL>http://fav.me/d2my13o</em:homepageURL>
+    <em:version>2.0rc1</em:version>
     <em:iconURL>chrome://DeviantLove/content/core/48Icon.png</em:iconURL>
     <em:targetApplication>
       <Description>
         <em:id>{ec8030f7-c20a-464f-9b0e-13a3a9e97384}</em:id> <!-- Firefox -->
         <em:minVersion>3.6</em:minVersion>
-        <em:maxVersion>3.6.*</em:maxVersion>
+        <em:maxVersion>4.0.*</em:maxVersion>
       </Description>
     </em:targetApplication>
   </Description>

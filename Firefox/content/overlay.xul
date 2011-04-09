@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <?xml-stylesheet href="chrome://DeviantLove/content/overlay.css"?>
-<overlay id="Deviant-Love-overlay" xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+<overlay id="DeviantLoveOverlay" xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
 	<script src="overlay.js"/>
 	<hbox id="urlbar-icons">
-		<button id="Deviant-Love-Heart" class="plain urlbar-icon"
+		<button id="DeviantLoveHeart" class="plain urlbar-icon"
 			tooltiptext="Deviant Love" position="1" hidden="true" />
 	</hbox>
 	<broadcasterset id="mainBroadcasterSet"> 
@@ -14,4 +14,7 @@
 	<sidebarheader id="sidebar-header">
 		<button id="DeviantLoveReload" label="Reload" position="2" hidden="true" />
 	</sidebarheader>
+	<popup id="contentAreaContextMenu">
+		<menuitem id="DeviantLoveArtistCheck" class="menuitem-iconic" label="Deviant Love" position="1"/>
+	</popup>
 </overlay>

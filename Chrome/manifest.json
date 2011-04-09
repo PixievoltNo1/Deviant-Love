@@ -1,8 +1,9 @@
 {
 	"name": "Deviant Love Preview",
-	"version": "1.99.1",
+	"version": "1.9999.1",
 	"description": "__MSG_extDesc__",
 	"icons": {
+		"16": "core/16Icon.png",
 		"48": "core/48Icon.png",
 		"128": "128Icon.png"
 	},
@@ -19,7 +20,6 @@
 		"run_at": "document_end"
 	}],
 
-	"homepage_url": "http://fav.me/d2my13o",
-	"permissions": ["tabs", "http://*.deviantart.com/", "notifications"],
+	"permissions": ["tabs", "contextMenus", "http://*.deviantart.com/", "notifications"],
 	"minimum_chrome_version": "7"
 }

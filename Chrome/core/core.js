@@ -20,12 +20,15 @@
 	- New Array methods in ECMAScript 5th Edition
 	- scanRetry function
 	- displayType string
+	- $.fn.tooltip
 */
 
 function fulfillPurpose(pageType, ownerOrTitle) {
 	var deviantList = [];
 	var deviantBag = {};
 	var totalDeviations = 0;
+	var firstDeviant;
+	var watchedArtists;
 	// When a deviant is recorded, a reference should be added to both the list and the bag.
 
 	$("body").css("cursor", "wait");
@@ -37,6 +40,7 @@ function fulfillPurpose(pageType, ownerOrTitle) {
 	})[pageType];
 	$("<div>", {id: "scanMessage"}).text(scanMessageText).appendTo(preparationScreen);
 	var scanProgress = $("<div>", {id: "scanProgress"}).appendTo(preparationScreen);
+	var watchStatus = $("<div>", {id: "watchStatus"}).appendTo(preparationScreen);
 	window.collectData = function(newData) {
 		newData.forEach(function(item) {
 			if (!deviantBag[item.artistName]) {
@@ -59,15 +63,38 @@ function fulfillPurpose(pageType, ownerOrTitle) {
 	}
 	window.scanError = function() {
 		$("body").css("cursor", "");
-		scanProgress.text(l10n.scanError);
+		scanProgress.hide();
+		watchStatus.hide();
+		$("<div>", {id: "scanError"}).text(l10n.scanError);
 		$("<input>", {type: "button", id: "retryButton", value: l10n.scanErrorRetry})
 			.bind("click", function() {
-				scanProgress.text("");
-				$(this).remove();
+				$(this).add("#scanError").remove();
+				scanProgress.show();
+				watchStatus.show();
 				$("body").css("cursor", "wait");
 				scanRetry();
 			} )
 			.appendTo(preparationScreen);
+	}
+	window.showDeviant = function(deviantName) {
+	// This will be replaced by scanDone_startFun.
+		firstDeviant = deviantName;
+	}
+	window.collectWatchlist = function(list) {
+		watchedArtists = list;
+		watchStatus.text(l10n.watchSuccess);
+	}
+	window.watchError = function() {
+		watchStatus.text(l10n.watchFailure);
+	}
+	window.restore = function(data, firstTip) {
+		deviantList = data.deviantList;
+		deviantList.forEach(function(deviant) {
+			deviantBag[deviant.name] = deviant;
+			totalDeviations += deviant.deviations.length;
+		});
+		watchedArtists = data.watchRetrievalOK;
+		report(firstTip);
 	}
 	window.scanDone_startFun = function(firstTip) {
 		deviantList.sort(function orderMostLoved(a, b) {
@@ -77,12 +104,26 @@ function fulfillPurpose(pageType, ownerOrTitle) {
 				return a.name.toLowerCase().localeCompare(b.name.toLowerCase());
 			}
 		});
-		preparationScreen.remove();
-
+		if (watchedArtists) {
+			watchedArtists.forEach(function(awesome) {
+				if (deviantBag[awesome]) {
+					deviantBag[awesome].watched = true;
+				}
+			});
+		}
+		
+		report(firstTip);
+		return {"deviantList": deviantList, watchRetrievalOK: Boolean(watchedArtists)}; // Needed by the Firefox version
+	}
+	function report(firstTip) {
 		// Construct the UI
+		preparationScreen.remove();
 		var mainScreen = $("<div>", {id: "mainScreen"});
 		mainScreen.appendTo(document.body);
 		var scanResults = $("<div>", {id: "scanResults"});
+		if (!watchedArtists) {
+			$("<div>", {id: "watchFailure"}).tooltip(l10n.watchFailure).appendTo(scanResults);
+		}
 		if (displayType == "popup") {
 			var scanResultsLine1Text = ({
 				featured: l10n.scanFeaturedResultsPopupLine1,
@@ -133,7 +174,7 @@ function fulfillPurpose(pageType, ownerOrTitle) {
 		tipOfTheMoment(firstTip);
 
 		// Set up interaction
-		$("#lovedArtists").delegate(".deviant:not(.opened)", "click", function() {
+		lovedArtists.delegate(".deviant:not(.opened)", "click", function() {
 			$(".opened.deviant").removeClass("opened");
 			$(".deviant > .closerLook").animate({height: 0}, {
 				duration: 400,
@@ -151,7 +192,7 @@ function fulfillPurpose(pageType, ownerOrTitle) {
 				step: scrollToDeviationList
 			});
 		} );
-		if ($("#query").hasClass("placeholder")) {
+		if ($("#query").hasClass("placeholder")) { // Placeholder attribute emulation
 			$("#query").bind("focus", function() {
 				if ($(this).hasClass("placeholder")) {
 					$(this).val("").removeClass("placeholder");
@@ -171,14 +212,24 @@ function fulfillPurpose(pageType, ownerOrTitle) {
 			}
 		} );
 		$("#findBar").submit(findStuff);
-		$("#noFind").bind("click", function() {
-			if (mainScreen.hasClass("lookWhatIFound")) {
-				mainScreen.removeClass("lookWhatIFound");
-				lovedArtists.removeClass("noResults");
-				$("#lovedArtists").empty().append(snackOnMyWrath(deviantList));
-			}
-		} );
+		$("#noFind").bind("click", normalMode);
+		
+		// Handle requests for a particular deviant that were made elsewhere (e.g. context menu)
+		if (firstDeviant) {
+			$.fx.off = true;
+			$("#deviant_" + firstDeviant).trigger("click")
+				.get(0).scrollIntoView();
+			$.fx.off = false;
+		}
+		window.showDeviant = function(deviantName) {
+			normalMode();
+			$.fx.off = (displayType == "popup");
+			$("#deviant_" + deviantName).trigger("click")
+				.get(0).scrollIntoView();
+			$.fx.off = false;
+		}
 
+		// All done, now go play!
 		$("body").css("cursor", "");
 	}
 	function findStuff(event) {
@@ -230,7 +281,7 @@ function fulfillPurpose(pageType, ownerOrTitle) {
 		}
 
 		$("#mainScreen").addClass("lookWhatIFound");
-		var lovedArtists = $("#lovedArtists").empty();
+		var lovedArtists = $("#lovedArtists").empty().removeClass("noResults");
 		if (deviantMatches.length == 0 && deviationMatches.length == 0) {
 			lovedArtists.text(l10n.foundNothing).addClass("noResults")
 			return;
@@ -251,6 +302,12 @@ function fulfillPurpose(pageType, ownerOrTitle) {
 			} );
 		}
 	}
+	function normalMode() {
+		if ($("#mainScreen").hasClass("lookWhatIFound")) {
+			$("#mainScreen").removeClass("lookWhatIFound");
+			$("#lovedArtists").removeClass("noResults").empty().append(snackOnMyWrath(deviantList));
+		}
+	}
 }
 
 var l10n;
@@ -263,6 +320,7 @@ function tipOfTheMoment(tip) {
 	$("#tOTMText").html(tip.html);
 }
 function scrollToDeviationList() {
+// Differs from the DOM method scrollIntoView in that it doesn't align .opened.deviant with either the top or bottom of the display area unless that is necessary to keep it in view
 	// It's actually easier NOT to use jQuery here.
 	var lovedArtistsElem = document.getElementById("lovedArtists");
 	var openedDeviantElem = document.querySelector(".opened.deviant");
@@ -282,9 +340,14 @@ function snackOnMyWrath(finkRats) {
 	// "You have energy like a little angry battery with no friends."
 	var rageDressing = $();
 	finkRats.forEach( function(deviant) {
-		rageDressing = rageDressing.add( $("<div>", {"class": "deviant", id: "deviant_" + deviant.name})
-			.append($("<span>", {"class": "deviantFaves"}).text(deviant.deviations.length))
-			.append($("<span>", {"class": "deviantName"}).text(deviant.name)) );
+		var deviantElem = $("<div>", {"class": "deviant", id: "deviant_" + deviant.name})
+			.append($("<span>", {"class": "deviantFaves"}).text(deviant.deviations.length));
+		if (deviant.watched) {
+			deviantElem.append($("<div>", {"class": "deviationWatch"}).html("&nbsp;")
+				.tooltip(l10n.watchingThisArtist));
+		}
+		deviantElem.append($("<span>", {"class": "deviantName"}).text(deviant.name));
+		rageDressing = rageDressing.add(deviantElem);
 	} );
 	return rageDressing; // on a salad of evil
 }

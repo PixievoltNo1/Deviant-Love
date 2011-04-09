@@ -41,38 +41,60 @@ window.addEventListener("load", function() {
 	// From https://developer.mozilla.org/en/Code_snippets/Tabbed_browser#Detecting_tab_selection
 	gBrowser.tabContainer.addEventListener("TabSelect", checkLove, false);
 
-	var heart = document.getElementById("Deviant-Love-Heart");
+	var heart = document.getElementById("DeviantLoveHeart");
 	function checkLove() {
 		var lovePresent = Boolean(content.document.DeviantLove);
 		heart.hidden = !lovePresent;
 	}
-	heart.addEventListener("command", function() {
+	heart.addEventListener("command", summonRawkitude, false);
+	
+	var artistCheck = document.getElementById("DeviantLoveArtistCheck");
+	document.getElementById("contentAreaContextMenu").addEventListener("popupshowing", function() {
+		if (gContextMenu.target.ownerDocument.DeviantLove &&
+			gContextMenu.target.mozMatchesSelector(".folderview-art a.u")) {
+			if (!DeviantLove.artistCheckText) {
+				loader.loadSubScript("chrome://DeviantLove/locale/contextMenu.js", DeviantLove);
+			}
+			artistCheck.label = DeviantLove.artistCheckText.replace("$1", gContextMenu.target.textContent);
+			artistCheck.hidden = false;
+		} else {
+			artistCheck.hidden = true;
+		}
+	}, false);
+	artistCheck.addEventListener("command", summonRawkitude, false);
+	
+	function summonRawkitude(event) {
 		var doc = content.document;
-		if (doc.DeviantLove.focus == currentFocus) {
+		if (doc.DeviantLove.focus == currentFocus &&
+			(this == heart || !document.getElementById("sidebar").contentWindow.DeviantLove)) {
 			toggleSidebar("DeviantLoveSidebar");
+		} else if (doc.DeviantLove.focus == currentFocus) { // && this == artistCheck && <Deviant Love is loaded in the sidebar>
+			document.getElementById("sidebar").contentWindow.showDeviant(gContextMenu.target.textContent);
 		} else {
 			if (!DeviantLove.popupText) {
 				loader.loadSubScript("chrome://DeviantLove/locale/popupText.js", DeviantLove);
 			}
 			DeviantLove.currentPageData = doc.DeviantLove.pageData;
+			if (this == artistCheck) {DeviantLove.firstDeviant = gContextMenu.target.textContent;};
+			delete DeviantLove.currentScanData;
 			doc.DeviantLove.focus = ++currentFocus;
 			if (document.getElementById("sidebar").contentWindow.DeviantLove) {
 				document.getElementById("sidebar").contentWindow.restart();
 			}
 			toggleSidebar("DeviantLoveSidebar", true);
 		}
-	}, false);
+	}
 }, false);
 
 DeviantLove.getTip = function() {
 	if (!DeviantLove.tips) {
-		DeviantLove.loader.loadSubScript("chrome://DeviantLove/locale/TipOfTheMoment.js");
+		DeviantLove.loader.loadSubScript("chrome://DeviantLove/locale/TipOfTheMoment.js", DeviantLove);
 	}
 	// Unlike in the Chrome version, there is no need for discrepancies between nextTip and JavaScript array indexes.
 	var nextTip = Application.prefs.getValue("extensions.deviantlove.nexttip", 0);
-	var returnValue = tips[nextTip];
+	var returnValue = DeviantLove.tips[nextTip];
 	nextTip++;
-	if (nextTip == tips.length) {nextTip = 0;};
+	if (nextTip == DeviantLove.tips.length) {nextTip = 0;};
 	Application.prefs.setValue("extensions.deviantlove.nexttip", nextTip);
 	return returnValue;
 }
