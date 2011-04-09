@@ -12,14 +12,6 @@ body > div:not(#tooltip) { /* width and height TBD in JavaScript */}
 .placeholder { color: rgb(169, 169, 169); }
 #lovedArtists { height: 1px; /* Firefox 3.6 will not shrink lovedArtists by itself */ }
 a { text-decoration: underline; }
-#tooltip {
-	position: absolute;
-	z-index: 3000;
-	border: 1px solid black;
-	color: InfoText;
-	background-color: InfoBackground;
-	padding: 3px;
-}
 /* These colors were chosen to match what the user sees in the Chrome version on Windows */
 a:link { color: rgb(0, 0, 238); }
 a:visited { color: rgb(85, 26, 139); }
@@ -27,10 +19,8 @@ a:visited { color: rgb(85, 26, 139); }
 <script type="text/javascript" src="core/jquery.js"></script>
 <script type="text/javascript" src="core/core.js"></script>
 <script type="text/javascript" src="core/scanner.js"></script>
-<script type="text/javascript" src="jquery.tooltip.min.js"></script>
 <script type="text/javascript">
 var scannerController, displayType = "sidebar";
-var xulNS = "http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul";
 $(document).ready( function() {
 	window.DeviantLove = true;
 	$("body").css("margin", 0);
@@ -38,9 +28,12 @@ $(document).ready( function() {
 	var reloadButton = top.document.getElementById("DeviantLoveReload");
 	reloadButton.addEventListener("command", restart, false);
 	reloadButton.hidden = false;
+	var sidebarBrowser = top.document.getElementById("sidebar");
+	sidebarBrowser.setAttribute("tooltip", "aHTMLTooltip");
 	$(window).bind("unload", function() {
 		reloadButton.hidden = true;
 		reloadButton.removeEventListener("command", restart, false);
+		sidebarBrowser.removeAttribute("tooltip");
 	});
 	rawk();
 } );
@@ -77,11 +70,6 @@ function rawk() {
 		restore(top.DeviantLove.currentScanData, top.DeviantLove.getTip());
 	}
 }
-$.fn.tooltipPlugin = $.fn.tooltip;
-$.fn.tooltip = function(tooltipText) {
-	var tooltipNode = document.createTextNode(tooltipText);
-	return this.tooltipPlugin({ bodyHandler: function() {return tooltipNode;} });
-};
 $(document).delegate("a", "click", function(event) {
 	event.preventDefault();
 } ).delegate("a", "mouseup", function(event) {

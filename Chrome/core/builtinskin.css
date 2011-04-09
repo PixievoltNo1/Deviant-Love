@@ -6,15 +6,15 @@ body {
 a img {
 	border: 0;
 }
-body > div:not(#tooltip) {
+body > div {
 	-moz-box-sizing: border-box;
 	-webkit-box-sizing: border-box;
 	box-sizing: border-box;
 }
-.popup > div:not(#tooltip) {
+.popup > div {
 	padding: 12px;
 }
-.sidebar > div:not(#tooltip) {
+.sidebar > div {
 	padding: 8px;
 }
 #scanMessage {
