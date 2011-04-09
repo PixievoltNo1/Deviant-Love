@@ -343,7 +343,7 @@ function snackOnMyWrath(finkRats) {
 			.append($("<span>", {"class": "deviantFaves"}).text(deviant.deviations.length));
 		if (deviant.watched) {
 			deviantElem.append($("<div>",
-				{"class": "deviationWatch", title: l10n.watchingThisArtist}).html("&nbsp;");
+				{"class": "deviationWatch", title: l10n.watchingThisArtist}).html("&nbsp;"));
 		}
 		deviantElem.append($("<span>", {"class": "deviantName"}).text(deviant.name));
 		rageDressing = rageDressing.add(deviantElem);
