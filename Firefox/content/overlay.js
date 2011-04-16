@@ -65,11 +65,15 @@ window.addEventListener("load", function() {
 	
 	function summonRawkitude(event) {
 		var doc = content.document;
-		if (doc.DeviantLove.focus == currentFocus &&
-			(this == heart || !document.getElementById("sidebar").contentWindow.DeviantLove)) {
-			toggleSidebar("DeviantLoveSidebar");
-		} else if (doc.DeviantLove.focus == currentFocus) { // && this == artistCheck && <Deviant Love is loaded in the sidebar>
-			document.getElementById("sidebar").contentWindow.showDeviant(gContextMenu.target.textContent);
+		if (doc.DeviantLove.focus == currentFocus) {
+			if (this == heart) {
+				toggleSidebar("DeviantLoveSidebar");
+			} else if (!document.getElementById("sidebar").contentWindow.DeviantLove) {
+				DeviantLove.firstDeviant = gContextMenu.target.textContent;
+				toggleSidebar("DeviantLoveSidebar");
+			} else {
+				document.getElementById("sidebar").contentWindow.showDeviant(gContextMenu.target.textContent);
+			}
 		} else {
 			if (!DeviantLove.popupText) {
 				loader.loadSubScript("chrome://DeviantLove/locale/popupText.js", DeviantLove);
