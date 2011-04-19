@@ -77,6 +77,7 @@ function researchLove(favesURL, handlers) {
 		favesRetry: retrieveFaves,
 		pause: function() { paused = true; },
 		resume: function() {
+			paused = false;
 			onResume.forEach( function(handler) { handler(); } );
 			onResume = [];
 		}

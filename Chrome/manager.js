@@ -72,6 +72,9 @@ addEventListener("pagehide", function() {
 }, false);
 
 function activate(firstDeviant) {
+	popupCSS.display = "";
+	shieldCSS.display = "";
+	popupState = "preparing";
 	if (popupStage == "uninitialized") {
 		chrome.extension.onRequest.addListener( function popupReady(thing) {
 			if (thing.action == "popupReady") {
@@ -83,13 +86,11 @@ function activate(firstDeviant) {
 		popup.src = chrome.extension.getURL("popup.html" + (firstDeviant ? "#" + firstDeviant : ""));
 	} else if (popupStage == "scanning") {
 		chrome.extension.sendRequest({action: "resumeScan"});
-		reveal();
+		// reveal must be called asyncronously, otherwise the display property changes made earlier won't have taken effect and the transitions won't work
+		window.setTimeout(reveal, 1);
 	} else {
 		chrome.extension.sendRequest({action: "sendTip"}, reveal);
 	}
-	popupCSS.display = "";
-	shieldCSS.display = "";
-	popupState = "preparing";
 	function reveal() {
 		popupCSS.bottom = "20px";
 		shieldCSS.opacity = "0.4";
