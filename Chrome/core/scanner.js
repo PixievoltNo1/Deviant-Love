@@ -17,8 +17,7 @@ function researchLove(favesURL, handlers) {
 				artistName: $('[role="author"]:eq(0)', this).text(),
 				artistAvatar: $('[role="author"]:eq(1)', this).text()
 			};
-			item.artistProfile = "http://" + item.artistName.toLowerCase() + ".deviantart.com";
-			item.artistGallery = item.artistProfile + "/gallery/";
+			item.artistURL = "http://" + item.artistName.toLowerCase() + ".deviantart.com/";
 			data.push(item);
 		} );
 		handlers.faves(data);

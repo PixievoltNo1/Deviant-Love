@@ -46,8 +46,7 @@ function fulfillPurpose(pageType, ownerOrTitle) {
 				var newDeviant = {};
 				newDeviant.name = item.artistName;
 				newDeviant.avatar = item.artistAvatar;
-				newDeviant.profileURL = item.artistProfile;
-				newDeviant.galleryURL = item.artistGallery;
+				newDeviant.baseURL = item.artistURL;
 				newDeviant.deviations = [];
 				deviantBag[item.artistName] = newDeviant;
 				deviantList.push(newDeviant);
@@ -355,13 +354,15 @@ function buildCloserLook(deviant, deviations) {
 	var closerLook = $("<div>", {"class": "closerLook"}).css("overflow", "hidden");
 
 	var deviantDetails = $("<div>", {"class": "deviantDetails"});
-	deviantDetails.append($("<a>", {"href": deviant.profileURL}) // Note two opening parens and only one closing paren
+	deviantDetails.append($("<a>", {"href": deviant.baseURL}) // Note two opening parens and only one closing paren
 		.append($("<img>", {src: deviant.avatar, "class": "avatar", width: 50, height: 50})));
 	deviantDetails.append($("<div>", {"class": "deviantLinks"}) // Ditto
-		.append($("<a>", {"href": deviant.profileURL, "class": "profileLink",
+		.append($("<a>", {"href": deviant.baseURL, "class": "profileLink",
 			title: l10n.profileLinkName}))
-		.append($("<a>", {"href": deviant.galleryURL, "class": "galleryLink",
-			title: l10n.galleryLinkName})));
+		.append($("<a>", {"href": deviant.baseURL + "gallery/", "class": "galleryLink",
+			title: l10n.galleryLinkName}))
+		.append($("<a>", {"href": deviant.baseURL + "favourites/", "class": "favouritesLink"
+			/* Delaying tooltip addition until after the big change to l10n */})));
 	deviantDetails.appendTo(closerLook);
 
 	var deviationList = $("<div>", {"class": "deviationList"});
