@@ -3,12 +3,12 @@
 		"message": "An artist-centered view of a deviantART Faves page",
 		"description": "Extension's description as it appears on Chrome's Extensions page"
 	},
-	"popupTextFile": {
-		"message": "_locales/en/popupText.js",
-		"description": "Has most of the text on the Deviant Love report"
+	"l10nFolder": {
+		"message": "_locales/en/",
+		"description": "Where the extension looks for more l10n files"
 	},
-	"tipsFile": {
-		"message": "_locales/en/TipOfTheMoment.js",
-		"description": "The tips that appear at the bottom of the Deviant Love report"
+	"artistCheck": {
+		"message": "List faved art from $1",
+		"description": "Context menu item text"
 	}
 }

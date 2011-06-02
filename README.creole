@@ -8,13 +8,13 @@ No special tools are needed! The Chrome folder is the unpacked Deviant Love exte
 
 = To Engage In Firefox Geekery =
 
-Well, umm, some of the Firefox files are kept in the Chrome folder, haha. In order to get a working Firefox extension, you must copy folders like so:
-* Chrome/core/ → Firefox/content/core/
-* Chrome/_locales/ → Firefox/_locales/ (it is not necessary to copy messages.json files)
+Well, umm, some of the Firefox things are kept in the Chrome folder, haha. In order to get a working Firefox extension, do the following:
+* Copy Chrome/core/ to Firefox/content/ (creating Firefox/content/core/)
+* Run FxL10n.py (use [[http://www.python.org/|Python]], version 3)
 
 To test the Firefox extension, I recommend following [[https://developer.mozilla.org/en/Building_an_Extension#Test|these directions]].
 
-To avoid duplicate files across the two forms of Deviant Love, .gitignore will prevent Git from allowing the Firefox copies to be committed, so make sure that if you change anything it gets copied back. Consider using a tool such as [[http://rsync.samba.org/|rsync]] to keep each folder pair synchronized, or use tools such as [[http://schinagl.priv.at/nt/hardlinkshellext/hardlinkshellext.html|Link Shell Extension]] or [[http://en.wikipedia.org/wiki/Symbolic_link|symbolic links]] to make the Firefox folders simply access the Chrome folders.
+Don't touch stuff in Firefox/locale/; instead, make your changes in Chrome/_locales/ and then run FxL10n.py again. Feel free to mess with Firefox/content/core/, but Git will ignore it, so make sure your changes get copied back. Consider using a tool such as [[http://rsync.samba.org/|rsync]] to keep the core folders synchronized, or use tools such as [[http://schinagl.priv.at/nt/hardlinkshellext/hardlinkshellext.html|Link Shell Extension]] or [[http://en.wikipedia.org/wiki/Symbolic_link|symbolic links]] to make Firefox/content/core/ simply access Chrome/core/.
 
 = Grabbing the Code of Chrome/Chromium Preview Versions =
 

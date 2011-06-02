@@ -20,6 +20,7 @@
 	- New Array methods in ECMAScript 5th Edition
 	- scanRetry function
 	- displayType string
+	- getL10nMsg function
 */
 
 function fulfillPurpose(pageType, ownerOrTitle) {
@@ -387,4 +388,13 @@ function queryTroubleCheck() {
 	}
 
 	return false;
+}
+function makeL10nMethod(methodName, effect, tmpMsg) {
+	$.fn[methodName] = function(msgName) {
+		var replacements = $.makeArray(arguments).slice(1);
+		// The following line will be needed for v3.0, when the user will be able to choose a language
+		// this.attr("data-l10n", msgName).data("l10nMethod", methodName);
+		getL10nMsg(msgName, replacements, $.proxy(effect, this), tmpMsg);
+		return this;
+	}
 }

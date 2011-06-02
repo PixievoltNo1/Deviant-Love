@@ -7,7 +7,6 @@
 <html>
 <script src="core/jquery.js"></script>
 <script src="core/scanner.js"></script>
-<script src="_locales/en/contextMenu.js"></script>
 <script>
 chrome.extension.onRequest.addListener( function(thing, buddy, callback) {switch (thing.action) {
 	case "showLove":
@@ -27,7 +26,7 @@ chrome.extension.onRequest.addListener( function(thing, buddy, callback) {switch
 	break;
 	case "showArtistLove":
 		chrome.contextMenus.create({
-			title: artistCheckText.replace("$1", thing.artist),
+			title: chrome.i18n.getMessage("artistCheck", thing.artist),
 			contexts: ["link"],
 			onclick: function() {
 				chrome.tabs.sendRequest(buddy.tab.id, {action: "artistRequested", artist: thing.artist});
@@ -49,7 +48,7 @@ function getL10nFile(fileName, callback) {
 	if (l10n[fileName]) {
 		callback(l10n[fileName]);
 	} else {
-		$.get(chrome.i18n.getMessage(fileName + "File"), function(fileText) {
+		$.get(chrome.i18n.getMessage("l10nFolder") + fileName + ".js", function(fileText) {
 			var newData = JSON.parse(fileText.match(/\{[\s\S]*\}|\[[\s\S]*\]/)[0]);
 			l10n[fileName] = newData;
 			callback(newData);
@@ -59,7 +58,7 @@ function getL10nFile(fileName, callback) {
 function getTip(callback) {
 	// localStorage.nextTip is 1-based, but JavaScript array indexes are 0-based. Oh well.
 	var nextTip = localStorage.nextTip || 1;
-	getL10nFile("tips", function(tips) {
+	getL10nFile("TipOfTheMoment", function(tips) {
 		callback(tips[nextTip - 1]);
 		nextTip++;
 		if (nextTip > tips.length) {nextTip = 1}

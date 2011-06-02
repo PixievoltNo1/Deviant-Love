@@ -16,6 +16,7 @@ window.addEventListener("load", function() {
 	var loader = Components.classes["@mozilla.org/moz/jssubscript-loader;1"]
 		.getService(Components.interfaces.mozIJSSubScriptLoader);
 	DeviantLove.loader = loader; // so that it can be available to nextTip
+	DeviantLove.l10n = document.getElementById("DeviantLoveMessages");
 	
 	gBrowser.addEventListener("DOMContentLoaded", setup, false);
 	gBrowser.addEventListener("pageshow", setup, false);
@@ -52,10 +53,7 @@ window.addEventListener("load", function() {
 	document.getElementById("contentAreaContextMenu").addEventListener("popupshowing", function() {
 		if (gContextMenu.target.ownerDocument.DeviantLove &&
 			gContextMenu.target.mozMatchesSelector(".folderview-art a.u")) {
-			if (!DeviantLove.artistCheckText) {
-				loader.loadSubScript("chrome://DeviantLove/locale/contextMenu.js", DeviantLove);
-			}
-			artistCheck.label = DeviantLove.artistCheckText.replace("$1", gContextMenu.target.textContent);
+			artistCheck.label = DeviantLove.l10n.getFormattedString("artistCheck", [gContextMenu.target.textContent]);
 			artistCheck.hidden = false;
 		} else {
 			artistCheck.hidden = true;
