@@ -7,8 +7,53 @@
 		"message": "_locales/en/",
 		"description": "Where the extension looks for more l10n files"
 	},
+	
 	"artistCheck": {
 		"message": "List faved art from $1",
 		"description": "Context menu item text"
+	},
+	
+	"scanningFeatured": { "message": "Scanning featured faves..." },
+	"scanningAll": { "message": "Scanning all faves..." },
+	"scanningCollection": { "message": "Scanning Collection..." },
+	"scanProgress": { "message": "$1 deviations scanned" },
+	"scanError": { "message": "Communication with deviantART was unsuccessful." },
+	"scanErrorRetry": {
+		"message": "Try again",
+		"description": "Button text"
+	},
+	"watchSuccess": { "message": "Successfully retrieved your watch list" },
+	"watchFailure": {
+		"message": "Attempting to check your watch list failed",
+		"description": "Used both on-screen and as a tooltip"
+	},
+	"scanFeaturedResultsPopupLine1": { "message": "This page has $1 featured faves" },
+	"scanAllResultsPopupLine1": { "message": "This page has $1 faves" },
+	"scanCollectionResultsPopupLine1": { "message": "This Collection has $1 faves" },
+	"scanCollectionResultsSidebarLine1": { "message": "$1" },
+	"scanNonCollectionResultsSidebarLine1": { "message": "$1's Faves page" },
+	"scanFeaturedResultsSidebarLine2": { "message": "has $1 featured faves" },
+	"scanNonFeaturedResultsSidebarLine2": { "message": "has $1 faves" },
+	"scanResultsLastLine": { "message": "from $1 different artists!" },
+	"queryPlaceholder": { "message": "Find an artist or deviation (exact phrase matches only)" },
+	"findErrorForbiddenCharacter": { "message": "deviantART doesn't allow the use of $1 in deviant or deviation names." },
+	"foundDeviants": { "message": "Found $1 deviant(s)" },
+	"foundDeviations": { "message": "Found $2 deviation(s) from $1" },
+	"foundNothing": { "message": "Sorry, there are no matches!" },
+	"watchingThisArtist": {
+		"message": "You are watching this artist's deviations",
+		"description": "Icon tooltip"
+	},
+	"profile": {
+		"message": "Profile",
+		"description": "Link tooltip"
+	},
+	"gallery": {
+		"message": "Gallery",
+		"description": "Link tooltip"
+	},
+	"favourites": {
+		"message": "Favourites",
+		"description": "Link tooltip"
 	}
 }

@@ -25,7 +25,6 @@ var scannerController, displayType = "sidebar";
 $(document).ready( function() {
 	window.DeviantLove = true;
 	$("body").css("margin", 0);
-	setL10n(top.DeviantLove.popupText);
 	var reloadButton = top.document.getElementById("DeviantLoveReload");
 	reloadButton.addEventListener("command", restart, false);
 	reloadButton.hidden = false;
@@ -69,6 +68,13 @@ function rawk() {
 		window.scanRetry = scannerController.favesRetry;
 	} else {
 		restore(top.DeviantLove.currentScanData, top.DeviantLove.getTip());
+	}
+}
+function getL10nMsg(msgName, replacements, callback) {
+	if (!replacements) {
+		callback(top.DeviantLove.l10n.getString(msgName));
+	} else {
+		callback(top.DeviantLove.l10n.getFormattedString(msgName, replacements));
 	}
 }
 $(document).delegate("a", "click", function(event) {

@@ -39,14 +39,15 @@ for lang in os.listdir(crL10nDir):
 				bundledStrings[msgName] = message
 		elif file[-5:] == ".json":
 			dataFile = open(path.join(crLangDir, file))
-			data = json.load(msgsFile)
+			data = json.load(dataFile)
 			dataFile.close()
 			bundledStrings[file[:-5]] = json.dumps(data, separators=(',', ':'))
 		else:
 			shutil.copy(path.join(crLangDir, file), fxLangDir)
 	propertyFile = open(path.join(fxLangDir, "messages.properties"), "w")
+	propertyFile.write("# This file is auto-generated; don't bother with it\n")
 	for itemName, item in bundledStrings.items():
-		propertyFile.write(itemName + "=" + item)
+		propertyFile.write(itemName + "=" + item + "\n")
 	propertyFile.close()
 
 print("All done! :)")

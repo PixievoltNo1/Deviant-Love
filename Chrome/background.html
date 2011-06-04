@@ -13,12 +13,14 @@ chrome.extension.onRequest.addListener( function(thing, buddy, callback) {switch
 		chrome.pageAction.show(buddy.tab.id);
 	break;
 	case "popupSetup":
-		getL10nFile("popupText", function(l10n) {
-			chrome.tabs.sendRequest(buddy.tab.id, {action: "getPageType"}, function(pageType) {
-				callback({"pageType": pageType, "l10n": l10n});
-			} );
+		chrome.tabs.sendRequest(buddy.tab.id, {action: "getPageType"}, function(pageType) {
+			callback({"pageType": pageType});
 		} );
 		chrome.tabs.sendRequest(buddy.tab.id, {action: "popupReady"})
+	break;
+	case "getMessage":
+		console.log(thing);
+		callback(chrome.i18n.getMessage(thing.msgName, thing.replacements));
 	break;
 	case "sendTip":
 		getTip(function(tip) {chrome.tabs.sendRequest(buddy.tab.id,
@@ -45,14 +47,14 @@ chrome.tabs.onSelectionChanged.addListener( function() {
 } );
 var l10n = {};
 function getL10nFile(fileName, callback) {
+// Currently used only by getTip, but it doesn't seem worth it to merge the two
 	if (l10n[fileName]) {
 		callback(l10n[fileName]);
 	} else {
-		$.get(chrome.i18n.getMessage("l10nFolder") + fileName + ".js", function(fileText) {
-			var newData = JSON.parse(fileText.match(/\{[\s\S]*\}|\[[\s\S]*\]/)[0]);
-			l10n[fileName] = newData;
-			callback(newData);
-		}, "text")
+		$.getJSON(chrome.i18n.getMessage("l10nFolder") + fileName + ".json", function(data) {
+			l10n[fileName] = data;
+			callback(data);
+		})
 	}
 }
 function getTip(callback) {

@@ -73,9 +73,6 @@ window.addEventListener("load", function() {
 				document.getElementById("sidebar").contentWindow.showDeviant(gContextMenu.target.textContent);
 			}
 		} else {
-			if (!DeviantLove.popupText) {
-				loader.loadSubScript("chrome://DeviantLove/locale/popupText.js", DeviantLove);
-			}
 			DeviantLove.currentPageData = doc.DeviantLove.pageData;
 			if (this == artistCheck) {DeviantLove.firstDeviant = gContextMenu.target.textContent;};
 			delete DeviantLove.currentScanData;
@@ -89,14 +86,12 @@ window.addEventListener("load", function() {
 }, false);
 
 DeviantLove.getTip = function() {
-	if (!DeviantLove.tips) {
-		DeviantLove.loader.loadSubScript("chrome://DeviantLove/locale/TipOfTheMoment.js", DeviantLove);
-	}
+	var tips = JSON.parse(DeviantLove.l10n.getString("TipOfTheMoment"));
 	// Unlike in the Chrome version, there is no need for discrepancies between nextTip and JavaScript array indexes.
 	var nextTip = Application.prefs.getValue("extensions.deviantlove.nexttip", 0);
-	var returnValue = DeviantLove.tips[nextTip];
+	var returnValue = tips[nextTip];
 	nextTip++;
-	if (nextTip == DeviantLove.tips.length) {nextTip = 0;};
+	if (nextTip == tips.length) {nextTip = 0;};
 	Application.prefs.setValue("extensions.deviantlove.nexttip", nextTip);
 	return returnValue;
 }

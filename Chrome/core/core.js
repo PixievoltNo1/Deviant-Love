@@ -34,12 +34,12 @@ function fulfillPurpose(pageType, ownerOrTitle) {
 
 	$("body").css("cursor", "wait");
 	var preparationScreen = $("<div>", {id: "preparationScreen"}).appendTo(document.body);
-	var scanMessageText = ({
-		featured: l10n.scanningFeatured,
-		allFaves: l10n.scanningAll,
-		collection: l10n.scanningCollection
+	var scanMessage = ({
+		featured: "scanningFeatured",
+		allFaves: "scanningAll",
+		collection: "scanningCollection"
 	})[pageType];
-	$("<div>", {id: "scanMessage"}).text(scanMessageText).appendTo(preparationScreen);
+	$("<div>", {id: "scanMessage"}).l10n(scanMessage).appendTo(preparationScreen);
 	var scanProgress = $("<div>", {id: "scanProgress"}).appendTo(preparationScreen);
 	var watchStatus = $("<div>", {id: "watchStatus"}).appendTo(preparationScreen);
 	window.collectData = function(newData) {
@@ -59,14 +59,14 @@ function fulfillPurpose(pageType, ownerOrTitle) {
 			});
 			totalDeviations++;
 		});
-		scanProgress.text(l10n.scanProgress.replace("$1", totalDeviations));
+		scanProgress.l10n("scanProgress", totalDeviations);
 	}
 	window.scanError = function() {
 		$("body").css("cursor", "");
 		scanProgress.hide();
 		watchStatus.hide();
-		$("<div>", {id: "scanError"}).text(l10n.scanError);
-		$("<input>", {type: "button", id: "retryButton", value: l10n.scanErrorRetry})
+		$("<div>", {id: "scanError"}).l10n("scanError");
+		$("<button>", {id: "retryButton"}).l10n("scanErrorRetry")
 			.bind("click", function() {
 				$(this).add("#scanError").remove();
 				scanProgress.show();
@@ -82,10 +82,10 @@ function fulfillPurpose(pageType, ownerOrTitle) {
 	}
 	window.collectWatchlist = function(list) {
 		watchedArtists = list;
-		watchStatus.text(l10n.watchSuccess);
+		watchStatus.l10n("watchSuccess");
 	}
 	window.watchError = function() {
-		watchStatus.text(l10n.watchFailure);
+		watchStatus.l10n("watchFailure");
 	}
 	window.restore = function(data, firstTip) {
 		deviantList = data.deviantList;
@@ -93,7 +93,8 @@ function fulfillPurpose(pageType, ownerOrTitle) {
 			deviantBag[deviant.name] = deviant;
 			totalDeviations += deviant.deviations.length;
 		});
-		watchedArtists = data.watchRetrievalOK;
+		watchedArtists = data.watchRetrievalOK; /*
+		Only scanDone_startFun needs real information there, and restore bypasses that. So, that only need be truthy or falsey. */
 		report(firstTip);
 	}
 	window.scanDone_startFun = function(firstTip) {
@@ -122,31 +123,31 @@ function fulfillPurpose(pageType, ownerOrTitle) {
 		mainScreen.appendTo(document.body);
 		var scanResults = $("<div>", {id: "scanResults"});
 		if (!watchedArtists) {
-			$("<div>", {id: "watchFailure", title: l10n.watchFailure}).appendTo(scanResults);
+			$("<div>", {id: "watchFailure"}).l10nTooltip("watchFailure").appendTo(scanResults);
 		}
 		if (displayType == "popup") {
-			var scanResultsLine1Text = ({
-				featured: l10n.scanFeaturedResultsPopupLine1,
-				allFaves: l10n.scanAllResultsPopupLine1,
-				collection: l10n.scanCollectionResultsPopupLine1
+			var scanResultsLine1 = ({
+				featured: "scanFeaturedResultsPopupLine1",
+				allFaves: "scanAllResultsPopupLine1",
+				collection: "scanCollectionResultsPopupLine1"
 			})[pageType];
-			scanResults.append($("<div>").html(scanResultsLine1Text.replace("$1",
-				'<span class="dynamic">' + totalDeviations.toString() + '</span>')));
+			scanResults.append($("<div>").l10nHtml(scanResultsLine1,
+				'<span class="dynamic">' + totalDeviations.toString() + '</span>'));
 		} else { // displayType == "sidebar"
 			if (/[\<\>\&]/.test("ownerOrTitle")) {ownerOrTitle = "?????????";};
-			var scanResultsLine1Text = pageType == "collection" ?
-				l10n.scanCollectionResultsSidebarLine1 :
-				l10n.scanNonCollectionResultsSidebarLine1;
-			var scanResultsLine2Text = pageType == "featured" ?
-				l10n.scanFeaturedResultsSidebarLine2 :
-				l10n.scanNonFeaturedResultsSidebarLine2;
-			scanResults.append($("<div>").html(scanResultsLine1Text.replace("$1",
-				'<span class="dynamic">' + ownerOrTitle + '</span>')))
-				.append($("<div>").html(scanResultsLine2Text.replace("$1",
-				'<span class="dynamic">' + totalDeviations.toString() + '</span>')))
+			var scanResultsLine1 = (pageType == "collection") ?
+				"scanCollectionResultsSidebarLine1" :
+				"scanNonCollectionResultsSidebarLine1";
+			var scanResultsLine2 = (pageType == "featured") ?
+				"scanFeaturedResultsSidebarLine2" :
+				"scanNonFeaturedResultsSidebarLine2";
+			scanResults.append($("<div>").l10nHtml(scanResultsLine1,
+				'<span class="dynamic">' + ownerOrTitle + '</span>'))
+				.append($("<div>").l10nHtml(scanResultsLine2,
+				'<span class="dynamic">' + totalDeviations.toString() + '</span>'))
 		}
-		scanResults.append($("<div>").html(l10n.scanResultsLastLine.replace("$1",
-			'<span class="dynamic">' + deviantList.length.toString() + '</span>')))
+		scanResults.append($("<div>").l10nHtml("scanResultsLastLine",
+			'<span class="dynamic">' + deviantList.length.toString() + '</span>'))
 			.appendTo(mainScreen);
 		$("<form>", {id: "findBar"})
 			.append($("<input>", {type: "text", id: "query"}))
@@ -157,9 +158,10 @@ function fulfillPurpose(pageType, ownerOrTitle) {
 		$("#goFind")[0].setAttribute("type", "submit");
 		$("#noFind")[0].setAttribute("type", "button");
 		if ($("#query")[0].placeholder !== undefined) {
-			$("#query")[0].placeholder = l10n.queryPlaceholder;
+			$("#query").l10nPlaceholder("queryPlaceholder");
 		} else {
-			$("#query").addClass("placeholder").val(l10n.queryPlaceholder);
+			makeL10nMethod("l10nVal", $.fn.val, "");
+			$("#query").addClass("placeholder").l10nVal("queryPlaceholder");
 		}
 		$("<div>", {id: "queryError"}).hide().appendTo(mainScreen);
 		var lovedArtists = $("<div>", {id: "lovedArtists"})
@@ -199,14 +201,14 @@ function fulfillPurpose(pageType, ownerOrTitle) {
 				}
 			} ).bind("blur", function() {
 				if ($(this).val() == "") {
-					$(this).addClass("placeholder").val(l10n.queryPlaceholder);
+					$(this).addClass("placeholder").l10nVal("queryPlaceholder");
 				}
 			} )
 		}
 		$("#query").bind("input", function(event) {
 			var checkResult = queryTroubleCheck();
-			if (typeof checkResult == "string") {
-				$("#queryError").text(checkResult).show();
+			if (typeof checkResult == "object") {
+				$("#queryError").l10n(checkResult.errMsg, checkResult.offender).show();
 			} else {
 				$("#queryError").hide();
 			}
@@ -283,20 +285,19 @@ function fulfillPurpose(pageType, ownerOrTitle) {
 		$("#mainScreen").addClass("lookWhatIFound");
 		var lovedArtists = $("#lovedArtists").empty().removeClass("noResults");
 		if (deviantMatches.length == 0 && deviationMatches.length == 0) {
-			lovedArtists.text(l10n.foundNothing).addClass("noResults")
+			lovedArtists.l10n("foundNothing").addClass("noResults")
 			return;
 		}
 		if (deviantMatches.length > 0) {
 			lovedArtists.append( $("<div>", {"class": "foundHeader"})
-				.text(l10n.foundDeviants.replace("$1", deviantMatches.length)) )
+				.l10n("foundDeviants", deviantMatches.length) )
 				.append(snackOnMyWrath(deviantMatches));
 		}
 		if (deviationMatches.length > 0) {
 			deviationMatches.forEach( function(found) {
 				var closerLook = buildCloserLook(found.deviant, found.deviations);
 				lovedArtists.append( $("<div>", {"class": "foundHeader"})
-					.text(l10n.foundDeviations
-						.replace("$1", found.deviations.length).replace("$2", found.deviant.name)) )
+					.l10n("foundDeviations", found.deviant.name, found.deviations.length) )
 					.append(closerLook);
 				closerLook.height(closerLook.height()); // Sounds a bit silly but the CSS needs it.
 			} );
@@ -310,11 +311,6 @@ function fulfillPurpose(pageType, ownerOrTitle) {
 	}
 }
 
-var l10n;
-function setL10n(object) {
-	l10n = object;
-	// In the future, this will need to handle what happens when fulfillPurpose has already been called.
-}
 function tipOfTheMoment(tip) {
 	$("#tOTMIcon").attr("src", "core/" + tip.icon);
 	$("#tOTMText").html(tip.html);
@@ -344,7 +340,7 @@ function snackOnMyWrath(finkRats) {
 			.append($("<span>", {"class": "deviantFaves"}).text(deviant.deviations.length));
 		if (deviant.watched) {
 			deviantElem.append($("<div>",
-				{"class": "deviationWatch", title: l10n.watchingThisArtist}).html("&nbsp;"));
+				{"class": "deviationWatch"}).html("&nbsp;").l10nTooltip("watchingThisArtist"));
 		}
 		deviantElem.append($("<span>", {"class": "deviantName"}).text(deviant.name));
 		rageDressing = rageDressing.add(deviantElem);
@@ -359,12 +355,12 @@ function buildCloserLook(deviant, deviations) {
 	deviantDetails.append($("<a>", {"href": deviant.baseURL}) // Note two opening parens and only one closing paren
 		.append($("<img>", {src: deviant.avatar, "class": "avatar", width: 50, height: 50})));
 	deviantDetails.append($("<div>", {"class": "deviantLinks"}) // Ditto
-		.append($("<a>", {"href": deviant.baseURL, "class": "profileLink",
-			title: l10n.profileLinkName}))
-		.append($("<a>", {"href": deviant.baseURL + "gallery/", "class": "galleryLink",
-			title: l10n.galleryLinkName}))
-		.append($("<a>", {"href": deviant.baseURL + "favourites/", "class": "favouritesLink"
-			/* Delaying tooltip addition until after the big change to l10n */})));
+		.append($("<a>", {"href": deviant.baseURL, "class": "profileLink"})
+			.l10nTooltip("profile"))
+		.append($("<a>", {"href": deviant.baseURL + "gallery/", "class": "galleryLink"})
+			.l10nTooltip("gallery"))
+		.append($("<a>", {"href": deviant.baseURL + "favourites/", "class": "favouritesLink"})
+			.l10nTooltip("favourites")))
 	deviantDetails.appendTo(closerLook);
 
 	var deviationList = $("<div>", {"class": "deviationList"});
@@ -378,14 +374,14 @@ function buildCloserLook(deviant, deviations) {
 	return closerLook;
 }
 function queryTroubleCheck() {
-// Returns false if there are no troubles, true if there is a trouble not worth reporting to the user, and a message string otherwise
+// Returns false if there are no troubles, true if there is a trouble not worth reporting to the user, and an object otherwise
 	var query = $("#query").val();
 
 	if (query.length == 0 || $("#query").hasClass("placeholder")) { return true };
 
 	var invalidChar = query.search(/[^a-zA-Z0-9 \_\'\"\+\.\,\$\?\:\-]/);
 	if (invalidChar != -1) {
-		return l10n.findErrorForbiddenCharacter.replace("$1", query.charAt(invalidChar));
+		return {errMsg: "findErrorForbiddenCharacter", offender: query.charAt(invalidChar)};
 	}
 
 	return false;
@@ -393,9 +389,16 @@ function queryTroubleCheck() {
 function makeL10nMethod(methodName, effect, tmpMsg) {
 	$.fn[methodName] = function(msgName) {
 		var replacements = $.makeArray(arguments).slice(1);
+		if (replacements.length == 0) {replacements = undefined};
 		// The following line will be needed for v3.0, when the user will be able to choose a language
 		// this.attr("data-l10n", msgName).data("l10nMethod", methodName);
 		getL10nMsg(msgName, replacements, $.proxy(effect, this), tmpMsg);
 		return this;
 	}
 }
+[
+	["l10n", $.fn.text, " "],
+	["l10nHtml", $.fn.html, "&nbsp;"],
+	["l10nTooltip", function(msg) {this.attr("title", msg);}, ""],
+	["l10nPlaceholder", function(msg) {this.attr("placeholder", msg);}, ""]
+].forEach(function(args) {makeL10nMethod.apply(null, args);});

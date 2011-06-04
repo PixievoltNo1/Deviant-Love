@@ -1,4 +1,4 @@
-var tips = [
+[
 {"icon": "Random.png", "html": "Love a <a href='http://www.deviantart.com/random/deviant'>random deviant</a> (but don't be creepy)."},
 {"icon": "SilkIcons/heart.png", "html": "Love everything. Join <a href='http://deviantheart.deviantart.com/'>#deviantHEART</a>."},
 {"icon": "Pikadude.png", "html": "You can show your love for Deviant Love at <a href='http://fav.me/d2my13o'>its deviation page</a>."},
