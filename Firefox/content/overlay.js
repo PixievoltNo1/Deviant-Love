@@ -8,7 +8,7 @@
 	- doc.DeviantLove stores per-page information.
 	- document.getElementById("sidebar").contentWindow.DeviantLove is set by the sidebar to inform this file that it is present and loaded.
 */
-
+"use strict";
 var DeviantLove = {};
 
 window.addEventListener("load", function() {

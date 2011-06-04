@@ -1,3 +1,10 @@
+/*
+	This file is part of Deviant Love.
+	Copyright 2010 Pikadude No. 1
+	Check core.js for the complete legal stuff.
+*/
+"use strict";
+
 function researchLove(favesURL, handlers) {
 // Handlers needed: onFavesError, faves, onWatchError, watched, onDone
 	var currentXHRs = {}, paused = false, onResume = [], todos = 2;

@@ -3,6 +3,7 @@
 	Copyright 2010 Pikadude No. 1
 	Check core.js for the complete legal stuff.
 */
+"use strict";
 
 function findLove(favesWindow) {
 	var win = favesWindow || window;

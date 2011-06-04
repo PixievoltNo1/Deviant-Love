@@ -22,6 +22,7 @@
 	- displayType string
 	- getL10nMsg function
 */
+"use strict";
 
 function fulfillPurpose(pageType, ownerOrTitle) {
 	var deviantList = [];
