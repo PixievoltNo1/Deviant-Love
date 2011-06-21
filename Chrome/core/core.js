@@ -336,11 +336,12 @@ function snackOnMyWrath(finkRats) {
 	// "You have energy like a little angry battery with no friends."
 	var rageDressing = $();
 	finkRats.forEach( function(deviant) {
+		var devWatchElem = $("<div>", {"class": "deviationWatch"}).html("&nbsp;");
 		var deviantElem = $("<div>", {"class": "deviant", id: "deviant_" + deviant.name})
-			.append($("<span>", {"class": "deviantFaves"}).text(deviant.deviations.length));
+			.append(devWatchElem).append($("<span>", {"class": "deviantFaves"})
+			.text(deviant.deviations.length));
 		if (deviant.watched) {
-			deviantElem.append($("<div>",
-				{"class": "deviationWatch"}).html("&nbsp;").l10nTooltip("watchingThisArtist"));
+			devWatchElem.addClass("true").l10nTooltip("watchingThisArtist");
 		}
 		deviantElem.append($("<span>", {"class": "deviantName"}).text(deviant.name));
 		rageDressing = rageDressing.add(deviantElem);

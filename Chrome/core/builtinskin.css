@@ -149,10 +149,12 @@ body > div {
 .deviationWatch {
 	display: inline-block;
 	width: 22px;
+	margin: 0 0.2em;
+}
+.deviationWatch.true {
 	background: url("DeviationWatch.png");
 	background-position: center;
 	background-repeat: no-repeat;
-	margin-right: 0.2em;
 }
 .deviantDetails {
 	float: left;

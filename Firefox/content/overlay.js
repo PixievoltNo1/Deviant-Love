@@ -15,7 +15,6 @@ window.addEventListener("load", function() {
 	var currentFocus = 0;
 	var loader = Components.classes["@mozilla.org/moz/jssubscript-loader;1"]
 		.getService(Components.interfaces.mozIJSSubScriptLoader);
-	DeviantLove.loader = loader; // so that it can be available to nextTip
 	DeviantLove.l10n = document.getElementById("DeviantLoveMessages");
 	
 	gBrowser.addEventListener("DOMContentLoaded", setup, false);
