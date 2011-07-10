@@ -65,7 +65,7 @@ function fulfillPurpose(pageType, ownerOrTitle) {
 		$("body").css("cursor", "");
 		scanProgress.hide();
 		watchStatus.hide();
-		$("<div>", {id: "scanError"}).l10n("scanError");
+		$("<div>", {id: "scanError"}).l10n("scanError").appendTo(preparationScreen);
 		$("<button>", {id: "retryButton"}).l10n("scanErrorRetry")
 			.bind("click", function() {
 				$(this).add("#scanError").remove();
