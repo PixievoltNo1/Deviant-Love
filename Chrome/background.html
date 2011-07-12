@@ -104,6 +104,8 @@ chrome.extension.onConnect.addListener( function(port) {
 		})
 	} );
 } );
+// No way to opt out of the console spam this creates if there's no preview version installed. Tried try/catch, tried a callback parameter, nothing stopped it.
+chrome.extension.sendRequest("hibomgnjacfmgijhjlhagemclnkijlcj", {action: "obsolete", reachedFinal: 2.0});
 </script>
 <body></body>
 </html>

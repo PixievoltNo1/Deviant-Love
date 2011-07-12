@@ -1,6 +1,4 @@
 * Add the find bar
 	- Add &, /, and ~ operators
-* Show an indicator for artists that are on the user's deviantWATCH for deviations
 - Show something nice when an avatar is loading
-* Port to Firefox
-	* Make dependency on CSS Transitions optional
+- Make the heart appear faster
