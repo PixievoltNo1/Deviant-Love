@@ -13,6 +13,7 @@ var DeviantLove = {};
 
 window.addEventListener("load", function() {
 	var currentFocus = 0;
+	var reportContextMenu;
 	var loader = Components.classes["@mozilla.org/moz/jssubscript-loader;1"]
 		.getService(Components.interfaces.mozIJSSubScriptLoader);
 	DeviantLove.l10n = document.getElementById("DeviantLoveMessages");
@@ -67,7 +68,7 @@ window.addEventListener("load", function() {
 				toggleSidebar("DeviantLoveSidebar");
 			} else if (!document.getElementById("sidebar").contentWindow.DeviantLove) {
 				DeviantLove.firstDeviant = gContextMenu.target.textContent;
-				toggleSidebar("DeviantLoveSidebar");
+				toggleSidebar("DeviantLoveSidebar", true);
 			} else {
 				document.getElementById("sidebar").contentWindow.showDeviant(gContextMenu.target.textContent);
 			}
@@ -80,6 +81,18 @@ window.addEventListener("load", function() {
 				document.getElementById("sidebar").contentWindow.restart();
 			}
 			toggleSidebar("DeviantLoveSidebar", true);
+		}
+		if (!reportContextMenu) {
+			reportContextMenu = document.createElement("menupopup");
+			reportContextMenu.id = "DeviantLoveReportContextMenu";
+			document.getElementById("mainPopupSet").appendChild(reportContextMenu);
+			let linkItems = document.querySelectorAll("#context-openlink, #context-openlinkintab, #context-copylink");
+			for (let i = 0; i < linkItems.length; ++i) {
+				let clonedLinkItem = linkItems[i].cloneNode();
+				clonedLinkItem.id += "DLove-";
+				clonedLinkItem.className += " link";
+				reportContextMenu.appendChild(clonedLinkItem);
+			}
 		}
 	}
 }, false);
