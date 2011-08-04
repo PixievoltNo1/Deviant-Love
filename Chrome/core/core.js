@@ -132,9 +132,9 @@ function fulfillPurpose(pageType, ownerOrTitle) {
 				collection: "scanCollectionResultsPopupLine1"
 			})[pageType];
 			scanResults.append($("<div>").l10nHtml(scanResultsLine1,
-				'<span class="dynamic">' + totalDeviations.toString() + '</span>'));
+				'<span class="dynamic">' + Number(totalDeviations) + '</span>')); // The Number call is there to help out AMO reviewers; same for the other calls below
 		} else { // displayType == "sidebar"
-			if (/[\<\>\&]/.test("ownerOrTitle")) {ownerOrTitle = "?????????";};
+			if (/[\<\>\&]/.test(ownerOrTitle)) {ownerOrTitle = "?????????";};
 			var scanResultsLine1 = (pageType == "collection") ?
 				"scanCollectionResultsSidebarLine1" :
 				"scanNonCollectionResultsSidebarLine1";
@@ -142,12 +142,12 @@ function fulfillPurpose(pageType, ownerOrTitle) {
 				"scanFeaturedResultsSidebarLine2" :
 				"scanNonFeaturedResultsSidebarLine2";
 			scanResults.append($("<div>").l10nHtml(scanResultsLine1,
-				'<span class="dynamic">' + ownerOrTitle + '</span>'))
+				'<span class="dynamic">' + ownerOrTitle + '</span>')) // ownerOrTitle is filtered for safety a few lines up
 				.append($("<div>").l10nHtml(scanResultsLine2,
-				'<span class="dynamic">' + totalDeviations.toString() + '</span>'))
+				'<span class="dynamic">' + Number(totalDeviations) + '</span>'))
 		}
 		scanResults.append($("<div>").l10nHtml("scanResultsLastLine",
-			'<span class="dynamic">' + deviantList.length.toString() + '</span>'))
+			'<span class="dynamic">' + Number(deviantList.length) + '</span>'))
 			.appendTo(mainScreen);
 		$("<form>", {id: "findBar"})
 			.append($("<input>", {type: "text", id: "query"}))
