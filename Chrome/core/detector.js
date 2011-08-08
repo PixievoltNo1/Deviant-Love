@@ -9,26 +9,28 @@ function findLove(favesWindow) {
 	var win = favesWindow || window;
 	var document = win.document;
 	var location = win.location;
+	var love = {};
 
-	var feedHref = document.querySelector('link[rel="alternate"][type="application/rss+xml"]').href;
-	var pageType;
+	love.feedHref = document.querySelector('link[rel="alternate"][type="application/rss+xml"]').href;
 	if ((/\/\d+$/).test(location.pathname) || (/\?\d+/).test(location.search)) {
-		pageType = "collection";
+		love.pageType = "collection";
 	} else if (location.search.indexOf("catpath=") != -1) {
-		pageType = "allFaves";
+		love.pageType = "allFaves";
 	} else {
 		// I sure hope it's the Featured view. Consider adding a check to be sure, and notifying the user if it fails.
-		pageType = "featured";
+		love.pageType = "featured";
 	}
 	// While the mechanism for declaring RSS feeds is standardized, the dA layout is not and can change. Be careful!
-	var ownerOrTitle, element;
+	var element;
 	if (pageType != "collection") {
 		element = document.querySelector(".gruserbadge a.u");
-		ownerOrTitle = element ? element.textContent : "???????";
+		love.ownerOrTitle = element ? element.textContent : "???????";
 	} else {
 		element = document.querySelector(".folderview-top .folder-title");
-		ownerOrTitle = element ? element.textContent : "???????";
+		love.ownerOrTitle = element ? element.textContent : "???????";
 	}
+	element = document.querySelector("#gmi-ResourceStream, #gmi-EditableResourceStream");
+	love.maxDeviations = element ? element.getAttribute("gmi-total") : null;
 
-	return {"feedHref": feedHref, "pageType": pageType, "ownerOrTitle": ownerOrTitle};
+	return love;
 }
