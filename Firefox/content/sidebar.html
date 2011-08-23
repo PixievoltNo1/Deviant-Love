@@ -56,7 +56,7 @@ function rawk() {
 		delete top.DeviantLove.firstDeviant;
 	}
 	if (!top.DeviantLove.currentScanData) {
-		scannerController = researchLove(pageData.feedHref, {
+		scannerController = researchLove(pageData.feedHref, pageData.maxDeviations, {
 			faves: collectData,
 			onFavesError: scanError,
 			watched: collectWatchlist,

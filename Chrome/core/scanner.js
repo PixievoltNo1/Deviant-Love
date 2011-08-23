@@ -5,7 +5,7 @@
 */
 "use strict";
 
-function researchLove(favesURL, handlers) {
+function researchLove(favesURL, maxDeviations, handlers) {
 // Handlers needed: onFavesError, faves, onWatchError, watched, onDone
 	var currentXHRs = {}, paused = false, onResume = [], todos = 2;
 	
@@ -27,10 +27,15 @@ function researchLove(favesURL, handlers) {
 			item.artistURL = "http://" + item.artistName.toLowerCase() + ".deviantart.com/";
 			data.push(item);
 		} );
+		var nextPage = $('channel > [rel="next"]', feed).attr("href");
+		if (nextPage) {
+			// TODO: Find the offset value in the URL; set data.progress to progress percentage if found, null otherwise
+		} else {
+			data.progress = 1;
+		}
 		handlers.faves(data);
-		var nextPage = $('channel > [rel="next"]', feed);
-		if (nextPage.length >= 1) {
-			favesURL = nextPage.attr("href");
+		if (nextPage) {
+			favesURL = nextPage;
 			if (!paused) {
 				retrieveFaves();
 			} else {

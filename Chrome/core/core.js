@@ -31,6 +31,8 @@ function fulfillPurpose(pageType, ownerOrTitle) {
 	var firstDeviant;
 	var watchedArtists;
 	// When a deviant is recorded, a reference should be added to both the list and the bag.
+	
+	var supportsProgress = (document.createElement("progress").max !== undefined);
 
 	$("body").css("cursor", "wait");
 	var preparationScreen = $("<div>", {id: "preparationScreen"}).appendTo(document.body);
@@ -40,7 +42,15 @@ function fulfillPurpose(pageType, ownerOrTitle) {
 		collection: "scanningCollection"
 	})[pageType];
 	$("<div>", {id: "scanMessage"}).l10n(scanMessage).appendTo(preparationScreen);
-	var scanProgress = $("<div>", {id: "scanProgress"}).appendTo(preparationScreen);
+	var scanProgressBar;
+	if (supportsProgress) {
+		scanProgressBar = $("<progress>", {id: "scanProgressBar", max: 1, value: 0})
+			.appendTo(preparationScreen);
+	} else {
+		// Make a dummy object so that when support for Firefox <6 is dropped, I don't have to change much
+		scanProgressBar = { show: $.noop, hide: $.noop };
+	}
+	var scanProgressInfo = $("<div>", {id: "scanProgressInfo"}).appendTo(preparationScreen);
 	var watchStatus = $("<div>", {id: "watchStatus"}).appendTo(preparationScreen);
 	window.collectData = function(newData) {
 		newData.forEach(function(item) {
@@ -59,17 +69,30 @@ function fulfillPurpose(pageType, ownerOrTitle) {
 			});
 			totalDeviations++;
 		});
-		scanProgress.l10n("scanProgress", totalDeviations);
+		scanProgressInfo.l10n("scanProgress", totalDeviations);
+		if (supportsProgress) {
+			if (newData.progress !== null) {
+				scanProgressBar.attr("value", newData.progress);
+			} else {
+				scanProgressBar.removeAttr("value");
+			}
+		} else {
+			if (newData.progress !== null) {
+				scanProgressInfo[0].textContent += " (" + newData.progress + "%)";
+			}
+		}
 	}
 	window.scanError = function() {
 		$("body").css("cursor", "");
-		scanProgress.hide();
+		scanProgressBar.hide();
+		scanProgressInfo.hide();
 		watchStatus.hide();
 		$("<div>", {id: "scanError"}).l10n("scanError").appendTo(preparationScreen);
 		$("<button>", {id: "retryButton"}).l10n("scanErrorRetry")
 			.bind("click", function() {
 				$(this).add("#scanError").remove();
-				scanProgress.show();
+				scanProgressBar.hide();
+				scanProgressInfo.show();
 				watchStatus.show();
 				$("body").css("cursor", "wait");
 				scanRetry();

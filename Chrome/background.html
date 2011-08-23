@@ -13,7 +13,7 @@ chrome.extension.onRequest.addListener( function(thing, buddy, callback) {switch
 		chrome.pageAction.show(buddy.tab.id);
 	break;
 	case "popupSetup":
-		chrome.tabs.sendRequest(buddy.tab.id, {action: "getPageType"}, function(pageType) {
+		chrome.tabs.sendRequest(buddy.tab.id, {action: "getFulfillPurposeParams"}, function(pageType) {
 			callback({"pageType": pageType});
 		} );
 		chrome.tabs.sendRequest(buddy.tab.id, {action: "popupReady"})
@@ -68,8 +68,8 @@ function getTip(callback) {
 	} );
 }
 chrome.extension.onConnect.addListener( function(port) {
-	chrome.tabs.sendRequest(port.sender.tab.id, {action: "getFeedHref"}, function(feedHref) {
-		var scannerController = researchLove(feedHref, {
+	chrome.tabs.sendRequest(port.sender.tab.id, {action: "getResearchLoveParams"}, function(feedHref, maxDeviations) {
+		var scannerController = researchLove(feedHref, maxDeviations, {
 			faves: function(data) { port.postMessage({whatsUp: "faves", "data": data}); },
 			onFavesError: function() {
 				chrome.extension.onRequest.addListener( function scanRetry(thing, buddy, callback) {

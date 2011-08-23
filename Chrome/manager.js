@@ -43,10 +43,10 @@ chrome.extension.onRequest.addListener( function(thing, buddy, callback) {switch
 	case "scanningComplete":
 		popupStage = "love";
 	break;
-	case "getFeedHref":
-		callback(pageData.feedHref);
+	case "getResearchLoveParams":
+		callback(pageData.feedHref, pageData.maxDeviations);
 	break;
-	case "getPageType":
+	case "getFulfillPurposeParams":
 		callback(pageData.pageType);
 	break;
 }} );
