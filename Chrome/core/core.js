@@ -76,10 +76,9 @@ function fulfillPurpose(pageType, ownerOrTitle) {
 			} else {
 				scanProgressBar.removeAttr("value");
 			}
-		} else {
-			if (newData.progress !== null) {
-				scanProgressInfo[0].textContent += " (" + newData.progress + "%)";
-			}
+		}
+		if (newData.progress !== null) {
+			scanProgressInfo[0].textContent += " (" + newData.progress + "%)";
 		}
 	}
 	window.scanError = function() {
