@@ -44,7 +44,7 @@ chrome.extension.onRequest.addListener( function(thing, buddy, callback) {switch
 		popupStage = "love";
 	break;
 	case "getResearchLoveParams":
-		callback(pageData.feedHref, pageData.maxDeviations);
+		callback({feedHref: pageData.feedHref, maxDeviations: pageData.maxDeviations});
 	break;
 	case "getFulfillPurposeParams":
 		callback(pageData.pageType);

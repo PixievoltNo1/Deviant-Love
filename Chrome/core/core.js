@@ -78,7 +78,7 @@ function fulfillPurpose(pageType, ownerOrTitle) {
 			}
 		}
 		if (newData.progress !== null) {
-			scanProgressInfo[0].textContent += " (" + newData.progress + "%)";
+			scanProgressInfo[0].textContent += " (" + Math.floor(newData.progress * 100) + "%)";
 		}
 	}
 	window.scanError = function() {

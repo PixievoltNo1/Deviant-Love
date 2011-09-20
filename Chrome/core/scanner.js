@@ -29,7 +29,8 @@ function researchLove(favesURL, maxDeviations, handlers) {
 		} );
 		var nextPage = $('channel > [rel="next"]', feed).attr("href");
 		if (nextPage) {
-			// TODO: Find the offset value in the URL; set data.progress to progress percentage if found, null otherwise
+			var offsetCheckResults = nextPage.match(/offset\=(\d+)/);
+			data.progress = offsetCheckResults ? offsetCheckResults[1] / maxDeviations : null;
 		} else {
 			data.progress = 1;
 		}
