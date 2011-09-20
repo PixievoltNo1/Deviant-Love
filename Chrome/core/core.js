@@ -416,7 +416,7 @@ function makeL10nMethod(methodName, effect, tmpMsg) {
 		var textInPlace = this.attr("data-l10n") == msgName; // Not very accurate with multiple elements, but for Deviant Love that doesn't matter
 		// l10nMethod will be needed for v3.0, when the user will be able to choose a language
 		this.attr("data-l10n", msgName)/*.data("l10nMethod", methodName)*/;
-		getL10nMsg(msgName, replacements, $.proxy(effect, this), tmpMsg);
+		getL10nMsg(msgName, replacements, $.proxy(effect, this), textInPlace ? null : tmpMsg);
 		return this;
 	}
 }
