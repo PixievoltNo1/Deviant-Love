@@ -16,7 +16,7 @@ function researchLove(favesURL, maxDeviations, handlers) {
 	};
 	function retrieveFaves() { currentXHRs.faves = $.ajax(favesURL, favesSettings); }
 	function processFavesXML(feed) {
-		var data = [];
+		var data = { items: [] };
 		$("item", feed).each( function() {
 			var item = {
 				deviationName: $("title:eq(0)", this).text(),
@@ -25,7 +25,7 @@ function researchLove(favesURL, maxDeviations, handlers) {
 				artistAvatar: $('[role="author"]:eq(1)', this).text()
 			};
 			item.artistURL = "http://" + item.artistName.toLowerCase() + ".deviantart.com/";
-			data.push(item);
+			data.items.push(item);
 		} );
 		var nextPage = $('channel > [rel="next"]', feed).attr("href");
 		if (nextPage) {

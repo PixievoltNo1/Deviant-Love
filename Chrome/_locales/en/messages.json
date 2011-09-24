@@ -16,7 +16,7 @@
 	"scanningFeatured": { "message": "Scanning featured faves..." },
 	"scanningAll": { "message": "Scanning all faves..." },
 	"scanningCollection": { "message": "Scanning Collection..." },
-	"scanProgress": { "message": "$1 deviations scanned" },
+	"scannedDeviations": { "message": "$1 deviations scanned" },
 	"scanError": { "message": "Communication with deviantART was unsuccessful." },
 	"scanErrorRetry": {
 		"message": "Try again",

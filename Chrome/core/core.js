@@ -50,10 +50,12 @@ function fulfillPurpose(pageType, ownerOrTitle) {
 		// Make a dummy object so that when support for Firefox <6 is dropped, I don't have to change much
 		scanProgressBar = { show: $.noop, hide: $.noop };
 	}
-	var scanProgressInfo = $("<div>", {id: "scanProgressInfo"}).appendTo(preparationScreen);
+	$("<div>", {id: "scanProgressInfo"})
+		.append( $("<span>", {id: "scannedDeviations"}), " ", $("<span>", {id: "scanPercentage"}) )
+		.appendTo(preparationScreen);
 	var watchStatus = $("<div>", {id: "watchStatus"}).appendTo(preparationScreen);
 	window.collectData = function(newData) {
-		newData.forEach(function(item) {
+		newData.items.forEach(function(item) {
 			if (!deviantBag[item.artistName]) {
 				var newDeviant = {};
 				newDeviant.name = item.artistName;
@@ -69,7 +71,7 @@ function fulfillPurpose(pageType, ownerOrTitle) {
 			});
 			totalDeviations++;
 		});
-		scanProgressInfo.l10n("scanProgress", totalDeviations);
+		$("#scannedDeviations").l10n("scannedDeviations", totalDeviations);
 		if (supportsProgress) {
 			if (newData.progress !== null) {
 				scanProgressBar.attr("value", newData.progress);
@@ -78,20 +80,20 @@ function fulfillPurpose(pageType, ownerOrTitle) {
 			}
 		}
 		if (newData.progress !== null) {
-			scanProgressInfo[0].textContent += " (" + Math.floor(newData.progress * 100) + "%)";
+			$("#scanPercentage").text( "(" + Math.floor(newData.progress * 100) + "%)" );
 		}
 	}
 	window.scanError = function() {
 		$("body").css("cursor", "");
 		scanProgressBar.hide();
-		scanProgressInfo.hide();
+		$("#scanProgressInfo").hide();
 		watchStatus.hide();
 		$("<div>", {id: "scanError"}).l10n("scanError").appendTo(preparationScreen);
 		$("<button>", {id: "retryButton"}).l10n("scanErrorRetry")
 			.bind("click", function() {
 				$(this).add("#scanError").remove();
 				scanProgressBar.hide();
-				scanProgressInfo.show();
+				$("#scanProgressInfo").show();
 				watchStatus.show();
 				$("body").css("cursor", "wait");
 				scanRetry();
