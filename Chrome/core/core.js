@@ -31,6 +31,8 @@ function fulfillPurpose(pageType, ownerOrTitle) {
 	var firstDeviant;
 	var watchedArtists;
 	// When a deviant is recorded, a reference should be added to both the list and the bag.
+	
+	var supportsProgress = (document.createElement("progress").max !== undefined);
 
 	$("body").css("cursor", "wait");
 	var preparationScreen = $("<div>", {id: "preparationScreen"}).appendTo(document.body);
@@ -40,10 +42,20 @@ function fulfillPurpose(pageType, ownerOrTitle) {
 		collection: "scanningCollection"
 	})[pageType];
 	$("<div>", {id: "scanMessage"}).l10n(scanMessage).appendTo(preparationScreen);
-	var scanProgress = $("<div>", {id: "scanProgress"}).appendTo(preparationScreen);
+	var scanProgressBar;
+	if (supportsProgress) {
+		scanProgressBar = $("<progress>", {id: "scanProgressBar", max: 1, value: 0})
+			.appendTo(preparationScreen);
+	} else {
+		// Make a dummy object so that when support for Firefox <6 is dropped, I don't have to change much
+		scanProgressBar = { show: $.noop, hide: $.noop };
+	}
+	$("<div>", {id: "scanProgressInfo"})
+		.append( $("<span>", {id: "scannedDeviations"}), " ", $("<span>", {id: "scanPercentage"}) )
+		.appendTo(preparationScreen);
 	var watchStatus = $("<div>", {id: "watchStatus"}).appendTo(preparationScreen);
 	window.collectData = function(newData) {
-		newData.forEach(function(item) {
+		newData.items.forEach(function(item) {
 			if (!deviantBag[item.artistName]) {
 				var newDeviant = {};
 				newDeviant.name = item.artistName;
@@ -59,17 +71,29 @@ function fulfillPurpose(pageType, ownerOrTitle) {
 			});
 			totalDeviations++;
 		});
-		scanProgress.l10n("scanProgress", totalDeviations);
+		$("#scannedDeviations").l10n("scannedDeviations", totalDeviations);
+		if (supportsProgress) {
+			if (newData.progress !== null) {
+				scanProgressBar.attr("value", newData.progress);
+			} else {
+				scanProgressBar.removeAttr("value");
+			}
+		}
+		if (newData.progress !== null) {
+			$("#scanPercentage").text( "(" + Math.floor(newData.progress * 100) + "%)" );
+		}
 	}
 	window.scanError = function() {
 		$("body").css("cursor", "");
-		scanProgress.hide();
+		scanProgressBar.hide();
+		$("#scanProgressInfo").hide();
 		watchStatus.hide();
 		$("<div>", {id: "scanError"}).l10n("scanError").appendTo(preparationScreen);
 		$("<button>", {id: "retryButton"}).l10n("scanErrorRetry")
 			.bind("click", function() {
 				$(this).add("#scanError").remove();
-				scanProgress.show();
+				scanProgressBar.hide();
+				$("#scanProgressInfo").show();
 				watchStatus.show();
 				$("body").css("cursor", "wait");
 				scanRetry();
@@ -132,9 +156,9 @@ function fulfillPurpose(pageType, ownerOrTitle) {
 				collection: "scanCollectionResultsPopupLine1"
 			})[pageType];
 			scanResults.append($("<div>").l10nHtml(scanResultsLine1,
-				'<span class="dynamic">' + totalDeviations.toString() + '</span>'));
+				'<span class="dynamic">' + Number(totalDeviations) + '</span>')); // The Number call is there to help out AMO reviewers; same for the other calls below
 		} else { // displayType == "sidebar"
-			if (/[\<\>\&]/.test("ownerOrTitle")) {ownerOrTitle = "?????????";};
+			if (/[\<\>\&]/.test(ownerOrTitle)) {ownerOrTitle = "?????????";};
 			var scanResultsLine1 = (pageType == "collection") ?
 				"scanCollectionResultsSidebarLine1" :
 				"scanNonCollectionResultsSidebarLine1";
@@ -142,12 +166,12 @@ function fulfillPurpose(pageType, ownerOrTitle) {
 				"scanFeaturedResultsSidebarLine2" :
 				"scanNonFeaturedResultsSidebarLine2";
 			scanResults.append($("<div>").l10nHtml(scanResultsLine1,
-				'<span class="dynamic">' + ownerOrTitle + '</span>'))
+				'<span class="dynamic">' + ownerOrTitle + '</span>')) // ownerOrTitle is filtered for safety a few lines up
 				.append($("<div>").l10nHtml(scanResultsLine2,
-				'<span class="dynamic">' + totalDeviations.toString() + '</span>'))
+				'<span class="dynamic">' + Number(totalDeviations) + '</span>'))
 		}
 		scanResults.append($("<div>").l10nHtml("scanResultsLastLine",
-			'<span class="dynamic">' + deviantList.length.toString() + '</span>'))
+			'<span class="dynamic">' + Number(deviantList.length) + '</span>'))
 			.appendTo(mainScreen);
 		$("<form>", {id: "findBar"})
 			.append($("<input>", {type: "text", id: "query"}))
@@ -391,9 +415,10 @@ function makeL10nMethod(methodName, effect, tmpMsg) {
 	$.fn[methodName] = function(msgName) {
 		var replacements = $.makeArray(arguments).slice(1);
 		if (replacements.length == 0) {replacements = undefined};
-		// The following line will be needed for v3.0, when the user will be able to choose a language
-		// this.attr("data-l10n", msgName).data("l10nMethod", methodName);
-		getL10nMsg(msgName, replacements, $.proxy(effect, this), tmpMsg);
+		var textInPlace = this.attr("data-l10n") == msgName; // Not very accurate with multiple elements, but for Deviant Love that doesn't matter
+		// l10nMethod will be needed for v3.0, when the user will be able to choose a language
+		this.attr("data-l10n", msgName)/*.data("l10nMethod", methodName)*/;
+		getL10nMsg(msgName, replacements, $.proxy(effect, this), textInPlace ? null : tmpMsg);
 		return this;
 	}
 }

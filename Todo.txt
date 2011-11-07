@@ -2,3 +2,4 @@
 	- Add &, /, and ~ operators
 - Show something nice when an avatar is loading
 - Make the heart appear faster
+- The heart should indicate when clicking it will close it

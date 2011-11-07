@@ -5,7 +5,7 @@
 */
 "use strict";
 
-function researchLove(favesURL, handlers) {
+function researchLove(favesURL, maxDeviations, handlers) {
 // Handlers needed: onFavesError, faves, onWatchError, watched, onDone
 	var currentXHRs = {}, paused = false, onResume = [], todos = 2;
 	
@@ -16,7 +16,7 @@ function researchLove(favesURL, handlers) {
 	};
 	function retrieveFaves() { currentXHRs.faves = $.ajax(favesURL, favesSettings); }
 	function processFavesXML(feed) {
-		var data = [];
+		var data = { items: [] };
 		$("item", feed).each( function() {
 			var item = {
 				deviationName: $("title:eq(0)", this).text(),
@@ -25,12 +25,18 @@ function researchLove(favesURL, handlers) {
 				artistAvatar: $('[role="author"]:eq(1)', this).text()
 			};
 			item.artistURL = "http://" + item.artistName.toLowerCase() + ".deviantart.com/";
-			data.push(item);
+			data.items.push(item);
 		} );
+		var nextPage = $('channel > [rel="next"]', feed).attr("href");
+		if (nextPage) {
+			var offsetCheckResults = nextPage.match(/offset\=(\d+)/);
+			data.progress = offsetCheckResults ? offsetCheckResults[1] / maxDeviations : null;
+		} else {
+			data.progress = 1;
+		}
 		handlers.faves(data);
-		var nextPage = $('channel > [rel="next"]', feed);
-		if (nextPage.length >= 1) {
-			favesURL = nextPage.attr("href");
+		if (nextPage) {
+			favesURL = nextPage;
 			if (!paused) {
 				retrieveFaves();
 			} else {

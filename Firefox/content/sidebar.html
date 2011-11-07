@@ -8,7 +8,10 @@
 <title>Deviant Love Sidebar</title>
 <link rel="stylesheet" href="core/builtinskin.css" type="text/css">
 <style type="text/css">
-body > div { /* width and height TBD in JavaScript */}
+body > div {
+	width: 100%;
+	/* height TBD in JavaScript */
+}
 .placeholder { color: rgb(169, 169, 169); }
 #lovedArtists { height: 1px; /* Firefox 3.6 will not shrink lovedArtists by itself */ }
 a { text-decoration: underline; }
@@ -56,7 +59,7 @@ function rawk() {
 		delete top.DeviantLove.firstDeviant;
 	}
 	if (!top.DeviantLove.currentScanData) {
-		scannerController = researchLove(pageData.feedHref, {
+		scannerController = researchLove(pageData.feedHref, pageData.maxDeviations, {
 			faves: collectData,
 			onFavesError: scanError,
 			watched: collectWatchlist,
@@ -90,7 +93,6 @@ $(document).delegate("a", "click", function(event) {
 } );
 $(window).bind("resize", function() {
 	var screenSize = document.styleSheets[1].cssRules[0].style;
-	screenSize.setProperty("width", $(window).width() + "px", "");
 	screenSize.setProperty("height", $(window).height() + "px", "");
 } );
 </script>

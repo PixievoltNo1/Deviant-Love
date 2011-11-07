@@ -50,7 +50,7 @@ function scanRetry() {
 	chrome.extension.sendRequest({action: "scanRetry"});
 }
 function getL10nMsg(msgName, replacements, callback, tmpMsg) {
-	callback(tmpMsg);
+	if (tmpMsg) { callback(tmpMsg); };
 	chrome.extension.sendRequest({
 		action: "getMessage",
 		"msgName": msgName,
