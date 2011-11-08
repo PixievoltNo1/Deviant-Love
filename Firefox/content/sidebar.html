@@ -33,10 +33,15 @@ $(document).ready( function() {
 	reloadButton.hidden = false;
 	var sidebarBrowser = top.document.getElementById("sidebar");
 	sidebarBrowser.setAttribute("tooltip", "aHTMLTooltip");
+	var contextMenu = top.document.getElementById("DeviantLoveReportContextMenu");
+	contextMenu.addEventListener("popupshowing", setupContextMenu, false);
+	sidebarBrowser.setAttribute("contextmenu", contextMenu.id);
 	$(window).bind("unload", function() {
 		reloadButton.hidden = true;
 		reloadButton.removeEventListener("command", restart, false);
+		contextMenu.removeEventListener("popupshowing", setupContextMenu, false);
 		sidebarBrowser.removeAttribute("tooltip");
+		sidebarBrowser.removeAttribute("contextmenu");
 	});
 	rawk();
 } );
@@ -72,6 +77,14 @@ function rawk() {
 	} else {
 		restore(top.DeviantLove.currentScanData, top.DeviantLove.getTip());
 	}
+}
+function setupContextMenu() {
+	var isLink = top.gContextMenu.onLink;
+	// The following uses a non-standard Firefox extension to Array
+	// https://developer.mozilla.org/en/JavaScript/Guide/Predefined_Core_Objects#Working_with_Array-like_objects
+	Array.forEach(top.document.querySelectorAll('#DeviantLoveReportContextMenu .link'), function(item) {
+		item.hidden = !isLink;
+	} );
 }
 function getL10nMsg(msgName, replacements, callback) {
 	if (!replacements) {
