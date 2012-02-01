@@ -161,12 +161,21 @@ body > div {
 	width: 72px;
 	padding: 4px;
 	text-align: center;
+	position: relative;
 }
 .avatar {
 	background-color: white;
 	-moz-box-shadow: hsla(0, 0%, 0%, 0.8) 2px 2px 2px;
 	-webkit-box-shadow: hsla(0, 0%, 0%, 0.8) 2px 2px 2px;
 	box-shadow: hsla(0, 0%, 0%, 0.8) 2px 2px 2px;
+}
+.avatarLoading {
+	position: absolute;
+	left: 4px;
+	right: 4px;
+	top: 4px;
+	line-height: 50px;
+	font-size: 120%;
 }
 .deviantLinks {
 	height: 20px;
