@@ -404,7 +404,7 @@ function queryTroubleCheck() {
 
 	if (query.length == 0 || $("#query").hasClass("placeholder")) { return true };
 
-	var invalidChar = query.search(/[^a-zA-Z0-9 \_\'\"\+\.\,\$\?\:\-]/);
+	var invalidChar = query.search(/[^a-zA-Z0-9 \_\'\"\+\.\,\$\?\:\-\!]/);
 	if (invalidChar != -1) {
 		return {errMsg: "findErrorForbiddenCharacter", offender: query.charAt(invalidChar)};
 	}

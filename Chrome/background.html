@@ -20,7 +20,6 @@ chrome.extension.onRequest.addListener( function(thing, buddy, callback) {switch
 		chrome.tabs.sendRequest(buddy.tab.id, {action: "popupReady"})
 	break;
 	case "getMessage":
-		console.log(thing);
 		callback(chrome.i18n.getMessage(thing.msgName, thing.replacements));
 	break;
 	case "sendTip":
