@@ -79,7 +79,7 @@ function rawk() {
 	}
 }
 function setupContextMenu() {
-	var isLink = top.gContextMenu.onLink;
+	var isLink = top.gContextMenu.onLink; // TODO: gContextMenu is null! Figure out something else!
 	// The following uses a non-standard Firefox extension to Array
 	// https://developer.mozilla.org/en/JavaScript/Guide/Predefined_Core_Objects#Working_with_Array-like_objects
 	Array.forEach(top.document.querySelectorAll('#DeviantLoveReportContextMenu .link'), function(item) {
@@ -96,6 +96,7 @@ function getL10nMsg(msgName, replacements, callback) {
 $(document).delegate("a", "click", function(event) {
 	event.preventDefault();
 } ).delegate("a", "mouseup", function(event) {
+	if (event.button == 2) { return; };
 	// Mimic Chrome behavior
 	var where = top.whereToOpenLink(event);
 	if (where == "current") {
