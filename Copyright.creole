@@ -1,8 +1,8 @@
-All .html, .js., and .json files except jquery.js are copyrighted by Pikadude No. 1 ([[http://harrigan.org/pikadudeno1|personal website]]; [[http://pikadudeno1.deviantart.com|deviantART account]]) and made available under the terms of the GNU General Public License (see License.txt).
+All .html, .js., and .json files except jquery.js are copyrighted by Pikadude No. 1 ([[http://pikadudeno1.com|personal website]]; [[http://pikadudeno1.deviantart.com|deviantART account]]) and made available under the terms of the GNU General Public License (see License.txt).
 
 jquery.js is also made available under the terms of the GNU General Public License, but is copyrighted by the [[http://jquery.org|jQuery Project]].
 
-DeviationWatch.png, Gallery.png, Profile.png, Random.png, and Watch.png are copyrighted by [[http://www.deviantart.com|deviantART]]. They reserve all rights to these images, but it is assumed that their use in a deviantART enhancement constitutes fair use.
+DeviationWatch.png, Gallery.png, Profile.png, Random.png, Watch.png, and People.png are copyrighted by [[http://www.deviantart.com|deviantART]]. They reserve all rights to these images, but it is assumed that their use in a deviantART enhancement constitutes fair use.
 
 The contents of the SilkIcons folder are copyrighted by Mark James, and come from [[http://www.famfamfam.com/lab/icons/silk/|his Silk icons set]]. They are made available under the terms of the [[http://creativecommons.org/licenses/by/2.5/|Creative Commons Attribution 2.5 License]].
 

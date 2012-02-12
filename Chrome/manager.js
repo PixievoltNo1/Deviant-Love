@@ -1,8 +1,9 @@
 /*
 	This file is part of Deviant Love.
-	Copyright 2010 Pikadude No. 1
+	Copyright 2010-2012 Pikadude No. 1
 	Check core.js for the complete legal stuff.
 */
+"use strict";
 
 var popup = document.createElement("iframe"), popupCSS = popup.style;
 popupCSS.border = "2px solid black";

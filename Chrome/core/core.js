@@ -1,6 +1,6 @@
 /*
 	This file is part of Deviant Love.
-	Copyright 2010 Pikadude No. 1
+	Copyright 2010-2012 Pikadude No. 1
 
 	Deviant Love is free software: you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -92,7 +92,7 @@ function fulfillPurpose(pageType, ownerOrTitle) {
 		$("<button>", {id: "retryButton"}).l10n("scanErrorRetry")
 			.bind("click", function() {
 				$(this).add("#scanError").remove();
-				scanProgressBar.hide();
+				scanProgressBar.show();
 				$("#scanProgressInfo").show();
 				watchStatus.show();
 				$("body").css("cursor", "wait");
@@ -377,9 +377,12 @@ function buildCloserLook(deviant, deviations) {
 	var closerLook = $("<div>", {"class": "closerLook"}).css("overflow", "hidden");
 
 	var deviantDetails = $("<div>", {"class": "deviantDetails"});
-	deviantDetails.append($("<a>", {"href": deviant.baseURL}) // Note two opening parens and only one closing paren
-		.append($("<img>", {src: deviant.avatar, "class": "avatar", width: 50, height: 50})));
-	deviantDetails.append($("<div>", {"class": "deviantLinks"}) // Ditto
+	var deviantAvatar = $("<img>", {"class": "avatar", width: 50, height: 50})
+		.bind("load", function() { deviantDetails.find(".avatarLoading").remove(); } );
+	deviantDetails.append($("<a>", {"href": deviant.baseURL}).append(deviantAvatar));
+	deviantDetails.append($("<div>", {"class": "avatarLoading"}).l10n("imageLoading"));
+	deviantAvatar.attr("src", deviant.avatar);
+	deviantDetails.append($("<div>", {"class": "deviantLinks"}) // Note two opening parens and only one closing paren
 		.append($("<a>", {"href": deviant.baseURL, "class": "profileLink"})
 			.l10nTooltip("profile"))
 		.append($("<a>", {"href": deviant.baseURL + "gallery/", "class": "galleryLink"})
@@ -404,7 +407,7 @@ function queryTroubleCheck() {
 
 	if (query.length == 0 || $("#query").hasClass("placeholder")) { return true };
 
-	var invalidChar = query.search(/[^a-zA-Z0-9 \_\'\"\+\.\,\$\?\:\-]/);
+	var invalidChar = query.search(/[^a-zA-Z0-9 \_\'\"\+\.\,\$\?\:\-\!]/);
 	if (invalidChar != -1) {
 		return {errMsg: "findErrorForbiddenCharacter", offender: query.charAt(invalidChar)};
 	}
