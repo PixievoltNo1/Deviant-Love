@@ -13,7 +13,7 @@ var DeviantLove = {};
 
 window.addEventListener("load", function() {
 	var currentFocus = 0;
-	var linkItemsInReportContextMenu;
+	var contextMenuWhitelistingDone;
 	var loader = Components.classes["@mozilla.org/moz/jssubscript-loader;1"]
 		.getService(Components.interfaces.mozIJSSubScriptLoader);
 	DeviantLove.l10n = document.getElementById("DeviantLoveMessages");
@@ -62,16 +62,14 @@ window.addEventListener("load", function() {
 	artistCheck.addEventListener("command", summonRawkitude, false);
 	
 	function summonRawkitude(event) {
-		if (!linkItemsInReportContextMenu) {
-			let reportContextMenu = document.getElementById("DeviantLoveReportContextMenu");
-			let linkItems = document.querySelectorAll("#context-openlink, #context-openlinkintab, #context-copylink");
-			for (let i = 0; i < linkItems.length; ++i) {
-				let clonedLinkItem = linkItems[i].cloneNode(true);
-				clonedLinkItem.id += "DLove-";
-				clonedLinkItem.className += " link";
-				reportContextMenu.appendChild(clonedLinkItem);
+		if (!contextMenuWhitelistingDone) {
+			let whitelist = document.querySelectorAll("#context-openlink, #context-openlinkintab, " +
+				"#context-copylink, #context-undo, #context-sep-undo, #context-cut, #context-copy, " +
+				"#context-paste, #context-delete, #context-sep-paste, #context-selectall");
+			for (let i = 0; i < whitelist.length; ++i) {
+				whitelist[i].className += " DeviantLoveWhitelisted";
 			}
-			linkItemsInReportContextMenu = true;
+			contextMenuWhitelistingDone = true;
 		}
 		
 		var doc = content.document;

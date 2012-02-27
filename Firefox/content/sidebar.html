@@ -22,7 +22,7 @@ a:visited { color: rgb(85, 26, 139); }
 <script type="text/javascript" src="core/jquery.js"></script>
 <script type="text/javascript" src="core/core.js"></script>
 <script type="text/javascript" src="core/scanner.js"></script>
-<script type="text/javascript">
+<script type="text/javascript;version=1.7">
 "use strict";
 var scannerController, displayType = "sidebar";
 $(document).ready( function() {
@@ -33,16 +33,32 @@ $(document).ready( function() {
 	reloadButton.hidden = false;
 	var sidebarBrowser = top.document.getElementById("sidebar");
 	sidebarBrowser.setAttribute("tooltip", "aHTMLTooltip");
-	var contextMenu = top.document.getElementById("DeviantLoveReportContextMenu");
-	contextMenu.addEventListener("popupshowing", setupContextMenu, false);
+	var contextMenu = top.document.getElementById("contentAreaContextMenu");
+	contextMenu.addEventListener("popupshowing", enforceWhitelist, false);
+	contextMenu.addEventListener("popuphidden", unenforceWhitelist, false);
 	sidebarBrowser.setAttribute("contextmenu", contextMenu.id);
 	$(window).bind("unload", function() {
 		reloadButton.hidden = true;
 		reloadButton.removeEventListener("command", restart, false);
-		contextMenu.removeEventListener("popupshowing", setupContextMenu, false);
+		contextMenu.removeEventListener("popupshowing", enforceWhitelist, false);
+		contextMenu.removeEventListener("popuphidden", unenforceWhitelist, false);
 		sidebarBrowser.removeAttribute("tooltip");
 		sidebarBrowser.removeAttribute("contextmenu");
 	});
+	function enforceWhitelist() {
+		if (document.contains(top.gContextMenu.target)) {
+			var failed = contextMenu.querySelectorAll("*:not(.DeviantLoveWhitelisted)");
+			for (let i = 0; i < failed.length; ++i) {
+				failed[i].className += " DeviantLoveWhitelistFail";
+			}
+		}
+	}
+	function unenforceWhitelist() {
+		var failed = contextMenu.querySelectorAll(".DeviantLoveWhitelistFail");
+		for (let i = 0; i < failed.length; ++i) {
+			failed[i].className = failed[i].className.replace("DeviantLoveWhitelistFail", "");
+		}
+	}
 	rawk();
 } );
 function restart() {
@@ -77,14 +93,6 @@ function rawk() {
 	} else {
 		restore(top.DeviantLove.currentScanData, top.DeviantLove.getTip());
 	}
-}
-function setupContextMenu() {
-	var isLink = top.gContextMenu.onLink; // TODO: gContextMenu is null! Figure out something else!
-	// The following uses a non-standard Firefox extension to Array
-	// https://developer.mozilla.org/en/JavaScript/Guide/Predefined_Core_Objects#Working_with_Array-like_objects
-	Array.forEach(top.document.querySelectorAll('#DeviantLoveReportContextMenu .link'), function(item) {
-		item.hidden = !isLink;
-	} );
 }
 function getL10nMsg(msgName, replacements, callback) {
 	if (!replacements) {

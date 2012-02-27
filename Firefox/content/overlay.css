@@ -11,3 +11,4 @@
 #DeviantLoveArtistCheck {
 	list-style-image: url("chrome://DeviantLove/content/core/16Icon.png");
 }
+.DeviantLoveWhitelistFail { display: none; }
