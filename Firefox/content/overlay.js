@@ -13,6 +13,7 @@ var DeviantLove = {};
 
 window.addEventListener("load", function() {
 	var currentFocus = 0;
+	var contextMenuWhitelistingDone;
 	var loader = Components.classes["@mozilla.org/moz/jssubscript-loader;1"]
 		.getService(Components.interfaces.mozIJSSubScriptLoader);
 	DeviantLove.l10n = document.getElementById("DeviantLoveMessages");
@@ -61,13 +62,23 @@ window.addEventListener("load", function() {
 	artistCheck.addEventListener("command", summonRawkitude, false);
 	
 	function summonRawkitude(event) {
+		if (!contextMenuWhitelistingDone) {
+			let whitelist = document.querySelectorAll("#context-openlink, #context-openlinkintab, " +
+				"#context-copylink, #context-undo, #context-sep-undo, #context-cut, #context-copy, " +
+				"#context-paste, #context-delete, #context-sep-paste, #context-selectall");
+			for (let i = 0; i < whitelist.length; ++i) {
+				whitelist[i].className += " DeviantLoveWhitelisted";
+			}
+			contextMenuWhitelistingDone = true;
+		}
+		
 		var doc = content.document;
 		if (doc.DeviantLove.focus == currentFocus) {
 			if (this == heart) {
 				toggleSidebar("DeviantLoveSidebar");
 			} else if (!document.getElementById("sidebar").contentWindow.DeviantLove) {
 				DeviantLove.firstDeviant = gContextMenu.target.textContent;
-				toggleSidebar("DeviantLoveSidebar");
+				toggleSidebar("DeviantLoveSidebar", true);
 			} else {
 				document.getElementById("sidebar").contentWindow.showDeviant(gContextMenu.target.textContent);
 			}
