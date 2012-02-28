@@ -48,32 +48,44 @@ function researchLove(favesURL, maxDeviations, handlers) {
 	}
 	retrieveFaves();
 	
-	currentXHRs.watch = $.ajax("http://my.deviantart.com/global/difi/?c%5B%5D=%22Friends%22%2C%22getFriendsList%22%2C%5Bfalse%2C0%5D&t=json", {
+	var watchlistPage = 0, greatOnes = [];
+	var watchlistSettings = {
 		dataType: "json",
 		success: processWatchJSON,
 		error: watchFailure
-	});
+	};
+	function retrieveWatchlist() {
+		currentXHRs.watch = $.ajax("http://my.deviantart.com/global/difi/?c%5B%5D=%22Friends%22%2C%22getFriendsList%22%2C%5Btrue%2C"
+			+ watchlistPage + "%5D&t=json", watchlistSettings);
+	}
 	function processWatchJSON(digHere) {
 		if (digHere.DiFi.status === "FAIL") {
 			watchFailure();
 			return;
 		}
-		var greatOnes = [];
-		var buriedTreasure = digHere.DiFi.response.calls[0].response.content;
-		for (var folder in buriedTreasure) {
-			buriedTreasure[folder].forEach( function(deviant) {
-				if (deviant.attributes & 2) {
-					greatOnes.push(deviant.username);
-				}
-			} );
+		var buriedTreasure = digHere.DiFi.response.calls[0].response.content.Unsorted;
+		buriedTreasure.forEach( function(deviant) {
+			if (deviant.attributes & 2) {
+				greatOnes.push(deviant.username);
+			}
+		} );
+		if (buriedTreasure.length == 100) { // That means there may be more friends
+			++watchlistPage;
+			if (!paused) {
+				retrieveWatchlist();
+			} else {
+				onResume.push(retrieveWatchlist)
+			}
+		} else {
+			handlers.watched(greatOnes);
+			taskComplete();
 		}
-		handlers.watched(greatOnes);
-		taskComplete();
 	}
 	function watchFailure() {
 		handlers.onWatchError();
 		taskComplete();
 	}
+	retrieveWatchlist();
 	
 	function taskComplete() {
 		--todos;
