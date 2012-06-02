@@ -1,4 +1,0 @@
-* Add the find bar
-	- Add &, /, and ~ operators
-- Make the heart appear faster
-- The heart should indicate when clicking it will close it
