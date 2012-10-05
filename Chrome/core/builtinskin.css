@@ -27,10 +27,10 @@ body > div {
 #mainScreen {
 	display: -moz-box;
 	display: -webkit-box;
-	display: box;
+	display: flex;
 	-moz-box-orient: vertical;
 	-webkit-box-orient: vertical;
-	box-orient: vertical;
+	flex-direction: column;
 }
 #mainScreen > * {
 	border: 1px solid black;
@@ -42,7 +42,7 @@ body > div {
 	background: url("48Icon.png"), -moz-linear-gradient(top, hsl(40, 100%, 70%), hsl(40, 100%, 50%));
 	background: url("48Icon.png"), -webkit-gradient(linear, left top, left bottom,
 		from(hsl(40, 100%, 70%)), to(hsl(40, 100%, 50%)));
-	background: url("48Icon.png"), linear-gradient(top, hsl(40, 100%, 70%), hsl(40, 100%, 50%));
+	background: url("48Icon.png"), linear-gradient(to bottom, hsl(40, 100%, 70%), hsl(40, 100%, 50%));
 	background-position: 5px center, 0 0;
 	background-repeat: no-repeat, repeat;
 	/* background-color: hsl(40, 100%, 60%); */
@@ -63,10 +63,10 @@ body > div {
 #findBar {
 	display: -moz-box;
 	display: -webkit-box;
-	display: box;
+	display: flex;
 	-moz-box-orient: horizontal;
 	-webkit-box-orient: horizontal;
-	box-orient: horizontal;
+	flex-direction: row;
 	padding: 1px;
 	background-color: hsl(55, 100%, 55%);
 }
@@ -78,7 +78,7 @@ body > div {
 #query {
 	-moz-box-flex: 1;
 	-webkit-box-flex: 1;
-	box-flex: 1;
+	flex: 1;
 }
 #queryError {
 	background-color: hsl(55, 100%, 82%);
@@ -112,7 +112,7 @@ body > div {
 #lovedArtists {
 	-moz-box-flex: 1;
 	-webkit-box-flex: 1;
-	box-flex: 1;
+	flex: 1;
 }
 #lovedArtists, .closerLook {
 	background: hsl(350, 100%, 54%);
@@ -125,7 +125,7 @@ body > div {
 	background: -moz-linear-gradient(top, hsl(350, 100%, 88%), hsl(350, 100%, 82%));
 	background: -webkit-gradient(linear, left top, left bottom,
 		from(hsl(350, 100%, 88%)), to(hsl(350, 100%, 82%)));
-	background: linear-gradient(top, hsl(350, 100%, 88%), hsl(350, 100%, 82%));
+	background: linear-gradient(to bottom, hsl(350, 100%, 88%), hsl(350, 100%, 82%));
 }
 .deviant.opened {
 	background: hsl(350, 100%, 74%);
