@@ -87,8 +87,11 @@ function activate(firstDeviant) {
 		popup.src = chrome.extension.getURL("popup.html" + (firstDeviant ? "#" + firstDeviant : ""));
 	} else if (popupStage == "scanning") {
 		chrome.extension.sendRequest({action: "resumeScan"});
-		// reveal must be called asyncronously, otherwise the display property changes made earlier won't have taken effect and the transitions won't work
-		window.setTimeout(reveal, 1);
+		// http://timtaubert.de/blog/2012/09/css-transitions-for-dynamically-created-dom-elements/
+		window.getComputedStyle(popup).display;
+		window.getComputedStyle(shield).display;
+		// With our elements' display truly set, we are free to transition them! Thanks, Tim! ♡
+		reveal();
 	} else {
 		chrome.extension.sendRequest({action: "sendTip"}, reveal);
 	}
