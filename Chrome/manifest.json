@@ -9,6 +9,7 @@
 	},
 	"default_locale": "en",
 
+	"background": {"page": "background.html"},
 	"background_page": "background.html",
 	"page_action": {
 		"default_icon": "19Icon.png",
@@ -19,7 +20,9 @@
 		"js": ["core/detector.js", "manager.js"],
 		"run_at": "document_end"
 	}],
+	"web_accessible_resources": ["popup.html", "popup.js", "core/"],
 
 	"permissions": ["tabs", "contextMenus", "http://*.deviantart.com/"],
-	"minimum_chrome_version": "7"
+	"minimum_chrome_version": "7",
+	"manifest_version": 2
 }
