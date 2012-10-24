@@ -81,7 +81,8 @@ function rawk() {
 	}
 	if (!top.DeviantLove.currentScanData) {
 		scannerController = researchLove(pageData.feedHref, pageData.maxDeviations, {
-			faves: collectData,
+			faves: setData,
+			progress: setProgress,
 			onFavesError: scanError,
 			watched: collectWatchlist,
 			onWatchError: watchError,

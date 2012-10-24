@@ -15,7 +15,8 @@ $(document).ready( function() {
 	)
 } );
 function collectResearch(thing) {switch (thing.whatsUp) {
-	case "faves": collectData(thing.data); break;
+	case "faves": setData(thing.data); break;
+	case "progress": setProgress.apply(window, thing.args); break;
 	case "scanError": scanError(); break;
 	case "watched": collectWatchlist(thing.data); break;
 	case "watchError": watchError(); break;

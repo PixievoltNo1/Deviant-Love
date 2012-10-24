@@ -6,14 +6,11 @@
 "use strict";
 
 function researchLove(favesURL, maxDeviations, handlers) {
-// Handlers needed: onFavesError, faves, onWatchError, watched, onDone
+// Handlers needed: onFavesError, faves, progress, onWatchError, watched, onDone
 	var currentXHRs = {}, paused = false, onResume = [], todos = 2;
 	
-	/* To be completed, this would need to be:
-		- able to make sure core.js reads pages in the right order
-		- pausable
-	*/
-	var favesPerPage, processedPages = 0, totalPages;
+	// To be completed, this would need to be pausable
+	var favesPerPage, processedPages = 0, totalPages, pageData = [], found = 0;
 	function retrieveFaves(page) {
 		var xhr = currentXHRs["faves" + page] = $.get(favesURL +
 			( page > 1 ? "&offset=" + ((page - 1) * favesPerPage) : "") );
@@ -21,7 +18,7 @@ function researchLove(favesURL, maxDeviations, handlers) {
 		xhr.done(processFavesXML).fail(handlers.onFavesError);
 	}
 	function processFavesXML(feed, status, xhr) {
-		var data = { items: [] };
+		var items = [];
 		$("item", feed).each( function() {
 			var item = {
 				deviationName: $("title:eq(0)", this).text(),
@@ -30,8 +27,10 @@ function researchLove(favesURL, maxDeviations, handlers) {
 				artistAvatar: $('[role="author"]:eq(1)', this).text()
 			};
 			item.artistURL = "http://" + item.artistName.toLowerCase() + ".deviantart.com/";
-			data.items.push(item);
+			items.push(item);
+			++found;
 		} );
+		pageData[xhr.page - 1] = items;
 		if (xhr.page == 1) {
 			var page2URL = $('channel > [rel="next"]', feed).attr("href");
 			var offsetCheckResults = page2URL.match(/offset\=(\d+)/);
@@ -42,9 +41,10 @@ function researchLove(favesURL, maxDeviations, handlers) {
 			}
 		}
 		++processedPages;
-		data.progress = Math.min( (processedPages * favesPerPage) / maxDeviations, 1);
-		handlers.faves(data);
+		var progressPercentage = Math.min( (processedPages * favesPerPage) / maxDeviations, 1);
+		handlers.progress(progressPercentage, found);
 		if (processedPages == totalPages) {
+			handlers.faves(Array.prototype.concat.apply([], pageData));
 			taskComplete();
 		}
 	}
