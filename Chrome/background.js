@@ -8,6 +8,14 @@ chrome.extension.onRequest.addListener( function(thing, buddy, callback) {switch
 	case "showLove":
 		chrome.pageAction.show(buddy.tab.id);
 	break;
+	case "showX":
+		chrome.pageAction.setIcon({tabId: buddy.tab.id, path: "19IconClose.png"});
+		chrome.pageAction.setTitle({tabId: buddy.tab.id, title: chrome.i18n.getMessage("heartX")});
+	break;
+	case "noX":
+		chrome.pageAction.setIcon({tabId: buddy.tab.id, path: "19Icon.png"});
+		chrome.pageAction.setTitle({tabId: buddy.tab.id, title: "Deviant Love"});
+	break;
 	case "popupSetup":
 		chrome.tabs.sendRequest(buddy.tab.id, {action: "getFulfillPurposeParams"}, function(pageType) {
 			callback({"pageType": pageType});

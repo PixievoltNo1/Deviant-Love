@@ -99,6 +99,7 @@ function activate(firstDeviant) {
 		popupCSS.bottom = "20px";
 		shieldCSS.opacity = "0.4";
 		popupState = "active";
+		chrome.extension.sendRequest({action: "showX"});
 		shield.addEventListener("click", deactivate, false);
 	}
 }
@@ -114,4 +115,5 @@ function deactivate() {
 	popupCSS.bottom = window.innerHeight + "px";
 	shieldCSS.opacity = "0";
 	popupState = "deactivating";
+	chrome.extension.sendRequest({action: "noX"});
 }

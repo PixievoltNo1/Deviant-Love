@@ -29,23 +29,30 @@ window.addEventListener("load", function() {
 				loader.loadSubScript("chrome://DeviantLove/content/core/detector.js", DeviantLove);
 			};
 			doc.DeviantLove.pageData = DeviantLove.findLove(doc.defaultView);
-			checkLove();
+			updateHeart();
 		}
 	}
 	gBrowser.addEventListener("pagehide", function(event) {
 		var doc = event.originalTarget;
 		if (doc.DeviantLove) {
 			doc.DeviantLove = null;
-			checkLove();
+			updateHeart();
 		}
 	}, false);
 	// From https://developer.mozilla.org/en/Code_snippets/Tabbed_browser#Detecting_tab_selection
-	gBrowser.tabContainer.addEventListener("TabSelect", checkLove, false);
+	gBrowser.tabContainer.addEventListener("TabSelect", updateHeart, false);
 
 	var heart = document.getElementById("DeviantLoveHeart");
-	function checkLove() {
-		var lovePresent = Boolean(content.document.DeviantLove);
-		heart.hidden = !lovePresent;
+	function updateHeart(closing) {
+		if (content.document.DeviantLove) {
+			heart.hidden = false;
+			var clickToClose = !closing && (content.document.DeviantLove.focus == currentFocus) &&
+				document.getElementById("DeviantLoveSidebar").hasAttribute("checked");
+			heart.classList[clickToClose ? "add" : "remove"]("clickToClose");
+			heart.tooltipText = clickToClose ? DeviantLove.l10n.getString("heartX") : "Deviant Love"; 
+		} else {
+			heart.hidden = true;
+		}
 	}
 	heart.addEventListener("command", summonRawkitude, false);
 	
@@ -92,6 +99,9 @@ window.addEventListener("load", function() {
 			}
 			toggleSidebar("DeviantLoveSidebar", true);
 		}
+		
+		
+		updateHeart();
 	}
 }, false);
 
