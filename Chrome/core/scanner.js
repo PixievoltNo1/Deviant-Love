@@ -6,17 +6,29 @@
 "use strict";
 
 function researchLove(favesURL, maxDeviations, handlers) {
-// Handlers needed: onFavesError, faves, onWatchError, watched, onDone
-	var currentXHRs = {}, paused = false, onResume = [], todos = 2;
+// Handlers needed: onFavesError, faves, progress, onWatchError, watched, onDone
+	var currentXHRs = {}, paused = false, onResume = [grabMorePages], todos = 2;
 	
-	var favesSettings = {
-		dataType: "xml",
-		success: processFavesXML,
-		error: handlers.onFavesError
-	};
-	function retrieveFaves() { currentXHRs.faves = $.ajax(favesURL, favesSettings); }
-	function processFavesXML(feed) {
-		var data = { items: [] };
+	var favesPerPage, allowedXHRs = 6, processedPages = 0, totalPages, pageData = [], found = 0;
+	function retrieveFaves(page) {
+		var xhr = currentXHRs["faves" + page] = $.get(favesURL +
+			( page > 1 ? "&offset=" + ((page - 1) * favesPerPage) : "") );
+		xhr.page = page;
+		--allowedXHRs;
+		
+		xhr.done(processFavesXML).fail(handlers.onFavesError);
+	}
+	function processFavesXML(feed, status, xhr) {
+		++allowedXHRs;
+		delete currentXHRs["faves" + xhr.page];
+		if (xhr.page == 1) {
+			var page2URL = $('channel > [rel="next"]', feed).attr("href");
+			var offsetCheckResults = page2URL.match(/offset\=(\d+)/);
+			favesPerPage = Number(offsetCheckResults[1]);
+			totalPages = Math.ceil(maxDeviations / favesPerPage);
+		}
+		grabMorePages();
+		var items = [];
 		$("item", feed).each( function() {
 			var item = {
 				deviationName: $("title:eq(0)", this).text(),
@@ -25,28 +37,27 @@ function researchLove(favesURL, maxDeviations, handlers) {
 				artistAvatar: $('[role="author"]:eq(1)', this).text()
 			};
 			item.artistURL = "http://" + item.artistName.toLowerCase() + ".deviantart.com/";
-			data.items.push(item);
+			items.push(item);
+			++found;
 		} );
-		var nextPage = $('channel > [rel="next"]', feed).attr("href");
-		if (nextPage) {
-			var offsetCheckResults = nextPage.match(/offset\=(\d+)/);
-			data.progress = offsetCheckResults ? offsetCheckResults[1] / maxDeviations : null;
-		} else {
-			data.progress = 1;
-		}
-		handlers.faves(data);
-		if (nextPage) {
-			favesURL = nextPage;
-			if (!paused) {
-				retrieveFaves();
-			} else {
-				onResume.push(retrieveFaves)
-			}
-		} else {
+		pageData[xhr.page - 1] = items;
+		++processedPages;
+		var progressPercentage = Math.min( (processedPages * favesPerPage) / maxDeviations, 1);
+		handlers.progress(progressPercentage, found);
+		if (processedPages == totalPages) {
+			handlers.faves(Array.prototype.concat.apply([], pageData));
 			taskComplete();
 		}
 	}
-	retrieveFaves();
+	retrieveFaves(1);
+	var requestedPages = 1;
+	function grabMorePages() {
+		if (totalPages == null || paused) { return; }
+		while (allowedXHRs > 0 && requestedPages < totalPages) {
+			++requestedPages;
+			retrieveFaves(requestedPages);
+		}
+	}
 	
 	var watchlistPage = 0, greatOnes = [];
 	var watchlistSettings = {
@@ -103,7 +114,7 @@ function researchLove(favesURL, maxDeviations, handlers) {
 		resume: function() {
 			paused = false;
 			onResume.forEach( function(handler) { handler(); } );
-			onResume = [];
+			onResume = [grabMorePages];
 		}
 	};
 }

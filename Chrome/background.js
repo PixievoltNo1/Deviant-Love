@@ -74,6 +74,7 @@ chrome.extension.onConnect.addListener( function(port) {
 	chrome.tabs.sendRequest(port.sender.tab.id, {action: "getResearchLoveParams"}, function(params) {
 		var scannerController = researchLove(params.feedHref, params.maxDeviations, {
 			faves: function(data) { port.postMessage({whatsUp: "faves", "data": data}); },
+			progress: function() { port.postMessage({whatsUp: "progress", args: $.makeArray(arguments)}) },
 			onFavesError: function() {
 				chrome.extension.onRequest.addListener( function scanRetry(thing, buddy, callback) {
 					if (buddy.tab.id == port.sender.tab.id && thing.action == "scanRetry") {

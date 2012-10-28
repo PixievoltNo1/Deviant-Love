@@ -54,8 +54,15 @@ function fulfillPurpose(pageType, ownerOrTitle) {
 		.append( $("<span>", {id: "scannedDeviations"}), " ", $("<span>", {id: "scanPercentage"}) )
 		.appendTo(preparationScreen);
 	var watchStatus = $("<div>", {id: "watchStatus"}).appendTo(preparationScreen);
-	window.collectData = function(newData) {
-		newData.items.forEach(function(item) {
+	window.setProgress = function(percentage, found) {
+		$("#scannedDeviations").l10n("scannedDeviations", found);
+		if (supportsProgress) {
+			scanProgressBar.attr("value", percentage);
+		}
+		$("#scanPercentage").text( "(" + Math.floor(percentage * 100) + "%)" );
+	}
+	window.setData = function(data) {
+		data.forEach(function(item) {
 			if (!deviantBag[item.artistName]) {
 				var newDeviant = {};
 				newDeviant.name = item.artistName;
@@ -69,19 +76,8 @@ function fulfillPurpose(pageType, ownerOrTitle) {
 				name: item.deviationName,
 				URL: item.deviationPage
 			});
-			totalDeviations++;
 		});
-		$("#scannedDeviations").l10n("scannedDeviations", totalDeviations);
-		if (supportsProgress) {
-			if (newData.progress !== null) {
-				scanProgressBar.attr("value", newData.progress);
-			} else {
-				scanProgressBar.removeAttr("value");
-			}
-		}
-		if (newData.progress !== null) {
-			$("#scanPercentage").text( "(" + Math.floor(newData.progress * 100) + "%)" );
-		}
+		totalDeviations = data.length;
 	}
 	window.scanError = function() {
 		$("body").css("cursor", "");
