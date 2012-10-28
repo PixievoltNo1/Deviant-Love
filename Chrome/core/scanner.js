@@ -7,17 +7,27 @@
 
 function researchLove(favesURL, maxDeviations, handlers) {
 // Handlers needed: onFavesError, faves, progress, onWatchError, watched, onDone
-	var currentXHRs = {}, paused = false, onResume = [], todos = 2;
+	var currentXHRs = {}, paused = false, onResume = [grabMorePages], todos = 2;
 	
-	// To be completed, this would need to be pausable
-	var favesPerPage, processedPages = 0, totalPages, pageData = [], found = 0;
+	var favesPerPage, allowedXHRs = 6, processedPages = 0, totalPages, pageData = [], found = 0;
 	function retrieveFaves(page) {
 		var xhr = currentXHRs["faves" + page] = $.get(favesURL +
 			( page > 1 ? "&offset=" + ((page - 1) * favesPerPage) : "") );
 		xhr.page = page;
+		--allowedXHRs;
+		
 		xhr.done(processFavesXML).fail(handlers.onFavesError);
 	}
 	function processFavesXML(feed, status, xhr) {
+		++allowedXHRs;
+		delete currentXHRs["faves" + xhr.page];
+		if (xhr.page == 1) {
+			var page2URL = $('channel > [rel="next"]', feed).attr("href");
+			var offsetCheckResults = page2URL.match(/offset\=(\d+)/);
+			favesPerPage = Number(offsetCheckResults[1]);
+			totalPages = Math.ceil(maxDeviations / favesPerPage);
+		}
+		grabMorePages();
 		var items = [];
 		$("item", feed).each( function() {
 			var item = {
@@ -31,15 +41,6 @@ function researchLove(favesURL, maxDeviations, handlers) {
 			++found;
 		} );
 		pageData[xhr.page - 1] = items;
-		if (xhr.page == 1) {
-			var page2URL = $('channel > [rel="next"]', feed).attr("href");
-			var offsetCheckResults = page2URL.match(/offset\=(\d+)/);
-			favesPerPage = Number(offsetCheckResults[1]);
-			totalPages = Math.ceil(maxDeviations / favesPerPage);
-			for (var i = 2; i <= totalPages; ++i) {
-				retrieveFaves(i);
-			}
-		}
 		++processedPages;
 		var progressPercentage = Math.min( (processedPages * favesPerPage) / maxDeviations, 1);
 		handlers.progress(progressPercentage, found);
@@ -49,6 +50,14 @@ function researchLove(favesURL, maxDeviations, handlers) {
 		}
 	}
 	retrieveFaves(1);
+	var requestedPages = 1;
+	function grabMorePages() {
+		if (totalPages == null || paused) { return; }
+		while (allowedXHRs > 0 && requestedPages < totalPages) {
+			++requestedPages;
+			retrieveFaves(requestedPages);
+		}
+	}
 	
 	var watchlistPage = 0, greatOnes = [];
 	var watchlistSettings = {
@@ -105,7 +114,7 @@ function researchLove(favesURL, maxDeviations, handlers) {
 		resume: function() {
 			paused = false;
 			onResume.forEach( function(handler) { handler(); } );
-			onResume = [];
+			onResume = [grabMorePages];
 		}
 	};
 }
