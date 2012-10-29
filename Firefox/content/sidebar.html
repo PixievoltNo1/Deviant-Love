@@ -44,6 +44,7 @@ $(document).ready( function() {
 		contextMenu.removeEventListener("popuphidden", unenforceWhitelist, false);
 		sidebarBrowser.removeAttribute("tooltip");
 		sidebarBrowser.removeAttribute("contextmenu");
+		top.DeviantLove.iIsDed();
 	});
 	function enforceWhitelist() {
 		if (document.contains(top.gContextMenu.target)) {

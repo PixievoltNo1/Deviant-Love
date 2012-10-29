@@ -46,7 +46,7 @@ window.addEventListener("load", function() {
 	function updateHeart(closing) {
 		if (content.document.DeviantLove) {
 			heart.hidden = false;
-			var clickToClose = !closing && (content.document.DeviantLove.focus == currentFocus) &&
+			var clickToClose = closing !== true && (content.document.DeviantLove.focus == currentFocus) &&
 				document.getElementById("DeviantLoveSidebar").hasAttribute("checked");
 			heart.classList[clickToClose ? "add" : "remove"]("clickToClose");
 			heart.tooltipText = clickToClose ? DeviantLove.l10n.getString("heartX") : "Deviant Love"; 
@@ -100,8 +100,10 @@ window.addEventListener("load", function() {
 			toggleSidebar("DeviantLoveSidebar", true);
 		}
 		
-		
 		updateHeart();
+	}
+	DeviantLove.iIsDed = function() {
+		updateHeart(true);
 	}
 }, false);
 
