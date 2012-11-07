@@ -16,5 +16,7 @@
         <em:maxVersion>16.*</em:maxVersion>
       </Description>
     </em:targetApplication>
+    <em:optionsType>3</em:optionsType>
+    <em:optionsURL>http://deviantlovesoftware.deviantart.com/</em:optionsURL>
   </Description>
 </RDF>
