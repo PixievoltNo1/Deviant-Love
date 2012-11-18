@@ -17,7 +17,4 @@
 	<popup id="contentAreaContextMenu">
 		<menuitem id="DeviantLoveArtistCheck" class="menuitem-iconic" label="Deviant Love" position="1"/>
 	</popup>
-	<stringbundleset id="stringbundleset">
-		<stringbundle id="DeviantLoveMessages" src="chrome://DeviantLove/locale/messages.properties"/>
-	</stringbundleset>
 </overlay>

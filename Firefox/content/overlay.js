@@ -4,7 +4,7 @@
 	Check core.js for the complete legal stuff.
 */
 /* At the cost of readability, the identifier "DeviantLove" is used a few different ways in this code. I'd rewrite it to use different identifiers for each purpose if I could think of identifiers as brief as "DeviantLove" without risking collisions with other extensions.
-	- The global variable DeviantLove is used as a "message center" for communication between this file and the sidebar, as well as a second parameter for loadSubScript.
+	- The global variable DeviantLove is used as a "message center" for communication between this file and the sidebar, as well as a second parameter for loadSubScript and import.
 	- doc.DeviantLove stores per-page information.
 	- document.getElementById("sidebar").contentWindow.DeviantLove is set by the sidebar to inform this file that it is present and loaded.
 */
@@ -16,7 +16,7 @@ window.addEventListener("load", function() {
 	var contextMenuWhitelistingDone;
 	var loader = Components.classes["@mozilla.org/moz/jssubscript-loader;1"]
 		.getService(Components.interfaces.mozIJSSubScriptLoader);
-	DeviantLove.l10n = document.getElementById("DeviantLoveMessages");
+	Components.utils.import("chrome://DeviantLove/content/global.js", DeviantLove);
 	
 	gBrowser.addEventListener("DOMContentLoaded", setup, false);
 	gBrowser.addEventListener("pageshow", setup, false);
