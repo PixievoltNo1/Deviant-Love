@@ -196,7 +196,7 @@ function fulfillPurpose(pageType, ownerOrTitle) {
 		tipOfTheMoment(firstTip);
 
 		// Set up interaction
-		lovedArtists.delegate(".deviant:not(.opened)", "click", function() {
+		lovedArtists.delegate(".deviant:not(.opened)", "click", function(event, suppressAnimation) {
 			$(".opened.deviant").removeClass("opened");
 			$(".deviant > .closerLook").css("height", 0)
 				.bind("transitionend webkitTransitionEnd", function() { $(this).remove(); });
@@ -206,15 +206,19 @@ function fulfillPurpose(pageType, ownerOrTitle) {
 				.css("transition", "height 0.4s ease-in-out");
 			$(this).append(closerLook).addClass("opened");
 			var closerLookHeight = closerLook.height();
-			var transitionDone = false;
-			closerLook.height(0).css("height", closerLookHeight)
-				.bind("transitionend webkitTransitionEnd", function() { transitionDone = true; });
-			var requestAnimationFrame = window.requestAnimationFrame ||
-				window.mozRequestAnimationFrame || window.webkitRequestAnimationFrame;
-			requestAnimationFrame( function me() {
-				scrollToDeviationList();
-				if (!transitionDone) { requestAnimationFrame(me); }
-			} );
+			if (!suppressAnimation) {
+				closerLook.height(0);
+				getComputedStyle(closerLook[0]).height;
+				var transitionDone = false;
+				closerLook.bind("transitionend webkitTransitionEnd", function() { transitionDone = true; });
+				var requestAnimationFrame = window.requestAnimationFrame ||
+					window.mozRequestAnimationFrame || window.webkitRequestAnimationFrame;
+				requestAnimationFrame( function me() {
+					scrollToDeviationList();
+					if (!transitionDone) { requestAnimationFrame(me); }
+				} );
+			}
+			closerLook.css("height", closerLookHeight);
 		} );
 		if ($("#query").hasClass("placeholder")) { // Placeholder attribute emulation
 			$("#query").bind("focus", function() {
@@ -239,18 +243,13 @@ function fulfillPurpose(pageType, ownerOrTitle) {
 		$("#noFind").bind("click", normalMode);
 		
 		// Handle requests for a particular deviant that were made elsewhere (e.g. context menu)
-		if (firstDeviant) {
-			$.fx.off = true;
-			$("#deviant_" + firstDeviant).trigger("click")
-				.get(0).scrollIntoView();
-			$.fx.off = false;
-		}
-		window.showDeviant = function(deviantName) {
+		window.showDeviant = function(deviantName, isFirst) {
 			normalMode();
-			$.fx.off = (displayType == "popup");
-			$("#deviant_" + deviantName).trigger("click")
+			$("#deviant_" + deviantName).trigger("click", isFirst || displayType == "popup")
 				.get(0).scrollIntoView();
-			$.fx.off = false;
+		}
+		if (firstDeviant) {
+			showDeviant(firstDeviant, true);
 		}
 
 		// All done, now go play!
