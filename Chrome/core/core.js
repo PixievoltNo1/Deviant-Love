@@ -198,17 +198,21 @@ function fulfillPurpose(pageType, ownerOrTitle) {
 		// Set up interaction
 		lovedArtists.delegate(".deviant:not(.opened)", "click", function(event, suppressAnimation) {
 			$(".opened.deviant").removeClass("opened");
-			$(".deviant > .closerLook").css("height", 0)
-				.bind("transitionend webkitTransitionEnd", function() { $(this).remove(); });
+			if (!suppressAnimation) {
+				$(".deviant > .closerLook").css("height", 0)
+					.bind("transitionend webkitTransitionEnd", function() { $(this).remove(); });
+			} else {
+				$(".deviant > .closerLook").remove();
+			}
 
 			var deviant = deviantBag[$(".deviantName", this).text()];
 			var closerLook = buildCloserLook(deviant, deviant.deviations)
-				.css("transition", "height 0.4s ease-in-out");
 			$(this).append(closerLook).addClass("opened");
 			var closerLookHeight = closerLook.height();
 			if (!suppressAnimation) {
 				closerLook.height(0);
 				getComputedStyle(closerLook[0]).height;
+				transitionate();
 				var transitionDone = false;
 				closerLook.bind("transitionend webkitTransitionEnd", function() { transitionDone = true; });
 				var requestAnimationFrame = window.requestAnimationFrame ||
@@ -217,8 +221,14 @@ function fulfillPurpose(pageType, ownerOrTitle) {
 					scrollToDeviationList();
 					if (!transitionDone) { requestAnimationFrame(me); }
 				} );
+				closerLook.css("height", closerLookHeight);
+			} else {
+				closerLook.css("height", closerLookHeight);
+				// Chrome 23 animates the above for some dumb reason unless I also have these here:
+				getComputedStyle(closerLook[0]).height;
+				transitionate();
 			}
-			closerLook.css("height", closerLookHeight);
+			function transitionate() { closerLook.css("transition", "height 0.4s ease-in-out"); }
 		} );
 		if ($("#query").hasClass("placeholder")) { // Placeholder attribute emulation
 			$("#query").bind("focus", function() {
