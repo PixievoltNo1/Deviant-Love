@@ -198,21 +198,23 @@ function fulfillPurpose(pageType, ownerOrTitle) {
 		// Set up interaction
 		lovedArtists.delegate(".deviant:not(.opened)", "click", function() {
 			$(".opened.deviant").removeClass("opened");
-			$(".deviant > .closerLook").animate({height: 0}, {
-				duration: 400,
-				easing: "swing",
-				complete: function() {$(this).remove();}
-			})
+			$(".deviant > .closerLook").css("height", 0)
+				.bind("transitionend webkitTransitionEnd", function() { $(this).remove(); });
 
 			var deviant = deviantBag[$(".deviantName", this).text()];
-			var closerLook = buildCloserLook(deviant, deviant.deviations);
+			var closerLook = buildCloserLook(deviant, deviant.deviations)
+				.css("transition", "height 0.4s ease-in-out");
 			$(this).append(closerLook).addClass("opened");
 			var closerLookHeight = closerLook.height();
-			closerLook.height(0).animate({height: closerLookHeight}, {
-				duration: 400,
-				easing: "swing",
-				step: scrollToDeviationList
-			});
+			var transitionDone = false;
+			closerLook.height(0).css("height", closerLookHeight)
+				.bind("transitionend webkitTransitionEnd", function() { transitionDone = true; });
+			var requestAnimationFrame = window.requestAnimationFrame ||
+				window.mozRequestAnimationFrame || window.webkitRequestAnimationFrame;
+			requestAnimationFrame( function me() {
+				scrollToDeviationList();
+				if (!transitionDone) { requestAnimationFrame(me); }
+			} );
 		} );
 		if ($("#query").hasClass("placeholder")) { // Placeholder attribute emulation
 			$("#query").bind("focus", function() {
