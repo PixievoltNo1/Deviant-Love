@@ -3,6 +3,7 @@
   <Description about="urn:mozilla:install-manifest">
     <em:id>deviantlove@pikadudeno1.com</em:id>
     <em:type>2</em:type>
+	<em:bootstrap>true</em:bootstrap>
 	<em:name>Deviant Love</em:name>
 	<em:description>An artist-centered view of a deviantART Faves page</em:description>
 	<em:creator>Pikadude No. 1</em:creator>
