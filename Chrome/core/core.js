@@ -31,8 +31,6 @@ function fulfillPurpose(pageType, ownerOrTitle) {
 	var firstDeviant;
 	var watchedArtists;
 	// When a deviant is recorded, a reference should be added to both the list and the bag.
-	
-	var supportsProgress = (document.createElement("progress").max !== undefined);
 
 	$("body").css("cursor", "wait");
 	var preparationScreen = $("<div>", {id: "preparationScreen"}).appendTo(document.body);
@@ -42,23 +40,15 @@ function fulfillPurpose(pageType, ownerOrTitle) {
 		collection: "scanningCollection"
 	})[pageType];
 	$("<div>", {id: "scanMessage"}).l10n(scanMessage).appendTo(preparationScreen);
-	var scanProgressBar;
-	if (supportsProgress) {
-		scanProgressBar = $("<progress>", {id: "scanProgressBar", max: 1, value: 0})
-			.appendTo(preparationScreen);
-	} else {
-		// Make a dummy object so that when support for Firefox <6 is dropped, I don't have to change much
-		scanProgressBar = { show: $.noop, hide: $.noop };
-	}
+	var scanProgressBar = $("<progress>", {id: "scanProgressBar", max: 1, value: 0})
+		.appendTo(preparationScreen);
 	$("<div>", {id: "scanProgressInfo"})
 		.append( $("<span>", {id: "scannedDeviations"}), " ", $("<span>", {id: "scanPercentage"}) )
 		.appendTo(preparationScreen);
 	var watchStatus = $("<div>", {id: "watchStatus"}).appendTo(preparationScreen);
 	window.setProgress = function(percentage, found) {
 		$("#scannedDeviations").l10n("scannedDeviations", found);
-		if (supportsProgress) {
-			scanProgressBar.attr("value", percentage);
-		}
+		scanProgressBar.attr("value", percentage);
 		$("#scanPercentage").text( "(" + Math.floor(percentage * 100) + "%)" );
 	}
 	window.setData = function(data) {
@@ -177,12 +167,7 @@ function fulfillPurpose(pageType, ownerOrTitle) {
 		// jQuery apparently refuses to set a button's type. "it causes problems in IE", they say.
 		$("#goFind")[0].setAttribute("type", "submit");
 		$("#noFind")[0].setAttribute("type", "button");
-		if ($("#query")[0].placeholder !== undefined) {
-			$("#query").l10nPlaceholder("queryPlaceholder");
-		} else {
-			makeL10nMethod("l10nVal", $.fn.val, "");
-			$("#query").addClass("placeholder").l10nVal("queryPlaceholder");
-		}
+		$("#query").l10nPlaceholder("queryPlaceholder");
 		$("<div>", {id: "queryError"}).hide().appendTo(mainScreen);
 		var lovedArtists = $("<div>", {id: "lovedArtists"})
 			.css({"overflow-y": "auto", "overflow-x": "hidden"})
@@ -230,17 +215,6 @@ function fulfillPurpose(pageType, ownerOrTitle) {
 			}
 			function transitionate() { closerLook.css("transition", "height 0.4s ease-in-out"); }
 		} );
-		if ($("#query").hasClass("placeholder")) { // Placeholder attribute emulation
-			$("#query").bind("focus", function() {
-				if ($(this).hasClass("placeholder")) {
-					$(this).val("").removeClass("placeholder");
-				}
-			} ).bind("blur", function() {
-				if ($(this).val() == "") {
-					$(this).addClass("placeholder").l10nVal("queryPlaceholder");
-				}
-			} )
-		}
 		$("#query").bind("input", function(event) {
 			var checkResult = queryTroubleCheck();
 			if (typeof checkResult == "object") {
