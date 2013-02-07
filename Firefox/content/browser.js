@@ -12,6 +12,7 @@
 window.DeviantLove = {};
 
 (function() {
+// TODO: Set doc.DeviantLove for tabs that were open when Deviant Love was installed
 	var cleanupTasks = [];
 	var currentFocus = 0;
 	var contextMenuWhitelistingDone;
@@ -84,9 +85,10 @@ window.DeviantLove = {};
 	document.getElementById("mainBroadcasterSet").appendChild(sidebar);
 	cleanupTasks.push( removalTask(sidebar) );
 
+	// The label property won't work for freshly-made elements. Some XBL thing.
 	// Deviant Love doesn't actually need a reload button, but it's the most concise way to inform the user that the sidebar's report is static.
 	var reload = document.createElement("button");
-	reload.id = "DeviantLoveReload"; reload.label = "Reload"; reload.hidden = true;
+	reload.id = "DeviantLoveReload"; reload.setAttribute("label", "Reload"); reload.hidden = true;
 	let (reloadDest = document.getElementById("sidebar-header")) {
 		reloadDest.insertBefore(reload, reloadDest.firstChild.nextSibling);
 	}
@@ -94,7 +96,7 @@ window.DeviantLove = {};
 	
 	var artistCheck = document.createElement("menuitem");
 	artistCheck.id = "DeviantLoveArtistCheck"; artistCheck.className = "menuitem-iconic";
-	artistCheck.label = DeviantLove.l10n.get("artistCheck", ["________"]); // For Fx extensions like Menu Editor
+	artistCheck.setAttribute("label", DeviantLove.l10n.get("artistCheck", ["________"])); // For Fx extensions like Menu Editor
 	var webContextMenu = document.getElementById("contentAreaContextMenu");
 	webContextMenu.insertBefore(artistCheck, webContextMenu.firstChild);
 	function artistCheckRequested() {
