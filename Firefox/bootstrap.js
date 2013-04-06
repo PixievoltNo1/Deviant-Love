@@ -17,8 +17,7 @@ function windows() {
 }
 function startup() {
 	windowWatcher.registerNotification(observer);
-	// Non-standard use of for...in. Can't use for...of as it would break Fx 10 compatibility.
-	for (let window in windows()) {
+	for (let window of windows()) {
 		foundWindow(window);
 	}
 }
@@ -38,8 +37,7 @@ function shutdown(data, reason) {
 	windowWatcher.unregisterNotification(observer);
 	Components.utils.unload("chrome://DeviantLove/content/global.js");
 	Components.utils.unload("chrome://DeviantLove/content/StringBundle.js");
-	// See previous for...in
-	for (let window in windows()) {
+	for (let window of windows()) {
 		window = window.QueryInterface(Components.interfaces.nsIDOMWindow);
 		window.removeEventListener("load", loadedWindow, true);
 		if (window.DeviantLove) {
