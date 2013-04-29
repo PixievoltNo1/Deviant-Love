@@ -22,10 +22,15 @@ function researchLove(favesURL, maxDeviations, handlers) {
 		++allowedXHRs;
 		delete currentXHRs["faves" + xhr.page];
 		if (xhr.page == 1) {
-			var page2URL = $('channel > [rel="next"]', feed).attr("href");
-			var offsetCheckResults = page2URL.match(/offset\=(\d+)/);
-			favesPerPage = Number(offsetCheckResults[1]);
-			totalPages = Math.ceil(maxDeviations / favesPerPage);
+			var page2Link = $('channel > [rel="next"]', feed);
+			if (page2Link.length) {
+				var offsetCheckResults = page2Link.attr("href").match(/offset\=(\d+)/);
+				favesPerPage = Number(offsetCheckResults[1]);
+				totalPages = Math.ceil(maxDeviations / favesPerPage);
+			} else {
+				totalPages = 1;
+				favesPerPage = maxDeviations;
+			}
 		}
 		grabMorePages();
 		var items = [];
