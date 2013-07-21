@@ -1,3 +1,7 @@
+* {
+	-moz-box-sizing: border-box;
+	box-sizing: border-box;
+}
 body {
 	background-color: white;
 	color: black;
@@ -5,10 +9,6 @@ body {
 }
 a img {
 	border: 0;
-}
-body > div {
-	-moz-box-sizing: border-box;
-	box-sizing: border-box;
 }
 .popup > div {
 	padding: 9px;
@@ -152,12 +152,16 @@ body > div {
 }
 .deviantDetails {
 	float: left;
-	width: 72px;
-	padding: 4px;
+	width: 80px;
+	padding: 9px 4px;
 	text-align: center;
 	position: relative;
 }
+.deviantLink {
+	display: inline-block;
+}
 .avatar {
+	display: block;
 	background-color: white;
 	box-shadow: hsla(0, 0%, 0%, 0.8) 2px 2px 2px;
 }
@@ -171,7 +175,8 @@ body > div {
 }
 .deviantLinks {
 	height: 20px;
-	margin-top: 4px;
+	margin-top: 6px;
+	margin-bottom: -1px;
 }
 .deviantLinks a {
 	display: inline-block;

@@ -360,7 +360,8 @@ function buildCloserLook(deviant, deviations) {
 	var deviantDetails = $("<div>", {"class": "deviantDetails"});
 	var deviantAvatar = $("<img>", {"class": "avatar", width: 50, height: 50})
 		.bind("load", function() { deviantDetails.find(".avatarLoading").remove(); } );
-	deviantDetails.append($("<a>", {"href": deviant.baseURL}).append(deviantAvatar));
+	deviantDetails.append( $("<a>", {"href": deviant.baseURL, "class": "deviantLink"})
+		.append(deviantAvatar) );
 	deviantDetails.append($("<div>", {"class": "avatarLoading"}).l10n("imageLoading"));
 	deviantAvatar.attr("src", deviant.avatar);
 	deviantDetails.append($("<div>", {"class": "deviantLinks"}) // Note two opening parens and only one closing paren
