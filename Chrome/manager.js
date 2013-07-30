@@ -8,7 +8,7 @@
 var popup = document.createElement("iframe"), popupCSS = popup.style;
 popupCSS.border = "2px solid black";
 popupCSS.borderTop = "0";
-popupCSS.height = (window.innerHeight - 22) + "px";
+popupCSS.height = "-webkit-calc(100% - 22px)";
 popupCSS.width = "444px";
 popupCSS.position = "fixed";
 popupCSS.right = "50px";
@@ -52,11 +52,6 @@ chrome.extension.onRequest.addListener( function(thing, buddy, callback) {switch
 	break;
 }} );
 chrome.extension.sendRequest({action: "showLove"});
-
-addEventListener("resize", function() {
-	popupCSS.height = (window.innerHeight - 22) + "px";
-	if (popupState == "inactive") { popupCSS.bottom = window.innerHeight + "px"; }
-}, false);
 
 document.querySelector(".folderview-art").addEventListener("mouseover", function(event) {
 	var thing = event.target;
