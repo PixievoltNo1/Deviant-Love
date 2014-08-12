@@ -1,13 +1,13 @@
 /*
 	This file is part of Deviant Love.
-	Copyright 2010-2012 Pikadude No. 1
+	Copyright Pikadude No. 1
 	Check core.js for the complete legal stuff.
 */
 "use strict";
 var displayType = "popup";
 $(document).ready( function() {
 	$("body").css({
-		"-webkit-box-sizing": "border-box",
+		"box-sizing": "border-box",
 		"height": $(window).height(),
 		"margin": 0
 	});

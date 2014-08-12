@@ -1,6 +1,6 @@
 /*
 	This file is part of Deviant Love.
-	Copyright 2010-2012 Pikadude No. 1
+	Copyright Pikadude No. 1
 	Check core.js for the complete legal stuff.
 */
 /* At the cost of readability, the identifier "DeviantLove" is used a few different ways in this code. I'd rewrite it to use different identifiers for each purpose if I could think of identifiers as brief as "DeviantLove" without risking collisions with other extensions.
