@@ -46,3 +46,8 @@ function shutdown(data, reason) {
 		}
 	}
 }
+function uninstall(data, reason) {
+	if (reason == ADDON_UNINSTALL) {
+		Services.prefs.getBranch("extensions.deviantlove.").deleteBranch("");
+	}
+}
