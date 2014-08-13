@@ -26,7 +26,7 @@ a img {
 #mainScreen {
 	display: -webkit-flex;
 	display: flex;
-	-webkit-box-orient: vertical;
+	-webkit-flex-direction: vertical;
 	flex-direction: column;
 }
 #mainScreen > * {
@@ -36,7 +36,6 @@ a img {
 	border-top: 0;
 }
 #scanResults {
-	background: url("48Icon.png"), -webkit-linear-gradient(top, hsl(40, 100%, 70%), hsl(40, 100%, 50%));
 	background: url("48Icon.png"), linear-gradient(to bottom, hsl(40, 100%, 70%), hsl(40, 100%, 50%));
 	background-position: 5px center, 0 0;
 	background-repeat: no-repeat, repeat;
@@ -112,7 +111,6 @@ a img {
 	cursor: pointer;
 }
 .deviant:hover {
-	background: -webkit-linear-gradient(top, hsl(357, 90%, 88%), hsl(357, 90%, 82%));
 	background: linear-gradient(to bottom, hsl(357, 90%, 88%), hsl(357, 90%, 82%));
 }
 .deviant.opened {

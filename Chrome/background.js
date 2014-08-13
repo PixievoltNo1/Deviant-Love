@@ -4,7 +4,7 @@
 	Check core.js for the complete legal stuff.
 */
 "use strict";
-chrome.extension.onRequest.addListener( function(thing, buddy, callback) {switch (thing.action) {
+chrome.runtime.onMessage.addListener( function(thing, buddy, callback) {switch (thing.action) {
 	case "showLove":
 		chrome.pageAction.show(buddy.tab.id);
 	break;
@@ -17,24 +17,26 @@ chrome.extension.onRequest.addListener( function(thing, buddy, callback) {switch
 		chrome.pageAction.setTitle({tabId: buddy.tab.id, title: "Deviant Love"});
 	break;
 	case "popupSetup":
-		chrome.tabs.sendRequest(buddy.tab.id, {action: "getFulfillPurposeParams"}, function(pageType) {
+		chrome.tabs.sendMessage(buddy.tab.id, {action: "getFulfillPurposeParams"}, function(pageType) {
 			callback({"pageType": pageType});
 		} );
-		chrome.tabs.sendRequest(buddy.tab.id, {action: "popupReady"})
+		chrome.tabs.sendMessage(buddy.tab.id, {action: "popupReady"});
+		return true;
 	break;
 	case "getMessage":
 		callback(chrome.i18n.getMessage(thing.msgName, thing.replacements));
 	break;
 	case "sendTip":
-		getTip(function(tip) {chrome.tabs.sendRequest(buddy.tab.id,
+		getTip(function(tip) {chrome.tabs.sendMessage(buddy.tab.id,
 			{action: "changeTip", "tip": tip}, callback)});
+		return true;
 	break;
 	case "showArtistLove":
 		chrome.contextMenus.create({
 			title: chrome.i18n.getMessage("artistCheck", thing.artist),
 			contexts: ["link"],
 			onclick: function() {
-				chrome.tabs.sendRequest(buddy.tab.id, {action: "artistRequested", artist: thing.artist});
+				chrome.tabs.sendMessage(buddy.tab.id, {action: "artistRequested", artist: thing.artist});
 			}
 		});
 	break;
@@ -43,9 +45,9 @@ chrome.extension.onRequest.addListener( function(thing, buddy, callback) {switch
 	break;
 }} );
 chrome.pageAction.onClicked.addListener( function(buddy) {
-	chrome.tabs.sendRequest(buddy.id, {action: "spark"});
+	chrome.tabs.sendMessage(buddy.id, {action: "spark"});
 } );
-chrome.tabs.onSelectionChanged.addListener( function() {
+chrome.tabs.onActivated.addListener( function() {
 	chrome.contextMenus.removeAll();
 } );
 var l10n = {};
@@ -70,16 +72,16 @@ function getTip(callback) {
 		localStorage.nextTip = nextTip;
 	} );
 }
-chrome.extension.onConnect.addListener( function(port) {
-	chrome.tabs.sendRequest(port.sender.tab.id, {action: "getResearchLoveParams"}, function(params) {
+chrome.runtime.onConnect.addListener( function(port) {
+	chrome.tabs.sendMessage(port.sender.tab.id, {action: "getResearchLoveParams"}, function(params) {
 		var scannerController = researchLove(params.feedHref, params.maxDeviations, {
 			faves: function(data) { port.postMessage({whatsUp: "faves", "data": data}); },
 			progress: function() { port.postMessage({whatsUp: "progress", args: $.makeArray(arguments)}) },
 			onFavesError: function() {
-				chrome.extension.onRequest.addListener( function scanRetry(thing, buddy, callback) {
+				chrome.runtime.onMessage.addListener( function scanRetry(thing, buddy, callback) {
 					if (buddy.tab.id == port.sender.tab.id && thing.action == "scanRetry") {
 						scannerController.favesRetry();
-						chrome.extension.onRequest.removeListener(scanRetry);
+						chrome.runtime.onMessage.removeListener(scanRetry);
 					}
 				} );
 				port.postMessage({whatsUp: "scanError"});
@@ -88,13 +90,13 @@ chrome.extension.onConnect.addListener( function(port) {
 			onWatchError: function() { port.postMessage({whatsUp: "watchError"}); },
 			onDone: function() {
 				getTip(function(tip) {
-					chrome.extension.onRequest.removeListener(stateChangeReaction);
-					chrome.tabs.sendRequest(port.sender.tab.id, {action: "scanningComplete", "tip": tip});
+					chrome.runtime.onMessage.removeListener(stateChangeReaction);
+					chrome.tabs.sendMessage(port.sender.tab.id, {action: "scanningComplete", "tip": tip});
 					port.disconnect();
 				});
 			}
 		});
-		chrome.extension.onRequest.addListener(stateChangeReaction);
+		chrome.runtime.onMessage.addListener(stateChangeReaction);
 		function stateChangeReaction(thing, buddy) {if (buddy.tab.id == port.sender.tab.id) {
 			if (thing.action == "pauseScan") {
 				scannerController.pause();
@@ -104,9 +106,9 @@ chrome.extension.onConnect.addListener( function(port) {
 		}}
 		port.onDisconnect.addListener(function() {
 			scannerController.cancel();
-			chrome.extension.onRequest.removeListener(stateChangeReaction);
+			chrome.runtime.onMessage.removeListener(stateChangeReaction);
 		})
 	} );
 } );
 // No way to opt out of the console spam this creates if there's no preview version installed. Tried try/catch, tried a callback parameter, nothing stopped it.
-chrome.extension.sendRequest("hibomgnjacfmgijhjlhagemclnkijlcj", {action: "obsolete", reachedFinal: 2.0});
+chrome.runtime.sendMessage("hibomgnjacfmgijhjlhagemclnkijlcj", {action: "obsolete", reachedFinal: 2.0});

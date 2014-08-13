@@ -33,7 +33,7 @@ var popupState = "inactive";
 var popupStage = "uninitialized";
 var pageData = findLove();
 
-chrome.extension.onRequest.addListener( function(thing, buddy, callback) {switch (thing.action) {
+chrome.runtime.onMessage.addListener( function(thing, buddy, callback) {switch (thing.action) {
 	case "spark":
 		if (popupState == "inactive") {activate()} else
 		if (popupState == "active") {deactivate()};
@@ -51,20 +51,20 @@ chrome.extension.onRequest.addListener( function(thing, buddy, callback) {switch
 		callback(pageData.pageType);
 	break;
 }} );
-chrome.extension.sendRequest({action: "showLove"});
+chrome.runtime.sendMessage({action: "showLove"});
 
 document.querySelector(".folderview-art").addEventListener("mouseover", function(event) {
 	var thing = event.target;
 	if (thing.webkitMatchesSelector("a.u")) {
-		chrome.extension.sendRequest({action: "showArtistLove", artist: thing.textContent});
+		chrome.runtime.sendMessage({action: "showArtistLove", artist: thing.textContent});
 		thing.addEventListener("mouseout", function byebye() {
-			chrome.extension.sendRequest({action: "noArtistLove"});
+			chrome.runtime.sendMessage({action: "noArtistLove"});
 			thing.removeEventListener("mouseout", byebye, false);
 		}, false);
 	}
 }, false);
 addEventListener("pagehide", function() {
-	chrome.extension.sendRequest({action: "noArtistLove"});
+	chrome.runtime.sendMessage({action: "noArtistLove"});
 }, false);
 
 function activate(firstDeviant) {
@@ -72,35 +72,35 @@ function activate(firstDeviant) {
 	shieldCSS.display = "";
 	popupState = "preparing";
 	if (popupStage == "uninitialized") {
-		chrome.extension.onRequest.addListener( function popupReady(thing) {
+		chrome.runtime.onMessage.addListener( function popupReady(thing) {
 			if (thing.action == "popupReady") {
 				popupStage = "scanning";
 				reveal();
-				chrome.extension.onRequest.removeListener(popupReady);
+				chrome.runtime.onMessage.removeListener(popupReady);
 			}
 		} );
-		popup.src = chrome.extension.getURL("popup.html" + (firstDeviant ? "#" + firstDeviant : ""));
+		popup.src = chrome.runtime.getURL("popup.html" + (firstDeviant ? "#" + firstDeviant : ""));
 	} else if (popupStage == "scanning") {
-		chrome.extension.sendRequest({action: "resumeScan"});
+		chrome.runtime.sendMessage({action: "resumeScan"});
 		// http://timtaubert.de/blog/2012/09/css-transitions-for-dynamically-created-dom-elements/
 		window.getComputedStyle(popup).display;
 		window.getComputedStyle(shield).display;
 		// With our elements' display truly set, we are free to transition them! Thanks, Tim! ♡
 		reveal();
 	} else {
-		chrome.extension.sendRequest({action: "sendTip"}, reveal);
+		chrome.runtime.sendMessage({action: "sendTip"}, reveal);
 	}
 	function reveal() {
 		popupCSS.bottom = "20px";
 		shieldCSS.opacity = "0.4";
 		popupState = "active";
-		chrome.extension.sendRequest({action: "showX"});
+		chrome.runtime.sendMessage({action: "showX"});
 		shield.addEventListener("click", deactivate, false);
 	}
 }
 function deactivate() {
 	shield.removeEventListener("click", deactivate, false);
-	if (popupStage == "scanning") {chrome.extension.sendRequest({action: "pauseScan"})};
+	if (popupStage == "scanning") {chrome.runtime.sendMessage({action: "pauseScan"})};
 	popup.addEventListener("webkitTransitionEnd", function hide() {
 		popupCSS.display = "none";
 		shieldCSS.display = "none";
@@ -110,5 +110,5 @@ function deactivate() {
 	popupCSS.bottom = window.innerHeight + "px";
 	shieldCSS.opacity = "0";
 	popupState = "deactivating";
-	chrome.extension.sendRequest({action: "noX"});
+	chrome.runtime.sendMessage({action: "noX"});
 }

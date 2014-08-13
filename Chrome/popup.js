@@ -11,11 +11,11 @@ $(document).ready( function() {
 		"height": $(window).height(),
 		"margin": 0
 	});
-	chrome.extension.sendRequest({action: "popupSetup"},
+	chrome.runtime.sendMessage({action: "popupSetup"},
 		function(initData) {
 			fulfillPurpose(initData.pageType);
 			if (location.hash) {showDeviant(location.hash.slice(1))};
-			chrome.extension.connect({name: "fetchFeedData"}).onMessage.addListener(collectResearch);
+			chrome.runtime.connect({name: "fetchFeedData"}).onMessage.addListener(collectResearch);
 		}
 	)
 } );
@@ -26,7 +26,7 @@ function collectResearch(thing) {switch (thing.whatsUp) {
 	case "watched": collectWatchlist(thing.data); break;
 	case "watchError": watchError(); break;
 }}
-chrome.extension.onRequest.addListener(function(thing, buddy, callback) {switch (thing.action) {
+chrome.runtime.onMessage.addListener(function(thing, buddy, callback) {switch (thing.action) {
 	case "scanningComplete":
 		// This message can't be received through the port because manager.js needs to receive it, too
 		scanDone_startFun(thing.tip);
@@ -40,11 +40,11 @@ chrome.extension.onRequest.addListener(function(thing, buddy, callback) {switch 
 	break;
 }});
 function scanRetry() {
-	chrome.extension.sendRequest({action: "scanRetry"});
+	chrome.runtime.sendMessage({action: "scanRetry"});
 }
 function getL10nMsg(msgName, replacements, callback, tmpMsg) {
 	if (tmpMsg) { callback(tmpMsg); };
-	chrome.extension.sendRequest({
+	chrome.runtime.sendMessage({
 		action: "getMessage",
 		"msgName": msgName,
 		"replacements": replacements
