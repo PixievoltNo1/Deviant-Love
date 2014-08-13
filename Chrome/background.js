@@ -17,7 +17,6 @@ chrome.extension.onRequest.addListener( function(thing, buddy, callback) {switch
 		chrome.pageAction.setTitle({tabId: buddy.tab.id, title: "Deviant Love"});
 	break;
 	case "popupSetup":
-		// Simplify this
 		chrome.tabs.sendRequest(buddy.tab.id, {action: "getFulfillPurposeParams"}, function(pageType) {
 			callback({"pageType": pageType});
 		} );
