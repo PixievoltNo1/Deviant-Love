@@ -5,14 +5,13 @@
 */
 /* At the cost of readability, the identifier "DeviantLove" is used a few different ways in this code. I'd rewrite it to use different identifiers for each purpose if I could think of identifiers as brief as "DeviantLove" without risking collisions with other extensions.
 	- window.DeviantLove is used as a "message center" for communication between this file and others, as well as a second parameter for loadSubScript and import.
-	- doc.DeviantLove stores per-page information.
 	- document.getElementById("sidebar").contentWindow.DeviantLove is set by the sidebar to inform this file that it is present and loaded.
 */
 "use strict";
 window.DeviantLove = {};
 
 (function() {
-// TODO: Set doc.DeviantLove for tabs that were open when Deviant Love was installed
+// TODO: foundLove.set(doc) for tabs that were open when Deviant Love was installed
 	var cleanupTasks = [];
 	var currentFocus = 0;
 	var contextMenuWhitelistingDone;
@@ -22,6 +21,7 @@ window.DeviantLove = {};
 	function removalTask(node) {
 		return Element.prototype.removeChild.bind(node.parentNode, node);
 	}
+	var foundLove = new WeakMap();
 	
 	var stylesheet = document.createProcessingInstruction("xml-stylesheet",
 		'href="chrome://DeviantLove/content/browser.css" type="text/css"');
@@ -34,9 +34,9 @@ window.DeviantLove = {};
 		heartDest.insertBefore(heart, heartDest.firstChild);
 	}
 	function updateHeart(closing) {
-		if (content.document.DeviantLove) {
+		if (foundLove.has(content.document)) {
 			heart.hidden = false;
-			var clickToClose = closing !== true && (content.document.DeviantLove.focus == currentFocus) &&
+			var clickToClose = closing !== true && (content.document == currentFocus) &&
 				sidebar.hasAttribute("checked");
 			heart.classList[clickToClose ? "add" : "remove"]("clickToClose");
 			heart.tooltipText = clickToClose ? DeviantLove.l10n.getString("heartX") : "Deviant Love"; 
@@ -52,22 +52,21 @@ window.DeviantLove = {};
 	gBrowser.addEventListener("pagehide", tabTeardown, false);
 	// From https://developer.mozilla.org/en-US/docs/Code_snippets/Tabbed_browser#Detecting_tab_selection
 	gBrowser.tabContainer.addEventListener("TabSelect", updateHeart, false);
-	function tabSetup(event) {
-		var doc = event.originalTarget;
-		if (!doc.DeviantLove &&
+	function tabSetup(eventOrDoc) {
+		var doc = eventOrDoc.originalTarget || eventOrDoc;
+		if (!foundLove.has(doc) &&
 			(/http:\/\/[a-zA-Z\d\-]+\.deviantart\.com\/favourites\//).test(doc.URL)) {
-			doc.DeviantLove = {};
 			if (!DeviantLove.findLove) {
 				loader.loadSubScript("chrome://DeviantLove/content/core/detector.js", DeviantLove);
 			};
-			doc.DeviantLove.pageData = DeviantLove.findLove(doc.defaultView);
+			foundLove.set(doc, DeviantLove.findLove(doc.defaultView));
 			updateHeart();
 		}
 	}
 	function tabTeardown(event) {
 		var doc = event.originalTarget;
-		if (doc.DeviantLove) {
-			doc.DeviantLove = null;
+		if (foundLove.has(doc)) {
+			foundLove.delete(doc);
 			updateHeart();
 		}
 	}
@@ -100,7 +99,7 @@ window.DeviantLove = {};
 	var webContextMenu = document.getElementById("contentAreaContextMenu");
 	webContextMenu.insertBefore(artistCheck, webContextMenu.firstChild);
 	function artistCheckRequested() {
-		if (gContextMenu.target.ownerDocument.DeviantLove &&
+		if (foundLove.has(gContextMenu.target.ownerDocument) &&
 			gContextMenu.target.mozMatchesSelector(".folderview-art a.u")) {
 			artistCheck.label = DeviantLove.l10n.get("artistCheck", [gContextMenu.target.textContent]);
 			artistCheck.hidden = false;
@@ -133,7 +132,7 @@ window.DeviantLove = {};
 		}
 		
 		var doc = content.document;
-		if (doc.DeviantLove.focus == currentFocus) {
+		if (doc == currentFocus) {
 			if (this == heart) {
 				toggleSidebar("DeviantLoveSidebar");
 			} else if (!document.getElementById("sidebar").contentWindow.DeviantLove) {
@@ -143,10 +142,10 @@ window.DeviantLove = {};
 				document.getElementById("sidebar").contentWindow.showDeviant(gContextMenu.target.textContent);
 			}
 		} else {
-			DeviantLove.currentPageData = doc.DeviantLove.pageData;
+			DeviantLove.currentPageData = foundLove.get(doc);
 			if (this == artistCheck) {DeviantLove.firstDeviant = gContextMenu.target.textContent;};
 			delete DeviantLove.currentScanData;
-			doc.DeviantLove.focus = ++currentFocus;
+			currentFocus = doc; // Thanks to Kyle Huey for making this safe! (bug 695480)
 			if (document.getElementById("sidebar").contentWindow.DeviantLove) {
 				document.getElementById("sidebar").contentWindow.restart();
 			}
