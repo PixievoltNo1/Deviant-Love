@@ -11,7 +11,6 @@
 window.DeviantLove = {};
 
 (function() {
-// TODO: foundLove.set(doc) for tabs that were open when Deviant Love was installed
 	var cleanupTasks = [];
 	var currentFocus = 0;
 	var contextMenuWhitelistingDone;
@@ -76,6 +75,12 @@ window.DeviantLove = {};
 		gBrowser.removeEventListener("pagehide", tabTeardown, false);
 		gBrowser.tabContainer.removeEventListener("TabSelect", updateHeart, false);
 	} );
+	for (let browser of gBrowser.browsers) {
+		let doc = browser.contentDocument;
+		if (doc.readyState == "interactive" || doc.readyState == "complete") {
+			tabSetup(doc);
+		}
+	}
 	
 	var sidebar = document.createElement("broadcaster");
 	sidebar.id = "DeviantLoveSidebar"; sidebar.setAttribute("group", "sidebar");
@@ -154,7 +159,11 @@ window.DeviantLove = {};
 		
 		updateHeart();
 	}
-	// TODO: Add a cleanupTask to ensure the sidebar is closed
+	cleanupTasks.push( function() {
+		if (sidebar.getAttribute("checked")) {
+			toggleSidebar("DeviantLoveSidebar");
+		}
+	} );
 	DeviantLove.iIsDed = function() {
 		updateHeart(true);
 	}
