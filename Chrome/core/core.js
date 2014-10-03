@@ -243,15 +243,9 @@ function fulfillPurpose(pageType, ownerOrTitle) {
 		event.preventDefault();
 		if (queryTroubleCheck() != false) { return };
 
-		// Everything related to advanced operators is being disabled for the 2.0 release, to avoid delaying it even further.
-		/*
-		var firstSplit = $("#query").val().split("~");
-		var ignoreList = firstSplit.slice(1);
-		var queryChunks = firstSplit[0].split("&");
-		*/
+		// var queryChunks = firstSplit[0].split("&");
 		/* Temporary replacement */ var queryChunks = [$("#query").val()];
 
-		// ignoreList = ignoreList.map( function(ignore) {return ignore.trim().toLowerCase()} );
 		queryChunks = queryChunks.map( function(chunk) {return chunk.trim().toLowerCase()} );
 		var checkDeviants = queryChunks.every( function(chunk) {
 			return (/[a-zA-Z0-9\-]+/).exec(chunk)[0] == chunk;
@@ -275,13 +269,6 @@ function fulfillPurpose(pageType, ownerOrTitle) {
 		} );
 		function isMatch(needle) {
 			needle = needle.toLowerCase();
-			/*
-			ignoreList.forEach( function(ignore) {
-				// My research tells me String.replace will only replace the first instance of its first parameter, unless said parameter is a global RegExp.
-				// But ignoreList doesn't consist of global RegExps, it consists of strings. The workaround?
-				needle = needle.split(ignore).join("~");
-			} );
-			*/
 			return queryChunks.every( function(chunk) {
 				return needle.indexOf(chunk) != -1;
 			} );
