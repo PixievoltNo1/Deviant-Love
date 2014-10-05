@@ -20,7 +20,7 @@ Don't touch stuff in Firefox/locale/; instead, make your changes in Chrome/_loca
 
 # Custom jQuery Build
 
-The copy of jQuery present here is a custom build, using the options `-ajax/jsonp,-deprecated,-effects`. Use CSS transitions or animations if you need to animate something.
+The copy of jQuery present here is a custom build, using the options `-ajax/jsonp,-deprecated,-effects`. Use [Velocity.js](http://julian.com/research/velocity/) or CSS feature for animations.
 
 # Grabbing the Code of Chrome/Chromium Preview Versions
 

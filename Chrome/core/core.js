@@ -184,36 +184,28 @@ function fulfillPurpose(pageType, ownerOrTitle) {
 		lovedArtists.delegate(".deviant:not(.opened)", "click", function(event, suppressAnimation) {
 			$(".opened.deviant").removeClass("opened");
 			if (!suppressAnimation) {
-				$(".deviant > .closerLook").css("height", 0)
-					.bind("transitionend webkitTransitionEnd", function() { $(this).remove(); });
+				$(".deviant > .closerLook").velocity({height: 0}, {
+					duration: 400,
+					easing: "swing",
+					complete: function() {$(this).remove();}
+				});
 			} else {
 				$(".deviant > .closerLook").remove();
 			}
 
 			var deviant = deviantBag[$(".deviantName", this).text()];
-			var closerLook = buildCloserLook(deviant, deviant.deviations)
+			var closerLook = buildCloserLook(deviant, deviant.deviations);
 			$(this).append(closerLook).addClass("opened");
 			var closerLookHeight = closerLook.height();
 			if (!suppressAnimation) {
-				closerLook.height(0);
-				getComputedStyle(closerLook[0]).height;
-				transitionate();
-				var transitionDone = false;
-				closerLook.bind("transitionend webkitTransitionEnd", function() { transitionDone = true; });
-				var requestAnimationFrame = window.requestAnimationFrame ||
-					window.mozRequestAnimationFrame || window.webkitRequestAnimationFrame;
-				requestAnimationFrame( function me() {
-					scrollToDeviationList();
-					if (!transitionDone) { requestAnimationFrame(me); }
-				} );
-				closerLook.css("height", closerLookHeight);
+				closerLook.height(0).velocity({height: closerLookHeight}, {
+					duration: 400,
+					easing: "swing",
+					progress: scrollToDeviationList
+				});
 			} else {
 				closerLook.css("height", closerLookHeight);
-				// Chrome 23 animates the above for some dumb reason unless I also have these here:
-				getComputedStyle(closerLook[0]).height;
-				transitionate();
 			}
-			function transitionate() { closerLook.css("transition", "height 0.4s ease-in-out"); }
 		} );
 		$("#query").bind("input", function(event) {
 			var checkResult = queryTroubleCheck();
