@@ -87,6 +87,11 @@ window.DeviantLove = {};
 	sidebar.setAttribute("sidebarurl", "chrome://DeviantLove/content/sidebar.html");
 	sidebar.setAttribute("sidebartitle", "Deviant Love");
 	document.getElementById("mainBroadcasterSet").appendChild(sidebar);
+	cleanupTasks.push( function() {
+		if (sidebar.hasAttribute("checked")) {
+			toggleSidebar("DeviantLoveSidebar");
+		}
+	} );
 	cleanupTasks.push( removalTask(sidebar) );
 
 	// The label property won't work for freshly-made elements. Some XBL thing.
@@ -159,11 +164,6 @@ window.DeviantLove = {};
 		
 		updateHeart();
 	}
-	cleanupTasks.push( function() {
-		if (sidebar.getAttribute("checked")) {
-			toggleSidebar("DeviantLoveSidebar");
-		}
-	} );
 	DeviantLove.iIsDed = function() {
 		updateHeart(true);
 	}
