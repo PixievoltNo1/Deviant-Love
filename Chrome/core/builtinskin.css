@@ -16,17 +16,34 @@ a img {
 .sidebar > div {
 	padding: 6px;
 }
+
 #scanMessage {
 	font-size: 200%;
 	margin-bottom: 10px;
 }
-#scanProgressInfo {
-	margin-bottom: 8px;
+#scanPercentage {
+	display: -webkit-flex;
+	display: flex;
+	-webkit-flex-direction: row;
+	flex-direction: row;
+	margin-bottom: 0.5em;
 }
+#scanPercentageText {
+    width: 3em;
+	text-align: center;
+}
+#scanProgressBar {
+	-webkit-flex: 1;
+    flex: 1;
+}
+#scannedDeviations {
+	margin-bottom: 0.3em;
+}
+
 #mainScreen {
 	display: -webkit-flex;
 	display: flex;
-	-webkit-flex-direction: vertical;
+	-webkit-flex-direction: column;
 	flex-direction: column;
 }
 #mainScreen > * {

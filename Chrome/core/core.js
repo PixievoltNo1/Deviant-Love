@@ -40,16 +40,16 @@ function fulfillPurpose(pageType, ownerOrTitle) {
 		collection: "scanningCollection"
 	})[pageType];
 	$("<div>", {id: "scanMessage"}).l10n(scanMessage).appendTo(preparationScreen);
-	var scanProgressBar = $("<progress>", {id: "scanProgressBar", max: 1, value: 0})
+	var scanProgressBar = $("<progress>", {id: "scanProgressBar", max: 1, value: 0});
+	$("<div>", {id: "scanPercentage"})
+		.append( scanProgressBar, $("<div>", {id: "scanPercentageText"}).text("0%"))
 		.appendTo(preparationScreen);
-	$("<div>", {id: "scanProgressInfo"})
-		.append( $("<span>", {id: "scannedDeviations"}), " ", $("<span>", {id: "scanPercentage"}) )
-		.appendTo(preparationScreen);
+	$("<div>", {id: "scannedDeviations"}).appendTo(preparationScreen);
 	var watchStatus = $("<div>", {id: "watchStatus"}).appendTo(preparationScreen);
 	window.setProgress = function(percentage, found) {
 		$("#scannedDeviations").l10n("scannedDeviations", found);
 		scanProgressBar.attr("value", percentage);
-		$("#scanPercentage").text( "(" + Math.floor(percentage * 100) + "%)" );
+		$("#scanPercentageText").text( Math.floor(percentage * 100) + "%" );
 	}
 	window.setData = function(data) {
 		data.forEach(function(item) {
