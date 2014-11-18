@@ -66,7 +66,7 @@ a img {
 	float: right;
 	width: 20px;
 	height: 20px;
-	background: url("Failed.png"), url("Watch.png");
+	background: url("Failed.png"), url("deviantart/Watch.png");
 	background-position: center, center;
 	background-repeat: no-repeat, no-repeat;
 }
@@ -155,7 +155,7 @@ a img {
 	margin: 0 0.2em;
 }
 .deviationWatch.true {
-	background: url("DeviationWatch.png");
+	background: url("deviantart/DeviationWatch.png");
 	background-position: center;
 	background-repeat: no-repeat;
 }
@@ -197,9 +197,9 @@ a img {
 .deviantLinks a + a {
 	margin-left: 3px;
 }
-.profileLink { background-image: url(Profile.png); }
-.galleryLink { background-image: url(Gallery.png); }
-.favouritesLink { background-image: url(Favourites.png); }
+.profileLink { background-image: url(deviantart/Profile.png); }
+.galleryLink { background-image: url(deviantart/Gallery.png); }
+.favouritesLink { background-image: url(deviantart/Favourites.png); }
 .deviationList {
 	margin-left: 80px;
 	height: 100%;
