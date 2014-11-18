@@ -36,7 +36,6 @@ function loadedWindow() {
 function shutdown(data, reason) {
 	windowWatcher.unregisterNotification(observer);
 	Components.utils.unload("chrome://DeviantLove/content/global.js");
-	Components.utils.unload("chrome://DeviantLove/content/StringBundle.js");
 	for (let window of windows()) {
 		window = window.QueryInterface(Components.interfaces.nsIDOMWindow);
 		window.removeEventListener("load", loadedWindow, true);
