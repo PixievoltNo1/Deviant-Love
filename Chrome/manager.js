@@ -55,17 +55,23 @@ chrome.runtime.sendMessage({action: "showLove"});
 
 document.querySelector(".folderview-art").addEventListener("mouseover", function(event) {
 	var thing = event.target;
-	if (thing.webkitMatchesSelector("a.u")) {
+	if (isArtist(thing)) {
 		chrome.runtime.sendMessage({action: "showArtistLove", artist: thing.textContent});
-		thing.addEventListener("mouseout", function byebye() {
-			chrome.runtime.sendMessage({action: "noArtistLove"});
-			thing.removeEventListener("mouseout", byebye, false);
-		}, false);
 	}
 }, false);
-addEventListener("pagehide", function() {
+document.querySelector(".folderview-art").addEventListener("mouseover", function(event) {
+	if (isArtist(event.target)) {
+		chrome.runtime.sendMessage({action: "noArtistLove"});
+	}
+}, false);
+var visibilityEvent = ("hidden" in document) ? "visibilitychange" : "webkitvisibilitychange";
+addEventListener(visibilityEvent, function() {
 	chrome.runtime.sendMessage({action: "noArtistLove"});
 }, false);
+var matchMethod = ("matches" in document.documentElement) ? "matches" : "webkitMatchesSelector";
+function isArtist(element) {
+	return element[matchMethod]("a.u");
+}
 
 function activate(firstDeviant) {
 	popupCSS.display = "";

@@ -47,9 +47,6 @@ chrome.runtime.onMessage.addListener( function(thing, buddy, callback) {switch (
 chrome.pageAction.onClicked.addListener( function(buddy) {
 	chrome.tabs.sendMessage(buddy.id, {action: "spark"});
 } );
-chrome.tabs.onActivated.addListener( function() {
-	chrome.contextMenus.removeAll();
-} );
 var l10n = {};
 function getL10nFile(fileName, callback) {
 // Currently used only by getTip, but it doesn't seem worth it to merge the two
