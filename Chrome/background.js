@@ -23,9 +23,6 @@ chrome.runtime.onMessage.addListener( function(thing, buddy, callback) {switch (
 		chrome.tabs.sendMessage(buddy.tab.id, {action: "popupReady"});
 		return true;
 	break;
-	case "getMessage":
-		callback(chrome.i18n.getMessage(thing.msgName, thing.replacements));
-	break;
 	case "sendTip":
 		getTip(function(tip) {chrome.tabs.sendMessage(buddy.tab.id,
 			{action: "changeTip", "tip": tip}, callback)});
