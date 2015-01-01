@@ -206,6 +206,10 @@ a img {
 	padding: 0 0.2em;
 	background-color: hsl(357, 90%, 90%);
 }
+.deviation {
+	padding-left: 1.5em;
+	text-indent: -1.5em;
+}
 #tipOfTheMoment {
 	position: relative;
 	background-color: hsl(40, 100%, 65%);
