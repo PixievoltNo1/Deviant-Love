@@ -43,7 +43,7 @@ function scanRetry() {
 	chrome.runtime.sendMessage({action: "scanRetry"});
 }
 function getL10nMsg(msgName, replacements, callback, tmpMsg) {
-	callback( chrome.i18.getMessage(msgName, replacements) );
+	callback( chrome.i18n.getMessage(msgName, replacements) );
 }
 $(document).delegate("a", "click", function(event) {
 	if (event.button == 0) { window.open(this.href); }
