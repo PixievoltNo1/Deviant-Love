@@ -27,8 +27,11 @@ window.DeviantLove = {};
 	document.insertBefore(stylesheet, document.firstChild);
 	cleanupTasks.push( removalTask(stylesheet) );
 	
-	var heart = document.createElement("button");
-	heart.id = "DeviantLoveHeart"; heart.className = "plain urlbar-icon"; heart.hidden = true;
+	// Can't explain it, but using <image> with a click event instead of <button> with a command event seems to be the best (or most common) practice
+	// Doing it that way ensures consistent "button" spacing with other extensions
+	var heart = document.createElement("image");
+	heart.id = "DeviantLoveHeart"; heart.className = "urlbar-icon"; heart.hidden = true;
+	heart.src = "chrome://DeviantLove/content/core/16Icon.png";
 	let (heartDest = document.getElementById("urlbar-icons")) {
 		heartDest.insertBefore(heart, heartDest.firstChild);
 	}
@@ -37,13 +40,18 @@ window.DeviantLove = {};
 			heart.hidden = false;
 			var clickToClose = closing !== true && (content.document == currentFocus) &&
 				sidebar.hasAttribute("checked");
-			heart.classList[clickToClose ? "add" : "remove"]("clickToClose");
-			heart.tooltipText = clickToClose ? DeviantLove.l10n.getString("heartX") : "Deviant Love"; 
+			if (clickToClose) {
+				heart.tooltipText = DeviantLove.l10n.getString("heartX");
+				heart.src = "chrome://DeviantLove/content/core/16Icon.png";
+			} else {
+				heart.tooltipText = "Deviant Love";
+				heart.src = "chrome://DeviantLove/content/16IconClose.png";
+			}
 		} else {
 			heart.hidden = true;
 		}
 	}
-	heart.addEventListener("command", summonRawkitude, false);
+	heart.addEventListener("click", summonRawkitude, false);
 	cleanupTasks.push( removalTask(heart) );
 	
 	gBrowser.addEventListener("DOMContentLoaded", tabSetup, false);
