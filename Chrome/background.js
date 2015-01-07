@@ -31,6 +31,7 @@ chrome.runtime.onMessage.addListener( function(thing, buddy, callback) {switch (
 	case "showArtistLove":
 		chrome.contextMenus.create({
 			title: chrome.i18n.getMessage("artistCheck", thing.artist),
+			id: "artistLove",
 			contexts: ["link"],
 			onclick: function() {
 				chrome.tabs.sendMessage(buddy.tab.id, {action: "artistRequested", artist: thing.artist});
