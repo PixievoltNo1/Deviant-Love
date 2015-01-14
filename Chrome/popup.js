@@ -11,7 +11,7 @@ $(document).ready( function() {
 		"height": $(window).height(),
 		"margin": 0
 	});
-	chrome.runtime.sendMessage({action: "popupSetup"},
+	chrome.runtime.sendMessage({action: "echoWithCallback", echoAction: "popupSetup"},
 		function(initData) {
 			fulfillPurpose(initData.pageType);
 			if (location.hash) {showDeviant(location.hash.slice(1))};

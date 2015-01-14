@@ -47,9 +47,6 @@ chrome.runtime.onMessage.addListener( function(thing, buddy, callback) {switch (
 	case "getResearchLoveParams":
 		callback({feedHref: pageData.feedHref, maxDeviations: pageData.maxDeviations});
 	break;
-	case "getFulfillPurposeParams":
-		callback(pageData.pageType);
-	break;
 }} );
 chrome.runtime.sendMessage({action: "showLove"});
 
@@ -78,10 +75,11 @@ function activate(firstDeviant) {
 	shieldCSS.display = "";
 	popupState = "preparing";
 	if (popupStage == "uninitialized") {
-		chrome.runtime.onMessage.addListener( function popupReady(thing) {
-			if (thing.action == "popupReady") {
+		chrome.runtime.onMessage.addListener( function popupReady(thing, buddy, callback) {
+			if (thing.action == "popupSetup") {
 				popupStage = "scanning";
 				reveal();
+				callback({pageType: pageData.pageType});
 				chrome.runtime.onMessage.removeListener(popupReady);
 			}
 		} );

@@ -16,13 +16,6 @@ chrome.runtime.onMessage.addListener( function(thing, buddy, callback) {switch (
 		chrome.pageAction.setIcon({tabId: buddy.tab.id, path: "19Icon.png"});
 		chrome.pageAction.setTitle({tabId: buddy.tab.id, title: "Deviant Love"});
 	break;
-	case "popupSetup":
-		chrome.tabs.sendMessage(buddy.tab.id, {action: "getFulfillPurposeParams"}, function(pageType) {
-			callback({"pageType": pageType});
-		} );
-		chrome.tabs.sendMessage(buddy.tab.id, {action: "popupReady"});
-		return true;
-	break;
 	case "sendTip":
 		getTip(function(tip) {chrome.tabs.sendMessage(buddy.tab.id,
 			{action: "changeTip", "tip": tip}, callback)});
@@ -40,6 +33,16 @@ chrome.runtime.onMessage.addListener( function(thing, buddy, callback) {switch (
 	break;
 	case "noArtistLove":
 		chrome.contextMenus.removeAll();
+	break;
+	// For communication between manager.js and popup.js
+	case "echo":
+		thing.action = thing.echoAction;
+		chrome.tabs.sendMessage(buddy.tab.id, thing);
+	break;
+	case "echoWithCallback":
+		thing.action = thing.echoAction;
+		chrome.tabs.sendMessage(buddy.tab.id, thing, function(retVal) { callback(retVal); });
+		return true;
 	break;
 }} );
 chrome.pageAction.onClicked.addListener( function(buddy) {
