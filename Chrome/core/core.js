@@ -161,12 +161,9 @@ function fulfillPurpose(pageType, ownerOrTitle) {
 			.appendTo(mainScreen);
 		$("<form>", {id: "findBar"})
 			.append($("<input>", {type: "text", id: "query"}))
-			.append($("<button>", {id: "goFind"}))
-			.append($("<button>", {id: "noFind"}))
+			.append($("<button>", {type: "submit", id: "goFind"}))
+			.append($("<button>", {type: "button", id: "noFind"}))
 			.appendTo(mainScreen);
-		// jQuery apparently refuses to set a button's type. "it causes problems in IE", they say.
-		$("#goFind")[0].setAttribute("type", "submit");
-		$("#noFind")[0].setAttribute("type", "button");
 		$("#query").l10nPlaceholder("queryPlaceholder");
 		$("<div>", {id: "queryError"}).hide().appendTo(mainScreen);
 		var lovedArtists = $("<div>", {id: "lovedArtists"})
