@@ -315,7 +315,7 @@ function scrollToDeviationList() {
 // snackOnMyWrath and buildCloserLook are needed by both scanDone_startFun and findStuff
 function snackOnMyWrath(finkRats) {
 	// "You have energy like a little angry battery with no friends."
-	var rageDressing = $();
+	var rageDressing = [];
 	finkRats.forEach( function(deviant) {
 		var devWatchElem = $("<div>", {"class": "deviationWatch"}).html("&nbsp;");
 		var deviantElem = $("<div>", {"class": "deviant", id: "deviant_" + deviant.name})
@@ -325,7 +325,7 @@ function snackOnMyWrath(finkRats) {
 			devWatchElem.addClass("true").l10nTooltip("watchingThisArtist");
 		}
 		deviantElem.append($("<span>", {"class": "deviantName"}).text(deviant.name));
-		rageDressing = rageDressing.add(deviantElem);
+		rageDressing.push(deviantElem[0]);
 	} );
 	return rageDressing; // on a salad of evil
 }
