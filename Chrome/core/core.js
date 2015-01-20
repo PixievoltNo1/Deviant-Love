@@ -315,17 +315,19 @@ function scrollToDeviationList() {
 // snackOnMyWrath and buildCloserLook are needed by both scanDone_startFun and findStuff
 function snackOnMyWrath(finkRats) {
 	// "You have energy like a little angry battery with no friends."
-	var rageDressing = [];
+	var rageDressing = document.createDocumentFragment();
+	var elem = document.createElement.bind(document);
 	finkRats.forEach( function(deviant) {
-		var devWatchElem = $("<div>", {"class": "deviationWatch"}).html("&nbsp;");
-		var deviantElem = $("<div>", {"class": "deviant", id: "deviant_" + deviant.name})
-			.append(devWatchElem).append($("<span>", {"class": "deviantFaves"})
-			.text(deviant.deviations.length));
+		// Hot loop! A little optimization can make a lot of difference.
+		var devWatchElem = $(elem("div")).attr("class", "deviationWatch").html("&nbsp;");
+		var deviantElem = $(elem("div")).attr({"class": "deviant", id: "deviant_" + deviant.name})
+			.append(devWatchElem).append( $(elem("span")).attr("class", "deviantFaves")
+				.text(deviant.deviations.length) );
 		if (deviant.watched) {
 			devWatchElem.addClass("true").l10nTooltip("watchingThisArtist");
 		}
-		deviantElem.append($("<span>", {"class": "deviantName"}).text(deviant.name));
-		rageDressing.push(deviantElem[0]);
+		deviantElem.append( $(elem("span")).attr("class", "deviantName").text(deviant.name) );
+		rageDressing.appendChild(deviantElem[0]);
 	} );
 	return rageDressing; // on a salad of evil
 }
