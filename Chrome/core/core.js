@@ -372,20 +372,20 @@ function queryTroubleCheck() {
 
 	return false;
 }
-function makeL10nMethod(methodName, effect, tmpMsg) {
+function makeL10nMethod(methodName, effect) {
 	$.fn[methodName] = function(msgName) {
 		var replacements = $.makeArray(arguments).slice(1);
 		if (replacements.length == 0) {replacements = undefined};
-		var textInPlace = this.attr("data-l10n") == msgName; // Not very accurate with multiple elements, but for Deviant Love that doesn't matter
-		// l10nMethod will be needed for v3.0, when the user will be able to choose a language
-		this.attr("data-l10n", msgName)/*.data("l10nMethod", methodName)*/;
-		getL10nMsg(msgName, replacements, $.proxy(effect, this), textInPlace ? null : tmpMsg);
+		// This data will be needed when the user will be able to change the language at runtime
+		// this.attr("data-l10n", msgName).data("l10nMethod", methodName);
+		getL10nMsg(msgName, replacements, $.proxy(effect, this));
+		effect.call(this, getL10nMsg(msgName, replacements));
 		return this;
 	}
 }
 [
-	["l10n", $.fn.text, " "],
-	["l10nHtml", $.fn.html, "&nbsp;"],
-	["l10nTooltip", function(msg) {this.attr("title", msg);}, ""],
-	["l10nPlaceholder", function(msg) {this.attr("placeholder", msg);}, ""]
+	["l10n", $.fn.text],
+	["l10nHtml", $.fn.html],
+	["l10nTooltip", function(msg) {this.attr("title", msg);}],
+	["l10nPlaceholder", function(msg) {this.attr("placeholder", msg);}]
 ].forEach(function(args) {makeL10nMethod.apply(null, args);});

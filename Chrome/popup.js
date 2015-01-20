@@ -42,8 +42,8 @@ chrome.runtime.onMessage.addListener(function(thing, buddy, callback) {switch (t
 function scanRetry() {
 	chrome.runtime.sendMessage({action: "scanRetry"});
 }
-function getL10nMsg(msgName, replacements, callback, tmpMsg) {
-	callback( chrome.i18n.getMessage(msgName, replacements) );
+function getL10nMsg(msgName, replacements) {
+	return chrome.i18n.getMessage(msgName, replacements);
 }
 $(document).delegate("a", "click", function(event) {
 	if (event.button == 0) { window.open(this.href); }

@@ -97,11 +97,11 @@ function rawk() {
 		restore(top.DeviantLove.currentScanData, top.DeviantLove.getTip());
 	}
 }
-function getL10nMsg(msgName, replacements, callback) {
+function getL10nMsg(msgName, replacements) {
 	if (!replacements) {
-		callback(l10n.getString(msgName));
+		return l10n.getString(msgName);
 	} else {
-		callback(l10n.getFormattedString(msgName, replacements));
+		return l10n.getFormattedString(msgName, replacements);
 	}
 }
 $(document).delegate("a", "click", function(event) {
