@@ -24,11 +24,8 @@ chrome.runtime.onMessage.addListener( function(thing, buddy, callback) {switch (
 	case "showArtistLove":
 		chrome.contextMenus.create({
 			title: chrome.i18n.getMessage("artistCheck", thing.artist),
-			id: "artistLove",
-			contexts: ["link"],
-			onclick: function() {
-				chrome.tabs.sendMessage(buddy.tab.id, {action: "artistRequested", artist: thing.artist});
-			}
+			id: "artistLove:" + thing.artist,
+			contexts: ["link"]
 		});
 	break;
 	case "noArtistLove":
@@ -47,6 +44,10 @@ chrome.runtime.onMessage.addListener( function(thing, buddy, callback) {switch (
 }} );
 chrome.pageAction.onClicked.addListener( function(buddy) {
 	chrome.tabs.sendMessage(buddy.id, {action: "spark"});
+} );
+chrome.contextMenus.onClicked.addListener( function(click, buddy) {
+	var artist = click.menuItemId.substr( "artistLove:".length );
+	chrome.tabs.sendMessage(buddy.id, {action: "artistRequested", artist: artist});
 } );
 var l10n = {};
 function getL10nFile(fileName, callback) {
@@ -71,6 +72,7 @@ function getTip(callback) {
 	} );
 }
 chrome.runtime.onConnect.addListener( function(port) {
+	if (port.name != "fetchFeedData") { return; }
 	chrome.tabs.sendMessage(port.sender.tab.id, {action: "getResearchLoveParams"}, function(params) {
 		var scannerController = researchLove(params.feedHref, params.maxDeviations, {
 			faves: function(data) { port.postMessage({whatsUp: "faves", "data": data}); },
@@ -108,5 +110,7 @@ chrome.runtime.onConnect.addListener( function(port) {
 		})
 	} );
 } );
+// No handler needed for keepAlive ports
+
 // No way to opt out of the console spam this creates if there's no preview version installed. Tried try/catch, tried a callback parameter, nothing stopped it.
 chrome.runtime.sendMessage("hibomgnjacfmgijhjlhagemclnkijlcj", {action: "obsolete", reachedFinal: 2.0});

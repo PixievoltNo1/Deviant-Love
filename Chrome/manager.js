@@ -50,25 +50,33 @@ chrome.runtime.onMessage.addListener( function(thing, buddy, callback) {switch (
 }} );
 chrome.runtime.sendMessage({action: "showLove"});
 
+var matchMethod = ("matches" in document.documentElement) ? "matches" : "webkitMatchesSelector";
 document.querySelector(".folderview-art").addEventListener("mouseover", function(event) {
 	var thing = event.target;
-	if (isArtist(thing)) {
+	if ( thing[matchMethod]("a.u") ) {
 		chrome.runtime.sendMessage({action: "showArtistLove", artist: thing.textContent});
+		thing.addEventListener("mouseout", function byebye() {
+			chrome.runtime.sendMessage({action: "noArtistLove"});
+			thing.removeEventListener("mouseout", byebye, false);
+		}, false);
 	}
 }, false);
-document.querySelector(".folderview-art").addEventListener("mouseover", function(event) {
-	if (isArtist(event.target)) {
+if ("hidden" in document) {
+	var visibilityEvent = "visibilitychange", hiddenProp = "hidden";
+} else {
+	var visibilityEvent = "webkitvisibilitychange", hiddenProp = "webkitHidden";
+}
+var keepAlive;
+function checkVisibility() {
+	if (!document[hiddenProp]) {
+		keepAlive = chrome.runtime.connect({name: "keepAlive"});
+	} else if (keepAlive) {
+		keepAlive.disconnect();
 		chrome.runtime.sendMessage({action: "noArtistLove"});
 	}
-}, false);
-var visibilityEvent = ("hidden" in document) ? "visibilitychange" : "webkitvisibilitychange";
-addEventListener(visibilityEvent, function() {
-	chrome.runtime.sendMessage({action: "noArtistLove"});
-}, false);
-var matchMethod = ("matches" in document.documentElement) ? "matches" : "webkitMatchesSelector";
-function isArtist(element) {
-	return element[matchMethod]("a.u");
-}
+};
+checkVisibility();
+document.addEventListener(visibilityEvent, checkVisibility, false);
 
 function activate(firstDeviant) {
 	popupCSS.display = "";
