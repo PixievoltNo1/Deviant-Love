@@ -73,7 +73,6 @@ function rawk() {
 	var pageData = top.DeviantLove.currentPageData;
 	if (!pageData) {
 		// The sidebar was left open when the user closed the browser. Close it now.
-		// Tried handling this in the overlay script, but toggleSidebar wasn't doing anything in load or unload handlers.
 		top.toggleSidebar();
 	}
 	fulfillPurpose(pageData.pageType, pageData.ownerOrTitle);
