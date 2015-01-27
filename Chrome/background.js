@@ -49,28 +49,14 @@ chrome.contextMenus.onClicked.addListener( function(click, buddy) {
 	var artist = click.menuItemId.substr( "artistLove:".length );
 	chrome.tabs.sendMessage(buddy.id, {action: "artistRequested", artist: artist});
 } );
-var l10n = {};
-function getL10nFile(fileName, callback) {
-// Currently used only by getTip, but it doesn't seem worth it to merge the two
-	if (l10n[fileName]) {
-		callback(l10n[fileName]);
-	} else {
-		$.getJSON(chrome.i18n.getMessage("l10nFolder") + fileName + ".json", function(data) {
-			l10n[fileName] = data;
-			callback(data);
-		})
+
+chrome.runtime.onInstalled.addListener( function onUpdate(info) {
+	if (info.reason != "update") { return; }
+	if (localStorage.nextTip) {
+		chrome.storage.local.set({nextTip: localStorage.nextTip - 1});
+		localStorage.clear();
 	}
-}
-function getTip(callback) {
-	// localStorage.nextTip is 1-based, but JavaScript array indexes are 0-based. Oh well.
-	var nextTip = localStorage.nextTip || 1;
-	getL10nFile("TipOfTheMoment", function(tips) {
-		callback(tips[nextTip - 1]);
-		nextTip++;
-		if (nextTip > tips.length) {nextTip = 1}
-		localStorage.nextTip = nextTip;
-	} );
-}
+} );
 chrome.runtime.onConnect.addListener( function(port) {
 	if (port.name != "fetchFeedData") { return; }
 	chrome.tabs.sendMessage(port.sender.tab.id, {action: "getResearchLoveParams"}, function(params) {
@@ -89,11 +75,9 @@ chrome.runtime.onConnect.addListener( function(port) {
 			watched: function(data) { port.postMessage({whatsUp: "watched", "data": data}); },
 			onWatchError: function() { port.postMessage({whatsUp: "watchError"}); },
 			onDone: function() {
-				getTip(function(tip) {
-					chrome.runtime.onMessage.removeListener(stateChangeReaction);
-					chrome.tabs.sendMessage(port.sender.tab.id, {action: "scanningComplete", "tip": tip});
-					port.disconnect();
-				});
+				chrome.runtime.onMessage.removeListener(stateChangeReaction);
+				chrome.tabs.sendMessage(port.sender.tab.id, {action: "scanningComplete"});
+				port.disconnect();
 			}
 		});
 		chrome.runtime.onMessage.addListener(stateChangeReaction);

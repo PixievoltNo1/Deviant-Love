@@ -174,7 +174,6 @@ window.DeviantLove = {};
 
 DeviantLove.getTip = function() {
 	var tips = JSON.parse(DeviantLove.l10n.getString("TipOfTheMoment"));
-	// Unlike in the Chrome version, there is no need for discrepancies between nextTip and JavaScript array indexes.
 	var nextTip = Application.prefs.getValue("extensions.deviantlove.nexttip", 0);
 	var returnValue = tips[nextTip];
 	nextTip++;

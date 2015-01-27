@@ -100,7 +100,7 @@ function activate(firstDeviant) {
 		// With our elements' display truly set, we are free to transition them! Thanks, Tim! ♡
 		reveal();
 	} else {
-		chrome.runtime.sendMessage({action: "sendTip"}, reveal);
+		chrome.runtime.sendMessage({action: "echoWithCallback", echoAction: "changeTip"}, reveal);
 	}
 	function reveal() {
 		popupCSS.bottom = "20px";
