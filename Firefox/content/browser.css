@@ -1,16 +1,3 @@
-#DeviantLoveHeart {
-	list-style-image: url("chrome://DeviantLove/content/core/16Icon.png");
-	min-width: 0;
-}
-#DeviantLoveHeart.clickToClose {
-	list-style-image: url("chrome://DeviantLove/content/16IconClose.png");
-}
-#DeviantLoveHeart, #DeviantLoveHeart > .button-box {
-	background: transparent;
-	padding: 0px;
-	margin: 0px;
-	border: 0px; 
-}
 #DeviantLoveArtistCheck {
 	list-style-image: url("chrome://DeviantLove/content/core/16Icon.png");
 }
