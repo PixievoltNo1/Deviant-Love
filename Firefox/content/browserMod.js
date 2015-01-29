@@ -64,7 +64,11 @@ window.DeviantLove = {};
 		if (!foundLove.has(doc) &&
 			(/http:\/\/[a-zA-Z\d\-]+\.deviantart\.com\/favourites\//).test(doc.URL)) {
 			if (!DeviantLove.findLove) {
-				loader.loadSubScript("chrome://DeviantLove/content/core/detector.js", DeviantLove);
+				loader.loadSubScriptWithOptions("chrome://DeviantLove/content/core/detector.js", {
+					target: DeviantLove,
+					charset: "UTF-8",
+					ignoreCache: true
+				});
 			};
 			foundLove.set(doc, DeviantLove.findLove(doc.defaultView));
 			updateHeart();
