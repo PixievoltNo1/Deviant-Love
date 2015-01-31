@@ -31,7 +31,7 @@ window.DeviantLove = {};
 	// Doing it that way ensures consistent "button" spacing with other extensions
 	var heart = document.createElement("image");
 	heart.id = "DeviantLoveHeart"; heart.className = "urlbar-icon"; heart.hidden = true;
-	heart.src = "chrome://DeviantLove/content/core/16Icon.png";
+	heart.setAttribute("src", "chrome://DeviantLove/content/core/16Icon.png");
 	let (heartDest = document.getElementById("urlbar-icons")) {
 		heartDest.insertBefore(heart, heartDest.firstChild);
 	}
@@ -42,10 +42,10 @@ window.DeviantLove = {};
 				sidebar.hasAttribute("checked");
 			if (clickToClose) {
 				heart.tooltipText = DeviantLove.l10n.getString("heartX");
-				heart.src = "chrome://DeviantLove/content/core/16Icon.png";
+				heart.setAttribute("src", "chrome://DeviantLove/content/16IconClose.png");
 			} else {
 				heart.tooltipText = "Deviant Love";
-				heart.src = "chrome://DeviantLove/content/16IconClose.png";
+				heart.setAttribute("src", "chrome://DeviantLove/content/core/16Icon.png");
 			}
 		} else {
 			heart.hidden = true;
