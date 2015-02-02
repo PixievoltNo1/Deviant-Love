@@ -15,12 +15,9 @@
 	You should have received a copy of the GNU General Public License
 	along with Deviant Love.  If not, see <http://www.gnu.org/licenses/>.
 */
-/* Defined elsewhere:
-	- $ (jQuery)
-	- New Array methods in ECMAScript 5th Edition
-	- scanRetry function
-	- displayType string
-	- getL10nMsg function
+/* Dependencies:
+	- jQuery
+	- adapter object
 */
 "use strict";
 
@@ -82,7 +79,7 @@ function fulfillPurpose(pageType, ownerOrTitle) {
 				$("#scanProgressInfo").show();
 				watchStatus.show();
 				$("body").css("cursor", "wait");
-				scanRetry();
+				adapter.scanRetry();
 			} )
 			.appendTo(preparationScreen);
 	}
@@ -135,7 +132,7 @@ function fulfillPurpose(pageType, ownerOrTitle) {
 		if (!watchedArtists) {
 			$("<div>", {id: "watchFailure"}).l10nTooltip("watchFailure").appendTo(scanResults);
 		}
-		if (displayType == "popup") {
+		if (adapter.displayType == "popup") {
 			var scanResultsLine1 = ({
 				featured: "scanFeaturedResultsPopupLine1",
 				allFaves: "scanAllResultsPopupLine1",
@@ -143,7 +140,7 @@ function fulfillPurpose(pageType, ownerOrTitle) {
 			})[pageType];
 			scanResults.append($("<div>").l10nHtml(scanResultsLine1,
 				'<span class="dynamic">' + Number(totalDeviations) + '</span>')); // The Number call is there to help out AMO reviewers; same for the other calls below
-		} else { // displayType == "sidebar"
+		} else { // adapter.displayType == "sidebar"
 			if (/[\<\>\&]/.test(ownerOrTitle)) {ownerOrTitle = "?????????";};
 			var scanResultsLine1 = (pageType == "collection") ?
 				"scanCollectionResultsSidebarLine1" :
@@ -218,7 +215,7 @@ function fulfillPurpose(pageType, ownerOrTitle) {
 		// Handle requests for a particular deviant that were made elsewhere (e.g. context menu)
 		window.showDeviant = function(deviantName, isFirst) {
 			normalMode();
-			$("#deviant_" + deviantName).trigger("click", isFirst || displayType == "popup")
+			$("#deviant_" + deviantName).trigger("click", isFirst || adapter.displayType == "popup")
 				.get(0).scrollIntoView();
 		}
 		if (firstDeviant) {
@@ -380,8 +377,7 @@ function makeL10nMethod(methodName, effect) {
 		if (replacements.length == 0) {replacements = undefined};
 		// This data will be needed when the user will be able to change the language at runtime
 		// this.attr("data-l10n", msgName).data("l10nMethod", methodName);
-		getL10nMsg(msgName, replacements, $.proxy(effect, this));
-		effect.call(this, getL10nMsg(msgName, replacements));
+		effect.call(this, adapter.getL10nMsg(msgName, replacements));
 		return this;
 	}
 }

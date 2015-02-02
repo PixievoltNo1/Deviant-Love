@@ -4,7 +4,16 @@
 	Check core.js for the complete legal stuff.
 */
 "use strict";
-var displayType = "popup";
+var adapter = {
+	displayType: "popup",
+	scanRetry: function() {
+		chrome.runtime.sendMessage({action: "scanRetry"});
+	},
+	getL10nMsg: function(msgName, replacements) {
+		return chrome.i18n.getMessage(msgName, replacements);
+	}
+};
+
 var chromeLocalStorage = new $.Deferred();
 chrome.storage.local.get(null, function(data) {
 	chromeLocalStorage.resolve(data);
@@ -64,9 +73,6 @@ function getTip(callback) {
 		if (nextTip == tips.length) {nextTip = 0;}
 		chrome.storage.local.set({nextTip: nextTip});
 	} );
-}
-function getL10nMsg(msgName, replacements) {
-	return chrome.i18n.getMessage(msgName, replacements);
 }
 
 $(document).delegate("a", "click", function(event) {
