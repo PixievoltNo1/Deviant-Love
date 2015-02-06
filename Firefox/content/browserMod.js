@@ -138,8 +138,10 @@ window.DeviantLove = {};
 	
 	function summonRawkitude(event) {
 		if (!contextMenuWhitelistingDone) {
-			let whitelist = document.querySelectorAll("#context-openlink, #context-openlinkintab, " +
-				"#context-copylink, #context-undo, #context-sep-undo, #context-cut, #context-copy, " +
+			let whitelist = document.querySelectorAll("#context-openlinkintab, #context-openlink, " +
+				"#context-openlinkprivate, #context-sep-open, #context-bookmarklink, " +
+				"#context-sharelink, #context-marklinkMenu, #context-copylink, " +
+				"#context-undo, #context-sep-undo, #context-cut, #context-copy, " +
 				"#context-paste, #context-delete, #context-sep-paste, #context-selectall");
 			for (let i = 0; i < whitelist.length; ++i) {
 				whitelist[i].classList.add("DeviantLoveWhitelisted");
