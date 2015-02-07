@@ -1,0 +1,17 @@
+# EditorConfig is awesome: http://EditorConfig.org
+
+root = true
+
+[*]
+indent_style = tab
+end_of_line = cf
+charset = utf-8
+trim_trailing_whitespace = true
+
+[Firefox/install.rdf]
+indent_style = space
+indent_size = 2
+
+[*.svg]
+indent_style = space
+indent_size = 2
