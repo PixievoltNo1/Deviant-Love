@@ -102,16 +102,9 @@ function rawk() {
 				top.DeviantLove.currentScanData = scanDone_startFun(top.DeviantLove.getTip());
 			}
 		});
-		window.scanRetry = scannerController.favesRetry;
+		adapter.scanRetry = scannerController.favesRetry;
 	} else {
 		restore(top.DeviantLove.currentScanData, top.DeviantLove.getTip());
-	}
-}
-function getL10nMsg(msgName, replacements) {
-	if (!replacements) {
-		return l10n.getString(msgName);
-	} else {
-		return l10n.getFormattedString(msgName, replacements);
 	}
 }
 
