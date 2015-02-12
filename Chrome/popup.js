@@ -11,6 +11,18 @@ var adapter = {
 	},
 	getL10nMsg: function(msgName, replacements) {
 		return chrome.i18n.getMessage(msgName, replacements);
+	},
+	retrieve: function(key) {
+		var request = new $.Deferred();
+		chrome.storage.local.get(key, function(data) {
+			request.resolve(data);
+		})
+		return request.promise();
+	},
+	store: function(key, data) {
+		var item = {};
+		item[key] = data;
+		chrome.storage.local.set(item);
 	}
 };
 

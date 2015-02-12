@@ -33,8 +33,21 @@ var adapter = {
 		} else {
 			return l10n.getFormattedString(msgName, replacements);
 		}
-	}
+	},
 	// scanRetry to be defined later
+	retrieve: function(key) {
+		var data = Application.prefs.getValue("extensions.deviantlove." + key);
+		if (typeof data == "string") {
+			data = JSON.parse(data);
+		}
+		return $.when( data );
+	},
+	store: function(key, data) {
+		if (typeof data != "number" && typeof data != "boolean") {
+			data = JSON.stringify(data);
+		}
+		Application.prefs.setValue("extensions.deviantlove." + key, data);
+	}
 };
 var scannerController;
 $(document).ready( function() {
