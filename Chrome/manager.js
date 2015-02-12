@@ -8,14 +8,14 @@
 var popup = document.createElement("iframe"), popupCSS = popup.style;
 popupCSS.border = "2px solid black";
 popupCSS.borderTop = "0";
-popupCSS.height = "-webkit-calc(100% - 22px)";
+popupCSS.height = "calc(100% - 22px)";
 popupCSS.width = "444px";
 popupCSS.position = "fixed";
 popupCSS.right = "50px";
 popupCSS.bottom = window.innerHeight + "px";
 popupCSS.display = "none";
 popupCSS.zIndex = "501";
-popupCSS.WebkitTransition = "bottom 0.6s ease-out";
+popupCSS.transition = "bottom 0.6s ease-out";
 document.body.appendChild(popup);
 var shield = document.createElement("div"), shieldCSS = shield.style;
 shieldCSS.position = "fixed";
@@ -27,7 +27,7 @@ shieldCSS.opacity = "0";
 shieldCSS.backgroundColor = "white";
 shieldCSS.display = "none";
 shieldCSS.zIndex = "500";
-shieldCSS.WebkitTransition = "opacity 0.6s linear";
+shieldCSS.transition = "opacity 0.6s linear";
 document.body.appendChild(shield);
 var popupState = "inactive";
 var popupStage = "uninitialized";
@@ -47,15 +47,13 @@ chrome.runtime.onMessage.addListener( function(thing, buddy, callback) {switch (
 	case "getResearchLoveParams":
 		callback({feedHref: pageData.feedHref, maxDeviations: pageData.maxDeviations});
 	break;
-	case "getFulfillPurposeParams":
-		callback(pageData.pageType);
-	break;
 }} );
 chrome.runtime.sendMessage({action: "showLove"});
 
+var matchMethod = ("matches" in document.documentElement) ? "matches" : "webkitMatchesSelector";
 document.querySelector(".folderview-art").addEventListener("mouseover", function(event) {
 	var thing = event.target;
-	if (thing.webkitMatchesSelector("a.u")) {
+	if ( thing[matchMethod]("a.u") ) {
 		chrome.runtime.sendMessage({action: "showArtistLove", artist: thing.textContent});
 		thing.addEventListener("mouseout", function byebye() {
 			chrome.runtime.sendMessage({action: "noArtistLove"});
@@ -63,19 +61,33 @@ document.querySelector(".folderview-art").addEventListener("mouseover", function
 		}, false);
 	}
 }, false);
-addEventListener("pagehide", function() {
-	chrome.runtime.sendMessage({action: "noArtistLove"});
-}, false);
+if ("hidden" in document) {
+	var visibilityEvent = "visibilitychange", hiddenProp = "hidden";
+} else {
+	var visibilityEvent = "webkitvisibilitychange", hiddenProp = "webkitHidden";
+}
+var keepAlive;
+function checkVisibility() {
+	if (!document[hiddenProp]) {
+		keepAlive = chrome.runtime.connect({name: "keepAlive"});
+	} else if (keepAlive) {
+		keepAlive.disconnect();
+		chrome.runtime.sendMessage({action: "noArtistLove"});
+	}
+};
+checkVisibility();
+document.addEventListener(visibilityEvent, checkVisibility, false);
 
 function activate(firstDeviant) {
 	popupCSS.display = "";
 	shieldCSS.display = "";
 	popupState = "preparing";
 	if (popupStage == "uninitialized") {
-		chrome.runtime.onMessage.addListener( function popupReady(thing) {
-			if (thing.action == "popupReady") {
+		chrome.runtime.onMessage.addListener( function popupReady(thing, buddy, callback) {
+			if (thing.action == "popupSetup") {
 				popupStage = "scanning";
 				reveal();
+				callback({pageType: pageData.pageType});
 				chrome.runtime.onMessage.removeListener(popupReady);
 			}
 		} );
@@ -88,7 +100,7 @@ function activate(firstDeviant) {
 		// With our elements' display truly set, we are free to transition them! Thanks, Tim! ♡
 		reveal();
 	} else {
-		chrome.runtime.sendMessage({action: "sendTip"}, reveal);
+		chrome.runtime.sendMessage({action: "echoWithCallback", echoAction: "changeTip"}, reveal);
 	}
 	function reveal() {
 		popupCSS.bottom = "20px";

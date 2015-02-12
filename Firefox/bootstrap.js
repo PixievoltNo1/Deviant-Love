@@ -28,7 +28,11 @@ function foundWindow(window) {
 		return;
 	}
 	if (window.document.documentElement.getAttribute("windowtype") != "navigator:browser") { return; }
-	Services.scriptloader.loadSubScript("chrome://DeviantLove/content/browser.js", window);
+	Services.scriptloader.loadSubScriptWithOptions("chrome://DeviantLove/content/browserMod.js", {
+		target: window,
+		charset: "UTF-8",
+		ignoreCache: true
+	});
 }
 function loadedWindow() {
 	foundWindow(this);

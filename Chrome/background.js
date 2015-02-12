@@ -16,16 +16,6 @@ chrome.runtime.onMessage.addListener( function(thing, buddy, callback) {switch (
 		chrome.pageAction.setIcon({tabId: buddy.tab.id, path: "19Icon.png"});
 		chrome.pageAction.setTitle({tabId: buddy.tab.id, title: "Deviant Love"});
 	break;
-	case "popupSetup":
-		chrome.tabs.sendMessage(buddy.tab.id, {action: "getFulfillPurposeParams"}, function(pageType) {
-			callback({"pageType": pageType});
-		} );
-		chrome.tabs.sendMessage(buddy.tab.id, {action: "popupReady"});
-		return true;
-	break;
-	case "getMessage":
-		callback(chrome.i18n.getMessage(thing.msgName, thing.replacements));
-	break;
 	case "sendTip":
 		getTip(function(tip) {chrome.tabs.sendMessage(buddy.tab.id,
 			{action: "changeTip", "tip": tip}, callback)});
@@ -34,45 +24,41 @@ chrome.runtime.onMessage.addListener( function(thing, buddy, callback) {switch (
 	case "showArtistLove":
 		chrome.contextMenus.create({
 			title: chrome.i18n.getMessage("artistCheck", thing.artist),
-			contexts: ["link"],
-			onclick: function() {
-				chrome.tabs.sendMessage(buddy.tab.id, {action: "artistRequested", artist: thing.artist});
-			}
+			id: "artistLove:" + thing.artist,
+			contexts: ["link"]
 		});
 	break;
 	case "noArtistLove":
 		chrome.contextMenus.removeAll();
 	break;
+	// For communication between manager.js and popup.js
+	case "echo":
+		thing.action = thing.echoAction;
+		chrome.tabs.sendMessage(buddy.tab.id, thing);
+	break;
+	case "echoWithCallback":
+		thing.action = thing.echoAction;
+		chrome.tabs.sendMessage(buddy.tab.id, thing, function(retVal) { callback(retVal); });
+		return true;
+	break;
 }} );
 chrome.pageAction.onClicked.addListener( function(buddy) {
 	chrome.tabs.sendMessage(buddy.id, {action: "spark"});
 } );
-chrome.tabs.onActivated.addListener( function() {
-	chrome.contextMenus.removeAll();
+chrome.contextMenus.onClicked.addListener( function(click, buddy) {
+	var artist = click.menuItemId.substr( "artistLove:".length );
+	chrome.tabs.sendMessage(buddy.id, {action: "artistRequested", artist: artist});
 } );
-var l10n = {};
-function getL10nFile(fileName, callback) {
-// Currently used only by getTip, but it doesn't seem worth it to merge the two
-	if (l10n[fileName]) {
-		callback(l10n[fileName]);
-	} else {
-		$.getJSON(chrome.i18n.getMessage("l10nFolder") + fileName + ".json", function(data) {
-			l10n[fileName] = data;
-			callback(data);
-		})
+
+chrome.runtime.onInstalled.addListener( function onUpdate(info) {
+	if (info.reason != "update") { return; }
+	if (localStorage.nextTip) {
+		chrome.storage.local.set({nextTip: localStorage.nextTip - 1});
+		localStorage.clear();
 	}
-}
-function getTip(callback) {
-	// localStorage.nextTip is 1-based, but JavaScript array indexes are 0-based. Oh well.
-	var nextTip = localStorage.nextTip || 1;
-	getL10nFile("TipOfTheMoment", function(tips) {
-		callback(tips[nextTip - 1]);
-		nextTip++;
-		if (nextTip > tips.length) {nextTip = 1}
-		localStorage.nextTip = nextTip;
-	} );
-}
+} );
 chrome.runtime.onConnect.addListener( function(port) {
+	if (port.name != "fetchFeedData") { return; }
 	chrome.tabs.sendMessage(port.sender.tab.id, {action: "getResearchLoveParams"}, function(params) {
 		var scannerController = researchLove(params.feedHref, params.maxDeviations, {
 			faves: function(data) { port.postMessage({whatsUp: "faves", "data": data}); },
@@ -89,11 +75,9 @@ chrome.runtime.onConnect.addListener( function(port) {
 			watched: function(data) { port.postMessage({whatsUp: "watched", "data": data}); },
 			onWatchError: function() { port.postMessage({whatsUp: "watchError"}); },
 			onDone: function() {
-				getTip(function(tip) {
-					chrome.runtime.onMessage.removeListener(stateChangeReaction);
-					chrome.tabs.sendMessage(port.sender.tab.id, {action: "scanningComplete", "tip": tip});
-					port.disconnect();
-				});
+				chrome.runtime.onMessage.removeListener(stateChangeReaction);
+				chrome.tabs.sendMessage(port.sender.tab.id, {action: "scanningComplete"});
+				port.disconnect();
 			}
 		});
 		chrome.runtime.onMessage.addListener(stateChangeReaction);
@@ -110,5 +94,7 @@ chrome.runtime.onConnect.addListener( function(port) {
 		})
 	} );
 } );
+// No handler needed for keepAlive ports
+
 // No way to opt out of the console spam this creates if there's no preview version installed. Tried try/catch, tried a callback parameter, nothing stopped it.
 chrome.runtime.sendMessage("hibomgnjacfmgijhjlhagemclnkijlcj", {action: "obsolete", reachedFinal: 2.0});

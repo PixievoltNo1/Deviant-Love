@@ -15,12 +15,9 @@
 	You should have received a copy of the GNU General Public License
 	along with Deviant Love.  If not, see <http://www.gnu.org/licenses/>.
 */
-/* Defined elsewhere:
-	- $ (jQuery)
-	- New Array methods in ECMAScript 5th Edition
-	- scanRetry function
-	- displayType string
-	- getL10nMsg function
+/* Dependencies:
+	- jQuery
+	- adapter object
 */
 "use strict";
 
@@ -82,7 +79,7 @@ function fulfillPurpose(pageType, ownerOrTitle) {
 				$("#scanProgressInfo").show();
 				watchStatus.show();
 				$("body").css("cursor", "wait");
-				scanRetry();
+				adapter.scanRetry();
 			} )
 			.appendTo(preparationScreen);
 	}
@@ -135,7 +132,7 @@ function fulfillPurpose(pageType, ownerOrTitle) {
 		if (!watchedArtists) {
 			$("<div>", {id: "watchFailure"}).l10nTooltip("watchFailure").appendTo(scanResults);
 		}
-		if (displayType == "popup") {
+		if (adapter.displayType == "popup") {
 			var scanResultsLine1 = ({
 				featured: "scanFeaturedResultsPopupLine1",
 				allFaves: "scanAllResultsPopupLine1",
@@ -143,7 +140,7 @@ function fulfillPurpose(pageType, ownerOrTitle) {
 			})[pageType];
 			scanResults.append($("<div>").l10nHtml(scanResultsLine1,
 				'<span class="dynamic">' + Number(totalDeviations) + '</span>')); // The Number call is there to help out AMO reviewers; same for the other calls below
-		} else { // displayType == "sidebar"
+		} else { // adapter.displayType == "sidebar"
 			if (/[\<\>\&]/.test(ownerOrTitle)) {ownerOrTitle = "?????????";};
 			var scanResultsLine1 = (pageType == "collection") ?
 				"scanCollectionResultsSidebarLine1" :
@@ -161,12 +158,9 @@ function fulfillPurpose(pageType, ownerOrTitle) {
 			.appendTo(mainScreen);
 		$("<form>", {id: "findBar"})
 			.append($("<input>", {type: "text", id: "query"}))
-			.append($("<button>", {id: "goFind"}))
-			.append($("<button>", {id: "noFind"}))
+			.append($("<button>", {type: "submit", id: "goFind"}))
+			.append($("<button>", {type: "button", id: "noFind"}))
 			.appendTo(mainScreen);
-		// jQuery apparently refuses to set a button's type. "it causes problems in IE", they say.
-		$("#goFind")[0].setAttribute("type", "submit");
-		$("#noFind")[0].setAttribute("type", "button");
 		$("#query").l10nPlaceholder("queryPlaceholder");
 		$("<div>", {id: "queryError"}).hide().appendTo(mainScreen);
 		var lovedArtists = $("<div>", {id: "lovedArtists"})
@@ -221,7 +215,7 @@ function fulfillPurpose(pageType, ownerOrTitle) {
 		// Handle requests for a particular deviant that were made elsewhere (e.g. context menu)
 		window.showDeviant = function(deviantName, isFirst) {
 			normalMode();
-			$("#deviant_" + deviantName).trigger("click", isFirst || displayType == "popup")
+			$("#deviant_" + deviantName).trigger("click", isFirst || adapter.displayType == "popup")
 				.get(0).scrollIntoView();
 		}
 		if (firstDeviant) {
@@ -318,17 +312,19 @@ function scrollToDeviationList() {
 // snackOnMyWrath and buildCloserLook are needed by both scanDone_startFun and findStuff
 function snackOnMyWrath(finkRats) {
 	// "You have energy like a little angry battery with no friends."
-	var rageDressing = $();
+	var rageDressing = document.createDocumentFragment();
+	var elem = document.createElement.bind(document);
 	finkRats.forEach( function(deviant) {
-		var devWatchElem = $("<div>", {"class": "deviationWatch"}).html("&nbsp;");
-		var deviantElem = $("<div>", {"class": "deviant", id: "deviant_" + deviant.name})
-			.append(devWatchElem).append($("<span>", {"class": "deviantFaves"})
-			.text(deviant.deviations.length));
+		// Hot loop! A little optimization can make a lot of difference.
+		var devWatchElem = $(elem("div")).attr("class", "deviationWatch").html("&nbsp;");
+		var deviantElem = $(elem("div")).attr({"class": "deviant", id: "deviant_" + deviant.name})
+			.append(devWatchElem).append( $(elem("span")).attr("class", "deviantFaves")
+				.text(deviant.deviations.length) );
 		if (deviant.watched) {
 			devWatchElem.addClass("true").l10nTooltip("watchingThisArtist");
 		}
-		deviantElem.append($("<span>", {"class": "deviantName"}).text(deviant.name));
-		rageDressing = rageDressing.add(deviantElem);
+		deviantElem.append( $(elem("span")).attr("class", "deviantName").text(deviant.name) );
+		rageDressing.appendChild(deviantElem[0]);
 	} );
 	return rageDressing; // on a salad of evil
 }
@@ -375,20 +371,19 @@ function queryTroubleCheck() {
 
 	return false;
 }
-function makeL10nMethod(methodName, effect, tmpMsg) {
+function makeL10nMethod(methodName, effect) {
 	$.fn[methodName] = function(msgName) {
 		var replacements = $.makeArray(arguments).slice(1);
 		if (replacements.length == 0) {replacements = undefined};
-		var textInPlace = this.attr("data-l10n") == msgName; // Not very accurate with multiple elements, but for Deviant Love that doesn't matter
-		// l10nMethod will be needed for v3.0, when the user will be able to choose a language
-		this.attr("data-l10n", msgName)/*.data("l10nMethod", methodName)*/;
-		getL10nMsg(msgName, replacements, $.proxy(effect, this), textInPlace ? null : tmpMsg);
+		// This data will be needed when the user will be able to change the language at runtime
+		// this.attr("data-l10n", msgName).data("l10nMethod", methodName);
+		effect.call(this, adapter.getL10nMsg(msgName, replacements));
 		return this;
 	}
 }
 [
-	["l10n", $.fn.text, " "],
-	["l10nHtml", $.fn.html, "&nbsp;"],
-	["l10nTooltip", function(msg) {this.attr("title", msg);}, ""],
-	["l10nPlaceholder", function(msg) {this.attr("placeholder", msg);}, ""]
+	["l10n", $.fn.text],
+	["l10nHtml", $.fn.html],
+	["l10nTooltip", function(msg) {this.attr("title", msg);}],
+	["l10nPlaceholder", function(msg) {this.attr("placeholder", msg);}]
 ].forEach(function(args) {makeL10nMethod.apply(null, args);});

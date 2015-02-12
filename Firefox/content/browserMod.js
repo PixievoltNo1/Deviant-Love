@@ -27,8 +27,11 @@ window.DeviantLove = {};
 	document.insertBefore(stylesheet, document.firstChild);
 	cleanupTasks.push( removalTask(stylesheet) );
 	
-	var heart = document.createElement("button");
-	heart.id = "DeviantLoveHeart"; heart.className = "plain urlbar-icon"; heart.hidden = true;
+	// Can't explain it, but using <image> with a click event instead of <button> with a command event seems to be the best (or most common) practice
+	// Doing it that way ensures consistent "button" spacing with other extensions
+	var heart = document.createElement("image");
+	heart.id = "DeviantLoveHeart"; heart.className = "urlbar-icon"; heart.hidden = true;
+	heart.setAttribute("src", "chrome://DeviantLove/content/core/16Icon.png");
 	let (heartDest = document.getElementById("urlbar-icons")) {
 		heartDest.insertBefore(heart, heartDest.firstChild);
 	}
@@ -37,13 +40,18 @@ window.DeviantLove = {};
 			heart.hidden = false;
 			var clickToClose = closing !== true && (content.document == currentFocus) &&
 				sidebar.hasAttribute("checked");
-			heart.classList[clickToClose ? "add" : "remove"]("clickToClose");
-			heart.tooltipText = clickToClose ? DeviantLove.l10n.getString("heartX") : "Deviant Love"; 
+			if (clickToClose) {
+				heart.tooltipText = DeviantLove.l10n.getString("heartX");
+				heart.setAttribute("src", "chrome://DeviantLove/content/16IconClose.png");
+			} else {
+				heart.tooltipText = "Deviant Love";
+				heart.setAttribute("src", "chrome://DeviantLove/content/core/16Icon.png");
+			}
 		} else {
 			heart.hidden = true;
 		}
 	}
-	heart.addEventListener("command", summonRawkitude, false);
+	heart.addEventListener("click", summonRawkitude, false);
 	cleanupTasks.push( removalTask(heart) );
 	
 	gBrowser.addEventListener("DOMContentLoaded", tabSetup, false);
@@ -56,7 +64,11 @@ window.DeviantLove = {};
 		if (!foundLove.has(doc) &&
 			(/http:\/\/[a-zA-Z\d\-]+\.deviantart\.com\/favourites\//).test(doc.URL)) {
 			if (!DeviantLove.findLove) {
-				loader.loadSubScript("chrome://DeviantLove/content/core/detector.js", DeviantLove);
+				loader.loadSubScriptWithOptions("chrome://DeviantLove/content/core/detector.js", {
+					target: DeviantLove,
+					charset: "UTF-8",
+					ignoreCache: true
+				});
 			};
 			foundLove.set(doc, DeviantLove.findLove(doc.defaultView));
 			updateHeart();
@@ -126,8 +138,10 @@ window.DeviantLove = {};
 	
 	function summonRawkitude(event) {
 		if (!contextMenuWhitelistingDone) {
-			let whitelist = document.querySelectorAll("#context-openlink, #context-openlinkintab, " +
-				"#context-copylink, #context-undo, #context-sep-undo, #context-cut, #context-copy, " +
+			let whitelist = document.querySelectorAll("#context-openlinkintab, #context-openlink, " +
+				"#context-openlinkprivate, #context-sep-open, #context-bookmarklink, " +
+				"#context-sharelink, #context-marklinkMenu, #context-copylink, " +
+				"#context-undo, #context-sep-undo, #context-cut, #context-copy, " +
 				"#context-paste, #context-delete, #context-sep-paste, #context-selectall");
 			for (let i = 0; i < whitelist.length; ++i) {
 				whitelist[i].classList.add("DeviantLoveWhitelisted");
@@ -174,7 +188,6 @@ window.DeviantLove = {};
 
 DeviantLove.getTip = function() {
 	var tips = JSON.parse(DeviantLove.l10n.getString("TipOfTheMoment"));
-	// Unlike in the Chrome version, there is no need for discrepancies between nextTip and JavaScript array indexes.
 	var nextTip = Application.prefs.getValue("extensions.deviantlove.nexttip", 0);
 	var returnValue = tips[nextTip];
 	nextTip++;

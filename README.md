@@ -18,10 +18,6 @@ To test the Firefox extension, I recommend following [these directions](https://
 
 Don't touch stuff in Firefox/locale/; instead, make your changes in Chrome/_locales/ and then run FxL10n.py again.
 
-# Custom jQuery Build
-
-The copy of jQuery present here is a custom build, using the options `-ajax/jsonp,-deprecated,-effects`. Use [Velocity.js](http://julian.com/research/velocity/) or CSS feature for animations.
-
 # Grabbing the Code of Chrome/Chromium Preview Versions
 
 Starting with version 2.0 RC 2, the exact code of preview releases for Chrome/Chromium is not directly available in the repository. The ChromePreview.patch contains the differences between the exact code and the available code; you can either run `git apply ChromePreview.patch` to get the exact code, or you can just read the patch file and figure out the differences yourself.
