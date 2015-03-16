@@ -79,12 +79,18 @@ function researchLove(favesURL, maxDeviations, handlers) {
 			watchFailure();
 			return;
 		}
-		var buriedTreasure = digHere.DiFi.response.calls[0].response.content.Unsorted;
-		buriedTreasure.forEach( function(deviant) {
-			if (deviant.attributes & 2) {
-				greatOnes.push(deviant.username);
-			}
-		} );
+		try {
+			var buriedTreasure = digHere.DiFi.response.calls[0].response.content[0];
+			buriedTreasure.forEach( function(deviant) {
+				if (deviant.attributes & 2) {
+					greatOnes.push(deviant.username);
+				}
+			} );
+		} catch(e) {
+			console.error(e);
+			watchFailure();
+			return;
+		}
 		if (buriedTreasure.length == 100) { // That means there may be more friends
 			++watchlistPage;
 			if (!paused) {
