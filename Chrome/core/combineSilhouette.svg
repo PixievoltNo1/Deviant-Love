@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Manually edited to ensure <use> has a relative path -->
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:xlink="http://www.w3.org/1999/xlink"
+   version="1.1"
+   id="svg4717"
+   viewBox="0 0 18 18"
+   height="18"
+   width="18">
+  <defs
+     id="defs4719">
+    <filter
+       id="filter5891"
+       style="color-interpolation-filters:sRGB;">
+      <feFlood
+         id="feFlood5893"
+         result="flood"
+         flood-color="rgb(0,0,0)"
+         flood-opacity="0.5" />
+      <feComposite
+         id="feComposite5895"
+         result="composite"
+         operator="in"
+         in2="SourceGraphic"
+         in="flood" />
+    </filter>
+  </defs>
+  <metadata
+     id="metadata4722">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+        <dc:title></dc:title>
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <g
+     id="layer1">
+    <use
+       xlink:href="combine.svg#svg2"
+       style="filter:url(#filter5891)"
+       height="18"
+       width="18"
+       id="image5873" />
+  </g>
+</svg>
