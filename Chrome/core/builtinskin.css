@@ -149,8 +149,12 @@ a img {
 	background-position: center;
 	background-repeat: no-repeat;
 }
+.closerLook {
+	display: flex;
+	flex-direction: row;
+	align-items: stretch;
+}
 .deviantDetails {
-	float: left;
 	width: 80px;
 	padding: 9px 4px;
 	text-align: center;
@@ -191,8 +195,7 @@ a img {
 .galleryLink { background-image: url(deviantart/Gallery.png); }
 .favouritesLink { background-image: url(deviantart/Favourites.png); }
 .deviationList {
-	margin-left: 80px;
-	height: 100%;
+	flex: 1;
 	padding: 0 0.2em;
 	background-color: hsl(357, 90%, 90%);
 }

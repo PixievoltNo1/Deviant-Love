@@ -190,15 +190,13 @@ function fulfillPurpose(pageType, ownerOrTitle) {
 			var deviant = deviantBag[$(".deviantName", this).text()];
 			var closerLook = buildCloserLook(deviant, deviant.deviations);
 			$(this).append(closerLook).addClass("opened");
-			var closerLookHeight = closerLook.height();
 			if (!suppressAnimation) {
+				var closerLookHeight = closerLook.height();
 				closerLook.height(0).velocity({height: closerLookHeight}, {
 					duration: 400,
 					easing: "swing",
 					progress: scrollToDeviationList
 				});
-			} else {
-				closerLook.css("height", closerLookHeight);
 			}
 		} );
 		$("#query").bind("input", function(event) {
@@ -277,7 +275,6 @@ function fulfillPurpose(pageType, ownerOrTitle) {
 				lovedArtists.append( $("<div>", {"class": "foundHeader"})
 					.l10n("foundDeviations", found.deviant.name, found.deviations.length) )
 					.append(closerLook);
-				closerLook.height(closerLook.height()); // Sounds a bit silly but the CSS needs it.
 			} );
 		}
 	}
@@ -329,7 +326,6 @@ function snackOnMyWrath(finkRats) {
 	return rageDressing; // on a salad of evil
 }
 function buildCloserLook(deviant, deviations) {
-// Anything relying on this function will need to make sure that returned element's CSS height is set to its natural height. The CSS assumes that that has been done.
 	var closerLook = $("<div>", {"class": "closerLook"}).css("overflow", "hidden");
 
 	var deviantDetails = $("<div>", {"class": "deviantDetails"});
