@@ -149,6 +149,9 @@ a img {
 	background-position: center;
 	background-repeat: no-repeat;
 }
+.subaccountsButton {
+	display: inline-block;
+}
 .closerLook {
 	display: flex;
 	flex-direction: row;

@@ -175,6 +175,10 @@ function fulfillPurpose(pageType, ownerOrTitle) {
 		tipOfTheMoment(firstTip);
 
 		// Set up interaction
+		lovedArtists.delegate(".subaccountsButton", "click", function(event) {
+			event.stopImmediatePropagation();
+			// TODO: Functionality!
+		} );
 		lovedArtists.delegate(".deviant:not(.opened)", "click", function(event, suppressAnimation) {
 			$(".opened.deviant").removeClass("opened");
 			if (!suppressAnimation) {
@@ -314,13 +318,18 @@ function snackOnMyWrath(finkRats) {
 	finkRats.forEach( function(deviant) {
 		// Hot loop! A little optimization can make a lot of difference.
 		var devWatchElem = $(elem("div")).attr("class", "deviationWatch").html("&nbsp;");
+		var subaccountsElem = $(elem("div")).attr("class", "subaccountsButton").html("&nbsp;");
+		var lineElem = $(elem("div")).attr("class", "deviantLine")
+			.append(devWatchElem)
+			.append( $(elem("span")).attr("class", "deviantFaves").text(deviant.deviations.length) )
+			.append( $(elem("span")).attr("class", "deviantName").text(deviant.name) )
+			.append(subaccountsElem);
 		var deviantElem = $(elem("div")).attr({"class": "deviant", id: "deviant_" + deviant.name})
-			.append(devWatchElem).append( $(elem("span")).attr("class", "deviantFaves")
-				.text(deviant.deviations.length) );
+			.append(lineElem);
 		if (deviant.watched) {
 			devWatchElem.addClass("true").l10nTooltip("watchingThisArtist");
 		}
-		deviantElem.append( $(elem("span")).attr("class", "deviantName").text(deviant.name) );
+		// TODO: Check if the deviant has subaccounts, modify subaccountsElem if so
 		rageDressing.appendChild(deviantElem[0]);
 	} );
 	return rageDressing; // on a salad of evil
