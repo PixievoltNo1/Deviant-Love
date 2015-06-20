@@ -36,9 +36,17 @@ var adapter = {
 	},
 	// scanRetry to be defined later
 	retrieve: function(key) {
-		var data = Application.prefs.getValue("extensions.deviantlove." + key);
-		if (typeof data == "string") {
-			data = JSON.parse(data);
+		var data = prefs.get(key);
+		function thaw(data) {
+			if (typeof data == "string") {
+				data = JSON.parse(data);
+			}
+			return data;
+		}
+		if (Array.isArray(data)) {
+			data = data.map(thaw);
+		} else {
+			data = thaw(data);
 		}
 		return $.when( data );
 	},
@@ -46,7 +54,7 @@ var adapter = {
 		if (typeof data != "number" && typeof data != "boolean") {
 			data = JSON.stringify(data);
 		}
-		Application.prefs.setValue("extensions.deviantlove." + key, data);
+		prefs.set(key, data);
 	}
 };
 var scannerController;

@@ -188,10 +188,10 @@ window.DeviantLove = {};
 
 DeviantLove.getTip = function() {
 	var tips = JSON.parse(DeviantLove.l10n.getString("TipOfTheMoment"));
-	var nextTip = Application.prefs.getValue("extensions.deviantlove.nexttip", 0);
+	var nextTip = DeviantLove.prefs.get("nexttip", 0);
 	var returnValue = tips[nextTip];
 	nextTip++;
 	if (nextTip == tips.length) {nextTip = 0;};
-	Application.prefs.setValue("extensions.deviantlove.nexttip", nextTip);
+	DeviantLove.prefs.set("nexttip", nextTip);
 	return returnValue;
 }
