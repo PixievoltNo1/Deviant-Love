@@ -35,19 +35,17 @@ var adapter = {
 		}
 	},
 	// scanRetry to be defined later
-	retrieve: function(key) {
-		var data = prefs.get(key);
-		function thaw(data) {
-			if (typeof data == "string") {
-				data = JSON.parse(data);
+	retrieve: function(keys) {
+		if (!Array.isArray(keys)) { keys = [keys]; }
+		var items = prefs.get(keys);
+		data = {};
+		keys.forEach( function(key, i) {
+			var item = items[i];
+			if (typeof item == "string") {
+				item = JSON.parse(item);
 			}
-			return data;
-		}
-		if (Array.isArray(data)) {
-			data = data.map(thaw);
-		} else {
-			data = thaw(data);
-		}
+			data[key] = item;
+		} );
 		return $.when( data );
 	},
 	store: function(key, data) {
