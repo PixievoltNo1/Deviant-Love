@@ -168,6 +168,7 @@ function fulfillPurpose(pageType, ownerOrTitle) {
 			.append(snackOnMyWrath(deviantList))
 			.appendTo(mainScreen);
 		if (lovedArtists.css("position") == "static") { lovedArtists.css("position", "relative") } // Needed for scrollToDeviationList. It's as weird as it to ensure future compatibility with the skinning feature.
+		$("<div>", {id: "subaccountsEditor"}).text("Placeholder text!").hide().appendTo(mainScreen);
 		$("<div>", {id: "tipOfTheMoment"})
 			.append($("<img>", {id: "tOTMIcon"}))
 			.append($("<div>", {id: "tOTMText"}))
@@ -177,7 +178,16 @@ function fulfillPurpose(pageType, ownerOrTitle) {
 		// Set up interaction
 		lovedArtists.delegate(".subaccountsButton", "click", function(event) {
 			event.stopImmediatePropagation();
-			// TODO: Functionality!
+			var button = $(this);
+			if (!button.hasClass("editing")) {
+				$(".subaccountsButton.editing").removeClass("editing");
+				button.addClass("editing");
+				/* TODO: Populate the editor */
+				$("#subaccountsEditor").show();
+			} else {
+				button.removeClass("editing");
+				$("#subaccountsEditor").hide();
+			}
 		} );
 		lovedArtists.delegate(".deviant:not(.opened)", "click", function(event, suppressAnimation) {
 			$(".opened.deviant").removeClass("opened");

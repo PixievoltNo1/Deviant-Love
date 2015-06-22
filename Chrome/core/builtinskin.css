@@ -126,6 +126,10 @@ a img {
 .deviant + .deviant {
 	margin-top: 1px;
 }
+.deviantLine {
+	position: relative;
+	/* TODO: Keep name from overlapping with .subaccountsButton, and clip it if it's too long */
+}
 .deviantFaves {
 	display: inline-block;
 	width: 3em;
@@ -150,7 +154,21 @@ a img {
 	background-repeat: no-repeat;
 }
 .subaccountsButton {
+	position: absolute;
+	top: 0;
+	right: 0;
+	bottom: 0;
+	width: 26px;
 	display: inline-block;
+	background-position: center;
+	background-repeat: no-repeat;
+}
+.deviant:hover .subaccountsButton:not(.has):not(.editing) {
+	/* TODO: This file's <use> won't work; replace it */
+	background-image: url("combineSilhouette.svg");
+}
+.subaccountsButton.has, .subaccountsButton.editing {
+	background-image: url("combine.svg");
 }
 .closerLook {
 	display: flex;
