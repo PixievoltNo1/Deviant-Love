@@ -38,7 +38,7 @@ var adapter = {
 	retrieve: function(keys) {
 		if (!Array.isArray(keys)) { keys = [keys]; }
 		var items = prefs.get(keys);
-		data = {};
+		var data = {};
 		keys.forEach( function(key, i) {
 			var item = items[i];
 			if (typeof item == "string") {

@@ -15,7 +15,7 @@ var adapter = {
 	retrieve: function(keys) {
 		var request = new $.Deferred();
 		chrome.storage.local.get(keys, function(data) {
-			for (key in data) {
+			for (var key in data) {
 				var item = data[key]
 				if (typeof item == "string") {
 					data[key] = JSON.parse(item);
