@@ -163,11 +163,11 @@ a img {
 	background-position: center;
 	background-repeat: no-repeat;
 }
-.deviant:hover .subaccountsButton:not(.has):not(.editing) {
+.deviant:hover .subaccountsButton:not(.has):not(.editing):not(:hover) {
 	/* TODO: This file's <use> won't work; replace it */
 	background-image: url("combineSilhouette.svg");
 }
-.subaccountsButton.has, .subaccountsButton.editing {
+.subaccountsButton.has, .subaccountsButton.editing, .subaccountsButton:hover {
 	background-image: url("combine.svg");
 }
 .closerLook {
