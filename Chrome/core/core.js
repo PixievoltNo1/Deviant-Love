@@ -24,10 +24,11 @@
 function fulfillPurpose(pageType, ownerOrTitle) {
 	var deviantList = [];
 	var deviantBag = {};
+	// When a deviant is recorded, a reference should be added to both the list and the bag.
 	var totalDeviations = 0;
 	var firstDeviant;
 	var watchedArtists;
-	// When a deviant is recorded, a reference should be added to both the list and the bag.
+	var subaccounts;
 
 	$("body").css("cursor", "wait");
 	var preparationScreen = $("<div>", {id: "preparationScreen"}).appendTo(document.body);
@@ -49,7 +50,7 @@ function fulfillPurpose(pageType, ownerOrTitle) {
 		$("#scanPercentageText").text( Math.floor(percentage * 100) + "%" );
 	}
 	window.setData = function(data) {
-		data.forEach(function(item) {
+		data.forEach(function(item, pos) {
 			if (!deviantBag[item.artistName]) {
 				var newDeviant = {};
 				newDeviant.name = item.artistName;
@@ -61,7 +62,8 @@ function fulfillPurpose(pageType, ownerOrTitle) {
 			}
 			deviantBag[item.artistName].deviations.push({
 				name: item.deviationName,
-				URL: item.deviationPage
+				URL: item.deviationPage,
+				pos: pos
 			});
 		});
 		totalDeviations = data.length;
@@ -104,7 +106,35 @@ function fulfillPurpose(pageType, ownerOrTitle) {
 		Only scanDone_startFun needs real information there, and restore bypasses that. So, that only need be truthy or falsey. */
 		report(firstTip);
 	}
+	adapter.retrieve("subaccounts").then( function(data) {
+		subaccounts = data.subaccounts;
+	} );
 	window.scanDone_startFun = function(firstTip) {
+		for (var deviantName in subaccounts) {
+			var relevant = subaccounts[deviantName].filter( function(subaccount) {
+				return (subaccount in deviantBag);
+			} );
+			if (relevant.length > 0) {
+				if (!deviantName in deviantBag) {
+					// TODO: Make up an object to add to deviantBag
+				}
+				var deviant = deviantBag[deviantName];
+				deviant.subaccounts = [];
+				relevant.forEach( function(subaccountName) {
+					var subaccount = deviantBag[subaccountName];
+					deviant.subaccounts.push(subaccount);
+					deviant.deviations = deviant.deviations.concat(subaccount.deviations);
+					if (subaccountName in deviantBag) {
+						// TODO: Subaccounts don't need to be in deviantBag and deviantList in the first place. Refactor stuff.
+						delete deviantBag[subaccountName];
+						deviantList.splice(deviantList.indexOf(subaccount), 1);
+					}
+				} );
+				deviant.deviations.sort(function earliestPos(a, b) {
+					return a.pos - b.pos;
+				});
+			}
+		}
 		deviantList.sort(function orderMostLoved(a, b) {
 			if (a.deviations.length != b.deviations.length) {
 				return b.deviations.length - a.deviations.length;
@@ -254,6 +284,8 @@ function fulfillPurpose(pageType, ownerOrTitle) {
 		deviantList.forEach( function(deviant) {
 			if (checkDeviants && isMatch(deviant.name)) {
 				deviantMatches.push(deviant);
+			} else if (deviant.subaccounts) {
+				// TODO: Check deviant.subaccounts
 			}
 			var deviantDeviationMatches = [];
 			deviant.deviations.forEach( function(deviation) {
