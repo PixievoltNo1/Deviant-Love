@@ -64,5 +64,14 @@
 	"favourites": {
 		"message": "Favourites",
 		"description": "Link tooltip"
-	}
+	},
+	"subaccountsOpen": {
+		"message": "Subaccounts",
+		"description": "Tooltip for the button to open the subaccounts editor"
+	},
+	"subaccountsAdd": { "message": "Add a subaccount" },
+	"subaccountsAddInputToCurrent": { "message": "Add the following to $1's subaccounts" },
+	"subaccountsAddCurrentToInput": { "message": "Add $1 to the following's subaccounts" },
+	"subaccountsAddNamePlaceholder": { "message": "Enter account name" },
+	"subaccountsAddConfirm": { "message": "Add" }
 }

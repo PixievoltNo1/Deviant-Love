@@ -198,7 +198,19 @@ function fulfillPurpose(pageType, ownerOrTitle) {
 			.append(snackOnMyWrath(deviantList))
 			.appendTo(mainScreen);
 		if (lovedArtists.css("position") == "static") { lovedArtists.css("position", "relative") } // Needed for scrollToDeviationList. It's as weird as it to ensure future compatibility with the skinning feature.
-		$("<div>", {id: "subaccountsEditor"}).text("Placeholder text!").hide().appendTo(mainScreen);
+		var subaccountsEditor = $("<div>", {id: "subaccountsEditor"}).hide().appendTo(mainScreen);
+		$("<div>", {id: "addSubaccountHeader"}).l10n("subaccountsAdd");
+		$("<form>", {id: "addSubaccount"})
+			.append( $("<label>")
+				.append($("<input>", {type: "radio", name: "addDirection", value: "inputToThis"}))
+				.append($("<span>", {id: "inputToThisText"})) )
+			.append( $("<label>")
+				.append($("<input>", {type: "radio", name: "addDirection", value: "thisToInput"}))
+				.append($("<span>", {id: "thisToInputText"})) )
+			.append( $("<input>", {type: "text", id: "relatedAccount"})
+				.l10nPlaceholder("subaccountsAddNamePlaceholder") )
+			.append($("<button>", {type: "submit", id: "confirmAdd"}).l10n("subaccountsAddConfirm"))
+			.appendTo(subaccountsEditor);
 		$("<div>", {id: "tipOfTheMoment"})
 			.append($("<img>", {id: "tOTMIcon"}))
 			.append($("<div>", {id: "tOTMText"}))
@@ -360,7 +372,8 @@ function snackOnMyWrath(finkRats) {
 	finkRats.forEach( function(deviant) {
 		// Hot loop! A little optimization can make a lot of difference.
 		var devWatchElem = $(elem("div")).attr("class", "deviationWatch").html("&nbsp;");
-		var subaccountsElem = $(elem("div")).attr("class", "subaccountsButton").html("&nbsp;");
+		var subaccountsElem = $(elem("div")).attr("class", "subaccountsButton").html("&nbsp;")
+			.l10nTooltip("subaccountsOpen");
 		var lineElem = $(elem("div")).attr("class", "deviantLine")
 			.append(devWatchElem)
 			.append( $(elem("span")).attr("class", "deviantFaves").text(deviant.deviations.length) )
