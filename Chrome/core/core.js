@@ -107,7 +107,7 @@ function fulfillPurpose(pageType, ownerOrTitle) {
 		report(firstTip);
 	}
 	adapter.retrieve("subaccounts").then( function(data) {
-		subaccounts = data.subaccounts;
+		subaccounts = data.subaccounts || {};
 	} );
 	window.scanDone_startFun = function(firstTip) {
 		for (var deviantName in subaccounts) {
@@ -218,13 +218,16 @@ function fulfillPurpose(pageType, ownerOrTitle) {
 		tipOfTheMoment(firstTip);
 
 		// Set up interaction
+		var editingSubaccountsOf;
 		lovedArtists.delegate(".subaccountsButton", "click", function(event) {
 			event.stopImmediatePropagation();
 			var button = $(this);
 			if (!button.hasClass("editing")) {
 				$(".subaccountsButton.editing").removeClass("editing");
 				button.addClass("editing");
+				editingSubaccountsOf = button.siblings(".deviantName").text();
 				/* TODO: Populate the editor */
+				$("input[value='inputToThis']").prop("checked", true);
 				$("#subaccountsEditor").show();
 			} else {
 				button.removeClass("editing");
@@ -265,6 +268,19 @@ function fulfillPurpose(pageType, ownerOrTitle) {
 		} );
 		$("#findBar").submit(findStuff);
 		$("#noFind").bind("click", normalMode);
+		$("#addSubaccount").bind("submit", function(event) {
+			event.preventDefault();
+			if ($("#relatedAccount").val() == "") { return; }
+			if ($("input[value='inputToThis']").prop("checked")) {
+				var getting = editingSubaccountsOf, gotten = $("#relatedAccount").val();
+			} else {
+				var gotten = editingSubaccountsOf, getting = $("#relatedAccount").val();
+			}
+			subaccounts[getting] = (subaccounts[getting] || [])
+				.concat(gotten, (subaccounts[gotten] || []));
+			// TODO: Update the report to reflect reality
+			adapter.store("subaccounts", subaccounts);
+		} );
 		
 		// Handle requests for a particular deviant that were made elsewhere (e.g. context menu)
 		window.showDeviant = function(deviantName, isFirst) {

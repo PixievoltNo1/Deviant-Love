@@ -170,6 +170,9 @@ a img {
 .subaccountsButton.has, .subaccountsButton.editing, .subaccountsButton:hover {
 	background-image: url("combine.svg");
 }
+#addSubaccount > label {
+	display: block;
+}
 .closerLook {
 	display: flex;
 	flex-direction: row;
