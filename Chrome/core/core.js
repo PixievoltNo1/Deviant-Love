@@ -115,8 +115,15 @@ function fulfillPurpose(pageType, ownerOrTitle) {
 				return (subaccount in deviantBag);
 			} );
 			if (relevant.length > 0) {
-				if (!deviantName in deviantBag) {
-					// TODO: Make up an object to add to deviantBag
+				if (!(deviantName in deviantBag)) {
+					deviantBag[deviantName] = {
+						name: deviantName,
+						deviations: [],
+						baseURL: "http://" + deviantName.toLowerCase() + ".deviantart.com/",
+						// TODO: Refactor stuff so we don't need an avatar URL right now
+						avatar: "http://a.deviantart.net/avatars/i/l/iloveitmoreplz.png?1"
+					};
+					deviantList.push(deviantBag[deviantName]);
 				}
 				var deviant = deviantBag[deviantName];
 				deviant.subaccounts = [];
@@ -271,6 +278,7 @@ function fulfillPurpose(pageType, ownerOrTitle) {
 		$("#addSubaccount").bind("submit", function(event) {
 			event.preventDefault();
 			if ($("#relatedAccount").val() == "") { return; }
+			// TODO: Verify that the related account exists
 			if ($("input[value='inputToThis']").prop("checked")) {
 				var getting = editingSubaccountsOf, gotten = $("#relatedAccount").val();
 			} else {
