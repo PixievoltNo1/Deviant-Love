@@ -111,6 +111,9 @@ function fulfillPurpose(pageType, ownerOrTitle) {
 	} );
 	window.scanDone_startFun = function(firstTip) {
 		for (var deviantName in subaccounts) {
+			if (deviantName in deviantBag) {
+				deviantBag[deviantName].hasSubaccounts = true;
+			}
 			var relevant = subaccounts[deviantName].filter( function(subaccount) {
 				return (subaccount in deviantBag);
 			} );
@@ -121,7 +124,8 @@ function fulfillPurpose(pageType, ownerOrTitle) {
 						deviations: [],
 						baseURL: "http://" + deviantName.toLowerCase() + ".deviantart.com/",
 						// TODO: Refactor stuff so we don't need an avatar URL right now
-						avatar: "http://a.deviantart.net/avatars/i/l/iloveitmoreplz.png?1"
+						avatar: "http://a.deviantart.net/avatars/i/l/iloveitmoreplz.png?1",
+						hasSubaccounts: true
 					};
 					deviantList.push(deviantBag[deviantName]);
 				}
@@ -408,7 +412,9 @@ function snackOnMyWrath(finkRats) {
 		if (deviant.watched) {
 			devWatchElem.addClass("true").l10nTooltip("watchingThisArtist");
 		}
-		// TODO: Check if the deviant has subaccounts, modify subaccountsElem if so
+		if (deviant.hasSubaccounts) {
+			subaccountsElem.addClass("has");
+		}
 		rageDressing.appendChild(deviantElem[0]);
 	} );
 	return rageDressing; // on a salad of evil
