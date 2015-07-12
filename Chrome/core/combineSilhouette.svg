@@ -1,12 +1,10 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<!-- Manually edited to ensure <use> has a relative path -->
 <svg
    xmlns:dc="http://purl.org/dc/elements/1.1/"
    xmlns:cc="http://creativecommons.org/ns#"
    xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
    xmlns:svg="http://www.w3.org/2000/svg"
    xmlns="http://www.w3.org/2000/svg"
-   xmlns:xlink="http://www.w3.org/1999/xlink"
    version="1.1"
    id="svg4717"
    viewBox="0 0 18 18"
@@ -21,7 +19,7 @@
          id="feFlood5893"
          result="flood"
          flood-color="rgb(0,0,0)"
-         flood-opacity="0.5" />
+         flood-opacity="0.4" />
       <feComposite
          id="feComposite5895"
          result="composite"
@@ -44,11 +42,9 @@
   </metadata>
   <g
      id="layer1">
-    <use
-       xlink:href="combine.svg#svg2"
-       style="filter:url(#filter5891)"
-       height="18"
-       width="18"
-       id="image5873" />
+    <path
+       id="path3753"
+       d="m 16.25,9 c 0,4.0041 -3.2459,7.25 -7.25,7.25 C 4.99594,16.25 1.75,13.0041 1.75,9 1.75,4.99593 4.99594,1.75 9,1.75 c 4.0041,0 7.25,3.24593 7.25,7.25 z"
+       style="fill:#ffffff;fill-opacity:1;stroke:#000000;stroke-width:1;stroke-linecap:round;stroke-linejoin:bevel;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;filter:url(#filter5891)" />
   </g>
 </svg>

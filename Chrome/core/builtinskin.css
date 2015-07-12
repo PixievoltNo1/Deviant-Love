@@ -164,7 +164,6 @@ a img {
 	background-repeat: no-repeat;
 }
 .deviant:hover .subaccountsButton:not(.has):not(.editing):not(:hover) {
-	/* TODO: This file's <use> won't work; replace it */
 	background-image: url("combineSilhouette.svg");
 }
 .subaccountsButton.has, .subaccountsButton.editing, .subaccountsButton:hover {
