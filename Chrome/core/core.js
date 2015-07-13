@@ -210,7 +210,7 @@ function fulfillPurpose(pageType, ownerOrTitle) {
 			.appendTo(mainScreen);
 		if (lovedArtists.css("position") == "static") { lovedArtists.css("position", "relative") } // Needed for scrollToDeviationList. It's as weird as it to ensure future compatibility with the skinning feature.
 		var subaccountsEditor = $("<div>", {id: "subaccountsEditor"}).hide().appendTo(mainScreen);
-		$("<div>", {id: "addSubaccountHeader"}).l10n("subaccountsAdd");
+		$("<div>", {id: "addSubaccountHeader"}).l10n("subaccountsAdd").appendTo(subaccountsEditor);
 		$("<form>", {id: "addSubaccount"})
 			.append( $("<label>")
 				.append($("<input>", {type: "radio", name: "addDirection", value: "inputToThis"}))
@@ -237,7 +237,11 @@ function fulfillPurpose(pageType, ownerOrTitle) {
 				$(".subaccountsButton.editing").removeClass("editing");
 				button.addClass("editing");
 				editingSubaccountsOf = button.siblings(".deviantName").text();
-				/* TODO: Populate the editor */
+				if (editingSubaccountsOf in subaccounts) {
+					// TODO: Display list of subaccounts
+				}
+				$("#inputToThisText").l10n("subaccountsAddInputToCurrent", editingSubaccountsOf);
+				$("#thisToInputText").l10n("subaccountsAddCurrentToInput", editingSubaccountsOf);
 				$("input[value='inputToThis']").prop("checked", true);
 				$("#subaccountsEditor").show();
 			} else {
