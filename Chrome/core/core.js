@@ -210,6 +210,11 @@ function fulfillPurpose(pageType, ownerOrTitle) {
 			.appendTo(mainScreen);
 		if (lovedArtists.css("position") == "static") { lovedArtists.css("position", "relative") } // Needed for scrollToDeviationList. It's as weird as it to ensure future compatibility with the skinning feature.
 		var subaccountsEditor = $("<div>", {id: "subaccountsEditor"}).hide().appendTo(mainScreen);
+		// TODO: Add subaccounts list elements. Hiding n/a things will be done in CSS.
+		$("<div>", {id: "subaccountsList"})
+			.append( $("<div>", {id: "subaccountsListHeader"}) )
+			.append( $("<ul>", {id: "subaccountsListContents"}) )
+			.appendTo(subaccountsEditor);
 		$("<div>", {id: "addSubaccountHeader"}).l10n("subaccountsAdd").appendTo(subaccountsEditor);
 		$("<form>", {id: "addSubaccount"})
 			.append( $("<label>")
@@ -237,8 +242,13 @@ function fulfillPurpose(pageType, ownerOrTitle) {
 				$(".subaccountsButton.editing").removeClass("editing");
 				button.addClass("editing");
 				editingSubaccountsOf = button.siblings(".deviantName").text();
+				$("#subaccountsEditor").toggleClass("has", editingSubaccountsOf in subaccounts);
+				$("#subaccountsListHeader").l10n("subaccountsList", editingSubaccountsOf);
+				$("#subaccountsListContents").empty();
 				if (editingSubaccountsOf in subaccounts) {
-					// TODO: Display list of subaccounts
+					$("#subaccountsListContents").append(
+						subaccounts[editingSubaccountsOf].map(buildSubaccountLine)
+					);
 				}
 				$("#inputToThisText").l10n("subaccountsAddInputToCurrent", editingSubaccountsOf);
 				$("#thisToInputText").l10n("subaccountsAddCurrentToInput", editingSubaccountsOf);
@@ -451,6 +461,15 @@ function buildCloserLook(deviant, deviations) {
 	deviationList.appendTo(closerLook);
 
 	return closerLook;
+}
+function buildSubaccountLine(accountName) {
+	var line = $("<li>");
+	
+	// TODO: Profile/gallery links
+	line.append( $("<span>", {"class": "subaccountName"}).text(accountName) );
+	// TODO: Removal button
+	
+	return line;
 }
 function queryTroubleCheck() {
 // Returns false if there are no troubles, true if there is a trouble not worth reporting to the user, and an object otherwise
