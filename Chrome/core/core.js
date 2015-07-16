@@ -194,7 +194,7 @@ function fulfillPurpose(pageType, ownerOrTitle) {
 				.append($("<div>").l10nHtml(scanResultsLine2,
 				'<span class="dynamic">' + Number(totalDeviations) + '</span>'))
 		}
-		scanResults.append($("<div>").l10nHtml("scanResultsLastLine",
+		scanResults.append($("<div>", {id: "artistCount"}).l10nHtml("scanResultsLastLine",
 			'<span class="dynamic">' + Number(deviantList.length) + '</span>'))
 			.appendTo(mainScreen);
 		$("<form>", {id: "findBar"})
@@ -210,7 +210,6 @@ function fulfillPurpose(pageType, ownerOrTitle) {
 			.appendTo(mainScreen);
 		if (lovedArtists.css("position") == "static") { lovedArtists.css("position", "relative") } // Needed for scrollToDeviationList. It's as weird as it to ensure future compatibility with the skinning feature.
 		var subaccountsEditor = $("<div>", {id: "subaccountsEditor"}).hide().appendTo(mainScreen);
-		// TODO: Add subaccounts list elements. Hiding n/a things will be done in CSS.
 		$("<div>", {id: "subaccountsList"})
 			.append( $("<div>", {id: "subaccountsListHeader"}) )
 			.append( $("<ul>", {id: "subaccountsListContents"}) )
@@ -299,12 +298,21 @@ function fulfillPurpose(pageType, ownerOrTitle) {
 			// TODO: Verify that the related account exists
 			if ($("input[value='inputToThis']").prop("checked")) {
 				var getting = editingSubaccountsOf, gotten = $("#relatedAccount").val();
+				$("#subaccountsListContents").append( $("#relatedAccount").val() );
 			} else {
 				var gotten = editingSubaccountsOf, getting = $("#relatedAccount").val();
+				// TODO: Move editing target to the main account
 			}
 			subaccounts[getting] = (subaccounts[getting] || [])
 				.concat(gotten, (subaccounts[gotten] || []));
-			// TODO: Update the report to reflect reality
+			delete subaccounts[gotten];
+			if (gotten in deviantBag) {
+				if ($("input[value='thisToInput']").prop("checked")) {
+					// TODO: Scroll to main account's element
+					// TODO: If the subaccount's element is opened, open the main account's element
+				}
+				// TODO: Remove deviant from bag, list, display, and artistCount, and add it to the main account's subaccounts property
+			}
 			adapter.store("subaccounts", subaccounts);
 		} );
 		
