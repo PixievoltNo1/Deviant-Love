@@ -295,21 +295,23 @@ function fulfillPurpose(pageType, ownerOrTitle) {
 		$("#addSubaccount").bind("submit", function(event) {
 			event.preventDefault();
 			if ($("#relatedAccount").val() == "") { return; }
-			// TODO: Verify that the related account exists
+			// TODO: Verify that the related account exists and do case correction
 			if ($("input[value='inputToThis']").prop("checked")) {
 				var getting = editingSubaccountsOf, gotten = $("#relatedAccount").val();
-				$("#subaccountsListContents").append( $("#relatedAccount").val() );
+				$("#subaccountsListContents").append( buildSubaccountLine( $("#relatedAccount").val() ) );
+				$("#subaccountsEditor").addClass("has");
 			} else {
 				var gotten = editingSubaccountsOf, getting = $("#relatedAccount").val();
-				// TODO: Move editing target to the main account
 			}
 			subaccounts[getting] = (subaccounts[getting] || [])
 				.concat(gotten, (subaccounts[gotten] || []));
 			delete subaccounts[gotten];
 			if (gotten in deviantBag) {
 				if ($("input[value='thisToInput']").prop("checked")) {
-					// TODO: Scroll to main account's element
+					var mainAcctElem = $("#deviant_" + getting);
+					mainAcctElem[0].scrollIntoView();
 					// TODO: If the subaccount's element is opened, open the main account's element
+					mainAcctElem.find(".subaccountsButton").trigger("click");
 				}
 				// TODO: Remove deviant from bag, list, display, and artistCount, and add it to the main account's subaccounts property
 			}
