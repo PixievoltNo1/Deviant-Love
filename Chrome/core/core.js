@@ -317,6 +317,11 @@ function fulfillPurpose(pageType, ownerOrTitle) {
 			}
 			adapter.store("subaccounts", subaccounts);
 		} );
+		$("#subaccountsEditor").delegate(".removeSubaccount", "click", function() {
+			// TODO: Remove the selected from editingSubaccountsOf's subaccounts, and remove its <li> element
+			// TODO: Check if the selected is in the main account's subaccounts property; if so, reverse the effects of adding the subaccount
+			adapter.store("subaccounts", subaccounts);
+		} );
 		
 		// Handle requests for a particular deviant that were made elsewhere (e.g. context menu)
 		window.showDeviant = function(deviantName, isFirst) {
@@ -475,9 +480,13 @@ function buildCloserLook(deviant, deviations) {
 function buildSubaccountLine(accountName) {
 	var line = $("<li>");
 	
-	// TODO: Profile/gallery links
-	line.append( $("<span>", {"class": "subaccountName"}).text(accountName) );
-	// TODO: Removal button
+	var baseURL = "http://" + accountName.toLowerCase() + ".deviantart.com/";
+	line.append($("<a>", {"href": baseURL, "class": "profileLink"})
+		.l10nTooltip("profile"));
+	line.append($("<a>", {"href": baseURL + "gallery/", "class": "galleryLink"})
+		.l10nTooltip("gallery"));
+	line.append($("<span>", {"class": "subaccountName"}).text(accountName));
+	line.append($("<button>", {"class": "removeSubaccount"}).l10n("subaccountsRemove"));
 	
 	return line;
 }
