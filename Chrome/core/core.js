@@ -295,7 +295,7 @@ function fulfillPurpose(pageType, ownerOrTitle) {
 		$("#addSubaccount").bind("submit", function(event) {
 			event.preventDefault();
 			if ($("#relatedAccount").val() == "") { return; }
-			// TODO: Verify that the related account exists and do case correction
+			// TODO: Verify that the related account exists and is not already someone's subaccount, and do case correction
 			if ($("input[value='inputToThis']").prop("checked")) {
 				var getting = editingSubaccountsOf, gotten = $("#relatedAccount").val();
 				$("#subaccountsListContents").append( buildSubaccountLine( $("#relatedAccount").val() ) );
@@ -318,8 +318,16 @@ function fulfillPurpose(pageType, ownerOrTitle) {
 			adapter.store("subaccounts", subaccounts);
 		} );
 		$("#subaccountsEditor").delegate(".removeSubaccount", "click", function() {
-			// TODO: Remove the selected from editingSubaccountsOf's subaccounts, and remove its <li> element
-			// TODO: Check if the selected is in the main account's subaccounts property; if so, reverse the effects of adding the subaccount
+			var removing = $(this).siblings(".subaccountName").text();
+			subaccounts[editingSubaccountsOf].splice(subaccounts[editingSubaccountsOf].indexOf(removing), 1);
+			$(this).parent().remove();
+			if (subaccounts[editingSubaccountsOf].length == 0) {
+				delete subaccounts[editingSubaccountsOf];
+				$("#subaccountsEditor").removeClass("has");
+			}
+			if (removing in deviantBag[editingSubaccountsOf].subaccounts) {
+				// TODO: Reverse the effects of adding the subaccount
+			}
 			adapter.store("subaccounts", subaccounts);
 		} );
 		
