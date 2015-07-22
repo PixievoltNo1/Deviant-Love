@@ -212,10 +212,10 @@ function fulfillPurpose(pageType, ownerOrTitle) {
 		var subaccountsEditor = $("<div>", {id: "subaccountsEditor"}).hide().appendTo(mainScreen);
 		$("<div>", {id: "subaccountsList"})
 			.append( $("<div>", {id: "subaccountsListHeader"}) )
-			.append( $("<ul>", {id: "subaccountsListContents"}) )
+			.append( $("<div>", {id: "subaccountsListContents"}) )
 			.appendTo(subaccountsEditor);
-		$("<div>", {id: "addSubaccountHeader"}).l10n("subaccountsAdd").appendTo(subaccountsEditor);
 		$("<form>", {id: "addSubaccount"})
+			.append( $("<div>", {id: "addSubaccountHeader"}).l10n("subaccountsAdd") )
 			.append( $("<label>")
 				.append($("<input>", {type: "radio", name: "addDirection", value: "inputToThis"}))
 				.append($("<span>", {id: "inputToThisText"})) )
@@ -478,7 +478,7 @@ function buildCloserLook(deviant, deviations) {
 	return closerLook;
 }
 function buildSubaccountLine(accountName) {
-	var line = $("<li>");
+	var line = $("<div>", {"class": "subaccount"});
 	
 	var baseURL = "http://" + accountName.toLowerCase() + ".deviantart.com/";
 	line.append($("<a>", {"href": baseURL, "class": "profileLink"})
