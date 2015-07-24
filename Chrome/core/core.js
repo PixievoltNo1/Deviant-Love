@@ -123,8 +123,6 @@ function fulfillPurpose(pageType, ownerOrTitle) {
 						name: deviantName,
 						deviations: [],
 						baseURL: "http://" + deviantName.toLowerCase() + ".deviantart.com/",
-						// TODO: Refactor stuff so we don't need an avatar URL right now
-						avatar: "http://a.deviantart.net/avatars/i/l/iloveitmoreplz.png?1",
 						hasSubaccounts: true
 					};
 					deviantList.push(deviantBag[deviantName]);
@@ -309,6 +307,7 @@ function fulfillPurpose(pageType, ownerOrTitle) {
 			if (gotten in deviantBag) {
 				if ($("input[value='thisToInput']").prop("checked")) {
 					var mainAcctElem = $("#deviant_" + getting);
+					// TODO: What if the main account isn't in the report yet?
 					mainAcctElem[0].scrollIntoView();
 					// TODO: If the subaccount's element is opened, open the main account's element
 					mainAcctElem.find(".subaccountsButton").trigger("click");
@@ -465,7 +464,19 @@ function buildCloserLook(deviant, deviations) {
 	deviantDetails.append( $("<a>", {"href": deviant.baseURL, "class": "deviantLink"})
 		.append(deviantAvatar) );
 	deviantDetails.append($("<div>", {"class": "avatarLoading"}).l10n("imageLoading"));
-	deviantAvatar.attr("src", deviant.avatar);
+	if (deviant.avatar) {
+		deviantAvatar.attr("src", deviant.avatar);
+	} else {
+		$.ajax(deviant.baseURL, {responseType: "text"}).then( function(profileHtml) {
+			// <html> and <head> may be filtered
+			var avatarElem = $("<div>" + profileHtml + "</div>").find("link[rel='image_src']");
+			if (avatarElem.length == 0) { return $.Deferred().reject(); }
+			deviant.avatar = avatarElem.attr("href");
+			deviantAvatar.attr("src", deviant.avatar);
+		} ).fail( function() {
+			deviantDetails.find(".avatarLoading").remove();
+		} );
+	}
 	deviantDetails.append($("<div>", {"class": "deviantLinks"}) // Note two opening parens and only one closing paren
 		.append($("<a>", {"href": deviant.baseURL, "class": "profileLink"})
 			.l10nTooltip("profile"))
