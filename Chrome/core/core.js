@@ -29,6 +29,7 @@ function fulfillPurpose(pageType, ownerOrTitle) {
 	var firstDeviant;
 	var watchedArtists;
 	var subaccounts;
+	var hiddenAccounts = {};
 
 	$("body").css("cursor", "wait");
 	var preparationScreen = $("<div>", {id: "preparationScreen"}).appendTo(document.body);
@@ -97,11 +98,15 @@ function fulfillPurpose(pageType, ownerOrTitle) {
 		watchStatus.l10n("watchFailure");
 	}
 	window.restore = function(data, firstTip) {
+		/* Only Firefox uses this, and quirks in the Firefox adapter and jQuery's Deferreds means
+		that retrieve("subaccounts") will be done by now. Relying on this is a hack which must be
+		removed to use jQuery 3.0 Deferreds or native Promises. */
 		deviantList = data.deviantList;
 		deviantList.forEach(function(deviant) {
 			deviantBag[deviant.name] = deviant;
 			totalDeviations += deviant.deviations.length;
 		});
+		hiddenAccounts = data.hiddenAccounts;
 		watchedArtists = data.watchRetrievalOK; /*
 		Only scanDone_startFun needs real information there, and restore bypasses that. So, that only need be truthy or falsey. */
 		report(firstTip);
@@ -109,6 +114,14 @@ function fulfillPurpose(pageType, ownerOrTitle) {
 	adapter.retrieve("subaccounts").then( function(data) {
 		subaccounts = data.subaccounts || {};
 	} );
+	// Sorting function for deviantList
+	function orderMostLoved(a, b) {
+		if (a.deviations.length != b.deviations.length) {
+			return b.deviations.length - a.deviations.length;
+		} else {
+			return a.name.toLowerCase().localeCompare(b.name.toLowerCase());
+		}
+	}
 	window.scanDone_startFun = function(firstTip) {
 		for (var deviantName in subaccounts) {
 			if (deviantName in deviantBag) {
@@ -128,10 +141,9 @@ function fulfillPurpose(pageType, ownerOrTitle) {
 					deviantList.push(deviantBag[deviantName]);
 				}
 				var deviant = deviantBag[deviantName];
-				deviant.subaccounts = [];
 				relevant.forEach( function(subaccountName) {
 					var subaccount = deviantBag[subaccountName];
-					deviant.subaccounts.push(subaccount);
+					hiddenAccounts[subaccountName] = subaccount;
 					deviant.deviations = deviant.deviations.concat(subaccount.deviations);
 					if (subaccountName in deviantBag) {
 						// TODO: Subaccounts don't need to be in deviantBag and deviantList in the first place. Refactor stuff.
@@ -144,13 +156,7 @@ function fulfillPurpose(pageType, ownerOrTitle) {
 				});
 			}
 		}
-		deviantList.sort(function orderMostLoved(a, b) {
-			if (a.deviations.length != b.deviations.length) {
-				return b.deviations.length - a.deviations.length;
-			} else {
-				return a.name.toLowerCase().localeCompare(b.name.toLowerCase());
-			}
-		});
+		deviantList.sort(orderMostLoved);
 		if (watchedArtists) {
 			watchedArtists.forEach(function(awesome) {
 				if (deviantBag[awesome]) {
@@ -160,7 +166,9 @@ function fulfillPurpose(pageType, ownerOrTitle) {
 		}
 		
 		report(firstTip);
-		return {"deviantList": deviantList, watchRetrievalOK: Boolean(watchedArtists)}; // Needed by the Firefox version
+		// Return value needed by the Firefox version
+		return {deviantList: deviantList, watchRetrievalOK: Boolean(watchedArtists),
+			hiddenAccounts: hiddenAccounts};
 	}
 	function report(firstTip) {
 		// Construct the UI
@@ -301,34 +309,71 @@ function fulfillPurpose(pageType, ownerOrTitle) {
 			} else {
 				var gotten = editingSubaccountsOf, getting = $("#relatedAccount").val();
 			}
+			if (gotten in deviantBag) {
+				deviantListMod(function() {
+					var gettingObj = deviantBag[getting], gottenObj = deviantBag[gotten];
+					gettingObj.deviations = gettingObj.deviations.concat(gottenObj.deviations);
+					// TODO: If gotten has subaccounts, remove their deviations from gotten's
+					hiddenAccounts[gotten] = gottenObj;
+					gettingObj.deviations.sort(function earliestPos(a, b) {
+						return a.pos - b.pos;
+					});
+					delete deviantBag[gotten];
+					deviantList.splice(deviantList.indexOf(gottenObj), 1);
+					editingSubaccountsOf = getting;
+				});
+			}
 			subaccounts[getting] = (subaccounts[getting] || [])
 				.concat(gotten, (subaccounts[gotten] || []));
 			delete subaccounts[gotten];
-			if (gotten in deviantBag) {
-				if ($("input[value='thisToInput']").prop("checked")) {
-					var mainAcctElem = $("#deviant_" + getting);
-					// TODO: What if the main account isn't in the report yet?
-					mainAcctElem[0].scrollIntoView();
-					// TODO: If the subaccount's element is opened, open the main account's element
-					mainAcctElem.find(".subaccountsButton").trigger("click");
-				}
-				// TODO: Remove deviant from bag, list, display, and artistCount, and add it to the main account's subaccounts property
-			}
 			adapter.store("subaccounts", subaccounts);
+			if ($("input[value='thisToInput']").prop("checked")) {
+				$("#deviant_" + getting).find(".subaccountsButton")
+					.removeClass("editing").trigger("click");
+			}
 		} );
 		$("#subaccountsEditor").delegate(".removeSubaccount", "click", function() {
-			var removing = $(this).siblings(".subaccountName").text();
-			subaccounts[editingSubaccountsOf].splice(subaccounts[editingSubaccountsOf].indexOf(removing), 1);
+			var removedName = $(this).siblings(".subaccountName").text();
+			subaccounts[editingSubaccountsOf].splice(
+				subaccounts[editingSubaccountsOf].indexOf(removedName), 1);
 			$(this).parent().remove();
 			if (subaccounts[editingSubaccountsOf].length == 0) {
 				delete subaccounts[editingSubaccountsOf];
 				$("#subaccountsEditor").removeClass("has");
 			}
-			if (removing in deviantBag[editingSubaccountsOf].subaccounts) {
-				// TODO: Reverse the effects of adding the subaccount
+			if (removedName in hiddenAccounts) {
+				deviantListMod(function() {
+					var removed = hiddenAccounts[removedName];
+					delete hiddenAccounts[removedName];
+					deviantBag[removedName] = removed;
+					deviantList.push(removed);
+					var target = deviantBag[editingSubaccountsOf];
+					target.deviations = target.deviations.filter(function(deviation) {
+						return removed.deviations.indexOf(deviation) == -1;
+					});
+				});
 			}
 			adapter.store("subaccounts", subaccounts);
 		} );
+		// Helper function for subaccounts actions
+		function deviantListMod(mod) {
+			// mod() may change the value of $("#deviant_" + editingSubaccountsOf), so don't save it
+			var keepOpen = $("#deviant_" + editingSubaccountsOf).hasClass("opened");
+			mod();
+			deviantList.sort(orderMostLoved);
+			$("#artistCount").l10nHtml("scanResultsLastLine",
+				'<span class="dynamic">' + Number(deviantList.length) + '</span>');
+			if ($("#mainScreen").hasClass("lookWhatIFound")) {
+				normalMode();
+			} else {
+				$("#lovedArtists").empty().append(snackOnMyWrath(deviantList));
+			}
+			if (keepOpen) {
+				$("#deviant_" + editingSubaccountsOf).trigger("click", true);
+			}
+			$("#deviant_" + editingSubaccountsOf).find(".subaccountsButton").addClass("editing");
+			$("#deviant_" + editingSubaccountsOf)[0].scrollIntoView();
+		}
 		
 		// Handle requests for a particular deviant that were made elsewhere (e.g. context menu)
 		window.showDeviant = function(deviantName, isFirst) {
