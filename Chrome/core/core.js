@@ -215,7 +215,8 @@ function fulfillPurpose(pageType, ownerOrTitle) {
 			.append(snackOnMyWrath(deviantList))
 			.appendTo(mainScreen);
 		if (lovedArtists.css("position") == "static") { lovedArtists.css("position", "relative") } // Needed for scrollToDeviationList. It's as weird as it to ensure future compatibility with the skinning feature.
-		var subaccountsEditor = $("<div>", {id: "subaccountsEditor"}).hide().appendTo(mainScreen);
+		var subaccountsEditor = $("<div>", {id: "subaccountsEditor"}).hide().appendTo(mainScreen)
+			.append( $("<div>", {id: "closeSubaccountsEditor"}).l10nTooltip("subaccountsClose") );
 		$("<div>", {id: "subaccountsList"})
 			.append( $("<div>", {id: "subaccountsListHeader"}) )
 			.append( $("<div>", {id: "subaccountsListContents"}) )
@@ -260,9 +261,12 @@ function fulfillPurpose(pageType, ownerOrTitle) {
 				$("input[value='inputToThis']").prop("checked", true);
 				$("#subaccountsEditor").show();
 			} else {
-				button.removeClass("editing");
-				$("#subaccountsEditor").hide();
+				$("#closeSubaccountsEditor").trigger("click");
 			}
+		} );
+		$("#closeSubaccountsEditor").bind("click", function() {
+			$(".subaccountsButton.editing").removeClass("editing");
+			$("#subaccountsEditor").hide();
 		} );
 		lovedArtists.delegate(".deviant:not(.opened)", "click", function(event, suppressAnimation) {
 			$(".opened.deviant").removeClass("opened");
