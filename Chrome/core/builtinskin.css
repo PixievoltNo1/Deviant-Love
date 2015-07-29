@@ -126,6 +126,12 @@ a img {
 .deviant + .deviant {
 	margin-top: 1px;
 }
+.deviantNote {
+    font-style: italic;
+    font-size: 70%;
+    margin-left: 28px;
+    line-height: 150%;
+}
 .deviantLine {
 	position: relative;
 	/* TODO: Keep name from overlapping with .subaccountsButton, and clip it if it's too long */

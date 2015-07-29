@@ -312,7 +312,9 @@ function fulfillPurpose(pageType, ownerOrTitle) {
 				$("#subaccountsEditor").addClass("has");
 			} else {
 				var gotten = editingSubaccountsOf, getting = $("#relatedAccount").val();
+				// TODO: What if getting isn't a known deviant yet?
 			}
+			deviantBag[getting].hasSubaccounts = true;
 			if (gotten in deviantBag) {
 				deviantListMod(function() {
 					var gettingObj = deviantBag[getting], gottenObj = deviantBag[gotten];
@@ -344,6 +346,7 @@ function fulfillPurpose(pageType, ownerOrTitle) {
 			if (subaccounts[editingSubaccountsOf].length == 0) {
 				delete subaccounts[editingSubaccountsOf];
 				$("#subaccountsEditor").removeClass("has");
+				deviantBag[editingSubaccountsOf].hasSubaccounts = false;
 			}
 			if (removedName in hiddenAccounts) {
 				deviantListMod(function() {
@@ -396,8 +399,8 @@ function fulfillPurpose(pageType, ownerOrTitle) {
 		event.preventDefault();
 		if (queryTroubleCheck() != false) { return };
 
-		// var queryChunks = firstSplit[0].split("&");
-		/* Temporary replacement */ var queryChunks = [$("#query").val()];
+		// This line to be replaced when multiple term support is implemented
+		var queryChunks = [$("#query").val()];
 
 		queryChunks = queryChunks.map( function(chunk) {return chunk.trim().toLowerCase()} );
 		var checkDeviants = queryChunks.every( function(chunk) {
@@ -405,12 +408,19 @@ function fulfillPurpose(pageType, ownerOrTitle) {
 		} );
 
 		var deviantMatches = [];
+		var deviantMatchingSubaccount = {};
 		var deviationMatches = [];
 		deviantList.forEach( function(deviant) {
 			if (checkDeviants && isMatch(deviant.name)) {
 				deviantMatches.push(deviant);
-			} else if (deviant.subaccounts) {
-				// TODO: Check deviant.subaccounts
+			} else if (checkDeviants && deviant.name in subaccounts) {
+				subaccounts[deviant.name].some( function(subaccountName) {
+					if (isMatch(subaccountName)) {
+						deviantMatches.push(deviant);
+						deviantMatchingSubaccount[deviant.name] = subaccountName;
+						return true;
+					}
+				} );
 			}
 			var deviantDeviationMatches = [];
 			deviant.deviations.forEach( function(deviation) {
@@ -439,6 +449,10 @@ function fulfillPurpose(pageType, ownerOrTitle) {
 			lovedArtists.append( $("<div>", {"class": "foundHeader"})
 				.l10n("foundDeviants", deviantMatches.length) )
 				.append(snackOnMyWrath(deviantMatches));
+			for (var deviantName in deviantMatchingSubaccount) {
+				$("#deviant_" + deviantName).prepend( $("<div>", {"class": "deviantNote"})
+					.l10n("foundDeviantSubaccount", deviantMatchingSubaccount[deviantName]) )
+			}
 		}
 		if (deviationMatches.length > 0) {
 			deviationMatches.forEach( function(found) {

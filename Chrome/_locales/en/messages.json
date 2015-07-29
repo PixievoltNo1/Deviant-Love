@@ -43,6 +43,7 @@
 	"queryPlaceholder": { "message": "Find an artist or deviation (exact phrase matches only)" },
 	"findErrorForbiddenCharacter": { "message": "deviantART doesn't allow the use of $1 in deviant or deviation names." },
 	"foundDeviants": { "message": "Found $1 deviant(s)" },
+	"foundDeviantSubaccount": { "message": "Found subaccount $1" },
 	"foundDeviations": { "message": "Found $2 deviation(s) from $1" },
 	"foundNothing": { "message": "Sorry, there are no matches!" },
 	"watchingThisArtist": {
