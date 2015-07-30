@@ -145,17 +145,17 @@ function fulfillPurpose(pageType, ownerOrTitle) {
 					var subaccount = deviantBag[subaccountName];
 					hiddenAccounts[subaccountName] = subaccount;
 					deviant.deviations = deviant.deviations.concat(subaccount.deviations);
-					if (subaccountName in deviantBag) {
-						// TODO: Subaccounts don't need to be in deviantBag and deviantList in the first place. Refactor stuff.
-						delete deviantBag[subaccountName];
-						deviantList.splice(deviantList.indexOf(subaccount), 1);
-					}
+					// TODO: Subaccounts don't need to be in deviantBag and deviantList in the first place. Refactor stuff.
+					delete deviantBag[subaccountName];
 				} );
 				deviant.deviations.sort(function earliestPos(a, b) {
 					return a.pos - b.pos;
 				});
 			}
 		}
+		deviantList = deviantList.filter(function(account) {
+			return !(account.name in hiddenAccounts);
+		});
 		deviantList.sort(orderMostLoved);
 		if (watchedArtists) {
 			watchedArtists.forEach(function(awesome) {
