@@ -259,6 +259,7 @@ function fulfillPurpose(pageType, ownerOrTitle) {
 				$("#inputToThisText").l10n("subaccountsAddInputToCurrent", editingSubaccountsOf);
 				$("#thisToInputText").l10n("subaccountsAddCurrentToInput", editingSubaccountsOf);
 				$("input[value='inputToThis']").prop("checked", true);
+				$("#relatedAccount").val("");
 				$("#subaccountsEditor").show();
 			} else {
 				$("#closeSubaccountsEditor").trigger("click");
@@ -306,6 +307,7 @@ function fulfillPurpose(pageType, ownerOrTitle) {
 			event.preventDefault();
 			var input = $("#relatedAccount").val();
 			if (input == "") { return; }
+			// TODO: Indicate when this is busy
 			$.when( (function() {
 				var lcInput = input.toLowerCase();
 				for (var name in deviantBag) {
@@ -390,6 +392,7 @@ function fulfillPurpose(pageType, ownerOrTitle) {
 					$("#deviant_" + getting).find(".subaccountsButton")
 						.removeClass("editing").trigger("click");
 				}
+				$("#relatedAccount").val("");
 			}, function(partialErrMsg) {
 				// TODO: Display the error
 			} );
