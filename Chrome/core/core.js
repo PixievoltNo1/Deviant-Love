@@ -304,39 +304,95 @@ function fulfillPurpose(pageType, ownerOrTitle) {
 		$("#noFind").bind("click", normalMode);
 		$("#addSubaccount").bind("submit", function(event) {
 			event.preventDefault();
-			if ($("#relatedAccount").val() == "") { return; }
-			// TODO: Verify that the related account exists and is not already someone's subaccount, and do case correction
-			if ($("input[value='inputToThis']").prop("checked")) {
-				var getting = editingSubaccountsOf, gotten = $("#relatedAccount").val();
-				$("#subaccountsListContents").append( buildSubaccountLine( $("#relatedAccount").val() ) );
-				$("#subaccountsEditor").addClass("has");
-			} else {
-				var gotten = editingSubaccountsOf, getting = $("#relatedAccount").val();
-				// TODO: What if getting isn't a known deviant yet?
-			}
-			deviantBag[getting].hasSubaccounts = true;
-			if (gotten in deviantBag) {
-				deviantListMod(function() {
-					var gettingObj = deviantBag[getting], gottenObj = deviantBag[gotten];
-					gettingObj.deviations = gettingObj.deviations.concat(gottenObj.deviations);
-					// TODO: If gotten has subaccounts, remove their deviations from gotten's
-					hiddenAccounts[gotten] = gottenObj;
-					gettingObj.deviations.sort(function earliestPos(a, b) {
-						return a.pos - b.pos;
+			var input = $("#relatedAccount").val();
+			if (input == "") { return; }
+			$.when( (function() {
+				var lcInput = input.toLowerCase();
+				for (var name in deviantBag) {
+					if (name.toLowerCase() == lcInput) {
+						return name;
+					}
+				}
+				for (var name in subaccounts) {
+					if (name.toLowerCase() == lcInput) {
+						return name;
+					}
+					var found;
+					subaccounts[name].some( function(subaccount) {
+						if (subaccount.toLowerCase() == lcInput) {
+							found = subaccount;
+							return true;
+						}
+					} );
+					if (found) {
+						if ($("input[value='thisToInput']").prop("checked")) {
+							// We can safely assume "this to input's owner" is acceptable
+							return name;
+						} else {
+							// Assume nothing and let the user decide what's correct
+							return $.Deferred().reject("BelongsToOther");
+						}
+					}
+				}
+				var request = $.ajax("http://" + lcInput + ".deviantart.com/", {responseType: "text"});
+				return request.then( function(profileHtml) {
+					// <html> and <head> may be filtered
+					var profileElem = $("<div>" + profileHtml + "</div>");
+					// TODO: This won't work for renamed accounts. Find another approach.
+					var verifiedName = profileElem.find("title").text()
+						.match( new RegExp(lcInput, "i") )[0];
+					if ($("input[value='thisToInput']").prop("checked")) {
+						deviantBag[verifiedName] = {
+							name: verifiedName,
+							deviations: [],
+							baseURL: "http://" + lcInput + ".deviantart.com/",
+							avatar: profileElem.find("link[rel='image_src']").attr("href"),
+							hasSubaccounts: true
+						};
+						deviantList.push(deviantBag[verifiedName]);
+					}
+					return verifiedName;
+				}, function(xhr) {
+					// Before updating to jQuery 3 or switching to native Promises, change returns to throws
+					if (xhr.status == 404) {
+						return "DoesntExist";
+					}
+					return "Communcation";
+				} );
+			})() ).then( function(related) {
+				if ($("input[value='inputToThis']").prop("checked")) {
+					var getting = editingSubaccountsOf, gotten = related;
+					$("#subaccountsListContents").append( buildSubaccountLine( related ) );
+					$("#subaccountsEditor").addClass("has");
+				} else {
+					var gotten = editingSubaccountsOf, getting = related;
+				}
+				deviantBag[getting].hasSubaccounts = true;
+				if (gotten in deviantBag) {
+					deviantListMod(function() {
+						var gettingObj = deviantBag[getting], gottenObj = deviantBag[gotten];
+						gettingObj.deviations = gettingObj.deviations.concat(gottenObj.deviations);
+						// TODO: If gotten has subaccounts, remove their deviations from gotten's
+						hiddenAccounts[gotten] = gottenObj;
+						gettingObj.deviations.sort(function earliestPos(a, b) {
+							return a.pos - b.pos;
+						});
+						delete deviantBag[gotten];
+						deviantList.splice(deviantList.indexOf(gottenObj), 1);
+						editingSubaccountsOf = getting;
 					});
-					delete deviantBag[gotten];
-					deviantList.splice(deviantList.indexOf(gottenObj), 1);
-					editingSubaccountsOf = getting;
-				});
-			}
-			subaccounts[getting] = (subaccounts[getting] || [])
-				.concat(gotten, (subaccounts[gotten] || []));
-			delete subaccounts[gotten];
-			adapter.store("subaccounts", subaccounts);
-			if ($("input[value='thisToInput']").prop("checked")) {
-				$("#deviant_" + getting).find(".subaccountsButton")
-					.removeClass("editing").trigger("click");
-			}
+				}
+				subaccounts[getting] = (subaccounts[getting] || [])
+					.concat(gotten, (subaccounts[gotten] || []));
+				delete subaccounts[gotten];
+				adapter.store("subaccounts", subaccounts);
+				if ($("input[value='thisToInput']").prop("checked")) {
+					$("#deviant_" + getting).find(".subaccountsButton")
+						.removeClass("editing").trigger("click");
+				}
+			}, function(partialErrMsg) {
+				// TODO: Display the error
+			} );
 		} );
 		$("#subaccountsEditor").delegate(".removeSubaccount", "click", function() {
 			var removedName = $(this).siblings(".subaccountName").text();
@@ -349,6 +405,7 @@ function fulfillPurpose(pageType, ownerOrTitle) {
 				deviantBag[editingSubaccountsOf].hasSubaccounts = false;
 			}
 			if (removedName in hiddenAccounts) {
+				var mainAccountGone = false;
 				deviantListMod(function() {
 					var removed = hiddenAccounts[removedName];
 					delete hiddenAccounts[removedName];
@@ -358,7 +415,17 @@ function fulfillPurpose(pageType, ownerOrTitle) {
 					target.deviations = target.deviations.filter(function(deviation) {
 						return removed.deviations.indexOf(deviation) == -1;
 					});
+					if (target.deviations.length == 0) {
+						delete deviantBag[editingSubaccountsOf];
+						deviantList.splice(deviantList.indexOf(target), 1);
+						editingSubaccountsOf = removedName;
+						mainAccountGone = true;
+					}
 				});
+				if (mainAccountGone) {
+					$("#deviant_" + editingSubaccountsOf).find(".subaccountsButton")
+						.removeClass("editing").trigger("click");
+				}
 			}
 			adapter.store("subaccounts", subaccounts);
 		} );
