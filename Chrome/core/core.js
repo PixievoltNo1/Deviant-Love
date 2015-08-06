@@ -231,7 +231,8 @@ function fulfillPurpose(pageType, ownerOrTitle) {
 				.append($("<span>", {id: "thisToInputText"})) )
 			.append( $("<input>", {type: "text", id: "relatedAccount"})
 				.l10nPlaceholder("subaccountsAddNamePlaceholder") )
-			.append($("<button>", {type: "submit", id: "confirmAdd"}).l10n("subaccountsAddConfirm"))
+			.append( $("<button>", {type: "submit", id: "confirmAdd"}).l10n("subaccountsAddConfirm") )
+			.append( $("<div>", {id: "addNotice"}).hide() )
 			.appendTo(subaccountsEditor);
 		$("<div>", {id: "tipOfTheMoment"})
 			.append($("<img>", {id: "tOTMIcon"}))
@@ -260,6 +261,7 @@ function fulfillPurpose(pageType, ownerOrTitle) {
 				$("#thisToInputText").l10n("subaccountsAddCurrentToInput", editingSubaccountsOf);
 				$("input[value='inputToThis']").prop("checked", true);
 				$("#relatedAccount").val("");
+				$("#addNotice").hide();
 				$("#subaccountsEditor").show();
 			} else {
 				$("#closeSubaccountsEditor").trigger("click");
@@ -307,7 +309,8 @@ function fulfillPurpose(pageType, ownerOrTitle) {
 			event.preventDefault();
 			var input = $("#relatedAccount").val();
 			if (input == "") { return; }
-			// TODO: Indicate when this is busy
+			$("body").css("cursor", "wait");
+			$("#addNotice").hide();
 			$.when( (function() {
 				var lcInput = input.toLowerCase();
 				for (var name in deviantBag) {
@@ -332,7 +335,7 @@ function fulfillPurpose(pageType, ownerOrTitle) {
 							return name;
 						} else {
 							// Assume nothing and let the user decide what's correct
-							return $.Deferred().reject("BelongsToOther");
+							return $.Deferred().reject("AlreadyOwned", name);
 						}
 					}
 				}
@@ -357,11 +360,11 @@ function fulfillPurpose(pageType, ownerOrTitle) {
 				}, function(xhr) {
 					// Before updating to jQuery 3 or switching to native Promises, change returns to throws
 					if (xhr.status == 404) {
-						return "DoesntExist";
+						return "NotFound";
 					}
 					return "Communcation";
 				} );
-			})() ).then( function(related) {
+			})() ).then( function(related, warning, warningPart) {
 				if ($("input[value='inputToThis']").prop("checked")) {
 					var getting = editingSubaccountsOf, gotten = related;
 					$("#subaccountsListContents").append( buildSubaccountLine( related ) );
@@ -374,8 +377,21 @@ function fulfillPurpose(pageType, ownerOrTitle) {
 					deviantListMod(function() {
 						var gettingObj = deviantBag[getting], gottenObj = deviantBag[gotten];
 						gettingObj.deviations = gettingObj.deviations.concat(gottenObj.deviations);
-						// TODO: If gotten has subaccounts, remove their deviations from gotten's
-						hiddenAccounts[gotten] = gottenObj;
+						if (gotten in subaccounts) {
+							gottenObj.deviations = gottenObj.deviations.filter(function(deviation) {
+								return subaccounts[gotten].every(function(subaccount) {
+									if (subaccount in hiddenAccounts) {
+										return hiddenAccounts[subaccount].deviations.indexOf(deviation) == -1;
+									} else {
+										return true;
+									}
+								});
+							});
+						}
+						gottenObj.hasSubaccounts = false;
+						if (gottenObj.deviations.length) {
+							hiddenAccounts[gotten] = gottenObj;
+						}
 						gettingObj.deviations.sort(function earliestPos(a, b) {
 							return a.pos - b.pos;
 						});
@@ -393,8 +409,13 @@ function fulfillPurpose(pageType, ownerOrTitle) {
 						.removeClass("editing").trigger("click");
 				}
 				$("#relatedAccount").val("");
-			}, function(partialErrMsg) {
-				// TODO: Display the error
+				if (warning) {
+					$("#addNotice").l10n("subaccountsWarning" + warning, warningPart).show();
+				}
+			}, function(error, errorPart) {
+				$("#addNotice").l10n("subaccountsError" + error, errorPart).show();
+			} ).always( function() {
+				$("body").css("cursor", "");
 			} );
 		} );
 		$("#subaccountsEditor").delegate(".removeSubaccount", "click", function() {
