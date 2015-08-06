@@ -1,6 +1,6 @@
 {
 	"extDesc": {
-		"message": "An artist-centered view of a deviantART Faves page",
+		"message": "An artist-centered view of a DeviantArt Faves page",
 		"description": "Extension's description as it appears on Chrome's Extensions page"
 	},
 	"l10nFolder": {
@@ -22,7 +22,7 @@
 	"scanningAll": { "message": "Scanning all faves..." },
 	"scanningCollection": { "message": "Scanning Collection..." },
 	"scannedDeviations": { "message": "$1 deviations scanned" },
-	"scanError": { "message": "Communication with deviantART was unsuccessful." },
+	"scanError": { "message": "Communication with DeviantArt was unsuccessful." },
 	"scanErrorRetry": {
 		"message": "Try again",
 		"description": "Button text"
@@ -41,7 +41,7 @@
 	"scanNonFeaturedResultsSidebarLine2": { "message": "has $1 faves" },
 	"scanResultsLastLine": { "message": "from $1 different artists!" },
 	"queryPlaceholder": { "message": "Find an artist or deviation (exact phrase matches only)" },
-	"findErrorForbiddenCharacter": { "message": "deviantART doesn't allow the use of $1 in deviant or deviation names." },
+	"findErrorForbiddenCharacter": { "message": "DeviantArt doesn't allow the use of $1 in deviant or deviation names." },
 	"foundDeviants": { "message": "Found $1 deviant(s)" },
 	"foundDeviantSubaccount": { "message": "Found subaccount $1" },
 	"foundDeviations": { "message": "Found $2 deviation(s) from $1" },

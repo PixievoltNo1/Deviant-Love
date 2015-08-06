@@ -1,6 +1,6 @@
 # OH HAI
 
-This is where the geekery that goes into Deviant Love happens. If you do not wish to partake in the geekery, but rather seek to install Deviant Love or have it described to you, see [its page on deviantART](http://fav.me/d2my13o).
+This is where the geekery that goes into Deviant Love happens. If you do not wish to partake in the geekery, but rather seek to install Deviant Love or have it described to you, see [its page on DeviantArt](http://fav.me/d2my13o).
 
 # To Engage In Chrome/Chromium Geekery
 
