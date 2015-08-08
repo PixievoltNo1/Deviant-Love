@@ -495,7 +495,7 @@ function fulfillPurpose(pageType, ownerOrTitle) {
 
 		queryChunks = queryChunks.map( function(chunk) {return chunk.trim().toLowerCase()} );
 		var checkDeviants = queryChunks.every( function(chunk) {
-			return (/[a-zA-Z0-9\-]+/).exec(chunk)[0] == chunk;
+			return !(/[^a-zA-Z0-9\-]/).test(chunk);
 		} );
 
 		var deviantMatches = [];
