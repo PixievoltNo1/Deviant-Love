@@ -218,11 +218,11 @@ function fulfillPurpose(pageType, ownerOrTitle) {
 		var subaccountsEditor = $("<div>", {id: "subaccountsEditor"}).hide().appendTo(mainScreen)
 			.append( $("<div>", {id: "closeSubaccountsEditor"}).l10nTooltip("subaccountsClose") );
 		$("<div>", {id: "subaccountsList"})
-			.append( $("<div>", {id: "subaccountsListHeader"}) )
+			.append( $("<div>", {id: "subaccountsListHeader", "class": "sectionHeader"}) )
 			.append( $("<div>", {id: "subaccountsListContents"}) )
 			.appendTo(subaccountsEditor);
 		$("<form>", {id: "addSubaccount"})
-			.append( $("<div>", {id: "addSubaccountHeader"}).l10n("subaccountsAdd") )
+			.append( $("<div>", {"class": "sectionHeader"}).l10n("subaccountsAdd") )
 			.append( $("<label>")
 				.append($("<input>", {type: "radio", name: "addDirection", value: "inputToThis"}))
 				.append($("<span>", {id: "inputToThisText"})) )
@@ -537,7 +537,7 @@ function fulfillPurpose(pageType, ownerOrTitle) {
 			return;
 		}
 		if (deviantMatches.length > 0) {
-			lovedArtists.append( $("<div>", {"class": "foundHeader"})
+			lovedArtists.append( $("<div>", {"class": "sectionHeader"})
 				.l10n("foundDeviants", deviantMatches.length) )
 				.append(snackOnMyWrath(deviantMatches));
 			for (var deviantName in deviantMatchingSubaccount) {
@@ -548,7 +548,7 @@ function fulfillPurpose(pageType, ownerOrTitle) {
 		if (deviationMatches.length > 0) {
 			deviationMatches.forEach( function(found) {
 				var closerLook = buildCloserLook(found.deviant, found.deviations);
-				lovedArtists.append( $("<div>", {"class": "foundHeader"})
+				lovedArtists.append( $("<div>", {"class": "sectionHeader"})
 					.l10n("foundDeviations", found.deviant.name, found.deviations.length) )
 					.append(closerLook);
 			} );

@@ -2,7 +2,7 @@
 	box-sizing: border-box;
 }
 body {
-	background-color: white;
+	background-color: hsl(27, 100%, 94%);
 	color: black;
 	font-family: sans-serif;
 }
@@ -79,7 +79,7 @@ a img {
 	flex: 1;
 }
 #queryError {
-	background-color: hsl(55, 100%, 82%);
+	background-color: hsl(55, 96%, 84%);
 	padding: 2px;
 }
 #findBar button {
@@ -98,13 +98,15 @@ a img {
 .lookWhatIFound #noFind {
 	display: block;
 }
-.foundHeader {
+.sectionHeader {
 	padding: 0.1em 0.5em;
 	font-weight: bold;
-	background-color: hsl(55, 100%, 66%);
+	background-color: hsl(53, 93%, 75%);
+}
+#lovedArtists.noResults, #subaccountsEditor {
+	background-color: hsl(55, 100%, 94%);
 }
 #lovedArtists.noResults {
-	background-color: hsl(55, 100%, 94%);
 	padding: 2px;
 }
 #lovedArtists {
