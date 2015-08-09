@@ -343,9 +343,11 @@ function fulfillPurpose(pageType, ownerOrTitle) {
 				return request.then( function(profileHtml) {
 					// <html> and <head> may be filtered
 					var profileElem = $("<div>" + profileHtml + "</div>");
-					// TODO: This won't work for renamed accounts. Find another approach.
-					var verifiedName = profileElem.find("title").text()
-						.match( new RegExp(lcInput, "i") )[0];
+					var verifiedName = profileElem.find("#alfalfa").attr("waaaaa");
+					if (!verifiedName) {
+						var warn = true;
+						verifiedName = input;
+					}
 					if ($("input[value='thisToInput']").prop("checked")) {
 						deviantBag[verifiedName] = {
 							name: verifiedName,
@@ -356,6 +358,9 @@ function fulfillPurpose(pageType, ownerOrTitle) {
 						};
 						deviantList.push(deviantBag[verifiedName]);
 					}
+					if (warn) {
+						return { related: input, warning: "CantVerifyCasing", warningPart: input };
+					}
 					return verifiedName;
 				}, function(xhr) {
 					// Before updating to jQuery 3 or switching to native Promises, change returns to throws
@@ -364,7 +369,11 @@ function fulfillPurpose(pageType, ownerOrTitle) {
 					}
 					return "Communcation";
 				} );
-			})() ).then( function(related, warning, warningPart) {
+			})() ).then( function(related) {
+				if (typeof related == "object") {
+					var warning = related.warning, warningPart = related.warningPart;
+					related = related.related;
+				}
 				if ($("input[value='inputToThis']").prop("checked")) {
 					var getting = editingSubaccountsOf, gotten = related;
 					$("#subaccountsListContents").append( buildSubaccountLine( related ) );
