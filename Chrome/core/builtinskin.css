@@ -300,6 +300,9 @@ a img {
 #confirmAdd {
 	padding: 0 4px;
 }
+#addNotice {
+	padding: 0 2px;
+}
 #tipOfTheMoment {
 	position: relative;
 	background-color: hsl(40, 100%, 65%);
