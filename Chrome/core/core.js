@@ -347,7 +347,7 @@ function fulfillPurpose(pageType, ownerOrTitle) {
 				return request.then( function(profileHtml) {
 					// <html> and <head> may be filtered
 					var profileElem = $("<div>" + profileHtml + "</div>");
-					var verifiedName = profileElem.find("#alfalfa").attr("waaaaa");
+					var verifiedName = profileElem.find("#gmi-Gruser").attr("gmi-name");
 					if (!verifiedName) {
 						var warn = true;
 						verifiedName = input;
