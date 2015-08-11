@@ -205,7 +205,7 @@ function fulfillPurpose(pageType, ownerOrTitle) {
 		scanResults.append($("<div>", {id: "artistCount"}).l10nHtml("scanResultsLastLine",
 			'<span class="dynamic">' + Number(deviantList.length) + '</span>'))
 			.appendTo(mainScreen);
-		$("<form>", {id: "findBar"})
+		$("<form>", {id: "findBar", "class": "textEntryLine"})
 			.append($("<input>", {type: "text", id: "query"}))
 			.append($("<button>", {type: "submit", id: "goFind"}))
 			.append($("<button>", {type: "button", id: "noFind"}))
@@ -231,9 +231,11 @@ function fulfillPurpose(pageType, ownerOrTitle) {
 			.append( $("<label>")
 				.append($("<input>", {type: "radio", name: "addDirection", value: "thisToInput"}))
 				.append($("<span>", {id: "thisToInputText"})) )
-			.append( $("<input>", {type: "text", id: "relatedAccount"})
-				.l10nPlaceholder("subaccountsAddNamePlaceholder") )
-			.append( $("<button>", {type: "submit", id: "confirmAdd"}).l10n("subaccountsAddConfirm") )
+			.append( $("<div>", {"class": "textEntryLine"})
+				.append( $("<input>", {type: "text", id: "relatedAccount"})
+					.l10nPlaceholder("subaccountsAddNamePlaceholder") )
+				.append( $("<button>", {type: "submit", id: "confirmAdd"})
+					.l10n("subaccountsAddConfirm") ) )
 			.append( $("<div>", {id: "addNotice"}).hide() )
 			.appendTo(subaccountsEditor);
 		$("<div>", {id: "tipOfTheMoment"})
