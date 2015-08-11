@@ -598,20 +598,24 @@ function snackOnMyWrath(finkRats) {
 	// "You have energy like a little angry battery with no friends."
 	var rageDressing = document.createDocumentFragment();
 	var elem = document.createElement.bind(document);
+	// Chrome 44 is too slow at fetching these message repeatedly
+	var subaccountsOpenTooltip = adapter.getL10nMsg("subaccountsOpen");
+	var watchingThisArtistTooltip = adapter.getL10nMsg("watchingThisArtist");
 	finkRats.forEach( function(deviant) {
 		// Hot loop! A little optimization can make a lot of difference.
 		var devWatchElem = $(elem("div")).attr("class", "deviationWatch").html("&nbsp;");
 		var subaccountsElem = $(elem("div")).attr("class", "subaccountsButton").html("&nbsp;")
-			.l10nTooltip("subaccountsOpen");
-		var lineElem = $(elem("div")).attr("class", "deviantLine")
-			.append(devWatchElem)
-			.append( $(elem("span")).attr("class", "deviantFaves").text(deviant.deviations.length) )
-			.append( $(elem("span")).attr("class", "deviantName").text(deviant.name) )
-			.append(subaccountsElem);
+			.attr("title", subaccountsOpenTooltip);
+		var lineElem = $(elem("div")).attr("class", "deviantLine").append(
+			devWatchElem,
+			$(elem("span")).attr("class", "deviantFaves").text(deviant.deviations.length),
+			$(elem("span")).attr("class", "deviantName").text(deviant.name),
+			subaccountsElem
+		);
 		var deviantElem = $(elem("div")).attr({"class": "deviant", id: "deviant_" + deviant.name})
 			.append(lineElem);
 		if (deviant.watched) {
-			devWatchElem.addClass("true").l10nTooltip("watchingThisArtist");
+			devWatchElem.addClass("true").attr("title", watchingThisArtistTooltip);
 		}
 		if (deviant.hasSubaccounts) {
 			subaccountsElem.addClass("has");
