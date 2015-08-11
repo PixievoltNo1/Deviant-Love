@@ -12,13 +12,15 @@ function findLove(favesWindow) {
 	var love = {};
 
 	love.feedHref = document.querySelector('link[rel="alternate"][type="application/rss+xml"]').href;
-	if ((/\/\d+$/).test(location.pathname) || (/\?\d+/).test(location.search)) {
-		love.pageType = "collection";
-	} else if (location.search.indexOf("catpath=") != -1) {
-		love.pageType = "allFaves";
-	} else {
-		// I sure hope it's the Featured view. Consider adding a check to be sure, and notifying the user if it fails.
+	if (location.pathname == "/favourites/" && location.search == "") {
 		love.pageType = "featured";
+	} else if (location.search == "?catpath=/") {
+		love.pageType = "allFaves";
+	} else if ((/\/\d+\//).test(location.pathname) || (/\?\d+/).test(location.search)) {
+		love.pageType = "collection";
+	} else {
+		// Assume search results
+		love.pageType = "search";
 	}
 	// While the mechanism for declaring RSS feeds is standardized, the dA layout is not and can change. Be careful!
 	var element;

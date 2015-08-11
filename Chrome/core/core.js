@@ -36,7 +36,8 @@ function fulfillPurpose(pageType, ownerOrTitle) {
 	var scanMessage = ({
 		featured: "scanningFeatured",
 		allFaves: "scanningAll",
-		collection: "scanningCollection"
+		collection: "scanningCollection",
+		search: "scanningSearch"
 	})[pageType];
 	$("<div>", {id: "scanMessage"}).l10n(scanMessage).appendTo(preparationScreen);
 	var scanProgressBar = $("<progress>", {id: "scanProgressBar", max: 1, value: 0});
@@ -181,20 +182,21 @@ function fulfillPurpose(pageType, ownerOrTitle) {
 		}
 		if (adapter.displayType == "popup") {
 			var scanResultsLine1 = ({
-				featured: "scanFeaturedResultsPopupLine1",
-				allFaves: "scanAllResultsPopupLine1",
-				collection: "scanCollectionResultsPopupLine1"
+				featured: "scanResultsPopupFeaturedLine1",
+				allFaves: "scanResultsPopupAllLine1",
+				collection: "scanResultsPopupCollectionLine1",
+				search: "scanResultsPopupSearchLine1"
 			})[pageType];
 			scanResults.append($("<div>").l10nHtml(scanResultsLine1,
 				'<span class="dynamic">' + Number(totalDeviations) + '</span>')); // The Number call is there to help out AMO reviewers; same for the other calls below
 		} else { // adapter.displayType == "sidebar"
 			if (/[\<\>\&]/.test(ownerOrTitle)) {ownerOrTitle = "?????????";};
 			var scanResultsLine1 = (pageType == "collection") ?
-				"scanCollectionResultsSidebarLine1" :
-				"scanNonCollectionResultsSidebarLine1";
-			var scanResultsLine2 = (pageType == "featured") ?
-				"scanFeaturedResultsSidebarLine2" :
-				"scanNonFeaturedResultsSidebarLine2";
+				"scanResultsSidebarCollectionLine1" :
+				"scanResultsSidebarNonCollectionLine1";
+			var scanResultsLine2 = (pageType == "featured") ? "scanResultsSidebarFeaturedLine2"
+				: (pageType == "search") ? "scanResultsSidebarSearchLine2"
+				: "scanResultsSidebarOtherLine2";
 			scanResults.append($("<div>").l10nHtml(scanResultsLine1,
 				'<span class="dynamic">' + ownerOrTitle + '</span>')) // ownerOrTitle is filtered for safety a few lines up
 				.append($("<div>").l10nHtml(scanResultsLine2,
