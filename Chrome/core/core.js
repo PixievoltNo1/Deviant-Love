@@ -31,6 +31,24 @@ function fulfillPurpose(pageType, ownerOrTitle) {
 	var subaccounts;
 	var hiddenAccounts = {};
 
+	function Deviant(name) {
+		this.name = name;
+		this.deviations = [];
+	}
+	Object.defineProperties(Deviant.prototype, {
+		baseURL: {
+			enumerable: true,
+			get: function() {
+				return this.baseURL = "http://" + this.name.toLowerCase() + ".deviantart.com/";
+			}, set: function(val) {
+				Object.defineProperty(this, "baseURL", {value: val, enumerable: true})
+			}
+		},
+		hasSubaccounts: {
+			get: function() { return this.name in subaccounts; }
+		}
+	});
+
 	$("body").css("cursor", "wait");
 	var preparationScreen = $("<div>", {id: "preparationScreen"}).appendTo(document.body);
 	var scanMessage = ({
@@ -54,11 +72,9 @@ function fulfillPurpose(pageType, ownerOrTitle) {
 	window.setData = function(data) {
 		data.forEach(function(item, pos) {
 			if (!deviantBag[item.artistName]) {
-				var newDeviant = {};
-				newDeviant.name = item.artistName;
+				var newDeviant = new Deviant(item.artistName);
 				newDeviant.avatar = item.artistAvatar;
 				newDeviant.baseURL = item.artistURL;
-				newDeviant.deviations = [];
 				deviantBag[item.artistName] = newDeviant;
 				deviantList.push(newDeviant);
 			}
@@ -125,20 +141,12 @@ function fulfillPurpose(pageType, ownerOrTitle) {
 	}
 	window.scanDone_startFun = function(firstTip) {
 		for (var deviantName in subaccounts) {
-			if (deviantName in deviantBag) {
-				deviantBag[deviantName].hasSubaccounts = true;
-			}
 			var relevant = subaccounts[deviantName].filter( function(subaccount) {
 				return (subaccount in deviantBag);
 			} );
 			if (relevant.length > 0) {
 				if (!(deviantName in deviantBag)) {
-					deviantBag[deviantName] = {
-						name: deviantName,
-						deviations: [],
-						baseURL: "http://" + deviantName.toLowerCase() + ".deviantart.com/",
-						hasSubaccounts: true
-					};
+					deviantBag[deviantName] = new Deviant(deviantName);
 					deviantList.push(deviantBag[deviantName]);
 				}
 				var deviant = deviantBag[deviantName];
@@ -353,13 +361,9 @@ function fulfillPurpose(pageType, ownerOrTitle) {
 						verifiedName = input;
 					}
 					if ($("input[value='thisToInput']").prop("checked")) {
-						deviantBag[verifiedName] = {
-							name: verifiedName,
-							deviations: [],
-							baseURL: "http://" + lcInput + ".deviantart.com/",
-							avatar: profileElem.find("link[rel='image_src']").attr("href"),
-							hasSubaccounts: true
-						};
+						var newDeviant = new Deviant(verifiedName);
+						newDeviant.avatar = profileElem.find("link[rel='image_src']").attr("href");
+						deviantBag[verifiedName] = newDeviant;
 						deviantList.push(deviantBag[verifiedName]);
 					}
 					if (warn) {
@@ -385,7 +389,6 @@ function fulfillPurpose(pageType, ownerOrTitle) {
 				} else {
 					var gotten = editingSubaccountsOf, getting = related;
 				}
-				deviantBag[getting].hasSubaccounts = true;
 				if (gotten in deviantBag) {
 					deviantListMod(function() {
 						var gettingObj = deviantBag[getting], gottenObj = deviantBag[gotten];
@@ -401,7 +404,6 @@ function fulfillPurpose(pageType, ownerOrTitle) {
 								});
 							});
 						}
-						gottenObj.hasSubaccounts = false;
 						if (gottenObj.deviations.length) {
 							hiddenAccounts[gotten] = gottenObj;
 						}
@@ -439,7 +441,6 @@ function fulfillPurpose(pageType, ownerOrTitle) {
 			if (subaccounts[editingSubaccountsOf].length == 0) {
 				delete subaccounts[editingSubaccountsOf];
 				$("#subaccountsEditor").removeClass("has");
-				deviantBag[editingSubaccountsOf].hasSubaccounts = false;
 			}
 			if (removedName in hiddenAccounts) {
 				var mainAccountGone = false;
