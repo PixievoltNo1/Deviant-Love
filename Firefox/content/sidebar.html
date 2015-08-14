@@ -8,11 +8,7 @@
 <title>Deviant Love Sidebar</title>
 <link rel="stylesheet" href="core/builtinskin.css" type="text/css">
 <style type="text/css">
-body > div {
-	width: 100%;
-	/* height TBD in JavaScript */
-}
-#lovedArtists { height: 1px; /* Firefox 3.6 will not shrink lovedArtists by itself */ }
+body { height: 100vh; }
 a { text-decoration: underline; }
 </style>
 <script type="text/javascript" src="core/jquery.js"></script>
@@ -135,10 +131,6 @@ $(document).delegate("a", "click", function(event) {
 	} else {
 		top.openUILinkIn(this.href, where);
 	}
-} );
-$(window).bind("resize", function() {
-	var screenSize = document.styleSheets[1].cssRules[0].style;
-	screenSize.setProperty("height", $(window).height() + "px", "");
 } );
 </script>
 <body class="sidebar"></body>

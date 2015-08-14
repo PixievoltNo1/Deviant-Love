@@ -40,11 +40,7 @@ chrome.storage.local.get(null, function(data) {
 	chromeLocalStorage.resolve(data);
 });
 $(document).ready( function() {
-	$("body").css({
-		"box-sizing": "border-box",
-		"height": $(window).height(),
-		"margin": 0
-	});
+	$("body").css({ "height": $(window).height() });
 	chrome.runtime.sendMessage({action: "echoWithCallback", echoAction: "popupSetup"},
 		function(initData) {
 			fulfillPurpose(initData.pageType);
