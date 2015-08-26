@@ -483,15 +483,11 @@ function fulfillPurpose(pageType, ownerOrTitle) {
 						var gettingObj = deviantBag[getting], gottenObj = deviantBag[gotten];
 						gettingObj.deviations = gettingObj.deviations.concat(gottenObj.deviations);
 						if (gotten in subaccounts) {
-							gottenObj.deviations = gottenObj.deviations.filter(function(deviation) {
-								return subaccounts[gotten].every(function(subaccount) {
-									if (subaccount in hiddenAccounts) {
-										return hiddenAccounts[subaccount].deviations.indexOf(deviation) == -1;
-									} else {
-										return true;
-									}
-								});
-							});
+							for (var subaccount of subaccounts[gotten]) {
+								if (subaccount in hiddenAccounts) {
+									removeDeviations(gottenObj, hiddenAccounts[subaccount].deviations);
+								}
+							}
 						}
 						if (gottenObj.deviations.length) {
 							hiddenAccounts[gotten] = gottenObj;
@@ -539,9 +535,7 @@ function fulfillPurpose(pageType, ownerOrTitle) {
 					deviantBag[removedName] = removed;
 					deviantList.push(removed);
 					var target = deviantBag[editingSubaccountsOf];
-					target.deviations = target.deviations.filter(function(deviation) {
-						return removed.deviations.indexOf(deviation) == -1;
-					});
+					removeDeviations(target, removed.deviations);
 					if (target.deviations.length == 0) {
 						delete deviantBag[editingSubaccountsOf];
 						deviantList.splice(deviantList.indexOf(target), 1);
@@ -556,6 +550,11 @@ function fulfillPurpose(pageType, ownerOrTitle) {
 			}
 			adapter.store("subaccounts", subaccounts);
 		} );
+		function removeDeviations(account, removeMe) {
+			account.deviations = account.deviations.filter(function(deviation) {
+				return removeMe.indexOf(deviation) == -1;
+			});
+		}
 		function deviantListMod(mod) {
 			// mod() may change the value of $("#deviant_" + editingSubaccountsOf), so don't save it
 			var keepOpen = $("#deviant_" + editingSubaccountsOf).hasClass("opened");
