@@ -252,37 +252,8 @@ function fulfillPurpose(pageType, ownerOrTitle) {
 		tipOfTheMoment(firstTip);
 
 		// Set up interaction
-		var editingSubaccountsOf;
-		lovedArtists.delegate(".subaccountsButton", "click", function(event) {
-			event.stopImmediatePropagation();
-			var button = $(this);
-			if (!button.hasClass("editing")) {
-				$(".subaccountsButton.editing").removeClass("editing");
-				button.addClass("editing");
-				editingSubaccountsOf = button.siblings(".deviantName").text();
-				$("#subaccountsEditor").toggleClass("has", editingSubaccountsOf in subaccounts);
-				$("#subaccountsListHeader").l10n("subaccountsList", editingSubaccountsOf);
-				$("#subaccountsListContents").empty();
-				if (editingSubaccountsOf in subaccounts) {
-					$("#subaccountsListContents").append(
-						subaccounts[editingSubaccountsOf].map(buildSubaccountLine)
-					);
-				}
-				$("#inputToThisText").l10n("subaccountsAddInputToCurrent", editingSubaccountsOf);
-				$("#thisToInputText").l10n("subaccountsAddCurrentToInput", editingSubaccountsOf);
-				$("input[value='inputToThis']").prop("checked", true);
-				$("#relatedAccount").val("");
-				$("#addNotice").hide();
-				$("#subaccountsEditor").show();
-			} else {
-				$("#closeSubaccountsEditor").trigger("click");
-			}
-		} );
-		$("#closeSubaccountsEditor").bind("click", function() {
-			$(".subaccountsButton.editing").removeClass("editing");
-			$("#subaccountsEditor").hide();
-		} );
 		lovedArtists.delegate(".deviant:not(.opened)", "click", function(event, suppressAnimation) {
+			if ( $(event.target).hasClass("subaccountsButton") ) { return; }
 			$(".opened.deviant").removeClass("opened");
 			if (!suppressAnimation) {
 				$(".deviant > .closerLook").velocity({height: 0}, {
@@ -316,6 +287,125 @@ function fulfillPurpose(pageType, ownerOrTitle) {
 		} );
 		$("#findBar").submit(findStuff);
 		$("#noFind").bind("click", normalMode);
+		setupSubaccountsEvents();
+		
+		// Handle requests for a particular deviant that were made elsewhere (e.g. context menu)
+		window.showDeviant = function(deviantName, isFirst) {
+			normalMode();
+			$("#deviant_" + deviantName).trigger("click", isFirst || adapter.displayType == "popup")
+				.get(0).scrollIntoView();
+		}
+		if (firstDeviant) {
+			showDeviant(firstDeviant, true);
+		}
+
+		// All done, now go play!
+		$("body").css("cursor", "");
+	}
+	function findStuff(event) {
+		event.preventDefault();
+		if (queryTroubleCheck() != false) { return };
+
+		// This line to be replaced when multiple term support is implemented
+		var queryChunks = [$("#query").val()];
+
+		queryChunks = queryChunks.map( function(chunk) {return chunk.trim().toLowerCase()} );
+		var checkDeviants = queryChunks.every( function(chunk) {
+			return !(/[^a-zA-Z0-9\-]/).test(chunk);
+		} );
+
+		var deviantMatches = [];
+		var deviantMatchingSubaccount = {};
+		var deviationMatches = [];
+		deviantList.forEach( function(deviant) {
+			if (checkDeviants && isMatch(deviant.name)) {
+				deviantMatches.push(deviant);
+			} else if (checkDeviants && deviant.name in subaccounts) {
+				subaccounts[deviant.name].some( function(subaccountName) {
+					if (isMatch(subaccountName)) {
+						deviantMatches.push(deviant);
+						deviantMatchingSubaccount[deviant.name] = subaccountName;
+						return true;
+					}
+				} );
+			}
+			var deviantDeviationMatches = [];
+			deviant.deviations.forEach( function(deviation) {
+				if (isMatch(deviation.name)) {
+					deviantDeviationMatches.push(deviation);
+				}
+			} );
+			if (deviantDeviationMatches.length > 0) {
+				deviationMatches.push({"deviant": deviant, "deviations": deviantDeviationMatches});
+			}
+		} );
+		function isMatch(needle) {
+			needle = needle.toLowerCase();
+			return queryChunks.every( function(chunk) {
+				return needle.indexOf(chunk) != -1;
+			} );
+		}
+
+		$("#mainScreen").addClass("lookWhatIFound");
+		var lovedArtists = $("#lovedArtists").empty().removeClass("noResults");
+		if (deviantMatches.length == 0 && deviationMatches.length == 0) {
+			lovedArtists.l10n("foundNothing").addClass("noResults")
+			return;
+		}
+		if (deviantMatches.length > 0) {
+			lovedArtists.append( $("<div>", {"class": "sectionHeader"})
+				.l10n("foundDeviants", deviantMatches.length) )
+				.append(snackOnMyWrath(deviantMatches));
+			for (var deviantName in deviantMatchingSubaccount) {
+				$("#deviant_" + deviantName).prepend( $("<div>", {"class": "deviantNote"})
+					.l10n("foundDeviantSubaccount", deviantMatchingSubaccount[deviantName]) )
+			}
+		}
+		if (deviationMatches.length > 0) {
+			deviationMatches.forEach( function(found) {
+				var closerLook = buildCloserLook(found.deviant, found.deviations);
+				lovedArtists.append( $("<div>", {"class": "sectionHeader"})
+					.l10n("foundDeviations", found.deviant.name, found.deviations.length) )
+					.append(closerLook);
+			} );
+		}
+	}
+	function normalMode() {
+		if ($("#mainScreen").hasClass("lookWhatIFound")) {
+			$("#mainScreen").removeClass("lookWhatIFound");
+			$("#lovedArtists").removeClass("noResults").empty().append(snackOnMyWrath(deviantList));
+		}
+	}
+	function setupSubaccountsEvents() {
+		var editingSubaccountsOf;
+		lovedArtists.delegate(".subaccountsButton", "click", function(event) {
+			var button = $(this);
+			if (!button.hasClass("editing")) {
+				$(".subaccountsButton.editing").removeClass("editing");
+				button.addClass("editing");
+				editingSubaccountsOf = button.siblings(".deviantName").text();
+				$("#subaccountsEditor").toggleClass("has", editingSubaccountsOf in subaccounts);
+				$("#subaccountsListHeader").l10n("subaccountsList", editingSubaccountsOf);
+				$("#subaccountsListContents").empty();
+				if (editingSubaccountsOf in subaccounts) {
+					$("#subaccountsListContents").append(
+						subaccounts[editingSubaccountsOf].map(buildSubaccountLine)
+					);
+				}
+				$("#inputToThisText").l10n("subaccountsAddInputToCurrent", editingSubaccountsOf);
+				$("#thisToInputText").l10n("subaccountsAddCurrentToInput", editingSubaccountsOf);
+				$("input[value='inputToThis']").prop("checked", true);
+				$("#relatedAccount").val("");
+				$("#addNotice").hide();
+				$("#subaccountsEditor").show();
+			} else {
+				$("#closeSubaccountsEditor").trigger("click");
+			}
+		} );
+		$("#closeSubaccountsEditor").bind("click", function() {
+			$(".subaccountsButton.editing").removeClass("editing");
+			$("#subaccountsEditor").hide();
+		} );
 		$("#addSubaccount").bind("submit", function(event) {
 			event.preventDefault();
 			var input = $("#relatedAccount").val();
@@ -466,7 +556,6 @@ function fulfillPurpose(pageType, ownerOrTitle) {
 			}
 			adapter.store("subaccounts", subaccounts);
 		} );
-		// Helper function for subaccounts actions
 		function deviantListMod(mod) {
 			// mod() may change the value of $("#deviant_" + editingSubaccountsOf), so don't save it
 			var keepOpen = $("#deviant_" + editingSubaccountsOf).hasClass("opened");
@@ -484,93 +573,6 @@ function fulfillPurpose(pageType, ownerOrTitle) {
 			}
 			$("#deviant_" + editingSubaccountsOf).find(".subaccountsButton").addClass("editing");
 			$("#deviant_" + editingSubaccountsOf)[0].scrollIntoView();
-		}
-		
-		// Handle requests for a particular deviant that were made elsewhere (e.g. context menu)
-		window.showDeviant = function(deviantName, isFirst) {
-			normalMode();
-			$("#deviant_" + deviantName).trigger("click", isFirst || adapter.displayType == "popup")
-				.get(0).scrollIntoView();
-		}
-		if (firstDeviant) {
-			showDeviant(firstDeviant, true);
-		}
-
-		// All done, now go play!
-		$("body").css("cursor", "");
-	}
-	function findStuff(event) {
-		event.preventDefault();
-		if (queryTroubleCheck() != false) { return };
-
-		// This line to be replaced when multiple term support is implemented
-		var queryChunks = [$("#query").val()];
-
-		queryChunks = queryChunks.map( function(chunk) {return chunk.trim().toLowerCase()} );
-		var checkDeviants = queryChunks.every( function(chunk) {
-			return !(/[^a-zA-Z0-9\-]/).test(chunk);
-		} );
-
-		var deviantMatches = [];
-		var deviantMatchingSubaccount = {};
-		var deviationMatches = [];
-		deviantList.forEach( function(deviant) {
-			if (checkDeviants && isMatch(deviant.name)) {
-				deviantMatches.push(deviant);
-			} else if (checkDeviants && deviant.name in subaccounts) {
-				subaccounts[deviant.name].some( function(subaccountName) {
-					if (isMatch(subaccountName)) {
-						deviantMatches.push(deviant);
-						deviantMatchingSubaccount[deviant.name] = subaccountName;
-						return true;
-					}
-				} );
-			}
-			var deviantDeviationMatches = [];
-			deviant.deviations.forEach( function(deviation) {
-				if (isMatch(deviation.name)) {
-					deviantDeviationMatches.push(deviation);
-				}
-			} );
-			if (deviantDeviationMatches.length > 0) {
-				deviationMatches.push({"deviant": deviant, "deviations": deviantDeviationMatches});
-			}
-		} );
-		function isMatch(needle) {
-			needle = needle.toLowerCase();
-			return queryChunks.every( function(chunk) {
-				return needle.indexOf(chunk) != -1;
-			} );
-		}
-
-		$("#mainScreen").addClass("lookWhatIFound");
-		var lovedArtists = $("#lovedArtists").empty().removeClass("noResults");
-		if (deviantMatches.length == 0 && deviationMatches.length == 0) {
-			lovedArtists.l10n("foundNothing").addClass("noResults")
-			return;
-		}
-		if (deviantMatches.length > 0) {
-			lovedArtists.append( $("<div>", {"class": "sectionHeader"})
-				.l10n("foundDeviants", deviantMatches.length) )
-				.append(snackOnMyWrath(deviantMatches));
-			for (var deviantName in deviantMatchingSubaccount) {
-				$("#deviant_" + deviantName).prepend( $("<div>", {"class": "deviantNote"})
-					.l10n("foundDeviantSubaccount", deviantMatchingSubaccount[deviantName]) )
-			}
-		}
-		if (deviationMatches.length > 0) {
-			deviationMatches.forEach( function(found) {
-				var closerLook = buildCloserLook(found.deviant, found.deviations);
-				lovedArtists.append( $("<div>", {"class": "sectionHeader"})
-					.l10n("foundDeviations", found.deviant.name, found.deviations.length) )
-					.append(closerLook);
-			} );
-		}
-	}
-	function normalMode() {
-		if ($("#mainScreen").hasClass("lookWhatIFound")) {
-			$("#mainScreen").removeClass("lookWhatIFound");
-			$("#lovedArtists").removeClass("noResults").empty().append(snackOnMyWrath(deviantList));
 		}
 	}
 }
