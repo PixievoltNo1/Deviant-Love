@@ -37,7 +37,6 @@ function fulfillPurpose(pageType, ownerOrTitle) {
 	}
 	Object.defineProperties(Deviant.prototype, {
 		baseURL: {
-			enumerable: true,
 			get: function() {
 				return this.baseURL = "http://" + this.name.toLowerCase() + ".deviantart.com/";
 			}, set: function(val) {
