@@ -28,9 +28,8 @@
 	var heart = document.createElement("image");
 	heart.id = "DeviantLoveHeart"; heart.className = "urlbar-icon"; heart.hidden = true;
 	heart.setAttribute("src", "chrome://DeviantLove/content/core/16Icon.png");
-	let (heartDest = document.getElementById("urlbar-icons")) {
-		heartDest.insertBefore(heart, heartDest.firstChild);
-	}
+	let heartDest = document.getElementById("urlbar-icons");
+	heartDest.insertBefore(heart, heartDest.firstChild);
 	function updateHeart(closing) {
 		if (foundLove.has(content.document)) {
 			heart.hidden = false;
@@ -106,9 +105,8 @@
 	// Deviant Love doesn't actually need a reload button, but it's the most concise way to inform the user that the sidebar's report is static.
 	var reload = document.createElement("button");
 	reload.id = "DeviantLoveReload"; reload.setAttribute("label", "Reload"); reload.hidden = true;
-	let (reloadDest = document.getElementById("sidebar-header")) {
-		reloadDest.insertBefore(reload, reloadDest.firstChild.nextSibling);
-	}
+	let reloadDest = document.getElementById("sidebar-header");
+	reloadDest.insertBefore(reload, reloadDest.firstChild.nextSibling);
 	cleanupTasks.push( removalTask(reload) );
 	
 	var artistCheck = document.createElement("menuitem");
