@@ -3,24 +3,20 @@
 	Copyright Pikadude No. 1
 	Check core.js for the complete legal stuff.
 */
-/* At the cost of readability, the identifier "DeviantLove" is used a few different ways in this code. I'd rewrite it to use different identifiers for each purpose if I could think of identifiers as brief as "DeviantLove" without risking collisions with other extensions.
-	- window.DeviantLove is used as a "message center" for communication between this file and others, as well as a second parameter for loadSubScript and import.
-	- document.getElementById("sidebar").contentWindow.DeviantLove is set by the sidebar to inform this file that it is present and loaded.
-*/
 "use strict";
-window.DeviantLove = {};
-
 (function() {
 	var cleanupTasks = [];
 	var currentFocus = 0;
 	var contextMenuWhitelistingDone;
 	var loader = Components.classes["@mozilla.org/moz/jssubscript-loader;1"]
 		.getService(Components.interfaces.mozIJSSubScriptLoader);
-	Components.utils.import("chrome://DeviantLove/content/global.js", DeviantLove);
+	var {l10n, prefs, browserMod, loaded} =
+		Components.utils.import("chrome://DeviantLove/content/global.js", {});
 	function removalTask(node) {
 		return Element.prototype.removeChild.bind(node.parentNode, node);
 	}
 	var foundLove = new WeakMap();
+	window[browserMod] = {};
 	
 	var stylesheet = document.createProcessingInstruction("xml-stylesheet",
 		'href="chrome://DeviantLove/content/browser.css" type="text/css"');
@@ -41,7 +37,7 @@ window.DeviantLove = {};
 			var clickToClose = closing !== true && (content.document == currentFocus) &&
 				sidebar.hasAttribute("checked");
 			if (clickToClose) {
-				heart.tooltipText = DeviantLove.l10n.getString("heartX");
+				heart.tooltipText = l10n.getString("heartX");
 				heart.setAttribute("src", "chrome://DeviantLove/content/16IconClose.png");
 			} else {
 				heart.tooltipText = "Deviant Love";
@@ -63,14 +59,14 @@ window.DeviantLove = {};
 		var doc = eventOrDoc.originalTarget || eventOrDoc;
 		if (!foundLove.has(doc) &&
 			(/http:\/\/[a-zA-Z\d\-]+\.deviantart\.com\/favourites\//).test(doc.URL)) {
-			if (!DeviantLove.findLove) {
+			if (!window[browserMod].findLove) {
 				loader.loadSubScriptWithOptions("chrome://DeviantLove/content/core/detector.js", {
-					target: DeviantLove,
+					target: window[browserMod],
 					charset: "UTF-8",
 					ignoreCache: true
 				});
 			};
-			foundLove.set(doc, DeviantLove.findLove(doc.defaultView));
+			foundLove.set(doc, window[browserMod].findLove(doc.defaultView));
 			updateHeart();
 		}
 	}
@@ -117,13 +113,13 @@ window.DeviantLove = {};
 	
 	var artistCheck = document.createElement("menuitem");
 	artistCheck.id = "DeviantLoveArtistCheck"; artistCheck.className = "menuitem-iconic";
-	artistCheck.setAttribute("label", DeviantLove.l10n.get("artistCheck", ["________"])); // For Fx extensions like Menu Editor
+	artistCheck.setAttribute("label", l10n.get("artistCheck", ["________"])); // For Fx extensions like Menu Editor
 	var webContextMenu = document.getElementById("contentAreaContextMenu");
 	webContextMenu.insertBefore(artistCheck, webContextMenu.firstChild);
 	function artistCheckRequested() {
 		if (foundLove.has(gContextMenu.target.ownerDocument) &&
 			gContextMenu.target.mozMatchesSelector(".folderview-art a.u")) {
-			artistCheck.label = DeviantLove.l10n.get("artistCheck", [gContextMenu.target.textContent]);
+			artistCheck.label = l10n.get("artistCheck", [gContextMenu.target.textContent]);
 			artistCheck.hidden = false;
 		} else {
 			artistCheck.hidden = true;
@@ -159,18 +155,18 @@ window.DeviantLove = {};
 		if (doc == currentFocus) {
 			if (this == heart) {
 				toggleSidebar("DeviantLoveSidebar");
-			} else if (!document.getElementById("sidebar").contentWindow.DeviantLove) {
-				DeviantLove.firstDeviant = gContextMenu.target.textContent;
+			} else if (!document.getElementById("sidebar").contentWindow[loaded]) {
+				window[browserMod].firstDeviant = gContextMenu.target.textContent;
 				toggleSidebar("DeviantLoveSidebar", true);
 			} else {
 				document.getElementById("sidebar").contentWindow.showDeviant(gContextMenu.target.textContent);
 			}
 		} else {
-			DeviantLove.currentPageData = foundLove.get(doc);
-			if (this == artistCheck) {DeviantLove.firstDeviant = gContextMenu.target.textContent;};
-			delete DeviantLove.currentScanData;
+			window[browserMod].currentPageData = foundLove.get(doc);
+			if (this == artistCheck) {window[browserMod].firstDeviant = gContextMenu.target.textContent;};
+			delete window[browserMod].currentScanData;
 			currentFocus = doc; // Thanks to Kyle Huey for making this safe! (bug 695480)
-			if (document.getElementById("sidebar").contentWindow.DeviantLove) {
+			if (document.getElementById("sidebar").contentWindow[loaded]) {
 				document.getElementById("sidebar").contentWindow.restart();
 			}
 			toggleSidebar("DeviantLoveSidebar", true);
@@ -178,20 +174,19 @@ window.DeviantLove = {};
 		
 		updateHeart();
 	}
-	DeviantLove.iIsDed = function() {
+	window[browserMod].sidebarUnloaded = function() {
 		updateHeart(true);
 	}
-	DeviantLove.shuttingDown = function() {
+	window[browserMod].shuttingDown = function() {
 		cleanupTasks.forEach( function(task) { task(); } );
 	}
+	window[browserMod].getTip = function() {
+		var tips = JSON.parse(l10n.getString("TipOfTheMoment"));
+		var nextTip = prefs.get("nexttip", 0);
+		var returnValue = tips[nextTip];
+		nextTip++;
+		if (nextTip == tips.length) {nextTip = 0;};
+		prefs.set("nexttip", nextTip);
+		return returnValue;
+	}
 })();
-
-DeviantLove.getTip = function() {
-	var tips = JSON.parse(DeviantLove.l10n.getString("TipOfTheMoment"));
-	var nextTip = DeviantLove.prefs.get("nexttip", 0);
-	var returnValue = tips[nextTip];
-	nextTip++;
-	if (nextTip == tips.length) {nextTip = 0;};
-	DeviantLove.prefs.set("nexttip", nextTip);
-	return returnValue;
-}

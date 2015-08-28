@@ -50,7 +50,7 @@ var adapter = {
 };
 var scannerController;
 $(document).ready( function() {
-	window.DeviantLove = true;
+	window[loaded] = true;
 	$("body").css("margin", 0);
 	var reloadButton = top.document.getElementById("DeviantLoveReload");
 	reloadButton.addEventListener("command", restart, false);
@@ -68,7 +68,7 @@ $(document).ready( function() {
 		contextMenu.removeEventListener("popuphidden", unenforceWhitelist, false);
 		sidebarBrowser.removeAttribute("tooltip");
 		sidebarBrowser.removeAttribute("contextmenu");
-		top.DeviantLove.iIsDed();
+		top[browserMod].sidebarUnloaded();
 	});
 	function enforceWhitelist() {
 		if (document.contains(top.gContextMenu.target)) {
@@ -89,21 +89,21 @@ $(document).ready( function() {
 function restart() {
 	if (scannerController) {scannerController.cancel()};
 	$("body").empty();
-	delete top.DeviantLove.currentScanData;
+	delete top[browserMod].currentScanData;
 	rawk();
 }
 function rawk() {
-	var pageData = top.DeviantLove.currentPageData;
+	var pageData = top[browserMod].currentPageData;
 	if (!pageData) {
 		// The sidebar was left open when the user closed the browser. Close it now.
 		top.toggleSidebar();
 	}
 	fulfillPurpose(pageData.pageType, pageData.ownerOrTitle);
-	if (top.DeviantLove.firstDeviant) {
-		showDeviant(top.DeviantLove.firstDeviant);
-		delete top.DeviantLove.firstDeviant;
+	if (top[browserMod].firstDeviant) {
+		showDeviant(top[browserMod].firstDeviant);
+		delete top[browserMod].firstDeviant;
 	}
-	if (!top.DeviantLove.currentScanData) {
+	if (!top[browserMod].currentScanData) {
 		scannerController = researchLove(pageData.feedHref, pageData.maxDeviations, {
 			faves: setData,
 			progress: setProgress,
@@ -111,12 +111,12 @@ function rawk() {
 			watched: collectWatchlist,
 			onWatchError: watchError,
 			onDone: function() {
-				top.DeviantLove.currentScanData = scanDone_startFun(top.DeviantLove.getTip());
+				top[browserMod].currentScanData = scanDone_startFun(top[browserMod].getTip());
 			}
 		});
 		adapter.scanRetry = scannerController.favesRetry;
 	} else {
-		restore(top.DeviantLove.currentScanData, top.DeviantLove.getTip());
+		restore(top[browserMod].currentScanData, top[browserMod].getTip());
 	}
 }
 

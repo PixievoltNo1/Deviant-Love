@@ -38,14 +38,15 @@ function loadedWindow() {
 	foundWindow(this);
 }
 function shutdown(data, reason) {
+	var {browserMod} = Components.utils.import("chrome://DeviantLove/content/global.js", {});
 	windowWatcher.unregisterNotification(observer);
 	Components.utils.unload("chrome://DeviantLove/content/global.js");
 	for (let window of windows()) {
 		window = window.QueryInterface(Components.interfaces.nsIDOMWindow);
 		window.removeEventListener("load", loadedWindow, true);
-		if (window.DeviantLove) {
-			window.DeviantLove.shuttingDown();
-			delete window.DeviantLove;
+		if (window[browserMod]) {
+			window[browserMod].shuttingDown();
+			delete window[browserMod];
 		}
 	}
 }
