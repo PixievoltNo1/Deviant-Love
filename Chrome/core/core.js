@@ -378,7 +378,7 @@ function fulfillPurpose(pageType, ownerOrTitle) {
 	}
 	function setupSubaccountsEvents() {
 		var editingSubaccountsOf;
-		lovedArtists.delegate(".subaccountsButton", "click", function(event) {
+		$("#lovedArtists").delegate(".subaccountsButton", "click", function(event) {
 			var button = $(this);
 			if (!button.hasClass("editing")) {
 				$(".subaccountsButton.editing").removeClass("editing");
