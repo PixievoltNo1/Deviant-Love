@@ -4,9 +4,8 @@
 	Check core.js for the complete legal stuff.
 */
 "use strict";
-var EXPORTED_SYMBOLS = ["browserMod", "loaded", "l10n", "prefs", "aaaaa"];
+var EXPORTED_SYMBOLS = ["browserMod", "loaded", "l10n", "prefs"];
 
-var aaaaa = true;
 var browserMod = Symbol(), loaded = Symbol();
 
 Components.utils.import("resource://gre/modules/Services.jsm");
