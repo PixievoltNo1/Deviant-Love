@@ -87,13 +87,13 @@ function activate(firstDeviant) {
 			if (thing.action == "popupSetup") {
 				popupStage = "scanning";
 				reveal();
-				callback({pageType: pageData.pageType});
+				callback(pageData);
 				chrome.runtime.onMessage.removeListener(popupReady);
 			}
 		} );
 		popup.src = chrome.runtime.getURL("popup.html" + (firstDeviant ? "#" + firstDeviant : ""));
 	} else if (popupStage == "scanning") {
-		chrome.runtime.sendMessage({action: "resumeScan"});
+		chrome.runtime.sendMessage({action: "echo", echoAction: "resumeScan"});
 		// http://timtaubert.de/blog/2012/09/css-transitions-for-dynamically-created-dom-elements/
 		window.getComputedStyle(popup).display;
 		window.getComputedStyle(shield).display;
@@ -112,7 +112,9 @@ function activate(firstDeviant) {
 }
 function deactivate() {
 	shield.removeEventListener("click", deactivate, false);
-	if (popupStage == "scanning") {chrome.runtime.sendMessage({action: "pauseScan"})};
+	if (popupStage == "scanning") {
+		chrome.runtime.sendMessage({action: "echo", echoAction: "pauseScan"})
+	}
 	popup.addEventListener("webkitTransitionEnd", function hide() {
 		popupCSS.display = "none";
 		shieldCSS.display = "none";

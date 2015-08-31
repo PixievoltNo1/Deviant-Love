@@ -4,10 +4,11 @@
 	Check core.js for the complete legal stuff.
 */
 "use strict";
+var scannerController;
 var adapter = {
 	displayType: "popup",
 	scanRetry: function() {
-		chrome.runtime.sendMessage({action: "scanRetry"});
+		scannerController.favesRetry();
 	},
 	getL10nMsg: function(msgName, replacements) {
 		return chrome.i18n.getMessage(msgName, replacements);
@@ -42,26 +43,31 @@ chrome.storage.local.get(null, function(data) {
 $(document).ready( function() {
 	$("body").css({ "height": $(window).height() });
 	chrome.runtime.sendMessage({action: "echoWithCallback", echoAction: "popupSetup"},
-		function(initData) {
-			fulfillPurpose(initData.pageType);
+		function(love) {
+			fulfillPurpose(love.pageType);
 			if (location.hash) {showDeviant(location.hash.slice(1))};
-			chrome.runtime.connect({name: "fetchFeedData"}).onMessage.addListener(collectResearch);
+			scannerController = researchLove(love.feedHref, love.maxDeviations, {
+				faves: setData,
+				progress: setProgress,
+				onFavesError: scanError,
+				watched: collectWatchlist,
+				onWatchError: watchError,
+				onDone: function() {
+					chrome.runtime.sendMessage({action: "echo", echoAction: "scanningComplete"});
+					getTip( function(tip) {
+						scanDone_startFun(tip);
+					} );
+				}
+			});
 		}
 	)
 } );
-function collectResearch(thing) {switch (thing.whatsUp) {
-	case "faves": setData(thing.data); break;
-	case "progress": setProgress.apply(window, thing.args); break;
-	case "scanError": scanError(); break;
-	case "watched": collectWatchlist(thing.data); break;
-	case "watchError": watchError(); break;
-}}
 chrome.runtime.onMessage.addListener(function(thing, buddy, callback) {switch (thing.action) {
-	case "scanningComplete":
-		// This message can't be received through the port because manager.js needs to receive it, too
-		getTip( function(tip) {
-			scanDone_startFun(tip);
-		} );
+	case "pauseScan":
+		scannerController.pause();
+	break;
+	case "resumeScan":
+		scannerController.resume();
 	break;
 	case "changeTip":
 		getTip( function(tip) {
