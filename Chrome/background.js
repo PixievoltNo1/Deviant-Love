@@ -16,11 +16,6 @@ chrome.runtime.onMessage.addListener( function(thing, buddy, callback) {switch (
 		chrome.pageAction.setIcon({tabId: buddy.tab.id, path: "19Icon.png"});
 		chrome.pageAction.setTitle({tabId: buddy.tab.id, title: "Deviant Love"});
 	break;
-	case "sendTip":
-		getTip(function(tip) {chrome.tabs.sendMessage(buddy.tab.id,
-			{action: "changeTip", "tip": tip}, callback)});
-		return true;
-	break;
 	case "showArtistLove":
 		chrome.contextMenus.create({
 			title: chrome.i18n.getMessage("artistCheck", thing.artist),
