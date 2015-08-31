@@ -52,43 +52,6 @@ chrome.runtime.onInstalled.addListener( function onUpdate(info) {
 		localStorage.clear();
 	}
 } );
-chrome.runtime.onConnect.addListener( function(port) {
-	if (port.name != "fetchFeedData") { return; }
-	chrome.tabs.sendMessage(port.sender.tab.id, {action: "getResearchLoveParams"}, function(params) {
-		var scannerController = researchLove(params.feedHref, params.maxDeviations, {
-			faves: function(data) { port.postMessage({whatsUp: "faves", "data": data}); },
-			progress: function() { port.postMessage({whatsUp: "progress", args: $.makeArray(arguments)}) },
-			onFavesError: function() {
-				chrome.runtime.onMessage.addListener( function scanRetry(thing, buddy, callback) {
-					if (buddy.tab.id == port.sender.tab.id && thing.action == "scanRetry") {
-						scannerController.favesRetry();
-						chrome.runtime.onMessage.removeListener(scanRetry);
-					}
-				} );
-				port.postMessage({whatsUp: "scanError"});
-			},
-			watched: function(data) { port.postMessage({whatsUp: "watched", "data": data}); },
-			onWatchError: function() { port.postMessage({whatsUp: "watchError"}); },
-			onDone: function() {
-				chrome.runtime.onMessage.removeListener(stateChangeReaction);
-				chrome.tabs.sendMessage(port.sender.tab.id, {action: "scanningComplete"});
-				port.disconnect();
-			}
-		});
-		chrome.runtime.onMessage.addListener(stateChangeReaction);
-		function stateChangeReaction(thing, buddy) {if (buddy.tab.id == port.sender.tab.id) {
-			if (thing.action == "pauseScan") {
-				scannerController.pause();
-			} else if (thing.action == "resumeScan") {
-				scannerController.resume();
-			}
-		}}
-		port.onDisconnect.addListener(function() {
-			scannerController.cancel();
-			chrome.runtime.onMessage.removeListener(stateChangeReaction);
-		})
-	} );
-} );
 // No handler needed for keepAlive ports
 
 // No way to opt out of the console spam this creates if there's no preview version installed. Tried try/catch, tried a callback parameter, nothing stopped it.
