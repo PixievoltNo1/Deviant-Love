@@ -9,7 +9,7 @@ var windowWatcher = Services.ww;
 var observer = {observe: function(window, eventType) {
 	if (eventType == "domwindowopened") { foundWindow(window); }
 } };
-function windows() {
+function* windows() {
 	var winEnum = windowWatcher.getWindowEnumerator();
 	while (winEnum.hasMoreElements()) {
 		yield winEnum.getNext();
