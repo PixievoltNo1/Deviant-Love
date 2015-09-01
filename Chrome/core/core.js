@@ -113,7 +113,8 @@ function fulfillPurpose(pageType, ownerOrTitle) {
 	window.watchError = function() {
 		watchStatus.l10n("watchFailure");
 	}
-	window.restore = function(data, firstTip) {
+	var firstTip = nextTip();
+	window.restore = function(data) {
 		/* Only Firefox uses this, and quirks in the Firefox adapter and jQuery's Deferreds means
 		that retrieve("subaccounts") will be done by now. Relying on this is a hack which must be
 		removed to use jQuery 3.0 Deferreds or native Promises. */
@@ -125,7 +126,7 @@ function fulfillPurpose(pageType, ownerOrTitle) {
 		hiddenAccounts = data.hiddenAccounts;
 		watchedArtists = data.watchRetrievalOK; /*
 		Only scanDone_startFun needs real information there, and restore bypasses that. So, that only need be truthy or falsey. */
-		report(firstTip);
+		firstTip.then(report);
 	}
 	adapter.retrieve("subaccounts").then( function(data) {
 		subaccounts = data.subaccounts || {};
@@ -138,7 +139,7 @@ function fulfillPurpose(pageType, ownerOrTitle) {
 			return a.name.toLowerCase().localeCompare(b.name.toLowerCase());
 		}
 	}
-	window.scanDone_startFun = function(firstTip) {
+	window.scanDone_startFun = function() {
 		for (var deviantName in subaccounts) {
 			var relevant = subaccounts[deviantName].filter( function(subaccount) {
 				return (subaccount in deviantBag);
@@ -173,7 +174,7 @@ function fulfillPurpose(pageType, ownerOrTitle) {
 			});
 		}
 		
-		report(firstTip);
+		firstTip.then(report);
 		// Return value needed by the Firefox version
 		return {deviantList: deviantList, watchRetrievalOK: Boolean(watchedArtists),
 			hiddenAccounts: hiddenAccounts};
@@ -576,6 +577,18 @@ function fulfillPurpose(pageType, ownerOrTitle) {
 	}
 }
 
+function nextTip() {
+	return Promise.all(
+		[adapter.retrieve("nextTip"), $.getJSON( adapter.getL10nFile("TipOfTheMoment.json") )]
+	).then(function(results) {
+		var nextTip = results[0].nextTip || 0, tips = results[1];
+		var returnValue = tips[nextTip];
+		nextTip++;
+		if (nextTip >= tips.length) {nextTip = 0;};
+		adapter.store("nextTip", nextTip);
+		return returnValue;
+	});
+}
 function tipOfTheMoment(tip) {
 	$("#tOTMIcon").attr("src", "core/" + tip.icon);
 	$("#tOTMText").html(tip.html);

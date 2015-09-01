@@ -27,6 +27,9 @@ var adapter = {
 			return l10n.getFormattedString(msgName, replacements);
 		}
 	},
+	getL10nFile: function(filename) {
+		return "chrome://DeviantLove/locale/" + filename;
+	},
 	// scanRetry to be defined later
 	retrieve: function(keys) {
 		if (!Array.isArray(keys)) { keys = [keys]; }
@@ -111,12 +114,12 @@ function rawk() {
 			watched: collectWatchlist,
 			onWatchError: watchError,
 			onDone: function() {
-				top[browserMod].currentScanData = scanDone_startFun(top[browserMod].getTip());
+				top[browserMod].currentScanData = scanDone_startFun();
 			}
 		});
 		adapter.scanRetry = scannerController.favesRetry;
 	} else {
-		restore(top[browserMod].currentScanData, top[browserMod].getTip());
+		restore(top[browserMod].currentScanData);
 	}
 }
 

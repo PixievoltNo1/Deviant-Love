@@ -13,6 +13,9 @@ var adapter = {
 	getL10nMsg: function(msgName, replacements) {
 		return chrome.i18n.getMessage(msgName, replacements);
 	},
+	getL10nFile: function(filename) {
+		return chrome.i18n.getMessage("l10nFolder") + filename;
+	},
 	retrieve: function(keys) {
 		var request = new $.Deferred();
 		chrome.storage.local.get(keys, function(data) {
@@ -36,10 +39,6 @@ var adapter = {
 	}
 };
 
-var chromeLocalStorage = new $.Deferred();
-chrome.storage.local.get(null, function(data) {
-	chromeLocalStorage.resolve(data);
-});
 $(document).ready( function() {
 	$("body").css({ "height": $(window).height() });
 	chrome.runtime.sendMessage({action: "echoWithCallback", echoAction: "popupSetup"},
@@ -54,9 +53,7 @@ $(document).ready( function() {
 				onWatchError: watchError,
 				onDone: function() {
 					chrome.runtime.sendMessage({action: "echo", echoAction: "scanningComplete"});
-					getTip( function(tip) {
-						scanDone_startFun(tip);
-					} );
+					scanDone_startFun();
 				}
 			});
 		}
@@ -70,7 +67,7 @@ chrome.runtime.onMessage.addListener(function(thing, buddy, callback) {switch (t
 		scannerController.resume();
 	break;
 	case "changeTip":
-		getTip( function(tip) {
+		nextTip().then( function(tip) {
 			tipOfTheMoment(tip);
 			callback();
 		} );
@@ -81,21 +78,6 @@ chrome.runtime.onMessage.addListener(function(thing, buddy, callback) {switch (t
 }});
 function scanRetry() {
 	chrome.runtime.sendMessage({action: "scanRetry"});
-}
-
-var nextTip;
-var tipsFile = $.getJSON( chrome.i18n.getMessage("l10nFolder") + "TipOfTheMoment.json" );
-function getTip(callback) {
-	$.when(tipsFile, chromeLocalStorage).done( function(tipsReq, storage) {
-		var tips = tipsReq[0];
-		if (nextTip === undefined) {
-			nextTip = (nextTip in storage) ? storage.nextTip : 0;
-		}
-		callback(tips[nextTip]);
-		nextTip++;
-		if (nextTip == tips.length) {nextTip = 0;}
-		chrome.storage.local.set({nextTip: nextTip});
-	} );
 }
 
 $(document).delegate("a", "click", function(event) {

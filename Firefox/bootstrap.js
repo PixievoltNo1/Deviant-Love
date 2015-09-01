@@ -10,6 +10,7 @@ var observer = {observe: function(window, eventType) {
 	if (eventType == "domwindowopened") { foundWindow(window); }
 } };
 function* windows() {
+	// TODO: Transition preference "nexttip" to "nextTip"
 	var winEnum = windowWatcher.getWindowEnumerator();
 	while (winEnum.hasMoreElements()) {
 		yield winEnum.getNext();

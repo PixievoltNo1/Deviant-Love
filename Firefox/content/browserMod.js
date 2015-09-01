@@ -178,13 +178,4 @@
 	window[browserMod].shuttingDown = function() {
 		cleanupTasks.forEach( function(task) { task(); } );
 	}
-	window[browserMod].getTip = function() {
-		var tips = JSON.parse(l10n.getString("TipOfTheMoment"));
-		var nextTip = prefs.get("nexttip", 0);
-		var returnValue = tips[nextTip];
-		nextTip++;
-		if (nextTip == tips.length) {nextTip = 0;};
-		prefs.set("nexttip", nextTip);
-		return returnValue;
-	}
 })();
