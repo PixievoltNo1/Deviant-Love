@@ -98,10 +98,10 @@ function fulfillPurpose(pageType, ownerOrTitle) {
 	window.watchError = function() {
 		watchStatus.l10n("watchFailure");
 	}
+	var settingsRetrieval = adapter.retrieve("subaccounts").then( function(data) {
+		subaccounts = data.subaccounts || {};
+	} );
 	window.restore = function(data, firstTip) {
-		/* Only Firefox uses this, and quirks in the Firefox adapter and jQuery's Deferreds means
-		that retrieve("subaccounts") will be done by now. Relying on this is a hack which must be
-		removed to use jQuery 3.0 Deferreds or native Promises. */
 		deviantList = data.deviantList;
 		deviantList.forEach(function(deviant) {
 			deviantBag[deviant.name] = deviant;
@@ -110,11 +110,8 @@ function fulfillPurpose(pageType, ownerOrTitle) {
 		hiddenAccounts = data.hiddenAccounts;
 		watchedArtists = data.watchRetrievalOK; /*
 		Only scanDone_startFun needs real information there, and restore bypasses that. So, that only need be truthy or falsey. */
-		report(firstTip);
+		settingsRetrieval.done( function() { report(firstTip); } );
 	}
-	adapter.retrieve("subaccounts").then( function(data) {
-		subaccounts = data.subaccounts || {};
-	} );
 	// Sorting function for deviantList
 	function orderMostLoved(a, b) {
 		if (a.deviations.length != b.deviations.length) {
@@ -166,7 +163,7 @@ function fulfillPurpose(pageType, ownerOrTitle) {
 			});
 		}
 		
-		report(firstTip);
+		settingsRetrieval.done( function() { report(firstTip); } );
 		// Return value needed by the Firefox version
 		return {deviantList: deviantList, watchRetrievalOK: Boolean(watchedArtists),
 			hiddenAccounts: hiddenAccounts};
