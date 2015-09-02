@@ -16,11 +16,12 @@ function researchLove(favesURL, maxDeviations, handlers) {
 		xhr.page = page;
 		--allowedXHRs;
 		
-		xhr.done(processFavesXML).fail(handlers.onFavesError);
+		xhr.done(processFavesXML).fail(collectFailedPage).always( function() {
+			++allowedXHRs;
+			delete currentXHRs["faves" + xhr.page];
+		} );
 	}
 	function processFavesXML(feed, status, xhr) {
-		++allowedXHRs;
-		delete currentXHRs["faves" + xhr.page];
 		if (xhr.page == 1) {
 			var page2Link = $('channel > [rel="next"]', feed);
 			if (page2Link.length) {
@@ -62,6 +63,17 @@ function researchLove(favesURL, maxDeviations, handlers) {
 			++requestedPages;
 			retrieveFaves(requestedPages);
 		}
+	}
+	var failedPages = [];
+	function collectFailedPage(xhr) {
+		failedPages.push(xhr.page);
+		if (failedPages.length == 1) {
+			handlers.onFavesError();
+		}
+	}
+	function retryFailedPages() {
+		failedPages.forEach(retrieveFaves);
+		failedPages = [];
 	}
 	
 	var watchlistPage = 0, greatOnes = [];
@@ -120,7 +132,7 @@ function researchLove(favesURL, maxDeviations, handlers) {
 				currentXHRs[XHR].abort();
 			}
 		},
-		favesRetry: retrieveFaves,
+		favesRetry: retryFailedPages,
 		pause: function() { paused = true; },
 		resume: function() {
 			paused = false;
