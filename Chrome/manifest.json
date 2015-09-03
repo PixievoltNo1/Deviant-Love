@@ -10,7 +10,7 @@
 	"default_locale": "en",
 
 	"background": {
-		"scripts": ["core/jquery.js", "core/scanner.js", "background.js"],
+		"scripts": ["background.js"],
 		"persistent": false
 	},
 	"page_action": {
