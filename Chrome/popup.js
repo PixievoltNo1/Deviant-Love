@@ -71,6 +71,7 @@ chrome.runtime.onMessage.addListener(function(thing, buddy, callback) {switch (t
 			tipOfTheMoment(tip);
 			callback();
 		} );
+		return true;
 	break;
 	case "artistRequested":
 		showDeviant(thing.artist);
