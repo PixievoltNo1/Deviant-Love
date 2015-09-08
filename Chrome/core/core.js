@@ -45,6 +45,9 @@ function fulfillPurpose(pageType, ownerOrTitle) {
 		},
 		hasSubaccounts: {
 			get: function() { return this.name in subaccounts; }
+		},
+		watched: {
+			get: function() { return watchedArtists && watchedArtists.has(this.name); }
 		}
 	});
 
@@ -124,8 +127,7 @@ function fulfillPurpose(pageType, ownerOrTitle) {
 			totalDeviations += deviant.deviations.length;
 		});
 		hiddenAccounts = data.hiddenAccounts;
-		watchedArtists = data.watchRetrievalOK; /*
-		Only scanDone_startFun needs real information there, and restore bypasses that. So, that only need be truthy or falsey. */
+		watchedArtists = data.watchedArtists;
 		firstTip.then(report);
 	}
 	adapter.retrieve("subaccounts").then( function(data) {
@@ -166,17 +168,10 @@ function fulfillPurpose(pageType, ownerOrTitle) {
 			return !(account.name in hiddenAccounts);
 		});
 		deviantList.sort(orderMostLoved);
-		if (watchedArtists) {
-			watchedArtists.forEach(function(awesome) {
-				if (deviantBag[awesome]) {
-					deviantBag[awesome].watched = true;
-				}
-			});
-		}
 		
 		firstTip.then(report);
 		// Return value needed by the Firefox version
-		return {deviantList: deviantList, watchRetrievalOK: Boolean(watchedArtists),
+		return {deviantList: deviantList, watchedArtists: watchedArtists,
 			hiddenAccounts: hiddenAccounts};
 	}
 	function report(firstTip) {

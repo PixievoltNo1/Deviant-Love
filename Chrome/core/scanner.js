@@ -76,7 +76,7 @@ function researchLove(favesURL, maxDeviations, handlers) {
 		failedPages = [];
 	}
 	
-	var watchlistPage = 0, greatOnes = [];
+	var watchlistPage = 0, greatOnes = new Set();
 	var watchlistSettings = {
 		dataType: "json",
 		success: processWatchJSON,
@@ -95,7 +95,7 @@ function researchLove(favesURL, maxDeviations, handlers) {
 			var buriedTreasure = digHere.DiFi.response.calls[0].response.content[0];
 			buriedTreasure.forEach( function(deviant) {
 				if (deviant.attributes & 2) {
-					greatOnes.push(deviant.username);
+					greatOnes.add(deviant.username);
 				}
 			} );
 		} catch(e) {
