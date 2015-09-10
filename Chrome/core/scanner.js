@@ -42,7 +42,6 @@ function researchLove(favesURL, maxDeviations, handlers) {
 				artistName: $('[role="author"]:eq(0)', this).text(),
 				artistAvatar: $('[role="author"]:eq(1)', this).text()
 			};
-			item.artistURL = "http://" + item.artistName.toLowerCase() + ".deviantart.com/";
 			items.push(item);
 			++found;
 		} );

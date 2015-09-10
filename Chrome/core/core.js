@@ -76,7 +76,6 @@ function fulfillPurpose(pageType, ownerOrTitle) {
 			if (!deviantBag[item.artistName]) {
 				var newDeviant = new Deviant(item.artistName);
 				newDeviant.avatar = item.artistAvatar;
-				newDeviant.baseURL = item.artistURL;
 				deviantBag[item.artistName] = newDeviant;
 				deviantList.push(newDeviant);
 			}
