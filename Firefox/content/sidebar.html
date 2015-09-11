@@ -30,7 +30,6 @@ var adapter = {
 	getL10nFile: function(filename) {
 		return "chrome://DeviantLove/locale/" + filename;
 	},
-	// scanRetry to be defined later
 	retrieve: function(keys) {
 		if (!Array.isArray(keys)) { keys = [keys]; }
 		var items = prefs.get(keys);
@@ -49,6 +48,9 @@ var adapter = {
 			data = JSON.stringify(data);
 		}
 		prefs.set(key, data);
+	},
+	prepComplete: function(restoreData) {
+		top[browserMod].currentScanData = restoreData;
 	}
 };
 var scannerController;
@@ -101,23 +103,13 @@ function rawk() {
 		// The sidebar was left open when the user closed the browser. Close it now.
 		top.toggleSidebar();
 	}
-	fulfillPurpose(pageData.pageType, pageData.ownerOrTitle);
+	fulfillPurpose(pageData);
 	if (top[browserMod].firstDeviant) {
 		showDeviant(top[browserMod].firstDeviant);
 		delete top[browserMod].firstDeviant;
 	}
 	if (!top[browserMod].currentScanData) {
-		scannerController = researchLove(pageData.feedHref, pageData.maxDeviations, {
-			faves: setData,
-			progress: setProgress,
-			onFavesError: scanError,
-			watched: collectWatchlist,
-			onWatchError: watchError,
-			onDone: function() {
-				top[browserMod].currentScanData = scanDone_startFun();
-			}
-		});
-		adapter.scanRetry = scannerController.favesRetry;
+		scannerController = startScan();
 	} else {
 		restore(top[browserMod].currentScanData);
 	}

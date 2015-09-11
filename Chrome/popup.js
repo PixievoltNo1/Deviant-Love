@@ -4,12 +4,8 @@
 	Check core.js for the complete legal stuff.
 */
 "use strict";
-var scannerController;
 var adapter = {
 	displayType: "popup",
-	scanRetry: function() {
-		scannerController.favesRetry();
-	},
 	getL10nMsg: function(msgName, replacements) {
 		return chrome.i18n.getMessage(msgName, replacements);
 	},
@@ -36,26 +32,20 @@ var adapter = {
 		var item = {};
 		item[key] = data;
 		chrome.storage.local.set(item);
+	},
+	prepComplete: function() {
+		chrome.runtime.sendMessage({action: "echo", echoAction: "scanningComplete"});
 	}
 };
 
+var scannerController;
 $(document).ready( function() {
 	$("body").css({ "height": $(window).height() });
 	chrome.runtime.sendMessage({action: "echoWithCallback", echoAction: "popupSetup"},
 		function(love) {
-			fulfillPurpose(love.pageType);
+			fulfillPurpose(love);
 			if (location.hash) {showDeviant(location.hash.slice(1))};
-			scannerController = researchLove(love.feedHref, love.maxDeviations, {
-				faves: setData,
-				progress: setProgress,
-				onFavesError: scanError,
-				watched: collectWatchlist,
-				onWatchError: watchError,
-				onDone: function() {
-					chrome.runtime.sendMessage({action: "echo", echoAction: "scanningComplete"});
-					scanDone_startFun();
-				}
-			});
+			scannerController = startScan();
 		}
 	)
 } );

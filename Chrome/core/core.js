@@ -21,11 +21,12 @@
 */
 "use strict";
 
-function fulfillPurpose(pageType, ownerOrTitle) {
+function fulfillPurpose(love) {
 	var deviantList = [];
 	var deviantBag = {};
 	// When a deviant is recorded, a reference should be added to both the list and the bag.
 	var totalDeviations = 0;
+	var scannerController;
 	var firstDeviant;
 	var watchedArtists;
 	var subaccounts;
@@ -58,7 +59,7 @@ function fulfillPurpose(pageType, ownerOrTitle) {
 		allFaves: "scanningAll",
 		collection: "scanningCollection",
 		search: "scanningSearch"
-	})[pageType];
+	})[love.pageType];
 	$("<div>", {id: "scanMessage"}).l10n(scanMessage).appendTo(preparationScreen);
 	var scanProgressBar = $("<progress>", {id: "scanProgressBar", max: 1, value: 0});
 	$("<div>", {id: "scanPercentage"})
@@ -66,12 +67,22 @@ function fulfillPurpose(pageType, ownerOrTitle) {
 		.appendTo(preparationScreen);
 	$("<div>", {id: "scannedDeviations"}).appendTo(preparationScreen);
 	var watchStatus = $("<div>", {id: "watchStatus"}).appendTo(preparationScreen);
-	window.setProgress = function(percentage, found) {
+	window.startScan = function() {
+		return scannerController = researchLove(love.feedHref, love.maxDeviations, {
+			faves: setData,
+			progress: setProgress,
+			onFavesError: scanError,
+			watched: collectWatchlist,
+			onWatchError: watchError,
+			onDone: scanDone_startFun
+		});
+	}
+	function setProgress(percentage, found) {
 		$("#scannedDeviations").l10n("scannedDeviations", found);
 		scanProgressBar.attr("value", percentage);
 		$("#scanPercentageText").text( Math.floor(percentage * 100) + "%" );
 	}
-	window.setData = function(data) {
+	function setData(data) {
 		data.forEach(function(item, pos) {
 			if (!deviantBag[item.artistName]) {
 				var newDeviant = new Deviant(item.artistName);
@@ -87,7 +98,7 @@ function fulfillPurpose(pageType, ownerOrTitle) {
 		});
 		totalDeviations = data.length;
 	}
-	window.scanError = function() {
+	function scanError() {
 		$("body").css("cursor", "");
 		scanProgressBar.hide();
 		$("#scanProgressInfo").hide();
@@ -100,7 +111,7 @@ function fulfillPurpose(pageType, ownerOrTitle) {
 				$("#scanProgressInfo").show();
 				watchStatus.show();
 				$("body").css("cursor", "wait");
-				adapter.scanRetry();
+				scannerController.retryFaves();
 			} )
 			.appendTo(preparationScreen);
 	}
@@ -108,11 +119,11 @@ function fulfillPurpose(pageType, ownerOrTitle) {
 	// This will be replaced by scanDone_startFun.
 		firstDeviant = deviantName;
 	}
-	window.collectWatchlist = function(list) {
+	function collectWatchlist(list) {
 		watchedArtists = list;
 		watchStatus.l10n("watchSuccess");
 	}
-	window.watchError = function() {
+	function watchError() {
 		watchStatus.l10n("watchFailure");
 	}
 	var firstTip = nextTip();
@@ -140,7 +151,7 @@ function fulfillPurpose(pageType, ownerOrTitle) {
 			return a.name.toLowerCase().localeCompare(b.name.toLowerCase());
 		}
 	}
-	window.scanDone_startFun = function() {
+	function scanDone_startFun() {
 		for (var deviantName in subaccounts) {
 			var relevant = subaccounts[deviantName].filter( function(subaccount) {
 				return (subaccount in deviantBag);
@@ -168,10 +179,9 @@ function fulfillPurpose(pageType, ownerOrTitle) {
 		});
 		deviantList.sort(orderMostLoved);
 		
+		adapter.prepComplete({deviantList: deviantList, watchedArtists: watchedArtists,
+			hiddenAccounts: hiddenAccounts});
 		firstTip.then(report);
-		// Return value needed by the Firefox version
-		return {deviantList: deviantList, watchedArtists: watchedArtists,
-			hiddenAccounts: hiddenAccounts};
 	}
 	function report(firstTip) {
 		// Construct the UI
@@ -188,19 +198,19 @@ function fulfillPurpose(pageType, ownerOrTitle) {
 				allFaves: "scanResultsPopupAllLine1",
 				collection: "scanResultsPopupCollectionLine1",
 				search: "scanResultsPopupSearchLine1"
-			})[pageType];
+			})[love.pageType];
 			scanResults.append($("<div>").l10nHtml(scanResultsLine1,
 				'<span class="dynamic">' + Number(totalDeviations) + '</span>')); // The Number call is there to help out AMO reviewers; same for the other calls below
 		} else { // adapter.displayType == "sidebar"
-			if (/[\<\>\&]/.test(ownerOrTitle)) {ownerOrTitle = "?????????";};
-			var scanResultsLine1 = (pageType == "collection") ?
+			if (/[\<\>\&]/.test(love.ownerOrTitle)) {love.ownerOrTitle = "?????????";};
+			var scanResultsLine1 = (love.pageType == "collection") ?
 				"scanResultsSidebarCollectionLine1" :
 				"scanResultsSidebarNonCollectionLine1";
-			var scanResultsLine2 = (pageType == "featured") ? "scanResultsSidebarFeaturedLine2"
-				: (pageType == "search") ? "scanResultsSidebarSearchLine2"
+			var scanResultsLine2 = (love.pageType == "featured") ? "scanResultsSidebarFeaturedLine2"
+				: (love.pageType == "search") ? "scanResultsSidebarSearchLine2"
 				: "scanResultsSidebarOtherLine2";
 			scanResults.append($("<div>").l10nHtml(scanResultsLine1,
-				'<span class="dynamic">' + ownerOrTitle + '</span>')) // ownerOrTitle is filtered for safety a few lines up
+				'<span class="dynamic">' + love.ownerOrTitle + '</span>')) // love.ownerOrTitle is filtered for safety a few lines up
 				.append($("<div>").l10nHtml(scanResultsLine2,
 				'<span class="dynamic">' + Number(totalDeviations) + '</span>'))
 		}
