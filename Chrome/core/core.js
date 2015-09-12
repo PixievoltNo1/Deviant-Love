@@ -68,14 +68,14 @@ function fulfillPurpose(love) {
 	$("<div>", {id: "scannedDeviations"}).appendTo(preparationScreen);
 	var watchStatus = $("<div>", {id: "watchStatus"}).appendTo(preparationScreen);
 	window.startScan = function() {
-		return scannerController = researchLove(love.feedHref, love.maxDeviations, {
-			faves: setData,
+		var scannerController = researchLove(love.feedHref, love.maxDeviations, {
 			progress: setProgress,
-			onFavesError: scanError,
-			watched: collectWatchlist,
-			onWatchError: watchError,
-			onDone: scanDone_startFun
+			onFavesError: scanError
 		});
+		scannerController.faves.then(setData);
+		scannerController.watched.then(collectWatchlist, watchError);
+		Promise.all([scannerController.faves, scannerController.watched]).then(scanDone_startFun);
+		return scannerController;
 	}
 	function setProgress(percentage, found) {
 		$("#scannedDeviations").l10n("scannedDeviations", found);

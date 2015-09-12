@@ -6,8 +6,26 @@
 "use strict";
 
 function researchLove(favesURL, maxDeviations, handlers) {
-// Handlers needed: onFavesError, faves, progress, onWatchError, watched, onDone
-	var currentXHRs = {}, paused = false, onResume = [grabMorePages], todos = 2;
+// Handlers needed: onFavesError, progress
+	var currentXHRs = {}, paused = false, onResume = [grabMorePages];
+	
+	var favesResult = $.Deferred(), watchedResult = $.Deferred();
+	var api = {
+		faves: Promise.resolve(favesResult),
+		watched: Promise.resolve(watchedResult),
+		cancel: function() {
+			for (var XHR in currentXHRs) {
+				currentXHRs[XHR].abort();
+			}
+		},
+		favesRetry: retryFailedPages,
+		pause: function() { paused = true; },
+		resume: function() {
+			paused = false;
+			onResume.forEach( function(handler) { handler(); } );
+			onResume = [grabMorePages];
+		}
+	};
 	
 	var favesPerPage, allowedXHRs = 6, processedPages = 0, totalPages, pageData = [], found = 0;
 	function retrieveFaves(page) {
@@ -50,8 +68,7 @@ function researchLove(favesURL, maxDeviations, handlers) {
 		var progressPercentage = Math.min( (processedPages * favesPerPage) / maxDeviations, 1);
 		handlers.progress(progressPercentage, found);
 		if (processedPages == totalPages) {
-			handlers.faves(Array.prototype.concat.apply([], pageData));
-			taskComplete();
+			favesResult.resolve( Array.prototype.concat.apply([], pageData) );
 		}
 	}
 	retrieveFaves(1);
@@ -79,7 +96,7 @@ function researchLove(favesURL, maxDeviations, handlers) {
 	var watchlistSettings = {
 		dataType: "json",
 		success: processWatchJSON,
-		error: watchFailure
+		error: watchedResult.reject.bind(watchedResult)
 	};
 	function retrieveWatchlist() {
 		currentXHRs.watch = $.ajax("http://my.deviantart.com/global/difi/?c%5B%5D=%22Friends%22%2C%22getFriendsList%22%2C%5Btrue%2C"
@@ -87,7 +104,7 @@ function researchLove(favesURL, maxDeviations, handlers) {
 	}
 	function processWatchJSON(digHere) {
 		if (digHere.DiFi.status === "FAIL") {
-			watchFailure();
+			watchedResult.reject();
 			return;
 		}
 		try {
@@ -99,7 +116,7 @@ function researchLove(favesURL, maxDeviations, handlers) {
 			} );
 		} catch(e) {
 			console.error(e);
-			watchFailure();
+			watchedResult.reject();
 			return;
 		}
 		if (buriedTreasure.length == 100) { // That means there may be more friends
@@ -110,33 +127,10 @@ function researchLove(favesURL, maxDeviations, handlers) {
 				onResume.push(retrieveWatchlist)
 			}
 		} else {
-			handlers.watched(greatOnes);
-			taskComplete();
+			watchedResult.resolve(greatOnes);
 		}
-	}
-	function watchFailure() {
-		handlers.onWatchError();
-		taskComplete();
 	}
 	retrieveWatchlist();
 	
-	function taskComplete() {
-		--todos;
-		if (todos == 0) { handlers.onDone(); }
-	}
-	
-	return {
-		cancel: function() {
-			for (var XHR in currentXHRs) {
-				currentXHRs[XHR].abort();
-			}
-		},
-		favesRetry: retryFailedPages,
-		pause: function() { paused = true; },
-		resume: function() {
-			paused = false;
-			onResume.forEach( function(handler) { handler(); } );
-			onResume = [grabMorePages];
-		}
-	};
+	return api;
 }
