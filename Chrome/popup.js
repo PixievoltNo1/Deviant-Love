@@ -43,7 +43,7 @@ $(document).ready( function() {
 	$("body").css({ "height": $(window).height() });
 	chrome.runtime.sendMessage({action: "echoWithCallback", echoAction: "popupSetup"},
 		function(love) {
-			fulfillPurpose(love);
+			beginPreparations(love);
 			if (location.hash) {showDeviant(location.hash.slice(1))};
 			scannerController = startScan();
 		}

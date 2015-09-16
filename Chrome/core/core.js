@@ -21,36 +21,13 @@
 */
 "use strict";
 
-function fulfillPurpose(love) {
-	var deviantList = [];
-	var deviantBag = {};
-	// When a deviant is recorded, a reference should be added to both the list and the bag.
-	var totalDeviations = 0;
+function Deviant(name) {
+	this.name = name;
+	this.deviations = [];
+}
+function beginPreparations(love) {
 	var scannerController;
 	var firstDeviant;
-	var watchedArtists;
-	var subaccounts;
-	var hiddenAccounts = {};
-
-	function Deviant(name) {
-		this.name = name;
-		this.deviations = [];
-	}
-	Object.defineProperties(Deviant.prototype, {
-		baseURL: {
-			get: function() {
-				return this.baseURL = "http://" + this.name.toLowerCase() + ".deviantart.com/";
-			}, set: function(val) {
-				Object.defineProperty(this, "baseURL", {value: val, enumerable: true})
-			}
-		},
-		hasSubaccounts: {
-			get: function() { return this.name in subaccounts; }
-		},
-		watched: {
-			get: function() { return watchedArtists && watchedArtists.has(this.name); }
-		}
-	});
 
 	$("body").css("cursor", "wait");
 	var preparationScreen = $("<div>", {id: "preparationScreen"}).appendTo(document.body);
@@ -72,31 +49,64 @@ function fulfillPurpose(love) {
 			progress: setProgress,
 			onFavesError: scanError
 		});
-		scannerController.faves.then(setData);
-		scannerController.watched.then(collectWatchlist, watchError);
-		Promise.all([scannerController.faves, scannerController.watched]).then(scanDone_startFun);
+		var organized = Promise.all([scannerController.faves, settings]).then(organizeData);
+		var watched = scannerController.watched.then(collectWatchlist, watchError);
+		Promise.all([organized, watched, settings, firstTip]).then(finish);
 		return scannerController;
 	}
-	function setProgress(percentage, found) {
-		$("#scannedDeviations").l10n("scannedDeviations", found);
-		scanProgressBar.attr("value", percentage);
-		$("#scanPercentageText").text( Math.floor(percentage * 100) + "%" );
-	}
-	function setData(data) {
-		data.forEach(function(item, pos) {
-			if (!deviantBag[item.artistName]) {
+	var settings = adapter.retrieve("subaccounts").then( function(data) {
+		data.subaccounts = data.subaccounts || {};
+		return data;
+	} );
+	var firstTip = nextTip();
+	function organizeData(results) {
+		var faves = results[0], subaccounts = results[1].subaccounts;
+		var deviantMap = new Map();
+		faves.forEach(function(item, pos) {
+			if (!deviantMap.has(item.artistName)) {
 				var newDeviant = new Deviant(item.artistName);
 				newDeviant.avatar = item.artistAvatar;
-				deviantBag[item.artistName] = newDeviant;
-				deviantList.push(newDeviant);
+				deviantMap.set(item.artistName, newDeviant);
 			}
-			deviantBag[item.artistName].deviations.push({
+			deviantMap.get(item.artistName).deviations.push({
 				name: item.deviationName,
 				URL: item.deviationPage,
 				pos: pos
 			});
 		});
-		totalDeviations = data.length;
+		var totalDeviations = faves.length;
+		var hiddenAccounts = {};
+		for (var deviantName in subaccounts) {
+			var relevant = subaccounts[deviantName].filter( function(subaccount) {
+				return deviantMap.has(subaccount);
+			} );
+			if (relevant.length > 0) {
+				if (!deviantMap.has(deviantName)) {
+					deviantMap.set(deviantName, new Deviant(deviantName));
+				}
+				var deviant = deviantMap.get(deviantName);
+				relevant.forEach( function(subaccountName) {
+					var subaccount = deviantMap.get(subaccountName);
+					hiddenAccounts[subaccountName] = subaccount;
+					deviant.deviations = deviant.deviations.concat(subaccount.deviations);
+					deviantMap.delete(subaccountName);
+				} );
+				deviant.deviations.sort(function earliestPos(a, b) {
+					return a.pos - b.pos;
+				});
+			}
+		}
+		var deviantList = [];
+		for (var item of deviantMap.values()) { deviantList.push(item); }
+		deviantList.sort(orderMostLoved);
+		
+		return { deviantList: deviantList, deviantMap: deviantMap,
+			totalDeviations: totalDeviations, hiddenAccounts: hiddenAccounts };
+	}
+	function setProgress(percentage, found) {
+		$("#scannedDeviations").l10n("scannedDeviations", found);
+		scanProgressBar.attr("value", percentage);
+		$("#scanPercentageText").text( Math.floor(percentage * 100) + "%" );
 	}
 	function scanError() {
 		$("body").css("cursor", "");
@@ -116,21 +126,18 @@ function fulfillPurpose(love) {
 			.appendTo(preparationScreen);
 	}
 	window.showDeviant = function(deviantName) {
-	// This will be replaced by scanDone_startFun.
 		firstDeviant = deviantName;
 	}
 	function collectWatchlist(list) {
-		watchedArtists = list;
 		watchStatus.l10n("watchSuccess");
+		return list;
 	}
 	function watchError() {
 		watchStatus.l10n("watchFailure");
+		return null;
 	}
-	var firstTip = nextTip();
 	window.restore = function(data) {
-		/* Only Firefox uses this, and quirks in the Firefox adapter and jQuery's Deferreds means
-		that retrieve("subaccounts") will be done by now. Relying on this is a hack which must be
-		removed to use jQuery 3.0 Deferreds or native Promises. */
+		// TODO: Rewrite this as a top-level function using report's new signature
 		deviantList = data.deviantList;
 		deviantList.forEach(function(deviant) {
 			deviantBag[deviant.name] = deviant;
@@ -140,173 +147,356 @@ function fulfillPurpose(love) {
 		watchedArtists = data.watchedArtists;
 		firstTip.then(report);
 	}
-	adapter.retrieve("subaccounts").then( function(data) {
-		subaccounts = data.subaccounts || {};
-	} );
-	// Sorting function for deviantList
-	function orderMostLoved(a, b) {
-		if (a.deviations.length != b.deviations.length) {
-			return b.deviations.length - a.deviations.length;
+	function finish(results) {
+		var data = $.extend(results[0], results[2]);
+		data.watchedArtists = results[1];
+		data.firstTip = results[3];
+		data.firstDeviant = firstDeviant;
+		adapter.prepComplete({deviantList: data.deviantList, watchedArtists: data.watchedArtists,
+			hiddenAccounts: data.hiddenAccounts});
+		report(data, love);
+	}
+}
+function report(data, love) {
+	// No destructuring in Chrome 38 *sigh*
+	var deviantMap = data.deviantMap, deviantList = data.deviantList,
+		hiddenAccounts = data.hiddenAccounts, totalDeviations = data.totalDeviations,
+		watchedArtists = data.watchedArtists, subaccounts = data.subaccounts;
+	Object.defineProperties(Deviant.prototype, {
+		baseURL: {
+			get: function() {
+				return this.baseURL = "http://" + this.name.toLowerCase() + ".deviantart.com/";
+			}, set: function(val) {
+				Object.defineProperty(this, "baseURL", {value: val, enumerable: true})
+			}
+		},
+		hasSubaccounts: {
+			get: function() { return this.name in subaccounts; }
+		},
+		watched: {
+			get: function() { return watchedArtists && watchedArtists.has(this.name); }
+		}
+	});
+	
+	// Construct the UI
+	preparationScreen.remove();
+	var mainScreen = $("<div>", {id: "mainScreen"});
+	mainScreen.appendTo(document.body);
+	var scanResults = $("<div>", {id: "scanResults"});
+	if (!watchedArtists) {
+		$("<div>", {id: "watchFailure"}).l10nTooltip("watchFailure").appendTo(scanResults);
+	}
+	if (adapter.displayType == "popup") {
+		var scanResultsLine1 = ({
+			featured: "scanResultsPopupFeaturedLine1",
+			allFaves: "scanResultsPopupAllLine1",
+			collection: "scanResultsPopupCollectionLine1",
+			search: "scanResultsPopupSearchLine1"
+		})[love.pageType];
+		scanResults.append($("<div>").l10nHtml(scanResultsLine1,
+			'<span class="dynamic">' + Number(totalDeviations) + '</span>')); // The Number call is there to help out AMO reviewers; same for the other calls below
+	} else { // adapter.displayType == "sidebar"
+		if (/[\<\>\&]/.test(love.ownerOrTitle)) {love.ownerOrTitle = "?????????";};
+		var scanResultsLine1 = (love.pageType == "collection") ?
+			"scanResultsSidebarCollectionLine1" :
+			"scanResultsSidebarNonCollectionLine1";
+		var scanResultsLine2 = (love.pageType == "featured") ? "scanResultsSidebarFeaturedLine2"
+			: (love.pageType == "search") ? "scanResultsSidebarSearchLine2"
+			: "scanResultsSidebarOtherLine2";
+		scanResults.append($("<div>").l10nHtml(scanResultsLine1,
+			'<span class="dynamic">' + love.ownerOrTitle + '</span>')) // love.ownerOrTitle is filtered for safety a few lines up
+			.append($("<div>").l10nHtml(scanResultsLine2,
+			'<span class="dynamic">' + Number(totalDeviations) + '</span>'))
+	}
+	scanResults.append($("<div>", {id: "artistCount"}).l10nHtml("scanResultsLastLine",
+		'<span class="dynamic">' + Number(deviantList.length) + '</span>'))
+		.appendTo(mainScreen);
+	$("<form>", {id: "findBar", "class": "textEntryLine"})
+		.append($("<input>", {type: "text", id: "query"}))
+		.append($("<button>", {type: "submit", id: "goFind"}))
+		.append($("<button>", {type: "button", id: "noFind"}))
+		.appendTo(mainScreen);
+	$("#query").l10nPlaceholder("queryPlaceholder");
+	$("<div>", {id: "queryError"}).hide().appendTo(mainScreen);
+	var lovedArtists = $("<div>", {id: "lovedArtists"})
+		.css({"overflow-y": "auto", "overflow-x": "hidden"})
+		.append(snackOnMyWrath(deviantList))
+		.appendTo(mainScreen);
+	if (lovedArtists.css("position") == "static") { lovedArtists.css("position", "relative") } // Needed for scrollToDeviationList. It's as weird as it to ensure future compatibility with the skinning feature.
+	var subaccountsEditor = $("<div>", {id: "subaccountsEditor"}).hide().appendTo(mainScreen)
+		.append( $("<div>", {id: "closeSubaccountsEditor"}).l10nTooltip("subaccountsClose") );
+	$("<div>", {id: "subaccountsList"})
+		.append( $("<div>", {id: "subaccountsListHeader", "class": "sectionHeader"}) )
+		.append( $("<div>", {id: "subaccountsListContents"}) )
+		.appendTo(subaccountsEditor);
+	$("<form>", {id: "addSubaccount"})
+		.append( $("<div>", {"class": "sectionHeader"}).l10n("subaccountsAdd") )
+		.append( $("<label>")
+			.append($("<input>", {type: "radio", name: "addDirection", value: "inputToThis"}))
+			.append($("<span>", {id: "inputToThisText"})) )
+		.append( $("<label>")
+			.append($("<input>", {type: "radio", name: "addDirection", value: "thisToInput"}))
+			.append($("<span>", {id: "thisToInputText"})) )
+		.append( $("<div>", {"class": "textEntryLine"})
+			.append( $("<input>", {type: "text", id: "relatedAccount"})
+				.l10nPlaceholder("subaccountsAddNamePlaceholder") )
+			.append( $("<button>", {type: "submit", id: "confirmAdd"})
+				.l10n("subaccountsAddConfirm") ) )
+		.append( $("<div>", {id: "addNotice"}).hide() )
+		.appendTo(subaccountsEditor);
+	$("<div>", {id: "tipOfTheMoment"})
+		.append($("<img>", {id: "tOTMIcon"}))
+		.append($("<div>", {id: "tOTMText"}))
+		.appendTo(mainScreen);
+	tipOfTheMoment(data.firstTip);
+
+	// Set up interaction
+	lovedArtists.delegate(".deviant:not(.opened)", "click", function(event, suppressAnimation) {
+		if ( $(event.target).hasClass("subaccountsButton") ) { return; }
+		$(".opened.deviant").removeClass("opened");
+		if (!suppressAnimation) {
+			$(".deviant > .closerLook").velocity({height: 0}, {
+				duration: 400,
+				easing: "swing",
+				complete: function() {$(this).remove();}
+			});
 		} else {
-			return a.name.toLowerCase().localeCompare(b.name.toLowerCase());
+			$(".deviant > .closerLook").remove();
 		}
-	}
-	function scanDone_startFun() {
-		for (var deviantName in subaccounts) {
-			var relevant = subaccounts[deviantName].filter( function(subaccount) {
-				return (subaccount in deviantBag);
-			} );
-			if (relevant.length > 0) {
-				if (!(deviantName in deviantBag)) {
-					deviantBag[deviantName] = new Deviant(deviantName);
-					deviantList.push(deviantBag[deviantName]);
+
+		var deviant = deviantMap.get($(".deviantName", this).text());
+		var closerLook = buildCloserLook(deviant, deviant.deviations);
+		$(this).append(closerLook).addClass("opened");
+		if (!suppressAnimation) {
+			var closerLookHeight = closerLook.height();
+			closerLook.height(0).velocity({height: closerLookHeight}, {
+				duration: 400,
+				easing: "swing",
+				progress: scrollToDeviationList
+			});
+		}
+	} );
+	$("#query").bind("input", function(event) {
+		var checkResult = queryTroubleCheck();
+		if (typeof checkResult == "object") {
+			$("#queryError").l10n(checkResult.errMsg, checkResult.offender).show();
+		} else {
+			$("#queryError").hide();
+		}
+	} );
+	$("#findBar").submit(findStuff);
+	$("#noFind").bind("click", normalMode);
+	var editingSubaccountsOf;
+	$("#lovedArtists").delegate(".subaccountsButton", "click", function(event) {
+		var button = $(this);
+		if (!button.hasClass("editing")) {
+			$(".subaccountsButton.editing").removeClass("editing");
+			button.addClass("editing");
+			editingSubaccountsOf = button.siblings(".deviantName").text();
+			$("#subaccountsEditor").toggleClass("has", editingSubaccountsOf in subaccounts);
+			$("#subaccountsListHeader").l10n("subaccountsList", editingSubaccountsOf);
+			$("#subaccountsListContents").empty();
+			if (editingSubaccountsOf in subaccounts) {
+				$("#subaccountsListContents").append(
+					subaccounts[editingSubaccountsOf].map(buildSubaccountLine)
+				);
+			}
+			$("#inputToThisText").l10n("subaccountsAddInputToCurrent", editingSubaccountsOf);
+			$("#thisToInputText").l10n("subaccountsAddCurrentToInput", editingSubaccountsOf);
+			$("input[value='inputToThis']").prop("checked", true);
+			$("#relatedAccount").val("");
+			$("#addNotice").hide();
+			$("#subaccountsEditor").show();
+		} else {
+			$("#closeSubaccountsEditor").trigger("click");
+		}
+	} );
+	$("#closeSubaccountsEditor").bind("click", function() {
+		$(".subaccountsButton.editing").removeClass("editing");
+		$("#subaccountsEditor").hide();
+	} );
+	$("#addSubaccount").bind("submit", function(event) {
+		event.preventDefault();
+		var input = $("#relatedAccount").val();
+		if (input == "") { return; }
+		$("body").css("cursor", "wait");
+		$("#addNotice").hide();
+		$.when( (function() {
+			var lcInput = input.toLowerCase();
+			for (var name in deviantBag) {
+				if (name.toLowerCase() == lcInput) {
+					return name;
 				}
-				var deviant = deviantBag[deviantName];
-				relevant.forEach( function(subaccountName) {
-					var subaccount = deviantBag[subaccountName];
-					hiddenAccounts[subaccountName] = subaccount;
-					deviant.deviations = deviant.deviations.concat(subaccount.deviations);
-					// TODO: Subaccounts don't need to be in deviantBag and deviantList in the first place. Refactor stuff.
-					delete deviantBag[subaccountName];
+			}
+			for (var name in subaccounts) {
+				if (name.toLowerCase() == lcInput) {
+					return name;
+				}
+				var found;
+				subaccounts[name].some( function(subaccount) {
+					if (subaccount.toLowerCase() == lcInput) {
+						found = subaccount;
+						return true;
+					}
 				} );
-				deviant.deviations.sort(function earliestPos(a, b) {
-					return a.pos - b.pos;
+				if (found) {
+					if ($("input[value='thisToInput']").prop("checked")) {
+						// We can safely assume "this to input's owner" is acceptable
+						return name;
+					} else {
+						// Assume nothing and let the user decide what's correct
+						return $.Deferred().reject("AlreadyOwned", name);
+					}
+				}
+			}
+			var request = $.ajax("http://" + lcInput + ".deviantart.com/", {responseType: "text"});
+			return request.then( function(profileHtml) {
+				// <html> and <head> may be filtered
+				var profileElem = $("<div>" + profileHtml + "</div>");
+				var verifiedName = profileElem.find("#gmi-Gruser").attr("gmi-name");
+				if (!verifiedName) {
+					var warn = true;
+					verifiedName = input;
+				}
+				if ($("input[value='thisToInput']").prop("checked")) {
+					var newDeviant = new Deviant(verifiedName);
+					newDeviant.avatar = profileElem.find("link[rel='image_src']").attr("href");
+					deviantBag[verifiedName] = newDeviant;
+					deviantList.push(deviantBag[verifiedName]);
+				}
+				if (warn) {
+					return { related: input, warning: "CantVerifyCasing", warningPart: input };
+				}
+				return verifiedName;
+			}, function(xhr) {
+				// Before updating to jQuery 3 or switching to native Promises, change returns to throws
+				if (xhr.status == 404) {
+					return "NotFound";
+				}
+				return "Communcation";
+			} );
+		})() ).then( function(related) {
+			if (typeof related == "object") {
+				var warning = related.warning, warningPart = related.warningPart;
+				related = related.related;
+			}
+			if ($("input[value='inputToThis']").prop("checked")) {
+				var getting = editingSubaccountsOf, gotten = related;
+				$("#subaccountsListContents").append( buildSubaccountLine( related ) );
+				$("#subaccountsEditor").addClass("has");
+			} else {
+				var gotten = editingSubaccountsOf, getting = related;
+			}
+			if (gotten in deviantBag) {
+				deviantListMod(function() {
+					var gettingObj = deviantBag[getting], gottenObj = deviantBag[gotten];
+					gettingObj.deviations = gettingObj.deviations.concat(gottenObj.deviations);
+					if (gotten in subaccounts) {
+						for (var subaccount of subaccounts[gotten]) {
+							if (subaccount in hiddenAccounts) {
+								removeDeviations(gottenObj, hiddenAccounts[subaccount].deviations);
+							}
+						}
+					}
+					if (gottenObj.deviations.length) {
+						hiddenAccounts[gotten] = gottenObj;
+					}
+					gettingObj.deviations.sort(function earliestPos(a, b) {
+						return a.pos - b.pos;
+					});
+					delete deviantBag[gotten];
+					deviantList.splice(deviantList.indexOf(gottenObj), 1);
+					editingSubaccountsOf = getting;
 				});
 			}
+			subaccounts[getting] = (subaccounts[getting] || [])
+				.concat(gotten, (subaccounts[gotten] || []));
+			delete subaccounts[gotten];
+			adapter.store("subaccounts", subaccounts);
+			if ($("input[value='thisToInput']").prop("checked")) {
+				$("#deviant_" + getting).find(".subaccountsButton")
+					.removeClass("editing").trigger("click");
+			}
+			$("#relatedAccount").val("");
+			if (warning) {
+				$("#addNotice").l10n("subaccountsWarning" + warning, warningPart).show();
+			}
+		}, function(error, errorPart) {
+			$("#addNotice").l10n("subaccountsError" + error, errorPart).show();
+		} ).always( function() {
+			$("body").css("cursor", "");
+		} );
+	} );
+	$("#subaccountsEditor").delegate(".removeSubaccount", "click", function() {
+		var removedName = $(this).siblings(".subaccountName").text();
+		subaccounts[editingSubaccountsOf].splice(
+			subaccounts[editingSubaccountsOf].indexOf(removedName), 1);
+		$(this).parent().remove();
+		if (subaccounts[editingSubaccountsOf].length == 0) {
+			delete subaccounts[editingSubaccountsOf];
+			$("#subaccountsEditor").removeClass("has");
 		}
-		deviantList = deviantList.filter(function(account) {
-			return !(account.name in hiddenAccounts);
+		if (removedName in hiddenAccounts) {
+			var mainAccountGone = false;
+			deviantListMod(function() {
+				var removed = hiddenAccounts[removedName];
+				delete hiddenAccounts[removedName];
+				deviantBag[removedName] = removed;
+				deviantList.push(removed);
+				var target = deviantBag[editingSubaccountsOf];
+				removeDeviations(target, removed.deviations);
+				if (target.deviations.length == 0) {
+					delete deviantBag[editingSubaccountsOf];
+					deviantList.splice(deviantList.indexOf(target), 1);
+					editingSubaccountsOf = removedName;
+					mainAccountGone = true;
+				}
+			});
+			if (mainAccountGone) {
+				$("#deviant_" + editingSubaccountsOf).find(".subaccountsButton")
+					.removeClass("editing").trigger("click");
+			}
+		}
+		adapter.store("subaccounts", subaccounts);
+	} );
+	// Helper functions for subaccount event handlers
+	function removeDeviations(account, removeMe) {
+		account.deviations = account.deviations.filter(function(deviation) {
+			return removeMe.indexOf(deviation) == -1;
 		});
+	}
+	function deviantListMod(mod) {
+		// mod() may change the value of $("#deviant_" + editingSubaccountsOf), so don't save it
+		var keepOpen = $("#deviant_" + editingSubaccountsOf).hasClass("opened");
+		mod();
 		deviantList.sort(orderMostLoved);
-		
-		adapter.prepComplete({deviantList: deviantList, watchedArtists: watchedArtists,
-			hiddenAccounts: hiddenAccounts});
-		firstTip.then(report);
-	}
-	function report(firstTip) {
-		// Construct the UI
-		preparationScreen.remove();
-		var mainScreen = $("<div>", {id: "mainScreen"});
-		mainScreen.appendTo(document.body);
-		var scanResults = $("<div>", {id: "scanResults"});
-		if (!watchedArtists) {
-			$("<div>", {id: "watchFailure"}).l10nTooltip("watchFailure").appendTo(scanResults);
-		}
-		if (adapter.displayType == "popup") {
-			var scanResultsLine1 = ({
-				featured: "scanResultsPopupFeaturedLine1",
-				allFaves: "scanResultsPopupAllLine1",
-				collection: "scanResultsPopupCollectionLine1",
-				search: "scanResultsPopupSearchLine1"
-			})[love.pageType];
-			scanResults.append($("<div>").l10nHtml(scanResultsLine1,
-				'<span class="dynamic">' + Number(totalDeviations) + '</span>')); // The Number call is there to help out AMO reviewers; same for the other calls below
-		} else { // adapter.displayType == "sidebar"
-			if (/[\<\>\&]/.test(love.ownerOrTitle)) {love.ownerOrTitle = "?????????";};
-			var scanResultsLine1 = (love.pageType == "collection") ?
-				"scanResultsSidebarCollectionLine1" :
-				"scanResultsSidebarNonCollectionLine1";
-			var scanResultsLine2 = (love.pageType == "featured") ? "scanResultsSidebarFeaturedLine2"
-				: (love.pageType == "search") ? "scanResultsSidebarSearchLine2"
-				: "scanResultsSidebarOtherLine2";
-			scanResults.append($("<div>").l10nHtml(scanResultsLine1,
-				'<span class="dynamic">' + love.ownerOrTitle + '</span>')) // love.ownerOrTitle is filtered for safety a few lines up
-				.append($("<div>").l10nHtml(scanResultsLine2,
-				'<span class="dynamic">' + Number(totalDeviations) + '</span>'))
-		}
-		scanResults.append($("<div>", {id: "artistCount"}).l10nHtml("scanResultsLastLine",
-			'<span class="dynamic">' + Number(deviantList.length) + '</span>'))
-			.appendTo(mainScreen);
-		$("<form>", {id: "findBar", "class": "textEntryLine"})
-			.append($("<input>", {type: "text", id: "query"}))
-			.append($("<button>", {type: "submit", id: "goFind"}))
-			.append($("<button>", {type: "button", id: "noFind"}))
-			.appendTo(mainScreen);
-		$("#query").l10nPlaceholder("queryPlaceholder");
-		$("<div>", {id: "queryError"}).hide().appendTo(mainScreen);
-		var lovedArtists = $("<div>", {id: "lovedArtists"})
-			.css({"overflow-y": "auto", "overflow-x": "hidden"})
-			.append(snackOnMyWrath(deviantList))
-			.appendTo(mainScreen);
-		if (lovedArtists.css("position") == "static") { lovedArtists.css("position", "relative") } // Needed for scrollToDeviationList. It's as weird as it to ensure future compatibility with the skinning feature.
-		var subaccountsEditor = $("<div>", {id: "subaccountsEditor"}).hide().appendTo(mainScreen)
-			.append( $("<div>", {id: "closeSubaccountsEditor"}).l10nTooltip("subaccountsClose") );
-		$("<div>", {id: "subaccountsList"})
-			.append( $("<div>", {id: "subaccountsListHeader", "class": "sectionHeader"}) )
-			.append( $("<div>", {id: "subaccountsListContents"}) )
-			.appendTo(subaccountsEditor);
-		$("<form>", {id: "addSubaccount"})
-			.append( $("<div>", {"class": "sectionHeader"}).l10n("subaccountsAdd") )
-			.append( $("<label>")
-				.append($("<input>", {type: "radio", name: "addDirection", value: "inputToThis"}))
-				.append($("<span>", {id: "inputToThisText"})) )
-			.append( $("<label>")
-				.append($("<input>", {type: "radio", name: "addDirection", value: "thisToInput"}))
-				.append($("<span>", {id: "thisToInputText"})) )
-			.append( $("<div>", {"class": "textEntryLine"})
-				.append( $("<input>", {type: "text", id: "relatedAccount"})
-					.l10nPlaceholder("subaccountsAddNamePlaceholder") )
-				.append( $("<button>", {type: "submit", id: "confirmAdd"})
-					.l10n("subaccountsAddConfirm") ) )
-			.append( $("<div>", {id: "addNotice"}).hide() )
-			.appendTo(subaccountsEditor);
-		$("<div>", {id: "tipOfTheMoment"})
-			.append($("<img>", {id: "tOTMIcon"}))
-			.append($("<div>", {id: "tOTMText"}))
-			.appendTo(mainScreen);
-		tipOfTheMoment(firstTip);
-
-		// Set up interaction
-		lovedArtists.delegate(".deviant:not(.opened)", "click", function(event, suppressAnimation) {
-			if ( $(event.target).hasClass("subaccountsButton") ) { return; }
-			$(".opened.deviant").removeClass("opened");
-			if (!suppressAnimation) {
-				$(".deviant > .closerLook").velocity({height: 0}, {
-					duration: 400,
-					easing: "swing",
-					complete: function() {$(this).remove();}
-				});
-			} else {
-				$(".deviant > .closerLook").remove();
-			}
-
-			var deviant = deviantBag[$(".deviantName", this).text()];
-			var closerLook = buildCloserLook(deviant, deviant.deviations);
-			$(this).append(closerLook).addClass("opened");
-			if (!suppressAnimation) {
-				var closerLookHeight = closerLook.height();
-				closerLook.height(0).velocity({height: closerLookHeight}, {
-					duration: 400,
-					easing: "swing",
-					progress: scrollToDeviationList
-				});
-			}
-		} );
-		$("#query").bind("input", function(event) {
-			var checkResult = queryTroubleCheck();
-			if (typeof checkResult == "object") {
-				$("#queryError").l10n(checkResult.errMsg, checkResult.offender).show();
-			} else {
-				$("#queryError").hide();
-			}
-		} );
-		$("#findBar").submit(findStuff);
-		$("#noFind").bind("click", normalMode);
-		setupSubaccountsEvents();
-		
-		// Handle requests for a particular deviant that were made elsewhere (e.g. context menu)
-		window.showDeviant = function(deviantName, isFirst) {
+		$("#artistCount").l10nHtml("scanResultsLastLine",
+			'<span class="dynamic">' + Number(deviantList.length) + '</span>');
+		if ($("#mainScreen").hasClass("lookWhatIFound")) {
 			normalMode();
-			$("#deviant_" + deviantName).trigger("click", isFirst || adapter.displayType == "popup")
-				.get(0).scrollIntoView();
+		} else {
+			$("#lovedArtists").empty().append(snackOnMyWrath(deviantList));
 		}
-		if (firstDeviant) {
-			showDeviant(firstDeviant, true);
+		if (keepOpen) {
+			$("#deviant_" + editingSubaccountsOf).trigger("click", true);
 		}
-
-		// All done, now go play!
-		$("body").css("cursor", "");
+		$("#deviant_" + editingSubaccountsOf).find(".subaccountsButton").addClass("editing");
+		$("#deviant_" + editingSubaccountsOf)[0].scrollIntoView();
 	}
+	
+	// Handle requests for a particular deviant that were made elsewhere (e.g. context menu)
+	window.showDeviant = function(deviantName, isFirst) {
+		normalMode();
+		$("#deviant_" + deviantName).trigger("click", isFirst || adapter.displayType == "popup")
+			.get(0).scrollIntoView();
+	}
+	if (data.firstDeviant) {
+		showDeviant(data.firstDeviant, true);
+	}
+
+	// All done, now go play!
+	$("body").css("cursor", "");
+	
 	function findStuff(event) {
 		event.preventDefault();
 		if (queryTroubleCheck() != false) { return };
@@ -381,206 +571,16 @@ function fulfillPurpose(love) {
 			$("#lovedArtists").removeClass("noResults").empty().append(snackOnMyWrath(deviantList));
 		}
 	}
-	function setupSubaccountsEvents() {
-		var editingSubaccountsOf;
-		$("#lovedArtists").delegate(".subaccountsButton", "click", function(event) {
-			var button = $(this);
-			if (!button.hasClass("editing")) {
-				$(".subaccountsButton.editing").removeClass("editing");
-				button.addClass("editing");
-				editingSubaccountsOf = button.siblings(".deviantName").text();
-				$("#subaccountsEditor").toggleClass("has", editingSubaccountsOf in subaccounts);
-				$("#subaccountsListHeader").l10n("subaccountsList", editingSubaccountsOf);
-				$("#subaccountsListContents").empty();
-				if (editingSubaccountsOf in subaccounts) {
-					$("#subaccountsListContents").append(
-						subaccounts[editingSubaccountsOf].map(buildSubaccountLine)
-					);
-				}
-				$("#inputToThisText").l10n("subaccountsAddInputToCurrent", editingSubaccountsOf);
-				$("#thisToInputText").l10n("subaccountsAddCurrentToInput", editingSubaccountsOf);
-				$("input[value='inputToThis']").prop("checked", true);
-				$("#relatedAccount").val("");
-				$("#addNotice").hide();
-				$("#subaccountsEditor").show();
-			} else {
-				$("#closeSubaccountsEditor").trigger("click");
-			}
-		} );
-		$("#closeSubaccountsEditor").bind("click", function() {
-			$(".subaccountsButton.editing").removeClass("editing");
-			$("#subaccountsEditor").hide();
-		} );
-		$("#addSubaccount").bind("submit", function(event) {
-			event.preventDefault();
-			var input = $("#relatedAccount").val();
-			if (input == "") { return; }
-			$("body").css("cursor", "wait");
-			$("#addNotice").hide();
-			$.when( (function() {
-				var lcInput = input.toLowerCase();
-				for (var name in deviantBag) {
-					if (name.toLowerCase() == lcInput) {
-						return name;
-					}
-				}
-				for (var name in subaccounts) {
-					if (name.toLowerCase() == lcInput) {
-						return name;
-					}
-					var found;
-					subaccounts[name].some( function(subaccount) {
-						if (subaccount.toLowerCase() == lcInput) {
-							found = subaccount;
-							return true;
-						}
-					} );
-					if (found) {
-						if ($("input[value='thisToInput']").prop("checked")) {
-							// We can safely assume "this to input's owner" is acceptable
-							return name;
-						} else {
-							// Assume nothing and let the user decide what's correct
-							return $.Deferred().reject("AlreadyOwned", name);
-						}
-					}
-				}
-				var request = $.ajax("http://" + lcInput + ".deviantart.com/", {responseType: "text"});
-				return request.then( function(profileHtml) {
-					// <html> and <head> may be filtered
-					var profileElem = $("<div>" + profileHtml + "</div>");
-					var verifiedName = profileElem.find("#gmi-Gruser").attr("gmi-name");
-					if (!verifiedName) {
-						var warn = true;
-						verifiedName = input;
-					}
-					if ($("input[value='thisToInput']").prop("checked")) {
-						var newDeviant = new Deviant(verifiedName);
-						newDeviant.avatar = profileElem.find("link[rel='image_src']").attr("href");
-						deviantBag[verifiedName] = newDeviant;
-						deviantList.push(deviantBag[verifiedName]);
-					}
-					if (warn) {
-						return { related: input, warning: "CantVerifyCasing", warningPart: input };
-					}
-					return verifiedName;
-				}, function(xhr) {
-					// Before updating to jQuery 3 or switching to native Promises, change returns to throws
-					if (xhr.status == 404) {
-						return "NotFound";
-					}
-					return "Communcation";
-				} );
-			})() ).then( function(related) {
-				if (typeof related == "object") {
-					var warning = related.warning, warningPart = related.warningPart;
-					related = related.related;
-				}
-				if ($("input[value='inputToThis']").prop("checked")) {
-					var getting = editingSubaccountsOf, gotten = related;
-					$("#subaccountsListContents").append( buildSubaccountLine( related ) );
-					$("#subaccountsEditor").addClass("has");
-				} else {
-					var gotten = editingSubaccountsOf, getting = related;
-				}
-				if (gotten in deviantBag) {
-					deviantListMod(function() {
-						var gettingObj = deviantBag[getting], gottenObj = deviantBag[gotten];
-						gettingObj.deviations = gettingObj.deviations.concat(gottenObj.deviations);
-						if (gotten in subaccounts) {
-							for (var subaccount of subaccounts[gotten]) {
-								if (subaccount in hiddenAccounts) {
-									removeDeviations(gottenObj, hiddenAccounts[subaccount].deviations);
-								}
-							}
-						}
-						if (gottenObj.deviations.length) {
-							hiddenAccounts[gotten] = gottenObj;
-						}
-						gettingObj.deviations.sort(function earliestPos(a, b) {
-							return a.pos - b.pos;
-						});
-						delete deviantBag[gotten];
-						deviantList.splice(deviantList.indexOf(gottenObj), 1);
-						editingSubaccountsOf = getting;
-					});
-				}
-				subaccounts[getting] = (subaccounts[getting] || [])
-					.concat(gotten, (subaccounts[gotten] || []));
-				delete subaccounts[gotten];
-				adapter.store("subaccounts", subaccounts);
-				if ($("input[value='thisToInput']").prop("checked")) {
-					$("#deviant_" + getting).find(".subaccountsButton")
-						.removeClass("editing").trigger("click");
-				}
-				$("#relatedAccount").val("");
-				if (warning) {
-					$("#addNotice").l10n("subaccountsWarning" + warning, warningPart).show();
-				}
-			}, function(error, errorPart) {
-				$("#addNotice").l10n("subaccountsError" + error, errorPart).show();
-			} ).always( function() {
-				$("body").css("cursor", "");
-			} );
-		} );
-		$("#subaccountsEditor").delegate(".removeSubaccount", "click", function() {
-			var removedName = $(this).siblings(".subaccountName").text();
-			subaccounts[editingSubaccountsOf].splice(
-				subaccounts[editingSubaccountsOf].indexOf(removedName), 1);
-			$(this).parent().remove();
-			if (subaccounts[editingSubaccountsOf].length == 0) {
-				delete subaccounts[editingSubaccountsOf];
-				$("#subaccountsEditor").removeClass("has");
-			}
-			if (removedName in hiddenAccounts) {
-				var mainAccountGone = false;
-				deviantListMod(function() {
-					var removed = hiddenAccounts[removedName];
-					delete hiddenAccounts[removedName];
-					deviantBag[removedName] = removed;
-					deviantList.push(removed);
-					var target = deviantBag[editingSubaccountsOf];
-					removeDeviations(target, removed.deviations);
-					if (target.deviations.length == 0) {
-						delete deviantBag[editingSubaccountsOf];
-						deviantList.splice(deviantList.indexOf(target), 1);
-						editingSubaccountsOf = removedName;
-						mainAccountGone = true;
-					}
-				});
-				if (mainAccountGone) {
-					$("#deviant_" + editingSubaccountsOf).find(".subaccountsButton")
-						.removeClass("editing").trigger("click");
-				}
-			}
-			adapter.store("subaccounts", subaccounts);
-		} );
-		function removeDeviations(account, removeMe) {
-			account.deviations = account.deviations.filter(function(deviation) {
-				return removeMe.indexOf(deviation) == -1;
-			});
-		}
-		function deviantListMod(mod) {
-			// mod() may change the value of $("#deviant_" + editingSubaccountsOf), so don't save it
-			var keepOpen = $("#deviant_" + editingSubaccountsOf).hasClass("opened");
-			mod();
-			deviantList.sort(orderMostLoved);
-			$("#artistCount").l10nHtml("scanResultsLastLine",
-				'<span class="dynamic">' + Number(deviantList.length) + '</span>');
-			if ($("#mainScreen").hasClass("lookWhatIFound")) {
-				normalMode();
-			} else {
-				$("#lovedArtists").empty().append(snackOnMyWrath(deviantList));
-			}
-			if (keepOpen) {
-				$("#deviant_" + editingSubaccountsOf).trigger("click", true);
-			}
-			$("#deviant_" + editingSubaccountsOf).find(".subaccountsButton").addClass("editing");
-			$("#deviant_" + editingSubaccountsOf)[0].scrollIntoView();
-		}
-	}
 }
 
+// Sorting function for deviantList
+function orderMostLoved(a, b) {
+	if (a.deviations.length != b.deviations.length) {
+		return b.deviations.length - a.deviations.length;
+	} else {
+		return a.name.toLowerCase().localeCompare(b.name.toLowerCase());
+	}
+}
 function nextTip() {
 	return Promise.all(
 		[adapter.retrieve("nextTip"), $.getJSON( adapter.getL10nFile("TipOfTheMoment.json") )]

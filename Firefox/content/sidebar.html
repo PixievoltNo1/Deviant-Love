@@ -103,7 +103,7 @@ function rawk() {
 		// The sidebar was left open when the user closed the browser. Close it now.
 		top.toggleSidebar();
 	}
-	fulfillPurpose(pageData);
+	beginPreparations(pageData);
 	if (top[browserMod].firstDeviant) {
 		showDeviant(top[browserMod].firstDeviant);
 		delete top[browserMod].firstDeviant;
