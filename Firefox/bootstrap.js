@@ -23,7 +23,6 @@ function startup() {
 	for (let window of windows()) {
 		foundWindow(window);
 	}
-	messageManager.addMessageListener("deviantlove@pikadudeno1.com:getDisableKey", getDisableKey);
 	messageManager.loadFrameScript("chrome://DeviantLove/content/frame.js?" + frameScriptKey, true);
 }
 function foundWindow(window) {
@@ -42,9 +41,6 @@ function foundWindow(window) {
 function loadedWindow() {
 	foundWindow(this);
 }
-function getDisableKey() {
-	return frameScriptKey;
-}
 function shutdown(data, reason) {
 	var {browserMod} = Components.utils.import("chrome://DeviantLove/content/global.js", {});
 	windowWatcher.unregisterNotification(observer);
@@ -58,8 +54,8 @@ function shutdown(data, reason) {
 		}
 	}
 	messageManager.removeDelayedFrameScript("chrome://DeviantLove/content/frame.js?" + frameScriptKey);
-	messageManager.removeMessageListener("deviantlove@pikadudeno1.com:getDisableKey", getDisableKey);
-	messageManager.broadcastAsyncMessage("deviantlove@pikadudeno1.com:disable", getDisableKey());
+	messageManager.broadcastAsyncMessage("deviantlove@pikadudeno1.com:disable",
+		"chrome://DeviantLove/content/frame.js?" + frameScriptKey);
 }
 function uninstall(data, reason) {
 	if (reason == ADDON_UNINSTALL) {

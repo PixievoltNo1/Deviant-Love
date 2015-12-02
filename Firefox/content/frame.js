@@ -1,7 +1,9 @@
-/* Workaround for bug 1202125 in non-multiprocess Firefox. Disable messages are only honored if
-they're from the same version of Deviant Love that provided the disable key. */
-var [disableKey] = sendSyncMessage("deviantlove@pikadudeno1.com:getDisableKey");
-
+/*
+	This file is part of Deviant Love.
+	Copyright Pikadude No. 1
+	Check core.js for the complete legal stuff.
+*/
+"use strict";
 addEventListener("DOMContentLoaded", pageSetup);
 addEventListener("pageshow", pageSetup);
 function pageSetup() {
@@ -25,7 +27,9 @@ function checkForArtistLove(event) {
 }
 
 addMessageListener("deviantlove@pikadudeno1.com:disable", function frameScriptShutdown(msg) {
-	if (msg.data != disableKey) { return; }
+	/* Workaround for bug 1202125 in non-multiprocess Firefox, using Wladimir Palant's idea:
+	https://palant.de/2014/11/19/unloading-frame-scripts-in-restartless-extensions */
+	if (msg.data != Components.stack.filename) { return; }
 	removeEventListener("DOMContentLoaded", pageSetup);
 	removeEventListener("pageshow", pageSetup);
 	pageTeardown();
