@@ -9,18 +9,22 @@ var windowWatcher = Services.ww;
 var observer = {observe: function(window, eventType) {
 	if (eventType == "domwindowopened") { foundWindow(window); }
 } };
+var frameScriptKey = Date.now();
+var messageManager = Services.mm;
 function* windows() {
-	// TODO: Transition preference "nexttip" to "nextTip"
 	var winEnum = windowWatcher.getWindowEnumerator();
 	while (winEnum.hasMoreElements()) {
 		yield winEnum.getNext();
 	}
 }
 function startup() {
+	// TODO: Transition preference "nexttip" to "nextTip"
 	windowWatcher.registerNotification(observer);
 	for (let window of windows()) {
 		foundWindow(window);
 	}
+	messageManager.addMessageListener("deviantlove@pikadudeno1.com:getDisableKey", getDisableKey);
+	messageManager.loadFrameScript("chrome://DeviantLove/content/frame.js?" + frameScriptKey, true);
 }
 function foundWindow(window) {
 	window = window.QueryInterface(Components.interfaces.nsIDOMWindow);
@@ -38,6 +42,9 @@ function foundWindow(window) {
 function loadedWindow() {
 	foundWindow(this);
 }
+function getDisableKey() {
+	return frameScriptKey;
+}
 function shutdown(data, reason) {
 	var {browserMod} = Components.utils.import("chrome://DeviantLove/content/global.js", {});
 	windowWatcher.unregisterNotification(observer);
@@ -50,6 +57,9 @@ function shutdown(data, reason) {
 			delete window[browserMod];
 		}
 	}
+	messageManager.removeDelayedFrameScript("chrome://DeviantLove/content/frame.js?" + frameScriptKey);
+	messageManager.removeMessageListener("deviantlove@pikadudeno1.com:getDisableKey", getDisableKey);
+	messageManager.broadcastAsyncMessage("deviantlove@pikadudeno1.com:disable", getDisableKey());
 }
 function uninstall(data, reason) {
 	if (reason == ADDON_UNINSTALL) {

@@ -12,6 +12,12 @@
 		.getService(Components.interfaces.mozIJSSubScriptLoader);
 	var {l10n, prefs, browserMod, loaded} =
 		Components.utils.import("chrome://DeviantLove/content/global.js", {});
+	function handleMessage(name, handler) {
+		messageManager.addMessageListener("deviantlove@pikadudeno1.com:" + name, handler);
+		cleanupTasks.push( function() {
+			messageManager.removeMessageListener("deviantlove@pikadudeno1.com:" + name, handler);
+		} );
+	}
 	function removalTask(node) {
 		return Element.prototype.removeChild.bind(node.parentNode, node);
 	}
