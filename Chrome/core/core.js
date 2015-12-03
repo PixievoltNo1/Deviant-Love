@@ -323,7 +323,7 @@ function report(data, love) {
 		$("#addNotice").hide();
 		$.when( (function() {
 			var lcInput = input.toLowerCase();
-			for (var name in deviantBag) {
+			for (var name of deviantMap.keys()) {
 				if (name.toLowerCase() == lcInput) {
 					return name;
 				}
@@ -361,8 +361,8 @@ function report(data, love) {
 				if ($("input[value='thisToInput']").prop("checked")) {
 					var newDeviant = new Deviant(verifiedName);
 					newDeviant.avatar = profileElem.find("link[rel='image_src']").attr("href");
-					deviantBag[verifiedName] = newDeviant;
-					deviantList.push(deviantBag[verifiedName]);
+					deviantMap.set(verifiedName, newDeviant);
+					deviantList.push(newDeviant);
 				}
 				if (warn) {
 					return { related: input, warning: "CantVerifyCasing", warningPart: input };
@@ -387,9 +387,9 @@ function report(data, love) {
 			} else {
 				var gotten = editingSubaccountsOf, getting = related;
 			}
-			if (gotten in deviantBag) {
+			if (deviantMap.has(gotten)) {
 				deviantListMod(function() {
-					var gettingObj = deviantBag[getting], gottenObj = deviantBag[gotten];
+					var gettingObj = deviantMap.get(getting), gottenObj = deviantMap.get(gotten);
 					gettingObj.deviations = gettingObj.deviations.concat(gottenObj.deviations);
 					if (gotten in subaccounts) {
 						for (var subaccount of subaccounts[gotten]) {
@@ -404,7 +404,7 @@ function report(data, love) {
 					gettingObj.deviations.sort(function earliestPos(a, b) {
 						return a.pos - b.pos;
 					});
-					delete deviantBag[gotten];
+					deviantMap.delete(gotten);
 					deviantList.splice(deviantList.indexOf(gottenObj), 1);
 					editingSubaccountsOf = getting;
 				});
@@ -441,12 +441,12 @@ function report(data, love) {
 			deviantListMod(function() {
 				var removed = hiddenAccounts[removedName];
 				delete hiddenAccounts[removedName];
-				deviantBag[removedName] = removed;
+				deviantMap.set(removedName, removed);
 				deviantList.push(removed);
-				var target = deviantBag[editingSubaccountsOf];
+				var target = deviantMap.get(editingSubaccountsOf);
 				removeDeviations(target, removed.deviations);
 				if (target.deviations.length == 0) {
-					delete deviantBag[editingSubaccountsOf];
+					deviantMap.delete(editingSubaccountsOf);
 					deviantList.splice(deviantList.indexOf(target), 1);
 					editingSubaccountsOf = removedName;
 					mainAccountGone = true;
