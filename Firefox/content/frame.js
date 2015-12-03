@@ -4,17 +4,27 @@
 	Check core.js for the complete legal stuff.
 */
 "use strict";
+Components.utils.import("resource://gre/modules/Services.jsm");
 addEventListener("DOMContentLoaded", pageSetup);
 addEventListener("pageshow", pageSetup);
 function pageSetup() {
-	// TODO: Port tabSetup from browserMod to here
-	/*
-	addEventListener("contextmenu", checkForArtistLove);
-	addEventListener("pagehide", pageTeardown);
-	*/
+	if ( (/:\/\/[a-zA-Z\d\-]+\.deviantart\.com\/favourites\//).test(content.location.href) ) {
+		if (!findLove) {
+			Services.scriptloader.loadSubScriptWithOptions("chrome://DeviantLove/content/core/detector.js", {
+				charset: "UTF-8",
+				ignoreCache: true
+			});
+		}
+		sendAsyncMessage("deviantlove@pikadudeno1.com:foundLove", findLove(content));
+		addEventListener("contextmenu", checkForArtistLove);
+		addEventListener("pagehide", pageTeardown)
+	}
+}
+if (content.document.readyState == "interactive" || content.document.readyState == "complete") {
+	pageSetup(doc);
 }
 function pageTeardown() {
-	sendSyncMessage("deviantlove@pikadudeno1.com:lostLove");
+	sendAsyncMessage("deviantlove@pikadudeno1.com:lostLove");
 	removeEventListener("contextmenu", checkForArtistLove);
 	removeEventListener("pagehide", pageTeardown);
 }
