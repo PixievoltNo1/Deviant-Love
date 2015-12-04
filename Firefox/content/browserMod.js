@@ -37,7 +37,7 @@
 	let heartDest = document.getElementById("urlbar-icons");
 	heartDest.insertBefore(heart, heartDest.firstChild);
 	function updateHeart(closing) {
-		if (foundLove.has(content.document)) {
+		if (foundLove.has(gBrowser.selectedBrowser)) {
 			heart.hidden = false;
 			var clickToClose = closing !== true && (content.document == currentFocus) &&
 				sidebar.hasAttribute("checked");
@@ -55,45 +55,19 @@
 	heart.addEventListener("click", summonRawkitude, false);
 	cleanupTasks.push( removalTask(heart) );
 	
-	gBrowser.addEventListener("DOMContentLoaded", tabSetup, false);
-	gBrowser.addEventListener("pageshow", tabSetup, false);
-	gBrowser.addEventListener("pagehide", tabTeardown, false);
 	// From https://developer.mozilla.org/en-US/docs/Code_snippets/Tabbed_browser#Detecting_tab_selection
 	gBrowser.tabContainer.addEventListener("TabSelect", updateHeart, false);
-	function tabSetup(eventOrDoc) {
-		var doc = eventOrDoc.originalTarget || eventOrDoc;
-		if (!foundLove.has(doc) &&
-			(/http:\/\/[a-zA-Z\d\-]+\.deviantart\.com\/favourites\//).test(doc.URL)) {
-			if (!window[browserMod].findLove) {
-				loader.loadSubScriptWithOptions("chrome://DeviantLove/content/core/detector.js", {
-					target: window[browserMod],
-					charset: "UTF-8",
-					ignoreCache: true
-				});
-			};
-			foundLove.set(doc, window[browserMod].findLove(doc.defaultView));
-			updateHeart();
-		}
-	}
-	function tabTeardown(event) {
-		var doc = event.originalTarget;
-		if (foundLove.has(doc)) {
-			foundLove.delete(doc);
-			updateHeart();
-		}
-	}
+	handleMessage("foundLove", function(msg) {
+		foundLove.set(msg.target, msg.data);
+		updateHeart();
+	});
+	handleMessage("lostLove", function(msg) {
+		foundLove.delete(msg.target);
+		updateHeart();
+	});
 	cleanupTasks.push( function() {
-		gBrowser.removeEventListener("DOMContentLoaded", tabSetup, false);
-		gBrowser.removeEventListener("pageshow", tabSetup, false);
-		gBrowser.removeEventListener("pagehide", tabTeardown, false);
 		gBrowser.tabContainer.removeEventListener("TabSelect", updateHeart, false);
 	} );
-	for (let browser of gBrowser.browsers) {
-		let doc = browser.contentDocument;
-		if (doc.readyState == "interactive" || doc.readyState == "complete") {
-			tabSetup(doc);
-		}
-	}
 	
 	var sidebar = document.createElement("broadcaster");
 	sidebar.id = "DeviantLoveSidebar"; sidebar.setAttribute("group", "sidebar");
@@ -121,7 +95,7 @@
 	var webContextMenu = document.getElementById("contentAreaContextMenu");
 	webContextMenu.insertBefore(artistCheck, webContextMenu.firstChild);
 	function artistCheckRequested() {
-		if (foundLove.has(gContextMenu.target.ownerDocument) &&
+		if (foundLove.has(gBrowser.selectedBrowser) &&
 			gContextMenu.target.mozMatchesSelector(".folderview-art a.u")) {
 			artistCheck.label = l10n.get("artistCheck", [gContextMenu.target.textContent]);
 			artistCheck.hidden = false;
@@ -155,6 +129,7 @@
 			} );
 		}
 		
+		// TODO: Find multiprocess-friendly ways to track current focus and determine the requested deviant
 		var doc = content.document;
 		if (doc == currentFocus) {
 			if (this == heart) {
@@ -166,7 +141,7 @@
 				document.getElementById("sidebar").contentWindow.showDeviant(gContextMenu.target.textContent);
 			}
 		} else {
-			window[browserMod].currentPageData = foundLove.get(doc);
+			window[browserMod].currentPageData = foundLove.get(gBrowser.selectedBrowser);
 			if (this == artistCheck) {window[browserMod].firstDeviant = gContextMenu.target.textContent;};
 			delete window[browserMod].currentScanData;
 			currentFocus = doc; // Thanks to Kyle Huey for making this safe! (bug 695480)

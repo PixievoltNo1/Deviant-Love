@@ -5,23 +5,25 @@
 */
 "use strict";
 Components.utils.import("resource://gre/modules/Services.jsm");
+var loaded = {};
 addEventListener("DOMContentLoaded", pageSetup);
 addEventListener("pageshow", pageSetup);
 function pageSetup() {
 	if ( (/:\/\/[a-zA-Z\d\-]+\.deviantart\.com\/favourites\//).test(content.location.href) ) {
-		if (!findLove) {
+		if (!loaded.findLove) {
 			Services.scriptloader.loadSubScriptWithOptions("chrome://DeviantLove/content/core/detector.js", {
+				target: loaded,
 				charset: "UTF-8",
 				ignoreCache: true
 			});
 		}
-		sendAsyncMessage("deviantlove@pikadudeno1.com:foundLove", findLove(content));
+		sendAsyncMessage("deviantlove@pikadudeno1.com:foundLove", loaded.findLove(content));
 		addEventListener("contextmenu", checkForArtistLove);
 		addEventListener("pagehide", pageTeardown)
 	}
 }
 if (content.document.readyState == "interactive" || content.document.readyState == "complete") {
-	pageSetup(doc);
+	pageSetup();
 }
 function pageTeardown() {
 	sendAsyncMessage("deviantlove@pikadudeno1.com:lostLove");
