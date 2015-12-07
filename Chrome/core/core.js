@@ -276,6 +276,22 @@ function report(data, love) {
 			});
 		}
 	} );
+	function scrollToDeviationList() {
+	// Differs from the DOM method scrollIntoView in that it doesn't align .opened.deviant with either the top or bottom of the display area unless that is necessary to keep it in view
+		// It's actually easier NOT to use jQuery here.
+		var lovedArtistsElem = document.getElementById("lovedArtists");
+		var openedDeviantElem = document.querySelector(".opened.deviant");
+		var scroll = lovedArtistsElem.scrollTop;
+		if (scroll + lovedArtistsElem.clientHeight <
+			openedDeviantElem.offsetTop + openedDeviantElem.offsetHeight) {
+			scroll = openedDeviantElem.offsetTop + openedDeviantElem.offsetHeight
+				- lovedArtistsElem.clientHeight;
+		}
+		if (scroll > openedDeviantElem.offsetTop) {
+			scroll = openedDeviantElem.offsetTop;
+		}
+		lovedArtistsElem.scrollTop = scroll;
+	}
 	$("#query").bind("input", function(event) {
 		var checkResult = queryTroubleCheck();
 		if (typeof checkResult == "object") {
@@ -396,6 +412,9 @@ function report(data, love) {
 							if (subaccount in hiddenAccounts) {
 								removeDeviations(gottenObj, hiddenAccounts[subaccount].deviations);
 							}
+							if ($("input[value='inputToThis']").prop("checked")) {
+								$("#subaccountsListContents").append( buildSubaccountLine( subaccount ) );
+							}
 						}
 					}
 					if (gottenObj.deviations.length) {
@@ -497,6 +516,91 @@ function report(data, love) {
 	// All done, now go play!
 	$("body").css("cursor", "");
 	
+	function snackOnMyWrath(finkRats) {
+		// "You have energy like a little angry battery with no friends."
+		var rageDressing = document.createDocumentFragment();
+		var elem = document.createElement.bind(document);
+		// Chrome 44 is too slow at fetching these message repeatedly
+		var subaccountsOpenTooltip = adapter.getL10nMsg("subaccountsOpen");
+		var watchingThisArtistTooltip = adapter.getL10nMsg("watchingThisArtist");
+		finkRats.forEach( function(deviant) {
+			// Hot loop! A little optimization can make a lot of difference.
+			var devWatchElem = $(elem("div")).attr("class", "deviationWatch").html("&nbsp;");
+			var subaccountsElem = $(elem("div")).attr("class", "subaccountsButton").html("&nbsp;")
+				.attr("title", subaccountsOpenTooltip);
+			var lineElem = $(elem("div")).attr("class", "deviantLine").append(
+				devWatchElem,
+				$(elem("span")).attr("class", "deviantFaves").text(deviant.deviations.length),
+				$(elem("span")).attr("class", "deviantName").text(deviant.name),
+				subaccountsElem
+			);
+			var deviantElem = $(elem("div")).attr({"class": "deviant", id: "deviant_" + deviant.name})
+				.append(lineElem);
+			if (deviant.watched) {
+				devWatchElem.addClass("true").attr("title", watchingThisArtistTooltip);
+			}
+			if (deviant.hasSubaccounts) {
+				subaccountsElem.addClass("has");
+			}
+			rageDressing.appendChild(deviantElem[0]);
+		} );
+		return rageDressing; // on a salad of evil
+	}
+	function buildCloserLook(deviant, deviations) {
+		var closerLook = $("<div>", {"class": "closerLook"}).css("overflow", "hidden");
+
+		var deviantDetails = $("<div>", {"class": "deviantDetails"});
+		var deviantAvatar = $("<img>", {"class": "avatar", width: 50, height: 50})
+			.bind("load", function() { deviantDetails.find(".avatarLoading").remove(); } );
+		deviantDetails.append( $("<a>", {"href": deviant.baseURL, "class": "deviantLink"})
+			.append(deviantAvatar) );
+		deviantDetails.append($("<div>", {"class": "avatarLoading"}).l10n("imageLoading"));
+		if (deviant.avatar) {
+			deviantAvatar.attr("src", deviant.avatar);
+		} else {
+			$.ajax(deviant.baseURL, {responseType: "text"}).then( function(profileHtml) {
+				// <html> and <head> may be filtered
+				var avatarElem = $("<div>" + profileHtml + "</div>").find("link[rel='image_src']");
+				if (avatarElem.length == 0) { return $.Deferred().reject(); }
+				deviant.avatar = avatarElem.attr("href");
+				deviantAvatar.attr("src", deviant.avatar);
+			} ).fail( function() {
+				deviantDetails.find(".avatarLoading").remove();
+			} );
+		}
+		deviantDetails.append($("<div>", {"class": "deviantLinks"}) // Note two opening parens and only one closing paren
+			.append($("<a>", {"href": deviant.baseURL, "class": "profileLink"})
+				.l10nTooltip("profile"))
+			.append($("<a>", {"href": deviant.baseURL + "gallery/", "class": "galleryLink"})
+				.l10nTooltip("gallery"))
+			.append($("<a>", {"href": deviant.baseURL + "favourites/", "class": "favouritesLink"})
+				.l10nTooltip("favourites")))
+		deviantDetails.appendTo(closerLook);
+
+		var deviationList = $("<div>", {"class": "deviationList"});
+		deviations.forEach( function(deviation) {
+			$("<div>", {"class": "deviation"})
+				.append($("<a>", {href: deviation.URL}).text(deviation.name))
+				.appendTo(deviationList)
+		} );
+		deviationList.appendTo(closerLook);
+
+		return closerLook;
+	}
+	function buildSubaccountLine(accountName) {
+		var line = $("<div>", {"class": "subaccount"});
+		
+		var baseURL = "http://" + accountName.toLowerCase() + ".deviantart.com/";
+		line.append($("<a>", {"href": baseURL, "class": "profileLink"})
+			.l10nTooltip("profile"));
+		line.append($("<a>", {"href": baseURL + "gallery/", "class": "galleryLink"})
+			.l10nTooltip("gallery"));
+		line.append($("<span>", {"class": "subaccountName"}).text(accountName));
+		line.append($("<button>", {"class": "removeSubaccount"}).l10n("subaccountsRemove"));
+		
+		return line;
+	}
+	
 	function findStuff(event) {
 		event.preventDefault();
 		if (queryTroubleCheck() != false) { return };
@@ -565,6 +669,19 @@ function report(data, love) {
 			} );
 		}
 	}
+	function queryTroubleCheck() {
+	// Returns false if there are no troubles, true if there is a trouble not worth reporting to the user, and an object otherwise
+		var query = $("#query").val();
+
+		if (query.length == 0 || $("#query").hasClass("placeholder")) { return true };
+
+		var invalidChar = query.search(/[^a-zA-Z0-9 \_\'\"\+\.\,\$\?\:\-\!\=\~\`\@\#\%\^\*\[\]\(\)\/\{\}\\\|]/);
+		if (invalidChar != -1) {
+			return {errMsg: "findErrorForbiddenCharacter", offender: query.charAt(invalidChar)};
+		}
+
+		return false;
+	}
 	function normalMode() {
 		if ($("#mainScreen").hasClass("lookWhatIFound")) {
 			$("#mainScreen").removeClass("lookWhatIFound");
@@ -596,120 +713,6 @@ function nextTip() {
 function tipOfTheMoment(tip) {
 	$("#tOTMIcon").attr("src", "core/" + tip.icon);
 	$("#tOTMText").html(tip.html);
-}
-function scrollToDeviationList() {
-// Differs from the DOM method scrollIntoView in that it doesn't align .opened.deviant with either the top or bottom of the display area unless that is necessary to keep it in view
-	// It's actually easier NOT to use jQuery here.
-	var lovedArtistsElem = document.getElementById("lovedArtists");
-	var openedDeviantElem = document.querySelector(".opened.deviant");
-	var scroll = lovedArtistsElem.scrollTop;
-	if (scroll + lovedArtistsElem.clientHeight <
-		openedDeviantElem.offsetTop + openedDeviantElem.offsetHeight) {
-		scroll = openedDeviantElem.offsetTop + openedDeviantElem.offsetHeight
-			- lovedArtistsElem.clientHeight;
-	}
-	if (scroll > openedDeviantElem.offsetTop) {
-		scroll = openedDeviantElem.offsetTop;
-	}
-	lovedArtistsElem.scrollTop = scroll;
-}
-// snackOnMyWrath and buildCloserLook are needed by both scanDone_startFun and findStuff
-function snackOnMyWrath(finkRats) {
-	// "You have energy like a little angry battery with no friends."
-	var rageDressing = document.createDocumentFragment();
-	var elem = document.createElement.bind(document);
-	// Chrome 44 is too slow at fetching these message repeatedly
-	var subaccountsOpenTooltip = adapter.getL10nMsg("subaccountsOpen");
-	var watchingThisArtistTooltip = adapter.getL10nMsg("watchingThisArtist");
-	finkRats.forEach( function(deviant) {
-		// Hot loop! A little optimization can make a lot of difference.
-		var devWatchElem = $(elem("div")).attr("class", "deviationWatch").html("&nbsp;");
-		var subaccountsElem = $(elem("div")).attr("class", "subaccountsButton").html("&nbsp;")
-			.attr("title", subaccountsOpenTooltip);
-		var lineElem = $(elem("div")).attr("class", "deviantLine").append(
-			devWatchElem,
-			$(elem("span")).attr("class", "deviantFaves").text(deviant.deviations.length),
-			$(elem("span")).attr("class", "deviantName").text(deviant.name),
-			subaccountsElem
-		);
-		var deviantElem = $(elem("div")).attr({"class": "deviant", id: "deviant_" + deviant.name})
-			.append(lineElem);
-		if (deviant.watched) {
-			devWatchElem.addClass("true").attr("title", watchingThisArtistTooltip);
-		}
-		if (deviant.hasSubaccounts) {
-			subaccountsElem.addClass("has");
-		}
-		rageDressing.appendChild(deviantElem[0]);
-	} );
-	return rageDressing; // on a salad of evil
-}
-function buildCloserLook(deviant, deviations) {
-	var closerLook = $("<div>", {"class": "closerLook"}).css("overflow", "hidden");
-
-	var deviantDetails = $("<div>", {"class": "deviantDetails"});
-	var deviantAvatar = $("<img>", {"class": "avatar", width: 50, height: 50})
-		.bind("load", function() { deviantDetails.find(".avatarLoading").remove(); } );
-	deviantDetails.append( $("<a>", {"href": deviant.baseURL, "class": "deviantLink"})
-		.append(deviantAvatar) );
-	deviantDetails.append($("<div>", {"class": "avatarLoading"}).l10n("imageLoading"));
-	if (deviant.avatar) {
-		deviantAvatar.attr("src", deviant.avatar);
-	} else {
-		$.ajax(deviant.baseURL, {responseType: "text"}).then( function(profileHtml) {
-			// <html> and <head> may be filtered
-			var avatarElem = $("<div>" + profileHtml + "</div>").find("link[rel='image_src']");
-			if (avatarElem.length == 0) { return $.Deferred().reject(); }
-			deviant.avatar = avatarElem.attr("href");
-			deviantAvatar.attr("src", deviant.avatar);
-		} ).fail( function() {
-			deviantDetails.find(".avatarLoading").remove();
-		} );
-	}
-	deviantDetails.append($("<div>", {"class": "deviantLinks"}) // Note two opening parens and only one closing paren
-		.append($("<a>", {"href": deviant.baseURL, "class": "profileLink"})
-			.l10nTooltip("profile"))
-		.append($("<a>", {"href": deviant.baseURL + "gallery/", "class": "galleryLink"})
-			.l10nTooltip("gallery"))
-		.append($("<a>", {"href": deviant.baseURL + "favourites/", "class": "favouritesLink"})
-			.l10nTooltip("favourites")))
-	deviantDetails.appendTo(closerLook);
-
-	var deviationList = $("<div>", {"class": "deviationList"});
-	deviations.forEach( function(deviation) {
-		$("<div>", {"class": "deviation"})
-			.append($("<a>", {href: deviation.URL}).text(deviation.name))
-			.appendTo(deviationList)
-	} );
-	deviationList.appendTo(closerLook);
-
-	return closerLook;
-}
-function buildSubaccountLine(accountName) {
-	var line = $("<div>", {"class": "subaccount"});
-	
-	var baseURL = "http://" + accountName.toLowerCase() + ".deviantart.com/";
-	line.append($("<a>", {"href": baseURL, "class": "profileLink"})
-		.l10nTooltip("profile"));
-	line.append($("<a>", {"href": baseURL + "gallery/", "class": "galleryLink"})
-		.l10nTooltip("gallery"));
-	line.append($("<span>", {"class": "subaccountName"}).text(accountName));
-	line.append($("<button>", {"class": "removeSubaccount"}).l10n("subaccountsRemove"));
-	
-	return line;
-}
-function queryTroubleCheck() {
-// Returns false if there are no troubles, true if there is a trouble not worth reporting to the user, and an object otherwise
-	var query = $("#query").val();
-
-	if (query.length == 0 || $("#query").hasClass("placeholder")) { return true };
-
-	var invalidChar = query.search(/[^a-zA-Z0-9 \_\'\"\+\.\,\$\?\:\-\!\=\~\`\@\#\%\^\*\[\]\(\)\/\{\}\\\|]/);
-	if (invalidChar != -1) {
-		return {errMsg: "findErrorForbiddenCharacter", offender: query.charAt(invalidChar)};
-	}
-
-	return false;
 }
 function makeL10nMethod(methodName, effect) {
 	$.fn[methodName] = function(msgName) {
