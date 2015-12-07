@@ -25,6 +25,15 @@ function Deviant(name) {
 	this.name = name;
 	this.deviations = [];
 }
+Object.defineProperties(Deviant.prototype, {
+	baseURL: {
+		get: function() {
+			return this.baseURL = "http://" + this.name.toLowerCase() + ".deviantart.com/";
+		}, set: function(val) {
+			Object.defineProperty(this, "baseURL", {value: val, enumerable: true})
+		}
+	}
+});
 function beginPreparations(love) {
 	var scannerController;
 	var firstDeviant;
@@ -162,21 +171,6 @@ function report(data, love) {
 	var deviantMap = data.deviantMap, deviantList = data.deviantList,
 		hiddenAccounts = data.hiddenAccounts, totalDeviations = data.totalDeviations,
 		watchedArtists = data.watchedArtists, subaccounts = data.subaccounts;
-	Object.defineProperties(Deviant.prototype, {
-		baseURL: {
-			get: function() {
-				return this.baseURL = "http://" + this.name.toLowerCase() + ".deviantart.com/";
-			}, set: function(val) {
-				Object.defineProperty(this, "baseURL", {value: val, enumerable: true})
-			}
-		},
-		hasSubaccounts: {
-			get: function() { return this.name in subaccounts; }
-		},
-		watched: {
-			get: function() { return watchedArtists && watchedArtists.has(this.name); }
-		}
-	});
 	
 	// Construct the UI
 	preparationScreen.remove();
@@ -536,10 +530,10 @@ function report(data, love) {
 			);
 			var deviantElem = $(elem("div")).attr({"class": "deviant", id: "deviant_" + deviant.name})
 				.append(lineElem);
-			if (deviant.watched) {
+			if (watchedArtists && watchedArtists.has(deviant.name)) {
 				devWatchElem.addClass("true").attr("title", watchingThisArtistTooltip);
 			}
-			if (deviant.hasSubaccounts) {
+			if (deviant.name in subaccounts) {
 				subaccountsElem.addClass("has");
 			}
 			rageDressing.appendChild(deviantElem[0]);
