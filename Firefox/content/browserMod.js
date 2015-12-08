@@ -94,20 +94,19 @@
 	artistCheck.setAttribute("label", l10n.get("artistCheck", ["________"])); // For Fx extensions like Menu Editor
 	var webContextMenu = document.getElementById("contentAreaContextMenu");
 	webContextMenu.insertBefore(artistCheck, webContextMenu.firstChild);
-	function artistCheckRequested() {
-		if (foundLove.has(gBrowser.selectedBrowser) &&
-			gContextMenu.target.mozMatchesSelector(".folderview-art a.u")) {
-			artistCheck.label = l10n.get("artistCheck", [gContextMenu.target.textContent]);
-			artistCheck.hidden = false;
-		} else {
-			artistCheck.hidden = true;
-		}
-	}
-	webContextMenu.addEventListener("popupshowing", artistCheckRequested);
 	artistCheck.addEventListener("command", summonRawkitude);
 	cleanupTasks.push( removalTask(artistCheck) );
+	handleMessage("showArtistLove", function(msg) {
+		artistCheck.label = l10n.get("artistCheck", [msg.data]);
+		artistCheck.hidden = false;
+	});
+	handleMessage("noArtistLove", hideArtistLove);
+	gBrowser.tabContainer.addEventListener("TabSelect", hideArtistLove);
+	function hideArtistLove() {
+		artistCheck.hidden = true;
+	}
 	cleanupTasks.push( function() {
-		webContextMenu.removeEventListener("popupshowing", artistCheckRequested);
+		gBrowser.tabContainer.removeEventListener("TabSelect", hideArtistLove);
 	} );
 	
 	function summonRawkitude(event) {
