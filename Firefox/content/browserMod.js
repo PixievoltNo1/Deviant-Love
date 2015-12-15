@@ -92,6 +92,7 @@
 	var artistCheck = document.createElement("menuitem");
 	artistCheck.id = "DeviantLoveArtistCheck"; artistCheck.className = "menuitem-iconic";
 	artistCheck.setAttribute("label", l10n.get("artistCheck", ["________"])); // For Fx extensions like Menu Editor
+	artistCheck.hidden = true;
 	var webContextMenu = document.getElementById("contentAreaContextMenu");
 	webContextMenu.insertBefore(artistCheck, webContextMenu.firstChild);
 	artistCheck.addEventListener("command", summonRawkitude);
