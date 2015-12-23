@@ -145,26 +145,27 @@ function beginPreparations(love) {
 		watchStatus.l10n("watchFailure");
 		return null;
 	}
-	window.restore = function(data) {
-		// TODO: Rewrite this as a top-level function using report's new signature
-		deviantList = data.deviantList;
-		deviantList.forEach(function(deviant) {
-			deviantBag[deviant.name] = deviant;
-			totalDeviations += deviant.deviations.length;
-		});
-		hiddenAccounts = data.hiddenAccounts;
-		watchedArtists = data.watchedArtists;
-		firstTip.then(report);
-	}
 	function finish(results) {
 		var data = $.extend(results[0], results[2]);
 		data.watchedArtists = results[1];
 		data.firstTip = results[3];
 		data.firstDeviant = firstDeviant;
-		adapter.prepComplete({deviantList: data.deviantList, watchedArtists: data.watchedArtists,
-			hiddenAccounts: data.hiddenAccounts});
+		adapter.prepComplete(data);
+		preparationScreen.remove();
 		report(data, love);
 	}
+}
+function restore(data, love) {
+	// The restore mechanism is kinda hackish; can it be improved without over-engineering?
+	var firstDeviant;
+	window.showDeviant = function(deviantName) {
+		firstDeviant = deviantName;
+	}
+	nextTip().then(function(tip) {
+		data.firstTip = tip;
+		data.firstDeviant = firstDeviant;
+		report(data, love);
+	});
 }
 function report(data, love) {
 	// No destructuring in Chrome 38 *sigh*
@@ -173,7 +174,6 @@ function report(data, love) {
 		watchedArtists = data.watchedArtists, subaccounts = data.subaccounts;
 	
 	// Construct the UI
-	preparationScreen.remove();
 	var mainScreen = $("<div>", {id: "mainScreen"});
 	mainScreen.appendTo(document.body);
 	var scanResults = $("<div>", {id: "scanResults"});
