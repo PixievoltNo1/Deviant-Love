@@ -148,30 +148,27 @@ function beginPreparations(love) {
 	function finish(results) {
 		var data = $.extend(results[0], results[2]);
 		data.watchedArtists = results[1];
-		data.firstTip = results[3];
-		data.firstDeviant = firstDeviant;
 		adapter.prepComplete(data);
 		preparationScreen.remove();
-		report(data, love);
+		var ui = {firstTip: results[3], firstDeviant: firstDeviant};
+		report(data, ui, love);
 	}
 }
 function restore(data, love) {
-	// The restore mechanism is kinda hackish; can it be improved without over-engineering?
 	var firstDeviant;
 	window.showDeviant = function(deviantName) {
 		firstDeviant = deviantName;
 	}
 	nextTip().then(function(tip) {
-		data.firstTip = tip;
-		data.firstDeviant = firstDeviant;
-		report(data, love);
+		var ui = {firstTip: tip, firstDeviant: firstDeviant};
+		report(data, ui, love);
 	});
 }
-function report(data, love) {
+function report(results, ui, love) {
 	// No destructuring in Chrome 38 *sigh*
-	var deviantMap = data.deviantMap, deviantList = data.deviantList,
-		hiddenAccounts = data.hiddenAccounts, totalDeviations = data.totalDeviations,
-		watchedArtists = data.watchedArtists, subaccounts = data.subaccounts;
+	var deviantMap = results.deviantMap, deviantList = results.deviantList,
+		hiddenAccounts = results.hiddenAccounts, totalDeviations = results.totalDeviations,
+		watchedArtists = results.watchedArtists, subaccounts = results.subaccounts;
 	
 	// Construct the UI
 	var mainScreen = $("<div>", {id: "mainScreen"});
@@ -242,7 +239,7 @@ function report(data, love) {
 		.append($("<img>", {id: "tOTMIcon"}))
 		.append($("<div>", {id: "tOTMText"}))
 		.appendTo(mainScreen);
-	tipOfTheMoment(data.firstTip);
+	tipOfTheMoment(ui.firstTip);
 
 	// Set up interaction
 	lovedArtists.delegate(".deviant:not(.opened)", "click", function(event, suppressAnimation) {
@@ -503,8 +500,8 @@ function report(data, love) {
 		$("#deviant_" + deviantName).trigger("click", isFirst || adapter.displayType == "popup")
 			.get(0).scrollIntoView();
 	}
-	if (data.firstDeviant) {
-		showDeviant(data.firstDeviant, true);
+	if (ui.firstDeviant) {
+		showDeviant(ui.firstDeviant, true);
 	}
 
 	// All done, now go play!
