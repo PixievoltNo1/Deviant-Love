@@ -120,7 +120,7 @@ function fulfillPurpose(pageType, ownerOrTitle) {
 			return a.name.toLowerCase().localeCompare(b.name.toLowerCase());
 		}
 	}
-	window.scanDone_startFun = function(firstTip) {
+	window.scanDone_startFun = function(firstTip) { settingsRetrieval.done( function() {
 		for (var deviantName in subaccounts) {
 			if (deviantName in deviantBag) {
 				deviantBag[deviantName].hasSubaccounts = true;
@@ -163,11 +163,11 @@ function fulfillPurpose(pageType, ownerOrTitle) {
 			});
 		}
 		
-		settingsRetrieval.done( function() { report(firstTip); } );
+		report(firstTip);
 		// Return value needed by the Firefox version
 		return {deviantList: deviantList, watchRetrievalOK: Boolean(watchedArtists),
 			hiddenAccounts: hiddenAccounts};
-	}
+	} ) }
 	function report(firstTip) {
 		// Construct the UI
 		preparationScreen.remove();
