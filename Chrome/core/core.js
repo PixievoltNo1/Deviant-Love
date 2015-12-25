@@ -397,6 +397,11 @@ function fulfillPurpose(pageType, ownerOrTitle) {
 									}
 								});
 							});
+							if ($("input[value='inputToThis']").prop("checked")) {
+								subaccounts[gotten].forEach(function(subaccount) {
+									$("#subaccountsListContents").append( buildSubaccountLine(subaccount) );
+								});
+							}
 						}
 						gottenObj.hasSubaccounts = false;
 						if (gottenObj.deviations.length) {
