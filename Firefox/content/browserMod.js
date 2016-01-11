@@ -88,7 +88,6 @@
 	} );
 	cleanupTasks.push( removalTask(sidebar) );
 
-	// The label property won't work for freshly-made elements. Some XBL thing.
 	// Deviant Love doesn't actually need a reload button, but it's the most concise way to inform the user that the sidebar's report is static.
 	var reload = document.createElement("button");
 	reload.id = "DeviantLoveReload"; reload.setAttribute("label", "Reload"); reload.hidden = true;
@@ -106,7 +105,7 @@
 	cleanupTasks.push( removalTask(artistCheck) );
 	handleMessage("showArtistLove", function(msg) {
 		artistCheck.artist = msg.data;
-		artistCheck.label = l10n.get("artistCheck", [msg.data]);
+		artistCheck.setAttribute("label", l10n.get("artistCheck", [msg.data]));
 		artistCheck.hidden = false;
 	});
 	handleMessage("noArtistLove", hideArtistLove);
