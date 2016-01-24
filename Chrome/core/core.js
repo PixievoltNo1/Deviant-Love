@@ -263,7 +263,8 @@ function report(results, ui, love) {
 			closerLook.height(0).velocity({height: closerLookHeight}, {
 				duration: 400,
 				easing: "swing",
-				progress: scrollToDeviationList
+				progress: scrollToDeviationList,
+				complete: function(elements) { elements[0].style.height = ""; }
 			});
 		}
 	} );
