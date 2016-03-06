@@ -96,7 +96,7 @@ function researchLove(favesURL, maxDeviations, handlers) {
 	var watchlistSettings = {
 		dataType: "json",
 		success: processWatchJSON,
-		error: watchedResult.reject.bind(watchedResult)
+		error: watchedResult.reject.bind(watchedResult, "netError")
 	};
 	function retrieveWatchlist() {
 		currentXHRs.watch = $.ajax("http://my.deviantart.com/global/difi/?c%5B%5D=%22Friends%22%2C%22getFriendsList%22%2C%5Btrue%2C"
@@ -104,7 +104,8 @@ function researchLove(favesURL, maxDeviations, handlers) {
 	}
 	function processWatchJSON(digHere) {
 		if (digHere.DiFi.status === "FAIL") {
-			watchedResult.reject();
+			// TODO: Can we refine not-logged-in detection any further?
+			watchedResult.reject("notLoggedIn");
 			return;
 		}
 		try {
@@ -116,7 +117,7 @@ function researchLove(favesURL, maxDeviations, handlers) {
 			} );
 		} catch(e) {
 			console.error(e);
-			watchedResult.reject();
+			watchedResult.reject("processingError");
 			return;
 		}
 		if (buriedTreasure.length == 100) { // That means there may be more friends

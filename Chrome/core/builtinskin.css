@@ -64,11 +64,8 @@ a img {
 	font-weight: bold;
 }
 #watchFailure {
-	float: right;
-	width: 20px;
-	height: 20px;
 	background: url("Failed.png"), url("deviantart/Watch.png");
-	background-position: center, center;
+	background-position: left;
 	background-repeat: no-repeat, no-repeat;
 }
 #findBar {

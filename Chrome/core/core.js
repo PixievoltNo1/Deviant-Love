@@ -174,9 +174,6 @@ function report(results, ui, love) {
 	var mainScreen = $("<div>", {id: "mainScreen"});
 	mainScreen.appendTo(document.body);
 	var scanResults = $("<div>", {id: "scanResults"});
-	if (!watchedArtists) {
-		$("<div>", {id: "watchFailure"}).l10nTooltip("watchFailure").appendTo(scanResults);
-	}
 	if (adapter.displayType == "popup") {
 		var scanResultsLine1 = ({
 			featured: "scanResultsPopupFeaturedLine1",
@@ -209,10 +206,14 @@ function report(results, ui, love) {
 		.appendTo(mainScreen);
 	$("#query").l10nPlaceholder("queryPlaceholder");
 	$("<div>", {id: "queryError"}).hide().appendTo(mainScreen);
+	var normalModePrefix = $();
+	if (!watchedArtists) {
+		normalModePrefix = $("<div>", {id: "watchFailure"}).l10n("watchFailure");
+	}
 	var lovedArtists = $("<div>", {id: "lovedArtists"})
 		.css({"overflow-y": "auto", "overflow-x": "hidden"})
-		.append(snackOnMyWrath(deviantList))
 		.appendTo(mainScreen);
+	normalMode();
 	if (lovedArtists.css("position") == "static") { lovedArtists.css("position", "relative") } // Needed for scrollToDeviationList. It's as weird as it to ensure future compatibility with the skinning feature.
 	var subaccountsEditor = $("<div>", {id: "subaccountsEditor"}).hide().appendTo(mainScreen)
 		.append( $("<div>", {id: "closeSubaccountsEditor"}).l10nTooltip("subaccountsClose") );
@@ -497,7 +498,9 @@ function report(results, ui, love) {
 	
 	// Handle requests for a particular deviant that were made elsewhere (e.g. context menu)
 	window.showDeviant = function(deviantName, isFirst) {
-		normalMode();
+		if ($("#mainScreen").hasClass("lookWhatIFound")) {
+			normalMode();
+		}
 		$("#deviant_" + deviantName).trigger("click", isFirst || adapter.displayType == "popup")
 			.get(0).scrollIntoView();
 	}
@@ -675,10 +678,9 @@ function report(results, ui, love) {
 		return false;
 	}
 	function normalMode() {
-		if ($("#mainScreen").hasClass("lookWhatIFound")) {
-			$("#mainScreen").removeClass("lookWhatIFound");
-			$("#lovedArtists").removeClass("noResults").empty().append(snackOnMyWrath(deviantList));
-		}
+		$("#mainScreen").removeClass("lookWhatIFound");
+		$("#lovedArtists").removeClass("noResults").empty()
+			.append(normalModePrefix).append(snackOnMyWrath(deviantList));
 	}
 }
 
