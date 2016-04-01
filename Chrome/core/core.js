@@ -53,12 +53,16 @@ function beginPreparations(love) {
 		.appendTo(preparationScreen);
 	$("<div>", {id: "scannedDeviations"}).appendTo(preparationScreen);
 	var watchStatus = $("<div>", {id: "watchStatus"}).appendTo(preparationScreen);
+	$("<div>", {id: "scanError"}).l10n("scanError").hide().appendTo(preparationScreen);
+	$("<button>", {id: "retryButton"}).l10n("scanErrorRetry").hide().appendTo(preparationScreen);
 	window.startScan = function() {
-		var scannerController = researchLove(love.feedHref, love.maxDeviations, {
-			progress: setProgress,
-			onFavesError: scanError
-		});
-		var organized = Promise.all([scannerController.faves, settings]).then(organizeData);
+		scannerController = researchLove(love.feedHref, love.maxDeviations);
+		scannerController.progress.add(setProgress);
+		var faves = scannerController.faves.catch( function catcher(thrown) {
+			scanError();
+			return thrown.retryResult.catch(catcher);
+		} );
+		var organized = Promise.all([faves, settings]).then(organizeData);
 		var watched = scannerController.watched.then(collectWatchlist, watchError);
 		Promise.all([organized, watched, settings, firstTip]).then(finish);
 		return scannerController;
@@ -118,22 +122,22 @@ function beginPreparations(love) {
 		$("#scanPercentageText").text( Math.floor(percentage * 100) + "%" );
 	}
 	function scanError() {
+		scannerController.pause();
 		$("body").css("cursor", "");
-		scanProgressBar.hide();
-		$("#scanProgressInfo").hide();
+		$("#scanPercentage").hide();
+		$("#scannedDeviations").hide();
 		watchStatus.hide();
-		$("<div>", {id: "scanError"}).l10n("scanError").appendTo(preparationScreen);
-		$("<button>", {id: "retryButton"}).l10n("scanErrorRetry")
-			.bind("click", function() {
-				$(this).add("#scanError").remove();
-				scanProgressBar.show();
-				$("#scanProgressInfo").show();
-				watchStatus.show();
-				$("body").css("cursor", "wait");
-				scannerController.retryFaves();
-			} )
-			.appendTo(preparationScreen);
+		$("#scanError, #retryButton").show();
 	}
+	$("#retryButton").bind("click", function() {
+		$(this).add("#scanError").hide();
+		$("#scanPercentage").show();
+		$("#scannedDeviations").show();
+		watchStatus.show();
+		$("body").css("cursor", "wait");
+		scannerController.resume();
+		scannerController.retry();
+	} );
 	window.showDeviant = function(deviantName) {
 		firstDeviant = deviantName;
 	}
@@ -141,7 +145,12 @@ function beginPreparations(love) {
 		watchStatus.l10n("watchSuccess");
 		return list;
 	}
-	function watchError() {
+	function watchError(thrown) {
+		if (thrown.reason == "netError") {
+			scanError();
+			return thrown.retryResult.then(collectWatchlist, watchError);
+		}
+		// TODO: Change watch error based on thrown.reason; make sure report() gets it
 		watchStatus.l10n("watchFailure");
 		return null;
 	}

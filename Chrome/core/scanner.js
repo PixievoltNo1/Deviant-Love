@@ -5,20 +5,23 @@
 */
 "use strict";
 
-function researchLove(favesURL, maxDeviations, handlers) {
-// Handlers needed: onFavesError, progress
-	var currentXHRs = {}, paused = false, onResume = [grabMorePages];
+function researchLove(favesURL, maxDeviations) {
+	var currentXHRs = {}, paused = false, onResume = [grabMorePages], onRetry = [];
 	
 	var favesResult = $.Deferred(), watchedResult = $.Deferred();
 	var api = {
 		faves: Promise.resolve(favesResult),
+		progress: $.Callbacks(),
 		watched: Promise.resolve(watchedResult),
 		cancel: function() {
 			for (var XHR in currentXHRs) {
 				currentXHRs[XHR].abort();
 			}
 		},
-		favesRetry: retryFailedPages,
+		retry: function() {
+			onRetry.forEach( function(handler) { handler(); } );
+			onRetry = [];
+		},
 		pause: function() { paused = true; },
 		resume: function() {
 			paused = false;
@@ -66,7 +69,7 @@ function researchLove(favesURL, maxDeviations, handlers) {
 		pageData[xhr.page - 1] = items;
 		++processedPages;
 		var progressPercentage = Math.min( (processedPages * favesPerPage) / maxDeviations, 1);
-		handlers.progress(progressPercentage, found);
+		api.progress.fire(progressPercentage, found);
 		if (processedPages == totalPages) {
 			favesResult.resolve( Array.prototype.concat.apply([], pageData) );
 		}
@@ -80,44 +83,44 @@ function researchLove(favesURL, maxDeviations, handlers) {
 			retrieveFaves(requestedPages);
 		}
 	}
-	var failedPages = [];
+	var firstFail = true;
 	function collectFailedPage(xhr) {
-		failedPages.push(xhr.page);
-		if (failedPages.length == 1) {
-			handlers.onFavesError();
+		if (firstFail) {
+			firstFail = false;
+			onRetry.push( function() { firstFail = true; } );
+			var retryResult = $.Deferred();
+			favesResult.reject({ retryResult: retryResult });
+			favesResult = retryResult;
 		}
-	}
-	function retryFailedPages() {
-		failedPages.forEach(retrieveFaves);
-		failedPages = [];
+		onRetry.push( retrieveFaves.bind(null, xhr.page) );
 	}
 	
 	var watchlistPage = 0, greatOnes = new Set();
-	var watchlistSettings = {
-		dataType: "json",
-		success: processWatchJSON,
-		error: watchedResult.reject.bind(watchedResult, "netError")
-	};
 	function retrieveWatchlist() {
-		currentXHRs.watch = $.ajax("http://my.deviantart.com/global/difi/?c%5B%5D=%22Friends%22%2C%22getFriendsList%22%2C%5Btrue%2C"
-			+ watchlistPage + "%5D&t=json", watchlistSettings);
+		currentXHRs.watch = $.getJSON("http://my.deviantart.com/global/difi/?c%5B%5D=%22Friends%22%2C%22getFriendsList%22%2C%5Btrue%2C"
+			+ watchlistPage + "%5D&t=json")
+			.done(processWatchJSON).fail( function() {
+				var retryResult = $.Deferred();
+				watchedResult.reject({ reason: "netError", retryResult: retryResult });
+				watchedResult = retryResult;
+				onRetry.push(retrieveWatchlist);
+			}  );
 	}
 	function processWatchJSON(digHere) {
-		if (digHere.DiFi.status === "FAIL") {
-			// TODO: Can we refine not-logged-in detection any further?
-			watchedResult.reject("notLoggedIn");
+		var response = digHere.DiFi.response.calls[0].response;
+		if (response.status === "NOEXEC_HALT") {
+			watchedResult.reject({ reason: "notLoggedIn" });
 			return;
 		}
 		try {
-			var buriedTreasure = digHere.DiFi.response.calls[0].response.content[0];
-			buriedTreasure.forEach( function(deviant) {
+			response.content[0].forEach( function(deviant) {
 				if (deviant.attributes & 2) {
 					greatOnes.add(deviant.username);
 				}
 			} );
 		} catch(e) {
 			console.error(e);
-			watchedResult.reject("processingError");
+			watchedResult.reject({ reason: "processingError" });
 			return;
 		}
 		if (buriedTreasure.length == 100) { // That means there may be more friends
