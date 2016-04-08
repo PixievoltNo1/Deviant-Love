@@ -123,7 +123,7 @@ function researchLove(favesURL, maxDeviations) {
 			watchedResult.reject({ reason: "processingError" });
 			return;
 		}
-		if (buriedTreasure.length == 100) { // That means there may be more friends
+		if (response.content[0].length == 100) { // That means there may be more friends
 			++watchlistPage;
 			if (!paused) {
 				retrieveWatchlist();
