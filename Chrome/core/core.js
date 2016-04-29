@@ -609,8 +609,8 @@ function report(results, ui, love) {
 		event.preventDefault();
 		if (queryTroubleCheck() != false) { return };
 
-		// This line to be replaced when multiple term support is implemented
-		var queryChunks = [$("#query").val()];
+		var queryText = $("#query").val();
+		var queryChunks = queryText.split("&");
 
 		queryChunks = queryChunks.map( function(chunk) {return chunk.trim().toLowerCase()} );
 		var checkDeviants = queryChunks.every( function(chunk) {
@@ -672,14 +672,18 @@ function report(results, ui, love) {
 					.append(closerLook);
 			} );
 		}
+		if (queryText.indexOf(" ") != -1 && queryText.indexOf("&") == -1) {
+			// TODO: Display a hint about the & operator
+		}
+		
 	}
 	function queryTroubleCheck() {
 	// Returns false if there are no troubles, true if there is a trouble not worth reporting to the user, and an object otherwise
 		var query = $("#query").val();
 
-		if (query.length == 0 || $("#query").hasClass("placeholder")) { return true };
+		if (query.length == 0) { return true };
 
-		var invalidChar = query.search(/[^a-zA-Z0-9 \_\'\"\+\.\,\$\?\:\-\!\=\~\`\@\#\%\^\*\[\]\(\)\/\{\}\\\|]/);
+		var invalidChar = query.search(/[^a-zA-Z0-9 \_\'\"\+\.\,\$\?\:\-\!\=\~\`\@\#\%\^\*\[\]\(\)\/\{\}\\\|\&]/);
 		if (invalidChar != -1) {
 			return {errMsg: "findErrorForbiddenCharacter", offender: query.charAt(invalidChar)};
 		}
