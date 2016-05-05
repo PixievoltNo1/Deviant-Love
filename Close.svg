@@ -13,7 +13,7 @@
    height="8"
    id="svg2"
    version="1.1"
-   inkscape:version="0.48.3.1 r9886"
+   inkscape:version="0.91 r13725"
    sodipodi:docname="Close.svg">
   <defs
      id="defs4">
@@ -36,13 +36,13 @@
      borderopacity="1"
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
-     inkscape:zoom="16"
-     inkscape:cx="5.86328"
-     inkscape:cy="3.09375"
+     inkscape:zoom="8"
+     inkscape:cx="3.16406"
+     inkscape:cy="7"
      inkscape:document-units="px"
      inkscape:current-layer="layer1"
      showgrid="true"
-     showborder="true"
+     showborder="false"
      showguides="true"
      inkscape:guide-bbox="true">
     <inkscape:grid
@@ -63,7 +63,7 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title />
+        <dc:title></dc:title>
       </cc:Work>
     </rdf:RDF>
   </metadata>
@@ -72,11 +72,11 @@
      inkscape:groupmode="layer"
      id="layer1">
     <path
-       style="fill:#ff0000;fill-opacity:1;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
-       d="M 0.5,0.5 3.5,4 0.5,7.5 3,7.5 4.5,6 5.5,6 7,7.5 9.5,7.5 6.5,4 9.5,0.5 7,0.5 5.5,2 4.5,2 3,0.5 z"
+       style="fill:#ff0000;fill-opacity:1;stroke:#000000;stroke-width:0.6;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       d="m 0.5,0.5 3,3.5 -3,3.5 2.5,0 2,-2 2,2 2.5,0 -3,-3.5 3,-3.5 -2.5,0 -2,2 -2,-2 z"
        id="path2985"
        inkscape:connector-curvature="0"
-       sodipodi:nodetypes="ccccccccccccccc"
+       sodipodi:nodetypes="ccccccccccccc"
        clip-path="url(#clipPath3756)" />
   </g>
 </svg>

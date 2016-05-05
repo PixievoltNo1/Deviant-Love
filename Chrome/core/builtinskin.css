@@ -54,7 +54,8 @@ a img {
 	border-top: 0;
 }
 #scanResults {
-	background: url("48Icon.png"), linear-gradient(to bottom, hsl(40, 100%, 70%), hsl(40, 100%, 50%));
+	background: url("heart/scalable.svg"), linear-gradient(to bottom, hsl(40, 100%, 70%), hsl(40, 100%, 50%));
+	background-size: 48px 48px, auto;
 	background-position: 5px center, 0 0;
 	background-repeat: no-repeat, repeat;
 	padding: 5px;

@@ -3,8 +3,8 @@
 	"version": "2.2",
 	"description": "__MSG_extDesc__",
 	"icons": {
-		"16": "core/16Icon.png",
-		"48": "core/48Icon.png",
+		"16": "core/heart/16.png",
+		"48": "core/heart/48.png",
 		"128": "128Icon.png"
 	},
 	"default_locale": "en",
@@ -14,7 +14,7 @@
 		"persistent": false
 	},
 	"page_action": {
-		"default_icon": "19Icon.png",
+		"default_icon": "38Heart.png",
 		"default_title": "Deviant Love"
 	},
 	"content_scripts": [{
