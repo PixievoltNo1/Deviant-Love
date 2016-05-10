@@ -89,7 +89,7 @@ function researchLove(favesURL, maxDeviations) {
 			firstFail = false;
 			onRetry.push( function() { firstFail = true; } );
 			var retryResult = $.Deferred();
-			favesResult.reject({ retryResult: retryResult });
+			favesResult.reject({ retryResult: Promise.resolve(retryResult) });
 			favesResult = retryResult;
 		}
 		onRetry.push( retrieveFaves.bind(null, xhr.page) );
@@ -102,11 +102,11 @@ function researchLove(favesURL, maxDeviations) {
 			.done(processWatchJSON).fail( function(jqXHR, status) {
 				if (status == "timeout" || status == "abort") {
 					var retryResult = $.Deferred();
-					watchedResult.reject({ reason: "netError", retryResult: retryResult });
+					watchedResult.reject({ reason: "netError", retryResult: Promise.resolve(retryResult) });
 					watchedResult = retryResult;
 					onRetry.push(retrieveWatchlist);
 				} else {
-					watchedResult.reject({ reason: "scannerIssue", retryResult: retryResult });
+					watchedResult.reject({ reason: "scannerIssue" });
 				}
 			}  );
 	}
