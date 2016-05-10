@@ -99,11 +99,15 @@ function researchLove(favesURL, maxDeviations) {
 	function retrieveWatchlist() {
 		currentXHRs.watch = $.getJSON("http://my.deviantart.com/global/difi/?c%5B%5D=%22Friends%22%2C%22getFriendsList%22%2C%5Btrue%2C"
 			+ watchlistPage + "%5D&t=json")
-			.done(processWatchJSON).fail( function() {
-				var retryResult = $.Deferred();
-				watchedResult.reject({ reason: "netError", retryResult: retryResult });
-				watchedResult = retryResult;
-				onRetry.push(retrieveWatchlist);
+			.done(processWatchJSON).fail( function(jqXHR, status) {
+				if (status == "timeout" || status == "abort") {
+					var retryResult = $.Deferred();
+					watchedResult.reject({ reason: "netError", retryResult: retryResult });
+					watchedResult = retryResult;
+					onRetry.push(retrieveWatchlist);
+				} else {
+					watchedResult.reject({ reason: "scannerIssue", retryResult: retryResult });
+				}
 			}  );
 	}
 	function processWatchJSON(digHere) {
@@ -120,7 +124,7 @@ function researchLove(favesURL, maxDeviations) {
 			} );
 		} catch(e) {
 			console.error(e);
-			watchedResult.reject({ reason: "processingError" });
+			watchedResult.reject({ reason: "scannerIssue" });
 			return;
 		}
 		if (response.content[0].length == 100) { // That means there may be more friends
