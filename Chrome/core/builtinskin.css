@@ -198,21 +198,28 @@ a img {
 	text-align: center;
 	position: relative;
 }
-.deviantLink {
-	display: inline-block;
-}
 .avatar {
-	display: block;
+	display: inline-block;
 	background-color: white;
 	box-shadow: hsla(0, 0%, 0%, 0.8) 2px 2px 2px;
+	position: relative;
 }
-.avatarLoading {
+.avatar img {
+	display: block;
+}
+@keyframes spin {
+	0% { transform: none; }
+	100% { transform: rotate(1turn); }
+}
+.avatar.loading::before {
+	display: block;
 	position: absolute;
-	left: 4px;
-	right: 4px;
-	top: 4px;
-	line-height: 50px;
-	font-size: 120%;
+	left: 0;
+	top: 0;
+	bottom: 0;
+	z-index: 1;
+	content: url(spinner.svg);
+	animation: 5s linear infinite spin;
 }
 .deviantLinks {
 	height: 20px;

@@ -53,10 +53,6 @@
 		"message": "You are watching this artist's deviations",
 		"description": "Icon tooltip"
 	},
-	"imageLoading": {
-		"message": "Loading...",
-		"description": "Shown very briefly (or so it is hoped)"
-	},
 	"profile": {
 		"message": "Profile",
 		"description": "Link tooltip"

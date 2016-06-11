@@ -554,11 +554,10 @@ function report(results, ui, love) {
 		var closerLook = $("<div>", {"class": "closerLook"}).css("overflow", "hidden");
 
 		var deviantDetails = $("<div>", {"class": "deviantDetails"});
-		var deviantAvatar = $("<img>", {"class": "avatar", width: 50, height: 50})
-			.bind("load", function() { deviantDetails.find(".avatarLoading").remove(); } );
-		deviantDetails.append( $("<a>", {"href": deviant.baseURL, "class": "deviantLink"})
+		var deviantAvatar = $("<img>", {width: 50, height: 50})
+			.bind("load", function() { this.parentNode.classList.remove("loading"); } );
+		deviantDetails.append( $("<a>", {"href": deviant.baseURL, "class": "avatar loading"})
 			.append(deviantAvatar) );
-		deviantDetails.append($("<div>", {"class": "avatarLoading"}).l10n("imageLoading"));
 		if (deviant.avatar) {
 			deviantAvatar.attr("src", deviant.avatar);
 		} else {
@@ -569,7 +568,7 @@ function report(results, ui, love) {
 				deviant.avatar = avatarElem.attr("href");
 				deviantAvatar.attr("src", deviant.avatar);
 			} ).fail( function() {
-				deviantDetails.find(".avatarLoading").remove();
+				deviantAvatar.parent().removeClass("loading");
 			} );
 		}
 		deviantDetails.append($("<div>", {"class": "deviantLinks"}) // Note two opening parens and only one closing paren
