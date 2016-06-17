@@ -29,10 +29,8 @@
 		"description": "Button text"
 	},
 	"watchSuccess": { "message": "Successfully retrieved your watch list" },
-	"watchFailure": {
-		"message": "Attempting to check your watch list failed",
-		"description": "Used both on-screen and as a tooltip"
-	},
+	"watchErrorNotLoggedIn": { "message": "Your watch list couldn't be retrieved. It appears you're not logged in." },
+	"watchErrorInternal": { "message": "Your watch list couldn't be retrieved, likely due to an issue with Deviant Love." },
 	"scanResultsPopupFeaturedLine1": { "message": "This page has $1 featured faves" },
 	"scanResultsPopupAllLine1": { "message": "This page has $1 faves" },
 	"scanResultsPopupCollectionLine1": { "message": "This Collection has $1 faves" },

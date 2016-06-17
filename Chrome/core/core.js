@@ -150,9 +150,9 @@ function beginPreparations(love) {
 			scanError();
 			return thrown.retryResult.then(collectWatchlist, watchError);
 		}
-		// TODO: Change watch error based on thrown.reason; make sure report() gets it
-		watchStatus.l10n("watchFailure");
-		return null;
+		watchStatus.l10n( (thrown.reason == "notLoggedIn") ?
+			"watchErrorNotLoggedIn" : "watchErrorInternal" );
+		return {error: thrown.reason};
 	}
 	function finish(results) {
 		var data = $.extend(results[0], results[2]);
@@ -216,8 +216,9 @@ function report(results, ui, love) {
 	$("#query").l10nPlaceholder("queryPlaceholder");
 	$("<div>", {id: "queryError"}).hide().appendTo(mainScreen);
 	var normalModePrefix = $();
-	if (!watchedArtists) {
-		normalModePrefix = $("<div>", {id: "watchFailure"}).l10n("watchFailure");
+	if (!(watchedArtists instanceof Set)) {
+		normalModePrefix = $("<div>", {id: "watchFailure"}).l10n( (thrown.reason == "notLoggedIn") ?
+			"watchErrorNotLoggedIn" : "watchErrorInternal" );
 	}
 	var lovedArtists = $("<div>", {id: "lovedArtists"})
 		.css({"overflow-y": "auto", "overflow-x": "hidden"})
@@ -540,7 +541,7 @@ function report(results, ui, love) {
 			);
 			var deviantElem = $(elem("div")).attr({"class": "deviant", id: "deviant_" + deviant.name})
 				.append(lineElem);
-			if (watchedArtists && watchedArtists.has(deviant.name)) {
+			if (watchedArtists instanceof Set && watchedArtists.has(deviant.name)) {
 				devWatchElem.addClass("true").attr("title", watchingThisArtistTooltip);
 			}
 			if (deviant.name in subaccounts) {
