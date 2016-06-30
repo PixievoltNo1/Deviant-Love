@@ -64,11 +64,6 @@ a img {
 #scanResults .dynamic {
 	font-weight: bold;
 }
-#watchFailure {
-	background: url("Failed.png"), url("deviantart/Watch.png");
-	background-position: left;
-	background-repeat: no-repeat, no-repeat;
-}
 #findBar {
 	background-color: hsl(55, 100%, 55%);
 }
@@ -121,6 +116,18 @@ a img {
 }
 #lovedArtists, .closerLook {
 	background: hsl(357, 90%, 54%);
+}
+.notice {
+	margin: 4px;
+	padding: 3px;
+	border-radius: 4px;
+	background-color: hsla(0, 100%, 100%, .6);
+	font-size: 14.5px;
+}
+#watchFailure {
+	background: url("failed.svg"), url("deviantart/Watch.png");
+	background-position: left;
+	background-repeat: no-repeat, no-repeat;
 }
 .deviant:not(.opened) {
 	background: hsl(357, 90%, 76%);

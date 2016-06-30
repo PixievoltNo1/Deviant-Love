@@ -217,8 +217,8 @@ function report(results, ui, love) {
 	$("<div>", {id: "queryError"}).hide().appendTo(mainScreen);
 	var normalModePrefix = $();
 	if (!(watchedArtists instanceof Set)) {
-		normalModePrefix = $("<div>", {id: "watchFailure"}).l10n( (thrown.reason == "notLoggedIn") ?
-			"watchErrorNotLoggedIn" : "watchErrorInternal" );
+		normalModePrefix = $("<div>", {id: "watchFailure", "class": "notice"})
+			.l10n( (thrown.reason == "notLoggedIn") ? "watchErrorNotLoggedIn" : "watchErrorInternal" );
 	}
 	var lovedArtists = $("<div>", {id: "lovedArtists"})
 		.css({"overflow-y": "auto", "overflow-x": "hidden"})
@@ -652,8 +652,7 @@ function report(results, ui, love) {
 		$("#mainScreen").addClass("lookWhatIFound");
 		var lovedArtists = $("#lovedArtists").empty().removeClass("noResults");
 		if (deviantMatches.length == 0 && deviationMatches.length == 0) {
-			lovedArtists.l10n("foundNothing").addClass("noResults")
-			return;
+			lovedArtists.l10n("foundNothing").addClass("noResults");
 		}
 		if (deviantMatches.length > 0) {
 			lovedArtists.append( $("<div>", {"class": "sectionHeader"})
@@ -673,7 +672,8 @@ function report(results, ui, love) {
 			} );
 		}
 		if (queryText.indexOf(" ") != -1 && queryText.indexOf("&") == -1) {
-			// TODO: Display a hint about the & operator
+			$("<div>", {"id": "ampersandHint", "class": "notice"}).l10n("findAmpersandHint")
+				.appendTo(lovedArtists);
 		}
 		
 	}
