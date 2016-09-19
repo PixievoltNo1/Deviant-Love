@@ -31,8 +31,8 @@ function findLove(favesWindow) {
 		element = document.querySelector(".folderview-top .folder-title");
 		love.ownerOrTitle = element ? element.textContent : "???????";
 	}
-	element = document.querySelector("#gmi-ResourceStream, #gmi-EditableResourceStream");
-	love.maxDeviations = element ? element.getAttribute("gmi-total") : null;
+	element = document.querySelector("#gallery_pager");
+	love.maxDeviations = element ? element.getAttribute("gmi-limit") : null;
 
 	return love;
 }
