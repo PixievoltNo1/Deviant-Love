@@ -67,6 +67,9 @@ a img {
 #findBar {
 	background-color: hsl(55, 100%, 55%);
 }
+#findBar > * {
+	height: 20px;
+}
 .textEntryLine {
 	display: flex;
 	flex-direction: row;
@@ -126,8 +129,7 @@ a img {
 }
 #watchFailure {
     background-image: url("failed.svg"), url("deviantart/Watch.png");
-    background-position-x: 5px, 7px;
-    background-position-y: center;
+    background-position: 5px center, 7px center;
     background-repeat: no-repeat, no-repeat;
     padding-left: 30px;
 }
