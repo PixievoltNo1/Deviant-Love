@@ -218,7 +218,7 @@ function report(results, ui, love) {
 	var normalModePrefix = $();
 	if (!(watchedArtists instanceof Set)) {
 		normalModePrefix = $("<div>", {id: "watchFailure", "class": "notice"})
-			.l10n( (thrown.reason == "notLoggedIn") ? "watchErrorNotLoggedIn" : "watchErrorInternal" );
+			.l10n( (watchedArtists.error == "notLoggedIn") ? "watchErrorNotLoggedIn" : "watchErrorInternal" );
 	}
 	var lovedArtists = $("<div>", {id: "lovedArtists"})
 		.css({"overflow-y": "auto", "overflow-x": "hidden"})
