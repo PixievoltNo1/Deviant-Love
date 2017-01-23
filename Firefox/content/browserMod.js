@@ -69,6 +69,9 @@
 	});
 	handleMessage("lostLove", function(msg) {
 		foundLove.delete(msg.target);
+		if (msg.target == currentFocus) {
+			currentFocus = null;
+		}
 		updateHeart();
 	});
 	cleanupTasks.push( function() {
