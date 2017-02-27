@@ -6,7 +6,7 @@
 "use strict";
 
 function researchLove(favesURL, maxDeviations) {
-	var currentXHRs = {}, paused = false, onResume = [grabMorePages], onRetry = [];
+	var currentXHRs = new Set(), paused = false, onResume = [grabMorePages], onRetry = [];
 	
 	var favesResult = $.Deferred(), watchedResult = $.Deferred();
 	var api = {
@@ -14,8 +14,8 @@ function researchLove(favesURL, maxDeviations) {
 		progress: $.Callbacks(),
 		watched: Promise.resolve(watchedResult),
 		cancel: function() {
-			for (var XHR in currentXHRs) {
-				currentXHRs[XHR].abort();
+			for (var XHR of currentXHRs) {
+				XHR.abort();
 			}
 		},
 		retry: function() {
@@ -29,29 +29,41 @@ function researchLove(favesURL, maxDeviations) {
 			onResume = [grabMorePages];
 		}
 	};
+	function registerXHR(XHR) {
+		currentXHRs.add(XHR);
+		return XHR.always( function() { currentXHRs.delete(XHR); } );
+	}
 	
-	var favesPerPage, allowedXHRs = 6, processedPages = 0, totalPages, pageData = [], found = 0;
+	var favesPerPage, allowedXHRs = 6, requestedPages = 0, processedPages = 0, totalPages,
+		pageXHRs = [], pageData = [], found = 0;
 	function retrieveFaves(page) {
-		var xhr = currentXHRs["faves" + page] = $.get(favesURL +
-			( page > 1 ? "&offset=" + ((page - 1) * favesPerPage) : "") );
+		var xhr = registerXHR( $.get(favesURL +
+			( page > 1 ? "&offset=" + ((page - 1) * favesPerPage) : "") ) );
 		xhr.page = page;
+		pageXHRs[page - 1] = xhr;
 		--allowedXHRs;
+		++requestedPages;
 		
 		xhr.done(processFavesXML).fail(collectFailedPage).always( function() {
 			++allowedXHRs;
-			delete currentXHRs["faves" + xhr.page];
 		} );
 	}
 	function processFavesXML(feed, status, xhr) {
-		if (xhr.page == 1) {
-			var page2Link = $('channel > [rel="next"]', feed);
-			if (page2Link.length) {
-				var offsetCheckResults = page2Link.attr("href").match(/offset\=(\d+)/);
-				favesPerPage = Number(offsetCheckResults[1]);
-				totalPages = Math.ceil(maxDeviations / favesPerPage);
+		if (xhr.page > totalPages) { return; }
+		if (!totalPages) {
+			var linkToNext = $('channel > [rel="next"]', feed);
+			if (linkToNext.length) {
+				if (!favesPerPage) {
+					var offsetCheckResults = linkToNext.attr("href").match(/offset\=(\d+)/);
+					favesPerPage = Number(offsetCheckResults[1]);
+					if (maxDeviations) {
+						totalPages = Math.ceil(maxDeviations / favesPerPage);
+					}
+				}
 			} else {
-				totalPages = 1;
+				totalPages = xhr.page;
 				favesPerPage = maxDeviations;
+				for (let laterXHR of pageXHRs.slice(xhr.page)) { laterXHR.abort(); }
 			}
 		}
 		grabMorePages();
@@ -70,17 +82,15 @@ function researchLove(favesURL, maxDeviations) {
 		++processedPages;
 		var progressPercentage = Math.min( (processedPages * favesPerPage) / maxDeviations, 1);
 		api.progress.fire(progressPercentage, found);
-		if (processedPages == totalPages) {
+		if (processedPages >= totalPages) {
 			favesResult.resolve( Array.prototype.concat.apply([], pageData) );
 		}
 	}
 	retrieveFaves(1);
-	var requestedPages = 1;
 	function grabMorePages() {
-		if (totalPages == null || paused) { return; }
-		while (allowedXHRs > 0 && requestedPages < totalPages) {
-			++requestedPages;
-			retrieveFaves(requestedPages);
+		if (favesPerPage == null || paused) { return; }
+		while (allowedXHRs > 0 && (!totalPages || requestedPages < totalPages)) {
+			retrieveFaves(requestedPages + 1);
 		}
 	}
 	var firstFail = true;
@@ -97,8 +107,8 @@ function researchLove(favesURL, maxDeviations) {
 	
 	var watchlistPage = 0, greatOnes = new Set();
 	function retrieveWatchlist() {
-		currentXHRs.watch = $.getJSON("http://my.deviantart.com/global/difi/?c%5B%5D=%22Friends%22%2C%22getFriendsList%22%2C%5Btrue%2C"
-			+ watchlistPage + "%5D&t=json")
+		registerXHR( $.getJSON("http://my.deviantart.com/global/difi/?c%5B%5D=%22Friends%22%2C%22getFriendsList%22%2C%5Btrue%2C"
+			+ watchlistPage + "%5D&t=json") )
 			.done(processWatchJSON).fail( function(jqXHR, status) {
 				if (status == "timeout" || status == "abort") {
 					var retryResult = $.Deferred();
