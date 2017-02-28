@@ -48,9 +48,14 @@ function beginPreparations(love) {
 	})[love.pageType];
 	$("<div>", {id: "scanMessage"}).l10n(scanMessage).appendTo(preparationScreen);
 	var scanProgressBar = $("<progress>", {id: "scanProgressBar", max: 1, value: 0});
+	var scanPercentageText = $("<div>", {id: "scanPercentageText"}).text("0%");
 	$("<div>", {id: "scanPercentage"})
-		.append( scanProgressBar, $("<div>", {id: "scanPercentageText"}).text("0%"))
+		.append(scanProgressBar, scanPercentageText)
 		.appendTo(preparationScreen);
+	if (!love.maxDeviations) {
+		scanProgressBar.removeAttr("value");
+		scanPercentageText.hide();
+	}
 	$("<div>", {id: "scannedDeviations"}).appendTo(preparationScreen);
 	var watchStatus = $("<div>", {id: "watchStatus"}).appendTo(preparationScreen);
 	$("<div>", {id: "scanError"}).l10n("scanError").hide().appendTo(preparationScreen);
@@ -116,10 +121,12 @@ function beginPreparations(love) {
 		return { deviantList: deviantList, deviantMap: deviantMap,
 			totalDeviations: totalDeviations, hiddenAccounts: hiddenAccounts };
 	}
-	function setProgress(percentage, found) {
-		$("#scannedDeviations").l10n("scannedDeviations", found);
-		scanProgressBar.attr("value", percentage);
-		$("#scanPercentageText").text( Math.floor(percentage * 100) + "%" );
+	function setProgress(data) {
+		$("#scannedDeviations").l10n("scannedDeviations", data.found);
+		if (data.percent) {
+			scanProgressBar.attr("value", percentage);
+			scanPercentageText.text( Math.floor(percentage * 100) + "%" );
+		}
 	}
 	function scanError() {
 		scannerController.pause();

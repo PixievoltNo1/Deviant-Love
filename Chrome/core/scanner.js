@@ -80,8 +80,11 @@ function researchLove(favesURL, maxDeviations) {
 		} );
 		pageData[xhr.page - 1] = items;
 		++processedPages;
-		var progressPercentage = Math.min( (processedPages * favesPerPage) / maxDeviations, 1);
-		api.progress.fire(progressPercentage, found);
+		var progressData = { found: found };
+		if (maxDeviations) {
+			progressData.percent = Math.min( (processedPages * favesPerPage) / maxDeviations, 1);
+		}
+		api.progress.fire(progressData);
 		if (processedPages >= totalPages) {
 			favesResult.resolve( Array.prototype.concat.apply([], pageData) );
 		}
