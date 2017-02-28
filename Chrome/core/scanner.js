@@ -63,7 +63,10 @@ function researchLove(favesURL, maxDeviations) {
 			} else {
 				totalPages = xhr.page;
 				favesPerPage = maxDeviations;
-				for (let laterXHR of pageXHRs.slice(xhr.page)) { laterXHR.abort(); }
+				for (let laterXHR of pageXHRs.slice(xhr.page)) {
+					laterXHR.expectedFail = true;
+					laterXHR.abort();
+				}
 			}
 		}
 		grabMorePages();
@@ -98,6 +101,7 @@ function researchLove(favesURL, maxDeviations) {
 	}
 	var firstFail = true;
 	function collectFailedPage(xhr) {
+		if (xhr.expectedFail) { return; }
 		if (firstFail) {
 			firstFail = false;
 			onRetry.push( function() { firstFail = true; } );

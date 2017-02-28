@@ -32,7 +32,11 @@ function findLove(favesWindow) {
 		love.ownerOrTitle = element ? element.textContent : "???????";
 	}
 	element = document.querySelector("#gallery_pager");
-	love.maxDeviations = element ? element.getAttribute("gmi-limit") : null;
+	love.maxDeviations = element ? Number(element.getAttribute("gmi-limit")) : null;
+	// "1" is a junk value DeviantArt uses when it doesn't know
+	if (love.maxDeviations == 1) {
+		love.maxDeviations = null;
+	}
 
 	return love;
 }
