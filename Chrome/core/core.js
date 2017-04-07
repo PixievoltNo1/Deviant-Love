@@ -124,8 +124,8 @@ function beginPreparations(love) {
 	function setProgress(data) {
 		$("#scannedDeviations").l10n("scannedDeviations", data.found);
 		if (data.percent) {
-			scanProgressBar.attr("value", percentage);
-			scanPercentageText.text( Math.floor(percentage * 100) + "%" );
+			scanProgressBar.attr("value", data.percent);
+			scanPercentageText.text( Math.floor(data.percent * 100) + "%" );
 		}
 	}
 	function scanError() {
