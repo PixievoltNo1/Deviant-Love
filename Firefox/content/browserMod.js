@@ -42,7 +42,7 @@
 			var clickToClose = closing !== true && sidebar.hasAttribute("checked") &&
 				gBrowser.selectedBrowser == currentFocus;
 			if (clickToClose) {
-				heart.tooltipText = l10n.getString("heartX");
+				heart.tooltipText = l10n.get("heartX");
 				heart.setAttribute("src", "chrome://DeviantLove/content/heartClose.svg");
 			} else {
 				heart.tooltipText = "Deviant Love";

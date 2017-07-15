@@ -21,14 +21,10 @@ Components.utils.import("chrome://DeviantLove/content/global.js");
 var adapter = {
 	displayType: "sidebar",
 	getL10nMsg: function(msgName, replacements) {
-		if (!replacements) {
-			return l10n.getString(msgName);
-		} else {
-			return l10n.getFormattedString(msgName, replacements);
-		}
+		return l10n.get(msgName, replacements);
 	},
 	getL10nFile: function(filename) {
-		return "chrome://DeviantLove/locale/" + filename;
+		return "chrome://DeviantLoveWebExt/content/" + l10n.get("l10nFolder") + filename;
 	},
 	retrieve: function(keys) {
 		if (!Array.isArray(keys)) { keys = [keys]; }

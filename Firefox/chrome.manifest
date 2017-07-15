@@ -1,2 +1,3 @@
 content   DeviantLove        content/
+content   DeviantLoveWebExt  webextension/
 locale    DeviantLove   en   locale/en/

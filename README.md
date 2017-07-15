@@ -10,13 +10,11 @@ No special tools are needed! The Chrome folder is the unpacked Deviant Love exte
 
 Well, umm, some of the Firefox things are kept in the Chrome folder, haha. In order to get a working Firefox extension, do the following:
 * Make a symbolic link of Chrome/core/ in Firefox/content/ (creating Firefox/content/core/)
-* Run FxL10n.py (use [Python](http://www.python.org/), version 3)
+* Make a symbolic link of Chrome/_locales/ in Firefox/webextension/ (creating Firefox/webextension/_locales)
 
-Windows users can use [Link Shell Extension](http://schinagl.priv.at/nt/hardlinkshellext/hardlinkshellext.html) to make a symbolic link (a junction will also work, but will bork if you move the Deviant Love repo). Linux users can use the [ln](http://en.wikipedia.org/wiki/Ln_(Unix)) command line tool, or possibly find an easier way in their file manager. Alternatively, you can copy the folder, but Git will ignore the copy, so make sure any changes you make get copied back.
+Windows users can use [Link Shell Extension](http://schinagl.priv.at/nt/hardlinkshellext/hardlinkshellext.html) to make symbolic links (junctions will also work, but will bork if you move the Deviant Love repo). Linux users can use the [ln](http://en.wikipedia.org/wiki/Ln_(Unix)) command line tool, or possibly find an easier way in their file manager. Alternatively, you can copy the folders, but Git will ignore the copies, so make sure any changes you make get copied back.
 
-To test the Firefox extension, I recommend following [these directions](https://developer.mozilla.org/en/Building_an_Extension#Test).
-
-Don't touch stuff in Firefox/locale/; instead, make your changes in Chrome/_locales/ and then run FxL10n.py again.
+To test the Firefox extension, I recommend doing a [temporary installation](https://developer.mozilla.org/en-US/Add-ons/WebExtensions/Temporary_Installation_in_Firefox).
 
 # KTHXBAI
 

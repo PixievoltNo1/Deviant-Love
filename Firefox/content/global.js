@@ -9,11 +9,17 @@ var EXPORTED_SYMBOLS = ["browserMod", "loaded", "l10n", "prefs"];
 var browserMod = Symbol(), loaded = Symbol();
 
 Components.utils.import("resource://gre/modules/Services.jsm");
-
-Components.utils.import("resource://services-common/stringbundle.js");
-// Random parameter is Wladimir Palant's idea
-// https://bugzilla.mozilla.org/show_bug.cgi?id=719376
-var l10n = new StringBundle("chrome://DeviantLove/locale/messages.properties?" + Math.random());
+Components.utils.importGlobalProperties(["XMLHttpRequest"]);
+var scope = {
+	MY_EXTENSION_NAMESPACE: "DeviantLoveWebExt",
+	XMLHttpRequest
+};
+Services.scriptloader.loadSubScriptWithOptions("chrome://DeviantLove/content/messagesJsonReader.js", {
+	target: scope,
+	charset: "UTF-8",
+	ignoreCache: true
+});
+var l10n = scope.MY_EXTENSION_STRINGS;
 
 Components.utils.import("resource://gre/modules/Preferences.jsm");
 var prefs = new Preferences("extensions.deviantlove.");
