@@ -8,9 +8,7 @@ No special tools are needed! The Chrome folder is the unpacked Deviant Love exte
 
 # To Engage In Firefox Geekery
 
-Well, umm, some of the Firefox things are kept in the Chrome folder, haha. In order to get a working Firefox extension, do the following:
-* Make a symbolic link of Chrome/core/ in Firefox/content/ (creating Firefox/content/core/)
-* Make a symbolic link of Chrome/_locales/ in Firefox/webextension/ (creating Firefox/webextension/_locales)
+Well, umm, some of the Firefox things are kept in the Chrome folder, haha. In order to get a working Firefox extension, make symbolic links of Chrome/core/ and Chrome/_locales/ in Firefox/webextension/ (creating Firefox/webextension/core/ and Firefox/webextension/_locales).
 
 Windows users can use [Link Shell Extension](http://schinagl.priv.at/nt/hardlinkshellext/hardlinkshellext.html) to make symbolic links (junctions will also work, but will bork if you move the Deviant Love repo). Linux users can use the [ln](http://en.wikipedia.org/wiki/Ln_(Unix)) command line tool, or possibly find an easier way in their file manager. Alternatively, you can copy the folders, but Git will ignore the copies, so make sure any changes you make get copied back.
 

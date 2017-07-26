@@ -1,5 +1,5 @@
 #DeviantLoveArtistCheck {
-	list-style-image: url("chrome://DeviantLove/content/core/heart/16.png");
+	list-style-image: url("chrome://DeviantLoveWebExt/content/core/heart/16.png");
 }
 .DeviantLoveWhitelistFail { display: none; }
 #sidebar-box[sidebarcommand="DeviantLoveSidebar"] {

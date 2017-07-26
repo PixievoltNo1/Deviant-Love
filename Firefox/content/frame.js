@@ -11,7 +11,7 @@ addEventListener("pageshow", pageSetup);
 function pageSetup() {
 	if ( (/:\/\/[a-zA-Z\d\-]+\.deviantart\.com\/favourites\//).test(content.location.href) ) {
 		if (!loaded.findLove) {
-			Services.scriptloader.loadSubScriptWithOptions("chrome://DeviantLove/content/core/detector.js", {
+			Services.scriptloader.loadSubScriptWithOptions("chrome://DeviantLoveWebExt/content/core/detector.js", {
 				target: loaded,
 				charset: "UTF-8",
 				ignoreCache: true

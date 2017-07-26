@@ -33,7 +33,7 @@
 	// Doing it that way ensures consistent "button" spacing with other extensions
 	var heart = document.createElement("image");
 	heart.id = "DeviantLoveHeart"; heart.className = "urlbar-icon"; heart.hidden = true;
-	heart.setAttribute("src", "chrome://DeviantLove/content/core/heart/scalable.svg");
+	heart.setAttribute("src", "chrome://DeviantLoveWebExt/content/core/heart/scalable.svg");
 	let heartDest = document.getElementById("urlbar-icons");
 	heartDest.insertBefore(heart, heartDest.firstChild);
 	function updateHeart(closing) {
@@ -46,7 +46,7 @@
 				heart.setAttribute("src", "chrome://DeviantLove/content/heartClose.svg");
 			} else {
 				heart.tooltipText = "Deviant Love";
-				heart.setAttribute("src", "chrome://DeviantLove/content/core/heart/scalable.svg");
+				heart.setAttribute("src", "chrome://DeviantLoveWebExt/content/core/heart/scalable.svg");
 			}
 		} else {
 			heart.hidden = true;
