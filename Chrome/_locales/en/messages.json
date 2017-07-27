@@ -7,17 +7,17 @@
 		"message": "_locales/en/",
 		"description": "Where the extension looks for more l10n files"
 	},
-	
+
 	"heartX": {
 		"message": "Close Deviant Love",
 		"description": "Heart tooltip. Leave Deviant Love's name untranslated."
 	},
-	
+
 	"artistCheck": {
 		"message": "List faved art from $1",
 		"description": "Context menu item text"
 	},
-	
+
 	"scanningFeatured": { "message": "Scanning featured faves..." },
 	"scanningAll": { "message": "Scanning all faves..." },
 	"scanningCollection": { "message": "Scanning Collection..." },

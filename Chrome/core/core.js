@@ -117,7 +117,7 @@ function beginPreparations(love) {
 		var deviantList = [];
 		for (var item of deviantMap.values()) { deviantList.push(item); }
 		deviantList.sort(orderMostLoved);
-		
+
 		return { deviantList: deviantList, deviantMap: deviantMap,
 			totalDeviations: totalDeviations, hiddenAccounts: hiddenAccounts };
 	}
@@ -185,7 +185,7 @@ function report(results, ui, love) {
 	var deviantMap = results.deviantMap, deviantList = results.deviantList,
 		hiddenAccounts = results.hiddenAccounts, totalDeviations = results.totalDeviations,
 		watchedArtists = results.watchedArtists, subaccounts = results.subaccounts;
-	
+
 	// Construct the UI
 	var mainScreen = $("<div>", {id: "mainScreen"});
 	mainScreen.appendTo(document.body);
@@ -512,7 +512,7 @@ function report(results, ui, love) {
 		$("#deviant_" + editingSubaccountsOf).find(".subaccountsButton").addClass("editing");
 		$("#deviant_" + editingSubaccountsOf)[0].scrollIntoView();
 	}
-	
+
 	// Handle requests for a particular deviant that were made elsewhere (e.g. context menu)
 	window.showDeviant = function(deviantName, isFirst) {
 		if ($("#mainScreen").hasClass("lookWhatIFound")) {
@@ -527,7 +527,7 @@ function report(results, ui, love) {
 
 	// All done, now go play!
 	$("body").css("cursor", "");
-	
+
 	function snackOnMyWrath(finkRats) {
 		// "You have energy like a little angry battery with no friends."
 		var rageDressing = document.createDocumentFragment();
@@ -600,7 +600,7 @@ function report(results, ui, love) {
 	}
 	function buildSubaccountLine(accountName) {
 		var line = $("<div>", {"class": "subaccount"});
-		
+
 		var baseURL = "http://" + accountName.toLowerCase() + ".deviantart.com/";
 		line.append($("<a>", {"href": baseURL, "class": "profileLink"})
 			.l10nTooltip("profile"));
@@ -608,10 +608,10 @@ function report(results, ui, love) {
 			.l10nTooltip("gallery"));
 		line.append($("<span>", {"class": "subaccountName"}).text(accountName));
 		line.append($("<button>", {"class": "removeSubaccount"}).l10n("subaccountsRemove"));
-		
+
 		return line;
 	}
-	
+
 	function findStuff(event) {
 		event.preventDefault();
 		if (queryTroubleCheck() != false) { return };
@@ -682,7 +682,7 @@ function report(results, ui, love) {
 			$("<div>", {"id": "ampersandHint", "class": "notice"}).l10n("findAmpersandHint")
 				.appendTo(lovedArtists);
 		}
-		
+
 	}
 	function queryTroubleCheck() {
 	// Returns false if there are no troubles, true if there is a trouble not worth reporting to the user, and an object otherwise

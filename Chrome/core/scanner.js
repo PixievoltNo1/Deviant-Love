@@ -7,7 +7,7 @@
 
 function researchLove(favesURL, maxDeviations) {
 	var currentXHRs = new Set(), paused = false, onResume = [grabMorePages], onRetry = [];
-	
+
 	var favesResult = $.Deferred(), watchedResult = $.Deferred();
 	var api = {
 		faves: Promise.resolve(favesResult),
@@ -33,7 +33,7 @@ function researchLove(favesURL, maxDeviations) {
 		currentXHRs.add(XHR);
 		return XHR.always( function() { currentXHRs.delete(XHR); } );
 	}
-	
+
 	var favesPerPage, allowedXHRs = 6, requestedPages = 0, processedPages = 0, totalPages,
 		pageXHRs = [], pageData = [], found = 0;
 	function retrieveFaves(page) {
@@ -43,7 +43,7 @@ function researchLove(favesURL, maxDeviations) {
 		pageXHRs[page - 1] = xhr;
 		--allowedXHRs;
 		++requestedPages;
-		
+
 		xhr.done(processFavesXML).fail(collectFailedPage).always( function() {
 			++allowedXHRs;
 		} );
@@ -111,7 +111,7 @@ function researchLove(favesURL, maxDeviations) {
 		}
 		onRetry.push( retrieveFaves.bind(null, xhr.page) );
 	}
-	
+
 	var watchlistPage = 0, greatOnes = new Set();
 	function retrieveWatchlist() {
 		registerXHR( $.getJSON("http://my.deviantart.com/global/difi/?c%5B%5D=%22Friends%22%2C%22getFriendsList%22%2C%5Btrue%2C"
@@ -156,6 +156,6 @@ function researchLove(favesURL, maxDeviations) {
 		}
 	}
 	retrieveWatchlist();
-	
+
 	return api;
 }

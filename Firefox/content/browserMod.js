@@ -23,12 +23,12 @@
 	}
 	var foundLove = new WeakMap();
 	window[browserMod] = {};
-	
+
 	var stylesheet = document.createProcessingInstruction("xml-stylesheet",
 		'href="chrome://DeviantLove/content/browser.css" type="text/css"');
 	document.insertBefore(stylesheet, document.firstChild);
 	cleanupTasks.push( removalTask(stylesheet) );
-	
+
 	// Can't explain it, but using <image> with a click event instead of <button> with a command event seems to be the best (or most common) practice
 	// Doing it that way ensures consistent "button" spacing with other extensions
 	var heart = document.createElement("image");
@@ -54,7 +54,7 @@
 	}
 	heart.addEventListener("click", summonRawkitude, false);
 	cleanupTasks.push( removalTask(heart) );
-	
+
 	// Using info from https://developer.mozilla.org/en-US/docs/Code_snippets/Tabbed_browser
 	gBrowser.tabContainer.addEventListener("TabSelect", updateHeart, false);
 	gBrowser.tabContainer.addEventListener("TabClose", checkClosedTab, false);
@@ -78,7 +78,7 @@
 		gBrowser.tabContainer.removeEventListener("TabSelect", updateHeart, false);
 		gBrowser.tabContainer.removeEventListener("TabClose", checkClosedTab, false);
 	} );
-	
+
 	var sidebar = document.createElement("broadcaster");
 	sidebar.id = "DeviantLoveSidebar"; sidebar.setAttribute("group", "sidebar");
 	sidebar.setAttribute("sidebarurl", "chrome://DeviantLove/content/sidebar.html");
@@ -97,7 +97,7 @@
 	let reloadDest = document.getElementById("sidebar-header");
 	reloadDest.insertBefore(reload, reloadDest.firstChild.nextSibling);
 	cleanupTasks.push( removalTask(reload) );
-	
+
 	var artistCheck = document.createElement("menuitem");
 	artistCheck.id = "DeviantLoveArtistCheck"; artistCheck.className = "menuitem-iconic";
 	artistCheck.setAttribute("label", l10n.get("artistCheck", ["________"])); // For Fx extensions like Menu Editor
@@ -119,7 +119,7 @@
 	cleanupTasks.push( function() {
 		gBrowser.tabContainer.removeEventListener("TabSelect", hideArtistLove);
 	} );
-	
+
 	function summonRawkitude(event) {
 		if (!contextMenuWhitelistingDone) {
 			let whitelist = document.querySelectorAll("#context-openlinkintab, #context-openlink, " +
@@ -138,7 +138,7 @@
 				}
 			} );
 		}
-		
+
 		var browser = gBrowser.selectedBrowser;
 		if (browser == currentFocus) {
 			if (this == heart) {
@@ -159,10 +159,10 @@
 			}
 			toggleSidebar("DeviantLoveSidebar", true);
 		}
-		
+
 		updateHeart();
 	}
-	
+
 	window[browserMod].sidebarUnloaded = function() {
 		updateHeart(true);
 	}

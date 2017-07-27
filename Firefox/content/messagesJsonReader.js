@@ -42,7 +42,7 @@ var MY_EXTENSION_STRINGS = {
 	// Get the user's Firefox locale.
 	var chromeRegService = Components.classes["@mozilla.org/chrome/chrome-registry;1"].getService();
 	var xulChromeReg = chromeRegService.QueryInterface(Components.interfaces.nsIXULChromeRegistry);
-	
+
 	// The "official" locale, especially on Linux.
 	var browserLocale = xulChromeReg.getSelectedLocale("global");
 
