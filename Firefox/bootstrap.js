@@ -17,8 +17,17 @@ function* windows() {
 		yield winEnum.getNext();
 	}
 }
-function startup() {
-	// TODO: Transition preference "nexttip" to "nextTip"
+function startup({webExtension}) {
+	var {webExt: portHolder} = Components.utils.import("chrome://DeviantLove/content/global.js", {});
+	webExtension.startup().then(({browser: {runtime}}) => {
+		runtime.onConnect.addListener((port) => {
+			portHolder.port = port;
+			webExtReady();
+			// TODO: Migrate preferences
+		});
+	});
+}
+function webExtReady() {
 	windowWatcher.registerNotification(observer);
 	for (let window of windows()) {
 		foundWindow(window);

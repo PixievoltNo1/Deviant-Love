@@ -4,9 +4,10 @@
 	Check core.js for the complete legal stuff.
 */
 "use strict";
-var EXPORTED_SYMBOLS = ["browserMod", "loaded", "l10n", "prefs"];
+var EXPORTED_SYMBOLS = ["browserMod", "loaded", "webExt", "l10n", "prefs"];
 
 var browserMod = Symbol(), loaded = Symbol();
+var webExt = {};
 
 Components.utils.import("resource://gre/modules/Services.jsm");
 Components.utils.importGlobalProperties(["XMLHttpRequest"]);
