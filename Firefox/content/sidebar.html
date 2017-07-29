@@ -15,9 +15,22 @@ a { text-decoration: underline; }
 <script type="text/javascript" src="chrome://DeviantLoveWebExt/content/core/velocity.min.js"></script>
 <script type="text/javascript" src="chrome://DeviantLoveWebExt/content/core/core.js"></script>
 <script type="text/javascript" src="chrome://DeviantLoveWebExt/content/core/scanner.js"></script>
-<script type="text/javascript;version=1.7">
+<script type="text/javascript">
 "use strict";
 Components.utils.import("chrome://DeviantLove/content/global.js");
+Components.utils.import("resource://gre/modules/Services.jsm");
+var mainWindow, winEnum = Services.ww.getWindowEnumerator();
+while (!mainWindow) {
+	let win = winEnum.getNext().QueryInterface(Components.interfaces.nsIDOMWindow);
+	let sidebarBrowser = win.document.getElementById("sidebar");
+	if (!sidebarBrowser) { continue; }
+	let panelBrowser = sidebarBrowser.contentDocument.getElementById("web-panels-browser");
+	if (!panelBrowser) { continue; }
+	if (panelBrowser.contentWindow == window) {
+		mainWindow = win;
+		mainWindow[browserMod].sidebarWindow = window;
+	}
+}
 var adapter = {
 	displayType: "sidebar",
 	getL10nMsg: function(msgName, replacements) {
@@ -46,33 +59,28 @@ var adapter = {
 		prefs.set(key, data);
 	},
 	prepComplete: function(restoreData) {
-		top[browserMod].currentScanData = restoreData;
+		mainWindow[browserMod].currentScanData = restoreData;
 	}
 };
 var scannerController;
 $(document).ready( function() {
 	window[loaded] = true;
 	$("body").css("margin", 0);
-	var reloadButton = top.document.getElementById("DeviantLoveReload");
+	var reloadButton = mainWindow.document.getElementById("DeviantLoveReload");
 	reloadButton.addEventListener("command", restart, false);
 	reloadButton.hidden = false;
-	var sidebarBrowser = top.document.getElementById("sidebar");
-	sidebarBrowser.setAttribute("tooltip", "aHTMLTooltip");
-	var contextMenu = top.document.getElementById("contentAreaContextMenu");
-	contextMenu.addEventListener("popupshowing", enforceWhitelist, false);
-	contextMenu.addEventListener("popuphidden", unenforceWhitelist, false);
-	sidebarBrowser.setAttribute("contextmenu", contextMenu.id);
+	// var contextMenu = mainWindow.document.getElementById("contentAreaContextMenu");
+	// contextMenu.addEventListener("popupshowing", enforceWhitelist, false);
+	// contextMenu.addEventListener("popuphidden", unenforceWhitelist, false);\
 	$(window).bind("unload", function() {
 		reloadButton.hidden = true;
 		reloadButton.removeEventListener("command", restart, false);
-		contextMenu.removeEventListener("popupshowing", enforceWhitelist, false);
-		contextMenu.removeEventListener("popuphidden", unenforceWhitelist, false);
-		sidebarBrowser.removeAttribute("tooltip");
-		sidebarBrowser.removeAttribute("contextmenu");
-		top[browserMod].sidebarUnloaded();
+		// contextMenu.removeEventListener("popupshowing", enforceWhitelist, false);
+		// contextMenu.removeEventListener("popuphidden", unenforceWhitelist, false);\
+		mainWindow[browserMod].sidebarUnloaded();
 	});
 	function enforceWhitelist() {
-		if (document.contains(top.gContextMenu.target)) {
+		if (document.contains(mainWindow.gContextMenu.target)) {
 			var failed = contextMenu.querySelectorAll("*:not(.DeviantLoveWhitelisted)");
 			for (let i = 0; i < failed.length; ++i) {
 				failed[i].className += " DeviantLoveWhitelistFail";
@@ -90,24 +98,24 @@ $(document).ready( function() {
 function restart() {
 	if (scannerController) {scannerController.cancel()};
 	$("body").empty();
-	delete top[browserMod].currentScanData;
+	delete mainWindow[browserMod].currentScanData;
 	rawk();
 }
 function rawk() {
-	var pageData = top[browserMod].currentPageData;
+	var pageData = mainWindow[browserMod].currentPageData;
 	if (!pageData) {
 		// The sidebar was left open when the user closed the browser. Close it now.
-		top.toggleSidebar();
+		mainWindow.SidebarUI.hide();
 	}
-	if (!top[browserMod].currentScanData) {
+	if (!mainWindow[browserMod].currentScanData) {
 		beginPreparations(pageData);
 		scannerController = startScan();
 	} else {
-		restore(top[browserMod].currentScanData, pageData);
+		restore(mainWindow[browserMod].currentScanData, pageData);
 	}
-	if (top[browserMod].firstDeviant) {
-		showDeviant(top[browserMod].firstDeviant);
-		delete top[browserMod].firstDeviant;
+	if (mainWindow[browserMod].firstDeviant) {
+		showDeviant(mainWindow[browserMod].firstDeviant);
+		delete mainWindow[browserMod].firstDeviant;
 	}
 }
 
@@ -116,11 +124,11 @@ $(document).delegate("a", "click", function(event) {
 } ).delegate("a", "mouseup", function(event) {
 	if (event.button == 2) { return; };
 	// Mimic Chrome behavior
-	var where = top.whereToOpenLink(event);
+	var where = mainWindow.whereToOpenLink(event);
 	if (where == "current") {
-		top.gBrowser.selectedTab = top.gBrowser.addTab(this.href);
+		mainWindow.gBrowser.selectedTab = mainWindow.gBrowser.addTab(this.href);
 	} else {
-		top.openUILinkIn(this.href, where);
+		mainWindow.openUILinkIn(this.href, where);
 	}
 } );
 </script>

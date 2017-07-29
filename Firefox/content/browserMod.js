@@ -7,7 +7,6 @@
 (function() {
 	var cleanupTasks = [];
 	var currentFocus;
-	var contextMenuWhitelistingDone;
 	var loader = Components.classes["@mozilla.org/moz/jssubscript-loader;1"]
 		.getService(Components.interfaces.mozIJSSubScriptLoader);
 	var {l10n, prefs, browserMod, loaded} =
@@ -39,7 +38,7 @@
 	function updateHeart(closing) {
 		if (foundLove.has(gBrowser.selectedBrowser)) {
 			heart.hidden = false;
-			var clickToClose = closing !== true && sidebar.hasAttribute("checked") &&
+			var clickToClose = closing !== true && window[browserMod].sidebarWindow &&
 				gBrowser.selectedBrowser == currentFocus;
 			if (clickToClose) {
 				heart.tooltipText = l10n.get("heartX");
@@ -79,18 +78,6 @@
 		gBrowser.tabContainer.removeEventListener("TabClose", checkClosedTab, false);
 	} );
 
-	var sidebar = document.createElement("broadcaster");
-	sidebar.id = "DeviantLoveSidebar"; sidebar.setAttribute("group", "sidebar");
-	sidebar.setAttribute("sidebarurl", "chrome://DeviantLove/content/sidebar.html");
-	sidebar.setAttribute("sidebartitle", "Deviant Love");
-	document.getElementById("mainBroadcasterSet").appendChild(sidebar);
-	cleanupTasks.push( function() {
-		if (sidebar.hasAttribute("checked")) {
-			toggleSidebar("DeviantLoveSidebar");
-		}
-	} );
-	cleanupTasks.push( removalTask(sidebar) );
-
 	// Deviant Love doesn't actually need a reload button, but it's the most concise way to inform the user that the sidebar's report is static.
 	var reload = document.createElement("button");
 	reload.id = "DeviantLoveReload"; reload.setAttribute("label", "Reload"); reload.hidden = true;
@@ -121,43 +108,32 @@
 	} );
 
 	function summonRawkitude(event) {
-		if (!contextMenuWhitelistingDone) {
-			let whitelist = document.querySelectorAll("#context-openlinkintab, #context-openlink, " +
-				"#context-openlinkprivate, #context-sep-open, #context-bookmarklink, " +
-				"#context-sharelink, #context-marklinkMenu, #context-copylink, " +
-				"#context-undo, #context-sep-undo, #context-cut, #context-copy, " +
-				"#context-paste, #context-delete, #context-sep-paste, #context-selectall");
-			for (let i = 0; i < whitelist.length; ++i) {
-				whitelist[i].classList.add("DeviantLoveWhitelisted");
-			}
-			contextMenuWhitelistingDone = true;
-			cleanupTasks.push( function() {
-				let whitelisted = document.getElementsByClassName("DeviantLoveWhitelisted");
-				for (let i = 0; i < whitelisted.length; ++i) {
-					whitelisted[i].classList.remove("DeviantLoveWhitelisted");
-				}
-			} );
-		}
-
 		var browser = gBrowser.selectedBrowser;
 		if (browser == currentFocus) {
 			if (this == heart) {
-				toggleSidebar("DeviantLoveSidebar");
-			} else if (!document.getElementById("sidebar").contentWindow[loaded]) {
-				window[browserMod].firstDeviant = artistCheck.artist;
-				toggleSidebar("DeviantLoveSidebar", true);
-			} else {
-				document.getElementById("sidebar").contentWindow.showDeviant(artistCheck.artist);
+				if (!window[browserMod].sidebarWindow) {
+					openWebPanel("Deviant Love", "chrome://DeviantLove/content/sidebar.html");
+				} else {
+					SidebarUI.hide();
+				}
+			} else { // this == artistCheck
+				if (!window[browserMod].sidebarWindow) {
+					window[browserMod].firstDeviant = artistCheck.artist;
+					openWebPanel("Deviant Love", "chrome://DeviantLove/content/sidebar.html");
+				} else {
+					window[browserMod].sidebarWindow.showDeviant(artistCheck.artist);
+				}
 			}
 		} else {
 			window[browserMod].currentPageData = foundLove.get(gBrowser.selectedBrowser);
 			if (this == artistCheck) {window[browserMod].firstDeviant = artistCheck.artist;};
 			delete window[browserMod].currentScanData;
 			currentFocus = browser;
-			if (document.getElementById("sidebar").contentWindow[loaded]) {
-				document.getElementById("sidebar").contentWindow.restart();
+			if (window[browserMod].sidebarWindow) {
+				window[browserMod].sidebarWindow.restart();
+			} else {
+				openWebPanel("Deviant Love", "chrome://DeviantLove/content/sidebar.html");
 			}
-			toggleSidebar("DeviantLoveSidebar", true);
 		}
 
 		updateHeart();
@@ -165,6 +141,7 @@
 
 	window[browserMod].sidebarUnloaded = function() {
 		updateHeart(true);
+		delete window[browserMod].sidebarWindow;
 	}
 	window[browserMod].shuttingDown = function() {
 		cleanupTasks.forEach( function(task) { task(); } );
