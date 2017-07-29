@@ -34,7 +34,7 @@ function pageTeardown() {
 	removeEventListener("pagehide", pageTeardown);
 }
 function checkForArtistLove(event) {
-	if (event.target.mozMatchesSelector(".folderview-art a.u")) {
+	if (event.target.matches("#gruze-main a.u")) {
 		sendSyncMessage("deviantlove@pikadudeno1.com:showArtistLove", event.target.textContent);
 	} else {
 		sendSyncMessage("deviantlove@pikadudeno1.com:noArtistLove");

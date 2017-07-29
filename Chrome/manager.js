@@ -51,7 +51,7 @@ chrome.runtime.onMessage.addListener( function(thing, buddy, callback) {switch (
 chrome.runtime.sendMessage({action: "showLove"});
 
 var matchMethod = ("matches" in document.documentElement) ? "matches" : "webkitMatchesSelector";
-document.querySelector(".folderview-art").addEventListener("mouseover", function(event) {
+document.querySelector("#gruze-main").addEventListener("mouseover", function(event) {
 	var thing = event.target;
 	if ( thing[matchMethod]("a.u") ) {
 		chrome.runtime.sendMessage({action: "showArtistLove", artist: thing.textContent});
