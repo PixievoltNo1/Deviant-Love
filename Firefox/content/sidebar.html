@@ -6,20 +6,23 @@
 <!doctype html>
 <html>
 <title>Deviant Love Sidebar</title>
-<link rel="stylesheet" href="chrome://DeviantLoveWebExt/content/core/builtinskin.css" type="text/css">
+<base href="chrome://DeviantLoveWebExt/content/">
+<link rel="stylesheet" href="core/builtinskin.css" type="text/css">
 <style type="text/css">
 body { height: 100vh; }
 a { text-decoration: underline; }
 </style>
-<script type="text/javascript" src="chrome://DeviantLoveWebExt/content/core/jquery.js"></script>
-<script type="text/javascript" src="chrome://DeviantLoveWebExt/content/core/velocity.min.js"></script>
-<script type="text/javascript" src="chrome://DeviantLoveWebExt/content/core/core.js"></script>
-<script type="text/javascript" src="chrome://DeviantLoveWebExt/content/core/scanner.js"></script>
+<script type="text/javascript" src="core/jquery.js"></script>
+<script type="text/javascript" src="core/velocity.min.js"></script>
+<script type="text/javascript" src="core/core.js"></script>
+<script type="text/javascript" src="core/scanner.js"></script>
 <script type="text/javascript">
 "use strict";
 Components.utils.import("chrome://DeviantLove/content/global.js");
 Components.utils.import("resource://gre/modules/Services.jsm");
-var mainWindow, winEnum = Services.ww.getWindowEnumerator();
+var mainWindow, blacklist, winEnum = Services.ww.getWindowEnumerator();
+var blacklist = document.createProcessingInstruction("xml-stylesheet",
+	'href="chrome://DeviantLove/content/contextMenuBlacklist.css" type="text/css"');
 while (!mainWindow) {
 	let win = winEnum.getNext().QueryInterface(Components.interfaces.nsIDOMWindow);
 	let sidebarBrowser = win.document.getElementById("sidebar");
@@ -29,6 +32,8 @@ while (!mainWindow) {
 	if (panelBrowser.contentWindow == window) {
 		mainWindow = win;
 		mainWindow[browserMod].sidebarWindow = window;
+		let blacklistTarget = sidebarBrowser.contentDocument;
+		blacklistTarget.insertBefore(blacklist, blacklistTarget.firstChild);
 	}
 }
 var adapter = {
@@ -37,7 +42,7 @@ var adapter = {
 		return l10n.get(msgName, replacements);
 	},
 	getL10nFile: function(filename) {
-		return "chrome://DeviantLoveWebExt/content/" + l10n.get("l10nFolder") + filename;
+		return l10n.get("l10nFolder") + filename;
 	},
 	retrieve: function(keys) {
 		if (!Array.isArray(keys)) { keys = [keys]; }
@@ -69,30 +74,12 @@ $(document).ready( function() {
 	var reloadButton = mainWindow.document.getElementById("DeviantLoveReload");
 	reloadButton.addEventListener("command", restart, false);
 	reloadButton.hidden = false;
-	// var contextMenu = mainWindow.document.getElementById("contentAreaContextMenu");
-	// contextMenu.addEventListener("popupshowing", enforceWhitelist, false);
-	// contextMenu.addEventListener("popuphidden", unenforceWhitelist, false);\
 	$(window).bind("unload", function() {
 		reloadButton.hidden = true;
 		reloadButton.removeEventListener("command", restart, false);
-		// contextMenu.removeEventListener("popupshowing", enforceWhitelist, false);
-		// contextMenu.removeEventListener("popuphidden", unenforceWhitelist, false);\
+		blacklist.remove();
 		mainWindow[browserMod].sidebarUnloaded();
 	});
-	function enforceWhitelist() {
-		if (document.contains(mainWindow.gContextMenu.target)) {
-			var failed = contextMenu.querySelectorAll("*:not(.DeviantLoveWhitelisted)");
-			for (let i = 0; i < failed.length; ++i) {
-				failed[i].className += " DeviantLoveWhitelistFail";
-			}
-		}
-	}
-	function unenforceWhitelist() {
-		var failed = contextMenu.querySelectorAll(".DeviantLoveWhitelistFail");
-		for (let i = 0; i < failed.length; ++i) {
-			failed[i].className = failed[i].className.replace("DeviantLoveWhitelistFail", "");
-		}
-	}
 	rawk();
 } );
 function restart() {

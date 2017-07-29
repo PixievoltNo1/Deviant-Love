@@ -18,7 +18,6 @@ function* windows() {
 	}
 }
 function startup() {
-	// TODO: Transition preference "nexttip" to "nextTip"
 	windowWatcher.registerNotification(observer);
 	for (let window of windows()) {
 		foundWindow(window);
