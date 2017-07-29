@@ -31,7 +31,7 @@ while (!mainWindow) {
 	if (!panelBrowser) { continue; }
 	if (panelBrowser.contentWindow == window) {
 		mainWindow = win;
-		mainWindow[browserMod].sidebarWindow = window;
+		mainWindow[browserMod].sidebarLoaded(window);
 		let blacklistTarget = sidebarBrowser.contentDocument;
 		blacklistTarget.insertBefore(blacklist, blacklistTarget.firstChild);
 	}

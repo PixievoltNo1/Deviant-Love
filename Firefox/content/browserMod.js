@@ -6,7 +6,7 @@
 "use strict";
 (function() {
 	var cleanupTasks = [];
-	var currentFocus;
+	var currentFocus, sidebarWindow;
 	var loader = Components.classes["@mozilla.org/moz/jssubscript-loader;1"]
 		.getService(Components.interfaces.mozIJSSubScriptLoader);
 	var {l10n, prefs, browserMod, loaded} =
@@ -35,11 +35,10 @@
 	heart.setAttribute("src", "chrome://DeviantLoveWebExt/content/core/heart/scalable.svg");
 	let heartDest = document.getElementById("urlbar-icons");
 	heartDest.insertBefore(heart, heartDest.firstChild);
-	function updateHeart(closing) {
+	function updateHeart() {
 		if (foundLove.has(gBrowser.selectedBrowser)) {
 			heart.hidden = false;
-			var clickToClose = closing !== true && window[browserMod].sidebarWindow &&
-				gBrowser.selectedBrowser == currentFocus;
+			var clickToClose = sidebarWindow && gBrowser.selectedBrowser == currentFocus;
 			if (clickToClose) {
 				heart.tooltipText = l10n.get("heartX");
 				heart.setAttribute("src", "chrome://DeviantLove/content/heartClose.svg");
@@ -111,17 +110,17 @@
 		var browser = gBrowser.selectedBrowser;
 		if (browser == currentFocus) {
 			if (this == heart) {
-				if (!window[browserMod].sidebarWindow) {
+				if (!sidebarWindow) {
 					openWebPanel("Deviant Love", "chrome://DeviantLove/content/sidebar.html");
 				} else {
 					SidebarUI.hide();
 				}
 			} else { // this == artistCheck
-				if (!window[browserMod].sidebarWindow) {
+				if (!sidebarWindow) {
 					window[browserMod].firstDeviant = artistCheck.artist;
 					openWebPanel("Deviant Love", "chrome://DeviantLove/content/sidebar.html");
 				} else {
-					window[browserMod].sidebarWindow.showDeviant(artistCheck.artist);
+					sidebarWindow.showDeviant(artistCheck.artist);
 				}
 			}
 		} else {
@@ -129,8 +128,8 @@
 			if (this == artistCheck) {window[browserMod].firstDeviant = artistCheck.artist;};
 			delete window[browserMod].currentScanData;
 			currentFocus = browser;
-			if (window[browserMod].sidebarWindow) {
-				window[browserMod].sidebarWindow.restart();
+			if (sidebarWindow) {
+				sidebarWindow.restart();
 			} else {
 				openWebPanel("Deviant Love", "chrome://DeviantLove/content/sidebar.html");
 			}
@@ -139,9 +138,13 @@
 		updateHeart();
 	}
 
+	window[browserMod].sidebarLoaded = function(win) {
+		sidebarWindow = win;
+		updateHeart();
+	}
 	window[browserMod].sidebarUnloaded = function() {
-		updateHeart(true);
-		delete window[browserMod].sidebarWindow;
+		sidebarWindow = null;
+		updateHeart();
 	}
 	window[browserMod].shuttingDown = function() {
 		cleanupTasks.forEach( function(task) { task(); } );
