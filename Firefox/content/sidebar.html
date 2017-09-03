@@ -6,25 +6,43 @@
 <!doctype html>
 <html>
 <title>Deviant Love Sidebar</title>
-<link rel="stylesheet" href="chrome://DeviantLoveWebExt/content/core/builtinskin.css" type="text/css">
+<base href="chrome://DeviantLoveWebExt/content/">
+<link rel="stylesheet" href="core/builtinskin.css" type="text/css">
 <style type="text/css">
 body { height: 100vh; }
 a { text-decoration: underline; }
 </style>
-<script type="text/javascript" src="chrome://DeviantLoveWebExt/content/core/jquery.js"></script>
-<script type="text/javascript" src="chrome://DeviantLoveWebExt/content/core/velocity.min.js"></script>
-<script type="text/javascript" src="chrome://DeviantLoveWebExt/content/core/core.js"></script>
-<script type="text/javascript" src="chrome://DeviantLoveWebExt/content/core/scanner.js"></script>
-<script type="text/javascript;version=1.7">
+<script type="text/javascript" src="core/jquery.js"></script>
+<script type="text/javascript" src="core/velocity.min.js"></script>
+<script type="text/javascript" src="core/core.js"></script>
+<script type="text/javascript" src="core/scanner.js"></script>
+<script type="text/javascript">
 "use strict";
 Components.utils.import("chrome://DeviantLove/content/global.js");
+Components.utils.import("resource://gre/modules/Services.jsm");
+var mainWindow, blacklist, winEnum = Services.ww.getWindowEnumerator();
+var blacklist = document.createProcessingInstruction("xml-stylesheet",
+	'href="chrome://DeviantLove/content/contextMenuBlacklist.css" type="text/css"');
+while (!mainWindow) {
+	let win = winEnum.getNext().QueryInterface(Components.interfaces.nsIDOMWindow);
+	let sidebarBrowser = win.document.getElementById("sidebar");
+	if (!sidebarBrowser) { continue; }
+	let panelBrowser = sidebarBrowser.contentDocument.getElementById("web-panels-browser");
+	if (!panelBrowser) { continue; }
+	if (panelBrowser.contentWindow == window) {
+		mainWindow = win;
+		mainWindow[browserMod].sidebarLoaded(window);
+		let blacklistTarget = sidebarBrowser.contentDocument;
+		blacklistTarget.insertBefore(blacklist, blacklistTarget.firstChild);
+	}
+}
 var adapter = {
 	displayType: "sidebar",
 	getL10nMsg: function(msgName, replacements) {
 		return l10n.get(msgName, replacements);
 	},
 	getL10nFile: function(filename) {
-		return "chrome://DeviantLoveWebExt/content/" + l10n.get("l10nFolder") + filename;
+		return l10n.get("l10nFolder") + filename;
 	},
 	retrieve: function(keys) {
 		if (!Array.isArray(keys)) { keys = [keys]; }
@@ -46,68 +64,45 @@ var adapter = {
 		prefs.set(key, data);
 	},
 	prepComplete: function(restoreData) {
-		top[browserMod].currentScanData = restoreData;
+		mainWindow[browserMod].currentScanData = restoreData;
 	}
 };
 var scannerController;
 $(document).ready( function() {
 	window[loaded] = true;
 	$("body").css("margin", 0);
-	var reloadButton = top.document.getElementById("DeviantLoveReload");
+	var reloadButton = mainWindow.document.getElementById("DeviantLoveReload");
 	reloadButton.addEventListener("command", restart, false);
 	reloadButton.hidden = false;
-	var sidebarBrowser = top.document.getElementById("sidebar");
-	sidebarBrowser.setAttribute("tooltip", "aHTMLTooltip");
-	var contextMenu = top.document.getElementById("contentAreaContextMenu");
-	contextMenu.addEventListener("popupshowing", enforceWhitelist, false);
-	contextMenu.addEventListener("popuphidden", unenforceWhitelist, false);
-	sidebarBrowser.setAttribute("contextmenu", contextMenu.id);
 	$(window).bind("unload", function() {
 		reloadButton.hidden = true;
 		reloadButton.removeEventListener("command", restart, false);
-		contextMenu.removeEventListener("popupshowing", enforceWhitelist, false);
-		contextMenu.removeEventListener("popuphidden", unenforceWhitelist, false);
-		sidebarBrowser.removeAttribute("tooltip");
-		sidebarBrowser.removeAttribute("contextmenu");
-		top[browserMod].sidebarUnloaded();
+		blacklist.remove();
+		mainWindow[browserMod].sidebarUnloaded();
 	});
-	function enforceWhitelist() {
-		if (document.contains(top.gContextMenu.target)) {
-			var failed = contextMenu.querySelectorAll("*:not(.DeviantLoveWhitelisted)");
-			for (let i = 0; i < failed.length; ++i) {
-				failed[i].className += " DeviantLoveWhitelistFail";
-			}
-		}
-	}
-	function unenforceWhitelist() {
-		var failed = contextMenu.querySelectorAll(".DeviantLoveWhitelistFail");
-		for (let i = 0; i < failed.length; ++i) {
-			failed[i].className = failed[i].className.replace("DeviantLoveWhitelistFail", "");
-		}
-	}
 	rawk();
 } );
 function restart() {
 	if (scannerController) {scannerController.cancel()};
 	$("body").empty();
-	delete top[browserMod].currentScanData;
+	delete mainWindow[browserMod].currentScanData;
 	rawk();
 }
 function rawk() {
-	var pageData = top[browserMod].currentPageData;
+	var pageData = mainWindow[browserMod].currentPageData;
 	if (!pageData) {
 		// The sidebar was left open when the user closed the browser. Close it now.
-		top.toggleSidebar();
+		mainWindow.SidebarUI.hide();
 	}
-	if (!top[browserMod].currentScanData) {
+	if (!mainWindow[browserMod].currentScanData) {
 		beginPreparations(pageData);
 		scannerController = startScan();
 	} else {
-		restore(top[browserMod].currentScanData, pageData);
+		restore(mainWindow[browserMod].currentScanData, pageData);
 	}
-	if (top[browserMod].firstDeviant) {
-		showDeviant(top[browserMod].firstDeviant);
-		delete top[browserMod].firstDeviant;
+	if (mainWindow[browserMod].firstDeviant) {
+		showDeviant(mainWindow[browserMod].firstDeviant);
+		delete mainWindow[browserMod].firstDeviant;
 	}
 }
 
@@ -116,11 +111,11 @@ $(document).delegate("a", "click", function(event) {
 } ).delegate("a", "mouseup", function(event) {
 	if (event.button == 2) { return; };
 	// Mimic Chrome behavior
-	var where = top.whereToOpenLink(event);
+	var where = mainWindow.whereToOpenLink(event);
 	if (where == "current") {
-		top.gBrowser.selectedTab = top.gBrowser.addTab(this.href);
+		mainWindow.gBrowser.selectedTab = mainWindow.gBrowser.addTab(this.href);
 	} else {
-		top.openUILinkIn(this.href, where);
+		mainWindow.openUILinkIn(this.href, where);
 	}
 } );
 </script>

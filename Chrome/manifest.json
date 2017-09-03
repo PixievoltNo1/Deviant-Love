@@ -1,6 +1,6 @@
 {
 	"name": "Deviant Love",
-	"version": "2.3.2",
+	"version": "2.3.4",
 	"description": "__MSG_extDesc__",
 	"icons": {
 		"16": "core/heart/16.png",
@@ -18,13 +18,13 @@
 		"default_title": "Deviant Love"
 	},
 	"content_scripts": [{
-		"matches": ["http://*.deviantart.com/favourites/*"],
+		"matches": ["*://*.deviantart.com/favourites/*"],
 		"js": ["core/detector.js", "manager.js"],
 		"run_at": "document_end"
 	}],
 	"web_accessible_resources": ["popup.html", "popup.js", "core/"],
 
-	"permissions": ["contextMenus", "storage", "http://*.deviantart.com/"],
+	"permissions": ["contextMenus", "storage", "*://*.deviantart.com/"],
 	"minimum_chrome_version": "38",
 	"manifest_version": 2
 }

@@ -19,7 +19,10 @@ function pageSetup() {
 		}
 		sendAsyncMessage("deviantlove@pikadudeno1.com:foundLove", loaded.findLove(content));
 		addEventListener("contextmenu", checkForArtistLove);
-		addEventListener("pagehide", pageTeardown)
+		addEventListener("pagehide", (event) => {
+			if (event.target != content.document) { return; }
+			pageTeardown();
+		});
 	}
 }
 if (content.document.readyState == "interactive" || content.document.readyState == "complete") {
@@ -31,7 +34,7 @@ function pageTeardown() {
 	removeEventListener("pagehide", pageTeardown);
 }
 function checkForArtistLove(event) {
-	if (event.target.mozMatchesSelector(".folderview-art a.u")) {
+	if (event.target.matches("#gruze-main a.u")) {
 		sendSyncMessage("deviantlove@pikadudeno1.com:showArtistLove", event.target.textContent);
 	} else {
 		sendSyncMessage("deviantlove@pikadudeno1.com:noArtistLove");
