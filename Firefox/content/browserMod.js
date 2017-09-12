@@ -9,7 +9,7 @@
 	var currentFocus, sidebarWindow;
 	var loader = Components.classes["@mozilla.org/moz/jssubscript-loader;1"]
 		.getService(Components.interfaces.mozIJSSubScriptLoader);
-	var {l10n, prefs, browserMod, loaded} =
+	var {l10n, browserMod} =
 		Components.utils.import("chrome://DeviantLove/content/global.js", {});
 	function handleMessage(name, handler) {
 		messageManager.addMessageListener("deviantlove@pikadudeno1.com:" + name, handler);

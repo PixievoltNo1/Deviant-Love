@@ -17,13 +17,25 @@ function* windows() {
 		yield winEnum.getNext();
 	}
 }
+var webExt;
 function startup({webExtension}) {
-	var {webExt: portHolder} = Components.utils.import("chrome://DeviantLove/content/global.js", {});
+	({webExt} = Components.utils.import("chrome://DeviantLove/content/global.js", {}));
 	webExtension.startup().then(({browser: {runtime}}) => {
 		runtime.onConnect.addListener((port) => {
-			portHolder.port = port;
+			webExt.port = port;
+			var checkBranch = Services.prefs.getBranch("extensions.deviantlove.");
+			if (checkBranch.getChildList("").length) {
+				var toImport = {};
+				if (checkBranch.prefHasUserValue("nextTip")) {
+					toImport.nextTip = checkBranch.getIntPref("nextTip");
+				}
+				if (checkBranch.prefHasUserValue("subaccounts")) {
+					toImport.subaccounts = checkBranch.getCharPref("subaccounts");
+				}
+				webExt.port.postMessage({action: "importPrefs", prefs: toImport});
+				checkBranch.deleteBranch("");
+			}
 			webExtReady();
-			// TODO: Migrate preferences
 		});
 	});
 }
@@ -65,9 +77,4 @@ function shutdown(data, reason) {
 	messageManager.removeDelayedFrameScript("chrome://DeviantLove/content/frame.js?" + frameScriptKey);
 	messageManager.broadcastAsyncMessage("deviantlove@pikadudeno1.com:disable",
 		"chrome://DeviantLove/content/frame.js?" + frameScriptKey);
-}
-function uninstall(data, reason) {
-	if (reason == ADDON_UNINSTALL) {
-		Services.prefs.getBranch("extensions.deviantlove.").deleteBranch("");
-	}
 }

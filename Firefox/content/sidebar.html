@@ -36,6 +36,22 @@ while (!mainWindow) {
 		blacklistTarget.insertBefore(blacklist, blacklistTarget.firstChild);
 	}
 }
+var resolvePrefs;
+var prefsPromise = new Promise((resolve) => { resolvePrefs = resolve; });
+const messageActions = {
+	allPrefs({prefs}) {
+		resolvePrefs(prefs);
+	},
+	changedPrefs({newPrefs}) {
+		prefsPromise = prefsPromise.then((prefs) => {
+			return Object.assign(prefs, newPrefs);
+		});
+	}
+};
+webExt.port.onMessage.addListener((thing) => {
+	messageActions[thing.action](thing);
+});
+webExt.port.postMessage({action: "sendPrefs"});
 var adapter = {
 	displayType: "sidebar",
 	getL10nMsg: function(msgName, replacements) {
@@ -45,23 +61,26 @@ var adapter = {
 		return l10n.get("l10nFolder") + filename;
 	},
 	retrieve: function(keys) {
+		var request = new $.Deferred();
 		if (!Array.isArray(keys)) { keys = [keys]; }
-		var items = prefs.get(keys);
-		var data = {};
-		keys.forEach( function(key, i) {
-			var item = items[i];
-			if (typeof item == "string") {
-				item = JSON.parse(item);
+		prefsPromise.then((prefs) => {
+			var data = {};
+			for (let key of keys) {
+				let item = prefs[key];
+				if (typeof item == "string") {
+					item = JSON.parse(item);
+				}
+				data[key] = item;
 			}
-			data[key] = item;
-		} );
-		return $.when( data );
+			request.resolve(data);
+		});
+		return request.promise();
 	},
 	store: function(key, data) {
 		if (typeof data != "number" && typeof data != "boolean") {
 			data = JSON.stringify(data);
 		}
-		prefs.set(key, data);
+		webExt.port.postMessage({ action: "setPrefs", prefs: {[key]: data} });
 	},
 	prepComplete: function(restoreData) {
 		mainWindow[browserMod].currentScanData = restoreData;
@@ -69,7 +88,6 @@ var adapter = {
 };
 var scannerController;
 $(document).ready( function() {
-	window[loaded] = true;
 	$("body").css("margin", 0);
 	var reloadButton = mainWindow.document.getElementById("DeviantLoveReload");
 	reloadButton.addEventListener("command", restart, false);

@@ -4,9 +4,9 @@
 	Check core.js for the complete legal stuff.
 */
 "use strict";
-var EXPORTED_SYMBOLS = ["browserMod", "loaded", "webExt", "l10n", "prefs"];
+var EXPORTED_SYMBOLS = ["browserMod", "webExt", "l10n"];
 
-var browserMod = Symbol(), loaded = Symbol();
+var browserMod = Symbol();
 var webExt = {};
 
 Components.utils.import("resource://gre/modules/Services.jsm");
@@ -21,6 +21,3 @@ Services.scriptloader.loadSubScriptWithOptions("chrome://DeviantLove/content/mes
 	ignoreCache: true
 });
 var l10n = scope.MY_EXTENSION_STRINGS;
-
-Components.utils.import("resource://gre/modules/Preferences.jsm");
-var prefs = new Preferences("extensions.deviantlove.");
