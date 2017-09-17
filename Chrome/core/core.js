@@ -441,6 +441,7 @@ function report(results, ui, love) {
 			subaccounts[getting] = (subaccounts[getting] || [])
 				.concat(gotten, (subaccounts[gotten] || []));
 			delete subaccounts[gotten];
+			$("#deviant_" + getting).find(".subaccountsButton").addClass("has");
 			adapter.store("subaccounts", subaccounts);
 			if ($("input[value='thisToInput']").prop("checked")) {
 				$("#deviant_" + getting).find(".subaccountsButton")
