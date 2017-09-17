@@ -22,7 +22,7 @@ const messageActions = {
 port.onMessage.addListener((thing) => {
 	messageActions[thing.action](thing);
 });
-browser.storage.onChanged.addListener(({changes, areaName}) => {
+browser.storage.onChanged.addListener((changes, areaName) => {
 	if (areaName != "local") { return; }
 	var newPrefs = {};
 	for (let [key, {newValue}] of Object.entries(changes)) {
