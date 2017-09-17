@@ -12,11 +12,12 @@
 body { height: 100vh; }
 a { text-decoration: underline; }
 </style>
-<script type="text/javascript" src="core/jquery.js"></script>
-<script type="text/javascript" src="core/velocity.min.js"></script>
-<script type="text/javascript" src="core/core.js"></script>
-<script type="text/javascript" src="core/scanner.js"></script>
-<script type="text/javascript">
+<script src="core/jquery.js"></script>
+<script src="core/velocity.min.js"></script>
+<script src="core/scanner.js"></script>
+<script src="core/deviantCollection.js"></script>
+<script src="core/core.js"></script>
+<script>
 "use strict";
 Components.utils.import("chrome://DeviantLove/content/global.js");
 Components.utils.import("resource://gre/modules/Services.jsm");
@@ -82,8 +83,10 @@ var adapter = {
 		}
 		webExt.port.postMessage({ action: "setPrefs", prefs: {[key]: data} });
 	},
-	prepComplete: function(restoreData) {
-		mainWindow[browserMod].currentScanData = restoreData;
+	prepComplete: function(results) {
+		var scanData = Object.assign({}, results);
+		scanData.deviants = results.deviants.getRestoreData();
+		mainWindow[browserMod].currentScanData = scanData;
 	}
 };
 var scannerController;

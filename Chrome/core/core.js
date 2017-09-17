@@ -15,10 +15,6 @@
 	You should have received a copy of the GNU General Public License
 	along with Deviant Love.  If not, see <http://www.gnu.org/licenses/>.
 */
-/* Dependencies:
-	- jQuery
-	- adapter object
-*/
 "use strict";
 
 function Deviant(name) {
@@ -67,18 +63,12 @@ function beginPreparations(love) {
 			scanError();
 			return thrown.retryResult.catch(catcher);
 		} );
-		var organized = Promise.all([faves, settings]).then(organizeData);
+		var organized = faves.then(organizeData);
 		var watched = scannerController.watched.then(collectWatchlist, watchError);
-		Promise.all([organized, watched, settings, firstTip]).then(finish);
+		Promise.all([organized, watched, getAllUserPrefs(), nextTip()]).then(finish);
 		return scannerController;
 	}
-	var settings = adapter.retrieve("subaccounts").then( function(data) {
-		data.subaccounts = data.subaccounts || {};
-		return data;
-	} );
-	var firstTip = nextTip();
-	function organizeData(results) {
-		var faves = results[0], subaccounts = results[1].subaccounts;
+	function organizeData(faves) {
 		var deviantMap = new Map();
 		faves.forEach(function(item, pos) {
 			if (!deviantMap.has(item.artistName)) {
@@ -93,33 +83,8 @@ function beginPreparations(love) {
 			});
 		});
 		var totalDeviations = faves.length;
-		var hiddenAccounts = {};
-		for (var deviantName in subaccounts) {
-			var relevant = subaccounts[deviantName].filter( function(subaccount) {
-				return deviantMap.has(subaccount);
-			} );
-			if (relevant.length > 0) {
-				if (!deviantMap.has(deviantName)) {
-					deviantMap.set(deviantName, new Deviant(deviantName));
-				}
-				var deviant = deviantMap.get(deviantName);
-				relevant.forEach( function(subaccountName) {
-					var subaccount = deviantMap.get(subaccountName);
-					hiddenAccounts[subaccountName] = subaccount;
-					deviant.deviations = deviant.deviations.concat(subaccount.deviations);
-					deviantMap.delete(subaccountName);
-				} );
-				deviant.deviations.sort(function earliestPos(a, b) {
-					return a.pos - b.pos;
-				});
-			}
-		}
-		var deviantList = [];
-		for (var item of deviantMap.values()) { deviantList.push(item); }
-		deviantList.sort(orderMostLoved);
 
-		return { deviantList: deviantList, deviantMap: deviantMap,
-			totalDeviations: totalDeviations, hiddenAccounts: hiddenAccounts };
+		return {deviantMap, totalDeviations};
 	}
 	function setProgress(data) {
 		$("#scannedDeviations").l10n("scannedDeviations", data.found);
@@ -161,30 +126,32 @@ function beginPreparations(love) {
 			"watchErrorNotLoggedIn" : "watchErrorInternal" );
 		return {error: thrown.reason};
 	}
-	function finish(results) {
-		var data = $.extend(results[0], results[2]);
-		data.watchedArtists = results[1];
-		adapter.prepComplete(data);
+	function finish([organizedFaves, watched, prefs, firstTip]) {
+		let results = {
+			deviants: new DeviantCollection(organizedFaves.deviantMap, Deviant),
+			totalDeviations: organizedFaves.totalDeviations,
+			watchedArtists: watched
+		};
+		adapter.prepComplete(results);
 		preparationScreen.remove();
-		var ui = {firstTip: results[3], firstDeviant: firstDeviant};
-		report(data, ui, love);
+		var ui = {firstTip, firstDeviant};
+		report(results, prefs, ui, love);
 	}
 }
-function restore(data, love) {
+function restore(scanData, love) {
 	var firstDeviant;
 	window.showDeviant = function(deviantName) {
 		firstDeviant = deviantName;
-	}
-	nextTip().then(function(tip) {
+	};
+	scanData.deviants = new DeviantCollection(scanData.deviants);
+	Promise.all([getAllUserPrefs(), nextTip()]).then(function([prefs, tip]) {
 		var ui = {firstTip: tip, firstDeviant: firstDeviant};
-		report(data, ui, love);
+		report(scanData, prefs, ui, love);
 	});
 }
-function report(results, ui, love) {
-	// No destructuring in Chrome 38 *sigh*
-	var deviantMap = results.deviantMap, deviantList = results.deviantList,
-		hiddenAccounts = results.hiddenAccounts, totalDeviations = results.totalDeviations,
-		watchedArtists = results.watchedArtists, subaccounts = results.subaccounts;
+function report(results, prefs, ui, love) {
+	var {deviants, totalDeviations, watchedArtists} = results;
+	deviants.setSubaccounts(prefs.subaccounts);
 
 	// Construct the UI
 	var mainScreen = $("<div>", {id: "mainScreen"});
@@ -213,7 +180,7 @@ function report(results, ui, love) {
 			'<span class="dynamic">' + Number(totalDeviations) + '</span>'))
 	}
 	scanResults.append($("<div>", {id: "artistCount"}).l10nHtml("scanResultsLastLine",
-		'<span class="dynamic">' + Number(deviantList.length) + '</span>'))
+		'<span class="dynamic">' + Number(deviants.list.length) + '</span>'))
 		.appendTo(mainScreen);
 	$("<form>", {id: "findBar", "class": "textEntryLine"})
 		.append($("<input>", {type: "text", id: "query"}))
@@ -273,7 +240,7 @@ function report(results, ui, love) {
 			$(".deviant > .closerLook").remove();
 		}
 
-		var deviant = deviantMap.get($(".deviantName", this).text());
+		var deviant = deviants.effectiveMap.get($(".deviantName", this).text());
 		var closerLook = buildCloserLook(deviant, deviant.deviations);
 		$(this).append(closerLook).addClass("opened");
 		if (!suppressAnimation) {
@@ -319,12 +286,12 @@ function report(results, ui, love) {
 			$(".subaccountsButton.editing").removeClass("editing");
 			button.addClass("editing");
 			editingSubaccountsOf = button.siblings(".deviantName").text();
-			$("#subaccountsEditor").toggleClass("has", editingSubaccountsOf in subaccounts);
+			$("#subaccountsEditor").toggleClass("has", editingSubaccountsOf in deviants.subaccounts);
 			$("#subaccountsListHeader").l10n("subaccountsList", editingSubaccountsOf);
 			$("#subaccountsListContents").empty();
-			if (editingSubaccountsOf in subaccounts) {
+			if (editingSubaccountsOf in deviants.subaccounts) {
 				$("#subaccountsListContents").append(
-					subaccounts[editingSubaccountsOf].map(buildSubaccountLine)
+					deviants.subaccounts[editingSubaccountsOf].map(buildSubaccountLine)
 				);
 			}
 			$("#inputToThisText").l10n("subaccountsAddInputToCurrent", editingSubaccountsOf);
@@ -349,17 +316,17 @@ function report(results, ui, love) {
 		$("#addNotice").hide();
 		$.when( (function() {
 			var lcInput = input.toLowerCase();
-			for (var name of deviantMap.keys()) {
+			for (var name of deviants.effectiveMap.keys()) {
 				if (name.toLowerCase() == lcInput) {
 					return name;
 				}
 			}
-			for (var name in subaccounts) {
+			for (var name in deviants.subaccounts) {
 				if (name.toLowerCase() == lcInput) {
 					return name;
 				}
 				var found;
-				subaccounts[name].some( function(subaccount) {
+				deviants.subaccounts[name].some( function(subaccount) {
 					if (subaccount.toLowerCase() == lcInput) {
 						found = subaccount;
 						return true;
@@ -387,8 +354,7 @@ function report(results, ui, love) {
 				if ($("input[value='thisToInput']").prop("checked")) {
 					var newDeviant = new Deviant(verifiedName);
 					newDeviant.avatar = profileElem.find("link[rel='image_src']").attr("href");
-					deviantMap.set(verifiedName, newDeviant);
-					deviantList.push(newDeviant);
+					deviants.effectiveMap.set(verifiedName, newDeviant);
 				}
 				if (warn) {
 					return { related: input, warning: "CantVerifyCasing", warningPart: input };
@@ -413,36 +379,29 @@ function report(results, ui, love) {
 			} else {
 				var gotten = editingSubaccountsOf, getting = related;
 			}
-			if (deviantMap.has(gotten)) {
-				deviantListMod(function() {
-					var gettingObj = deviantMap.get(getting), gottenObj = deviantMap.get(gotten);
-					gettingObj.deviations = gettingObj.deviations.concat(gottenObj.deviations);
-					if (gotten in subaccounts) {
-						for (var subaccount of subaccounts[gotten]) {
-							if (subaccount in hiddenAccounts) {
-								removeDeviations(gottenObj, hiddenAccounts[subaccount].deviations);
-							}
+			if (deviants.effectiveMap.has(gotten)) {
+				deviantsMod(function() {
+					var gettingObj = deviants.effectiveMap.get(getting), gottenObj = deviants.effectiveMap.get(gotten);
+					deviants.mergeDeviations(gettingObj, [gottenObj]);
+					if (gotten in deviants.subaccounts) {
+						for (var subaccount of deviants.subaccounts[gotten]) {
 							if ($("input[value='inputToThis']").prop("checked")) {
 								$("#subaccountsListContents").append( buildSubaccountLine( subaccount ) );
 							}
 						}
 					}
-					if (gottenObj.deviations.length) {
-						hiddenAccounts[gotten] = gottenObj;
+					if (deviants.baseMap.has(gotten)) {
+						deviants.subaccountOwners.set(gottenObj, gettingObj);
 					}
-					gettingObj.deviations.sort(function earliestPos(a, b) {
-						return a.pos - b.pos;
-					});
-					deviantMap.delete(gotten);
-					deviantList.splice(deviantList.indexOf(gottenObj), 1);
+					deviants.effectiveMap.delete(gotten);
 					editingSubaccountsOf = getting;
 				});
 			}
-			subaccounts[getting] = (subaccounts[getting] || [])
-				.concat(gotten, (subaccounts[gotten] || []));
-			delete subaccounts[gotten];
+			deviants.subaccounts[getting] = (deviants.subaccounts[getting] || [])
+				.concat(gotten, (deviants.subaccounts[gotten] || []));
+			delete deviants.subaccounts[gotten];
 			$("#deviant_" + getting).find(".subaccountsButton").addClass("has");
-			adapter.store("subaccounts", subaccounts);
+			adapter.store("subaccounts", deviants.subaccounts);
 			if ($("input[value='thisToInput']").prop("checked")) {
 				$("#deviant_" + getting).find(".subaccountsButton")
 					.removeClass("editing").trigger("click");
@@ -459,35 +418,31 @@ function report(results, ui, love) {
 	} );
 	$("#subaccountsEditor").delegate(".removeSubaccount", "click", function() {
 		var removedName = $(this).siblings(".subaccountName").text();
-		subaccounts[editingSubaccountsOf].splice(
-			subaccounts[editingSubaccountsOf].indexOf(removedName), 1);
+		deviants.subaccounts[editingSubaccountsOf].splice(
+			deviants.subaccounts[editingSubaccountsOf].indexOf(removedName), 1);
 		$(this).parent().remove();
-		if (subaccounts[editingSubaccountsOf].length == 0) {
-			delete subaccounts[editingSubaccountsOf];
+		if (deviants.subaccounts[editingSubaccountsOf].length == 0) {
+			delete deviants.subaccounts[editingSubaccountsOf];
 			$("#subaccountsEditor").removeClass("has");
 		}
-		if (removedName in hiddenAccounts) {
-			var mainAccountGone = false;
-			deviantListMod(function() {
-				var removed = hiddenAccounts[removedName];
-				delete hiddenAccounts[removedName];
-				deviantMap.set(removedName, removed);
-				deviantList.push(removed);
-				var target = deviantMap.get(editingSubaccountsOf);
+		if (deviants.baseMap.has(removedName)) {
+			deviantsMod(function() {
+				var removed = deviants.baseMap.get(removedName);
+				deviants.subaccountOwners.delete(removed);
+				deviants.effectiveMap.set(removedName, removed);
+				var target = deviants.effectiveMap.get(editingSubaccountsOf);
 				removeDeviations(target, removed.deviations);
 				if (target.deviations.length == 0) {
-					deviantMap.delete(editingSubaccountsOf);
-					deviantList.splice(deviantList.indexOf(target), 1);
+					deviants.effectiveMap.delete(editingSubaccountsOf);
 					editingSubaccountsOf = removedName;
-					mainAccountGone = true;
 				}
 			});
-			if (mainAccountGone) {
+			if (deviants.effectiveMap.has(editingSubaccountsOf)) {
 				$("#deviant_" + editingSubaccountsOf).find(".subaccountsButton")
 					.removeClass("editing").trigger("click");
 			}
 		}
-		adapter.store("subaccounts", subaccounts);
+		adapter.store("subaccounts", deviants.subaccounts);
 	} );
 	// Helper functions for subaccount event handlers
 	function removeDeviations(account, removeMe) {
@@ -495,17 +450,17 @@ function report(results, ui, love) {
 			return removeMe.indexOf(deviation) == -1;
 		});
 	}
-	function deviantListMod(mod) {
+	function deviantsMod(mod) {
 		// mod() may change the value of $("#deviant_" + editingSubaccountsOf), so don't save it
 		var keepOpen = $("#deviant_" + editingSubaccountsOf).hasClass("opened");
 		mod();
-		deviantList.sort(orderMostLoved);
+		deviants.buildList();
 		$("#artistCount").l10nHtml("scanResultsLastLine",
-			'<span class="dynamic">' + Number(deviantList.length) + '</span>');
+			'<span class="dynamic">' + Number(deviants.list.length) + '</span>');
 		if ($("#mainScreen").hasClass("lookWhatIFound")) {
 			normalMode();
 		} else {
-			$("#lovedArtists").empty().append(snackOnMyWrath(deviantList));
+			$("#lovedArtists").empty().append(snackOnMyWrath(deviants.list));
 		}
 		if (keepOpen) {
 			$("#deviant_" + editingSubaccountsOf).trigger("click", true);
@@ -552,7 +507,7 @@ function report(results, ui, love) {
 			if (watchedArtists instanceof Set && watchedArtists.has(deviant.name)) {
 				devWatchElem.addClass("true").attr("title", watchingThisArtistTooltip);
 			}
-			if (deviant.name in subaccounts) {
+			if (deviant.name in deviants.subaccounts) {
 				subaccountsElem.addClass("has");
 			}
 			rageDressing.appendChild(deviantElem[0]);
@@ -628,11 +583,11 @@ function report(results, ui, love) {
 		var deviantMatches = [];
 		var deviantMatchingSubaccount = {};
 		var deviationMatches = [];
-		deviantList.forEach( function(deviant) {
+		deviants.list.forEach( function(deviant) {
 			if (checkDeviants && isMatch(deviant.name)) {
 				deviantMatches.push(deviant);
-			} else if (checkDeviants && deviant.name in subaccounts) {
-				subaccounts[deviant.name].some( function(subaccountName) {
+			} else if (checkDeviants && deviant.name in deviants.subaccounts) {
+				deviants.subaccounts[deviant.name].some( function(subaccountName) {
 					if (isMatch(subaccountName)) {
 						deviantMatches.push(deviant);
 						deviantMatchingSubaccount[deviant.name] = subaccountName;
@@ -701,17 +656,15 @@ function report(results, ui, love) {
 	function normalMode() {
 		$("#mainScreen").removeClass("lookWhatIFound");
 		$("#lovedArtists").removeClass("noResults").empty()
-			.append(normalModePrefix).append(snackOnMyWrath(deviantList));
+			.append(normalModePrefix).append(snackOnMyWrath(deviants.list));
 	}
 }
 
-// Sorting function for deviantList
-function orderMostLoved(a, b) {
-	if (a.deviations.length != b.deviations.length) {
-		return b.deviations.length - a.deviations.length;
-	} else {
-		return a.name.toLowerCase().localeCompare(b.name.toLowerCase());
-	}
+function getAllUserPrefs() {
+	return adapter.retrieve("subaccounts").then( function(data) {
+		data.subaccounts = data.subaccounts || {};
+		return data;
+	} );
 }
 function nextTip() {
 	return Promise.all(
