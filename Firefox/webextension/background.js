@@ -30,4 +30,3 @@ browser.storage.onChanged.addListener(({changes, areaName}) => {
 	}
 	port.postMessage({action: "changedPrefs", newPrefs});
 });
-console.log("hi");
