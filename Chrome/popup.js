@@ -4,39 +4,12 @@
 	Check core.js for the complete legal stuff.
 */
 "use strict";
-var adapter = {
+var adapter = Object.extend({
 	displayType: "popup",
-	getL10nMsg: function(msgName, replacements) {
-		return chrome.i18n.getMessage(msgName, replacements);
-	},
-	getL10nFile: function(filename) {
-		return chrome.i18n.getMessage("l10nFolder") + filename;
-	},
-	retrieve: function(keys) {
-		var request = new $.Deferred();
-		chrome.storage.local.get(keys, function(data) {
-			for (var key in data) {
-				var item = data[key];
-				if (typeof item == "string") {
-					data[key] = JSON.parse(item);
-				}
-			}
-			request.resolve(data);
-		});
-		return request.promise();
-	},
-	store: function(key, data) {
-		if (typeof data != "number" && typeof data != "boolean") {
-			data = JSON.stringify(data);
-		}
-		var item = {};
-		item[key] = data;
-		chrome.storage.local.set(item);
-	},
 	prepComplete: function() {
 		chrome.runtime.sendMessage({action: "echo", echoAction: "scanningComplete"});
 	}
-};
+}, apiAdapter);
 
 var scannerController;
 $(document).ready( function() {
@@ -67,9 +40,6 @@ chrome.runtime.onMessage.addListener(function(thing, buddy, callback) {switch (t
 		showDeviant(thing.artist);
 	break;
 }});
-function scanRetry() {
-	chrome.runtime.sendMessage({action: "scanRetry"});
-}
 
 $(document).delegate("a", "click", function(event) {
 	if (event.button == 0) { window.open(this.href); }
