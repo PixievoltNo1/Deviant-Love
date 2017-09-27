@@ -1,0 +1,29 @@
+<html>
+<head>
+<script src="../jquery.js" defer></script>
+<script src="../apiAdapter.js" defer></script>
+<script src="options.js" defer></script>
+</head>
+<body>
+<h1 data-l10n="subaccountsEditorHeader"></h1>
+<div id="subaccountsEditor">
+	<div id="subaccountsEditorExplainer" data-l10n="subaccountsExplain" hidden></div>
+	<button class="newOwner" data-l10n="subaccountsEditorAddMainAccount"></button>
+</div>
+<template id="subaccountOwner">
+	<div class="subaccountOwner">
+		<div class="subaccountOwnerLine">
+			<span class="accountName"></span>
+			<button class="changeMainAccount" data-l10n="subaccountsEditorChangeMain"></button>
+		</div>
+		<button class="addSubaccount" data-l10n="subaccountsEditorAddSubaccount"></button>
+	</div>
+</template>
+<template id="subaccountLine">
+	<div class="subaccountLine">
+		<span class="accountName"></span>
+		<button class="removeSubaccount" data-l10n="subaccountsRemove"></button>
+	</div>
+</template>
+</body>
+</html>

@@ -6,6 +6,10 @@
 	"background": {
 		"scripts": ["background.js"]
 	},
+	"options_ui": {
+		"page": "core/options/options.html",
+		"browser_style": true
+	},
 
 	"permissions": ["storage"],
 	"manifest_version": 2

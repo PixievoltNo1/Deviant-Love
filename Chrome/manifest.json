@@ -17,6 +17,10 @@
 		"default_icon": "38Heart.png",
 		"default_title": "Deviant Love"
 	},
+	"options_ui": {
+		"page": "core/options/options.html",
+		"chrome_style": true
+	},
 	"content_scripts": [{
 		"matches": ["*://*.deviantart.com/favourites/*"],
 		"js": ["core/detector.js", "manager.js"],

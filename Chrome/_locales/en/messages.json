@@ -79,5 +79,9 @@
 	"subaccountsErrorAlreadyOwned": { "message": "That subaccount already belongs to $1. (Add $1 as a subaccount to add both it and all its subaccounts.)" },
 	"subaccountsErrorNotFound": { "message": "DeviantArt reports \"not found\" for that name; check your spelling. (A deactivated account can also cause this error.)" },
 	"subaccountsErrorCommunication": { "message": "Can't verify the account exists due to an error communicating with DeviantArt. Try again later." },
-	"subaccountsWarningCantVerifyCasing": { "message": "Unable to determine the correct capitalization for $1. If you need to change it, remove it and add it again." }
+	"subaccountsWarningCantVerifyCasing": { "message": "Unable to determine the correct capitalization for $1. If you need to change it, remove it and add it again." },
+	"subaccountsEditorHeader": { "message": "Subaccounts" },
+	"subaccountsEditorAddMainAccount": { "message": "Add owner" },
+	"subaccountsEditorChangeMain": { "message": "Change main" },
+	"subaccountsEditorAddSubaccount": { "message": "Add subaccount" }
 }
