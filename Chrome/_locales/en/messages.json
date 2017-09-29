@@ -83,5 +83,8 @@
 	"subaccountsEditorHeader": { "message": "Subaccounts" },
 	"subaccountsEditorAddMainAccount": { "message": "Add owner" },
 	"subaccountsEditorChangeMain": { "message": "Change main" },
-	"subaccountsEditorAddSubaccount": { "message": "Add subaccount" }
+	"subaccountsEditorAddSubaccount": { "message": "Add subaccount" },
+	"subaccountsEditorAddPlaceholder": { "message": "Subaccount name here" },
+	"subaccountsEditorOwnerPlaceholder": { "message": "Owner name here" },
+	"subaccountsEditorCancelOwner": { "message": "Cancel" }
 }
