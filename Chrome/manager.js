@@ -61,14 +61,9 @@ document.querySelector("#gruze-main").addEventListener("mouseover", function(eve
 		}, false);
 	}
 }, false);
-if ("hidden" in document) {
-	var visibilityEvent = "visibilitychange", hiddenProp = "hidden";
-} else {
-	var visibilityEvent = "webkitvisibilitychange", hiddenProp = "webkitHidden";
-}
 var keepAlive;
 function checkVisibility() {
-	if (!document[hiddenProp]) {
+	if (!document.hidden) {
 		keepAlive = chrome.runtime.connect({name: "keepAlive"});
 	} else if (keepAlive) {
 		keepAlive.disconnect();
@@ -76,7 +71,7 @@ function checkVisibility() {
 	}
 };
 checkVisibility();
-document.addEventListener(visibilityEvent, checkVisibility, false);
+document.addEventListener("visibilitychange", checkVisibility, false);
 
 function activate(firstDeviant) {
 	popupCSS.display = "";
