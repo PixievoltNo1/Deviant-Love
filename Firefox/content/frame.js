@@ -34,8 +34,10 @@ function pageTeardown() {
 	removeEventListener("pagehide", pageTeardown);
 }
 function checkForArtistLove(event) {
-	if (event.target.matches("#gruze-main a.u")) {
-		sendSyncMessage("deviantlove@pikadudeno1.com:showArtistLove", event.target.textContent);
+	var thumbElem = event.target.closest("#gruze-main .thumb");
+	if (thumbElem) {
+		sendSyncMessage("deviantlove@pikadudeno1.com:showArtistLove",
+			thumbElem.querySelector("a.username").textContent);
 	} else {
 		sendSyncMessage("deviantlove@pikadudeno1.com:noArtistLove");
 	}

@@ -50,11 +50,11 @@ chrome.runtime.onMessage.addListener( function(thing, buddy, callback) {switch (
 }} );
 chrome.runtime.sendMessage({action: "showLove"});
 
-var matchMethod = ("matches" in document.documentElement) ? "matches" : "webkitMatchesSelector";
 document.querySelector("#gruze-main").addEventListener("mouseover", function(event) {
 	var thing = event.target;
-	if ( thing[matchMethod]("a.u") ) {
-		chrome.runtime.sendMessage({action: "showArtistLove", artist: thing.textContent});
+	if ( thing.matches(".thumb") ) {
+		chrome.runtime.sendMessage({action: "showArtistLove",
+			artist: thing.querySelector("a.username").textContent});
 		thing.addEventListener("mouseout", function byebye() {
 			chrome.runtime.sendMessage({action: "noArtistLove"});
 			thing.removeEventListener("mouseout", byebye, false);
