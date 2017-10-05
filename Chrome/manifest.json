@@ -10,7 +10,7 @@
 	"default_locale": "en",
 
 	"background": {
-		"scripts": ["background.js"],
+		"scripts": ["core/syncByBrowser.js", "background.js"],
 		"persistent": false
 	},
 	"page_action": {
