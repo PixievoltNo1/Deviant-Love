@@ -280,9 +280,10 @@ function report(results, prefs, ui, love) {
 	$("#findBar").bind("submit", function(event) {
 		event.preventDefault();
 		var query = $("#query").val();
+		if (query == "") { return; }
 		if (queryTroubleCheck(query)) { return; }
 
-		var {deviantMatches, deviantMatchingSubaccount, deviationMatches} = findStuff(query);
+		var {deviantMatches, deviantMatchingSubaccount, deviationMatches} = findStuff(query, deviants);
 
 		$("#mainScreen").addClass("lookWhatIFound");
 		var lovedArtists = $("#lovedArtists").empty().removeClass("noResults");
