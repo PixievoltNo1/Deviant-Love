@@ -395,11 +395,10 @@ function report(results, prefs, ui, love) {
 				}
 				return verifiedName;
 			}, function(xhr) {
-				// Before updating to jQuery 3 or switching to native Promises, change returns to throws
 				if (xhr.status == 404) {
-					return "NotFound";
+					throw "NotFound";
 				}
-				return "Communcation";
+				throw "Communcation";
 			} );
 		})() ).then( function(related) {
 			if (typeof related == "object") {
