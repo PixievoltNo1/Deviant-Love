@@ -9,6 +9,18 @@
 <div id="subaccountsEditor">
 	<div id="subaccountsEditorExplainer" data-l10n="subaccountsExplain" hidden></div>
 	<button class="newOwner" data-l10n="subaccountsEditorAddMainAccount"></button>
+	<form class="subaccountOwner newOwnerForm" hidden>
+		<div class="subaccountOwnerLine">
+			<input class="newSubaccountOwnerNameInput"
+				data-l10n="subaccountsEditorOwnerPlaceholder" data-l10n-attr="placeholder">
+			<button class="cancelOwner" data-l10n="subaccountsEditorCancelOwner"></button>
+		</div>
+		<div class="firstSubaccount">
+			<input class="subaccountInput"
+				data-l10n="subaccountsEditorAddPlaceholder" data-l10n-attr="placeholder">
+			<button type="submit" data-l10n="subaccountsAddConfirm"></button>
+		</div>
+	</form>
 </div>
 <template id="subaccountOwner">
 	<div class="subaccountOwner">
@@ -18,7 +30,7 @@
 		</div>
 		<button class="addSubaccount" data-l10n="subaccountsEditorAddSubaccount"></button>
 		<form class="addSubaccountForm" hidden>
-			<input class="addSubaccountNameInput"
+			<input class="subaccountInput"
 				data-l10n="subaccountsEditorAddPlaceholder" data-l10n-attr="placeholder">
 			<button type="submit" data-l10n="subaccountsAddConfirm"></button>
 		</form>
@@ -30,12 +42,20 @@
 		<button class="removeSubaccount" data-l10n="subaccountsRemove"></button>
 	</div>
 </template>
-<template id="newSubaccountOwnerLine">
-	<div class="subaccountOwnerLine">
-		<input class="newSubaccountOwnerNameInput"
-			data-l10n="subaccountsEditorOwnerPlaceholder" data-l10n-attr="placeholder">
-		<button class="cancelOwner" data-l10n="subaccountsEditorCancelOwner"></button>
-	</div>
+<template id="changeSubaccountOwner">
+	<form class="subaccountOwner changeMainAccountForm">
+		<div class="subaccountOwnerLine"><label>
+			<input type="radio" name="newOwner" value="$noChange" checked>
+			<span class="accountName"></span>
+		</label></div>
+		<button type="submit" data-l10n="subaccountsEditorConfirmMainChange"></button>
+	</form>
+</template>
+<template id="changeSubaccountOwnerOption">
+	<div class="subaccountLine"><label>
+		<input type="radio" name="newOwner">
+		<span class="accountName"></span>
+	</label></div>
 </template>
 </body>
 </html>

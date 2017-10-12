@@ -86,5 +86,6 @@
 	"subaccountsEditorAddSubaccount": { "message": "Add subaccount" },
 	"subaccountsEditorAddPlaceholder": { "message": "Subaccount name here" },
 	"subaccountsEditorOwnerPlaceholder": { "message": "Owner name here" },
-	"subaccountsEditorCancelOwner": { "message": "Cancel" }
+	"subaccountsEditorCancelOwner": { "message": "Cancel" },
+	"subaccountsEditorConfirmMainChange": { "message": "Set main account" }
 }
