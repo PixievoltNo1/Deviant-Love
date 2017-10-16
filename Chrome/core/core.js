@@ -270,14 +270,48 @@ function report(results, prefs, ui, love) {
 		lovedArtistsElem.scrollTop = scroll;
 	}
 	$("#query").bind("input", function(event) {
-		var checkResult = queryTroubleCheck();
+		var checkResult = queryTroubleCheck(this.value);
 		if (typeof checkResult == "object") {
 			$("#queryError").l10n(checkResult.errMsg, checkResult.offender).show();
 		} else {
 			$("#queryError").hide();
 		}
 	} );
-	$("#findBar").submit(findStuff);
+	$("#findBar").bind("submit", function(event) {
+		event.preventDefault();
+		var query = $("#query").val();
+		if (query == "") { return; }
+		if (queryTroubleCheck(query)) { return; }
+
+		var {deviantMatches, deviantMatchingSubaccount, deviationMatches} = findStuff(query, deviants);
+
+		$("#mainScreen").addClass("lookWhatIFound");
+		var lovedArtists = $("#lovedArtists").empty().removeClass("noResults");
+		if (deviantMatches.length == 0 && deviationMatches.length == 0) {
+			lovedArtists.l10n("foundNothing").addClass("noResults");
+		}
+		if (deviantMatches.length > 0) {
+			lovedArtists.append( $("<div>", {"class": "sectionHeader"})
+				.l10n("foundDeviants", deviantMatches.length) )
+				.append(snackOnMyWrath(deviantMatches));
+			for (var deviantName in deviantMatchingSubaccount) {
+				$("#deviant_" + deviantName).prepend( $("<div>", {"class": "deviantNote"})
+					.l10n("foundDeviantSubaccount", deviantMatchingSubaccount[deviantName]) )
+			}
+		}
+		if (deviationMatches.length > 0) {
+			deviationMatches.forEach( function(found) {
+				var closerLook = buildCloserLook(found.deviant, found.deviations);
+				lovedArtists.append( $("<div>", {"class": "sectionHeader"})
+					.l10n("foundDeviations", found.deviant.name, found.deviations.length) )
+					.append(closerLook);
+			} );
+		}
+		if (query.indexOf(" ") != -1 && query.indexOf("&") == -1) {
+			$("<div>", {"id": "ampersandHint", "class": "notice"}).l10n("findAmpersandHint")
+				.appendTo(lovedArtists);
+		}
+	});
 	$("#noFind").bind("click", normalMode);
 	var editingSubaccountsOf;
 	$("#lovedArtists").delegate(".subaccountsButton", "click", function(event) {
@@ -361,11 +395,10 @@ function report(results, prefs, ui, love) {
 				}
 				return verifiedName;
 			}, function(xhr) {
-				// Before updating to jQuery 3 or switching to native Promises, change returns to throws
 				if (xhr.status == 404) {
-					return "NotFound";
+					throw "NotFound";
 				}
-				return "Communcation";
+				throw "Communcation";
 			} );
 		})() ).then( function(related) {
 			if (typeof related == "object") {
@@ -566,92 +599,6 @@ function report(results, prefs, ui, love) {
 		line.append($("<button>", {"class": "removeSubaccount"}).l10n("subaccountsRemove"));
 
 		return line;
-	}
-
-	function findStuff(event) {
-		event.preventDefault();
-		if (queryTroubleCheck() != false) { return };
-
-		var queryText = $("#query").val();
-		var queryChunks = queryText.split("&");
-
-		queryChunks = queryChunks.map( function(chunk) {return chunk.trim().toLowerCase()} );
-		var checkDeviants = queryChunks.every( function(chunk) {
-			return !(/[^a-zA-Z0-9\-]/).test(chunk);
-		} );
-
-		var deviantMatches = [];
-		var deviantMatchingSubaccount = {};
-		var deviationMatches = [];
-		deviants.list.forEach( function(deviant) {
-			if (checkDeviants && isMatch(deviant.name)) {
-				deviantMatches.push(deviant);
-			} else if (checkDeviants && deviant.name in deviants.subaccounts) {
-				deviants.subaccounts[deviant.name].some( function(subaccountName) {
-					if (isMatch(subaccountName)) {
-						deviantMatches.push(deviant);
-						deviantMatchingSubaccount[deviant.name] = subaccountName;
-						return true;
-					}
-				} );
-			}
-			var deviantDeviationMatches = [];
-			deviant.deviations.forEach( function(deviation) {
-				if (isMatch(deviation.name)) {
-					deviantDeviationMatches.push(deviation);
-				}
-			} );
-			if (deviantDeviationMatches.length > 0) {
-				deviationMatches.push({"deviant": deviant, "deviations": deviantDeviationMatches});
-			}
-		} );
-		function isMatch(needle) {
-			needle = needle.toLowerCase();
-			return queryChunks.every( function(chunk) {
-				return needle.indexOf(chunk) != -1;
-			} );
-		}
-
-		$("#mainScreen").addClass("lookWhatIFound");
-		var lovedArtists = $("#lovedArtists").empty().removeClass("noResults");
-		if (deviantMatches.length == 0 && deviationMatches.length == 0) {
-			lovedArtists.l10n("foundNothing").addClass("noResults");
-		}
-		if (deviantMatches.length > 0) {
-			lovedArtists.append( $("<div>", {"class": "sectionHeader"})
-				.l10n("foundDeviants", deviantMatches.length) )
-				.append(snackOnMyWrath(deviantMatches));
-			for (var deviantName in deviantMatchingSubaccount) {
-				$("#deviant_" + deviantName).prepend( $("<div>", {"class": "deviantNote"})
-					.l10n("foundDeviantSubaccount", deviantMatchingSubaccount[deviantName]) )
-			}
-		}
-		if (deviationMatches.length > 0) {
-			deviationMatches.forEach( function(found) {
-				var closerLook = buildCloserLook(found.deviant, found.deviations);
-				lovedArtists.append( $("<div>", {"class": "sectionHeader"})
-					.l10n("foundDeviations", found.deviant.name, found.deviations.length) )
-					.append(closerLook);
-			} );
-		}
-		if (queryText.indexOf(" ") != -1 && queryText.indexOf("&") == -1) {
-			$("<div>", {"id": "ampersandHint", "class": "notice"}).l10n("findAmpersandHint")
-				.appendTo(lovedArtists);
-		}
-
-	}
-	function queryTroubleCheck() {
-	// Returns false if there are no troubles, true if there is a trouble not worth reporting to the user, and an object otherwise
-		var query = $("#query").val();
-
-		if (query.length == 0) { return true };
-
-		var invalidChar = query.search(/[^a-zA-Z0-9 \_\'\"\+\.\,\$\?\:\-\!\=\~\`\@\#\%\^\*\[\]\(\)\/\{\}\\\|\&]/);
-		if (invalidChar != -1) {
-			return {errMsg: "findErrorForbiddenCharacter", offender: query.charAt(invalidChar)};
-		}
-
-		return false;
 	}
 	function normalMode() {
 		$("#mainScreen").removeClass("lookWhatIFound");

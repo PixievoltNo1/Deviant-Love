@@ -89,7 +89,7 @@
 	artistCheck.setAttribute("label", l10n.get("artistCheck", ["________"])); // For Fx extensions like Menu Editor
 	artistCheck.hidden = true;
 	var webContextMenu = document.getElementById("contentAreaContextMenu");
-	webContextMenu.insertBefore(artistCheck, webContextMenu.firstChild);
+	webContextMenu.appendChild(artistCheck);
 	artistCheck.addEventListener("command", summonRawkitude);
 	cleanupTasks.push( removalTask(artistCheck) );
 	handleMessage("showArtistLove", function(msg) {

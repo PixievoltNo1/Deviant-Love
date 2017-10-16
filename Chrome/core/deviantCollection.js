@@ -1,3 +1,8 @@
+/*
+	This file is part of Deviant Love.
+	Copyright Pikadude No. 1
+	Check core.js for the complete legal stuff.
+*/
 function DeviantCollection(from, deviantType = Object) {
 	this.deviantType = deviantType;
 	this.subaccounts = {};
