@@ -24,30 +24,99 @@ function addSubaccountLine(ownerElem, subaccount) {
 	subaccountElem.find(".accountName").text(subaccount);
 	ownerElem.find(".addSubaccount").before(subaccountElem);
 }
-$("#subaccountsEditor").delegate("button.addSubaccount", "click", function() {
+function getOwnerFromElem(ownerElem) {
+	return ownerElem.find(".subaccountOwnerLine .accountName").text();
+}
+function findOwnerElem(owner) {
+	for (let elem of $(".subaccountOwner")) {
+		if (getOwnerFromElem( $(elem) ) == owner) {
+			return elem;
+		}
+	}
+}
+function nameCheck(name) {
+	// TODO: DRY this after rewriting #addSubaccount handler in core.js
+	name = name.toLowerCase();
+	for (let owner in subaccounts) {
+		if (owner.toLowerCase() == name) {
+			return {name: owner, isOwner: true};
+		}
+		for (let subaccount of subaccounts[owner]) {
+			if (subaccount.toLowerCase() == name) {
+				return {name: subaccount, isSubaccount: true};
+			}
+		}
+	}
+	var profileURL = "http://" + name + ".deviantart.com/";
+	return $.ajax(profileURL, {responseType: "text"}).then((profileHTML) => {
+		var profileDoc = (new DOMParser()).parseFromString(profileHTML, "text/html");
+		var verifiedName = $(profileDoc).find("#gmi-Gruser").attr("gmi-name");
+		if (!verifiedName) {
+			var warning = "CantVerifyCasing";
+			verifiedName = name;
+		}
+		return {name: verifiedName, warning};
+	}, (xhr) => {
+		if (xhr.status == 404) {
+			throw "NotFound";
+		}
+		throw "Communcation";
+	});
+}
+async function addSubaccount(owner, owned) {
+	try {
+		var {name, isSubaccount, isOwner, warning} = await nameCheck(owned);
+		if (isSubaccount) {
+			throw "AlreadyOwned";
+		}
+		subaccounts[owner].push(name);
+		var ownerElem = $(findOwnerElem(owner));
+		addSubaccountLine(ownerElem, name);
+		if (isOwner) {
+			for (let subaccount in subaccounts[name]) {
+				addSubaccountLine(ownerElem, subaccount);
+				subaccounts[owner].push(subaccount);
+			}
+			findOwnerElem(name).remove();
+			delete subaccounts[name];
+		}
+		apiAdapter.store("subaccounts", subaccounts);
+		if (warning) {
+			// TODO: Show warning
+		}
+		return true;
+	} catch (errName) {
+		// TODO: Show error box
+	}
+}
+$("#subaccountsEditor").delegate("form", "submit", function(event) {
+	event.preventDefault();
+}).delegate("button.addSubaccount", "click", function() {
 	this.hidden = true;
 	this.nextElementSibling.hidden = false;
-	this.nextElementSibling.querySelector(".addSubaccountNameInput").focus();
-}).delegate("form", "submit", function(event) {
-	event.preventDefault();
-}).delegate(".addSubaccountForm", "submit", function(event) {
-	// TODO: Verify name casing and check for errors
+	this.nextElementSibling.querySelector(".subaccountInput").focus();
+}).delegate(".addSubaccountForm", "submit", function() {
 	var ownerElem = $(this).closest(".subaccountOwner");
-	var owned = $(this).find(".subaccountInput").val();
-	var ownerInput = ownerElem.find(".newSubaccountOwnerNameInput");
-	if (ownerInput.length == 1) {
-		// TODO: Process adding a new owner
-	} else {
-		var owner = ownerElem.find(".subaccountOwnerLine .accountName").text();
-	}
-	subaccounts[owner].push(owned);
-	apiAdapter.store("subaccounts", subaccounts);
-	addSubaccountLine(ownerElem, owned);
+	var owner = getOwnerFromElem(ownerElem);
+	$("body").css("cursor", "wait");
+	addSubaccount(owner, $(this).find(".subaccountInput").val()).then((ok) => {
+		if (ok) {
+			this.hidden = true;
+			this.previousElementSibling.hidden = false;
+		}
+		$("body").css("cursor", "");
+	});
+}).delegate("button.newOwner", "click", function() {
+	this.hidden = true;
+	this.nextElementSibling.hidden = false;
+	this.nextElementSibling.querySelector(".newSubaccountOwnerInput").focus();
+}).delegate(".newOwnerForm", "submit", function() {
+	// TODO: Split part of .addSubaccountForm handler into a new function and call it here
 	this.hidden = true;
 	this.previousElementSibling.hidden = false;
 }).delegate("button.removeSubaccount", "click", function() {
 	var ownerElem = $(this).closest(".subaccountOwner");
-	var owner = ownerElem.find(".subaccountOwnerLine .accountName").text();
+	var owner = getOwnerFromElem(ownerElem);
 	var unownedElem = $(this).closest(".subaccountLine").remove();
 	var unowned = unownedElem.find(".accountName").text(); // got a faceful of Hidden Power
 	subaccounts[owner].splice(subaccounts[owner].indexOf(unowned), 1);
@@ -58,7 +127,7 @@ $("#subaccountsEditor").delegate("button.addSubaccount", "click", function() {
 	apiAdapter.store("subaccounts", subaccounts);
 }).delegate("button.changeMainAccount", "click", function() {
 	var ownerElem = $(this).closest(".subaccountOwner");
-	var owner = ownerElem.find(".subaccountOwnerLine .accountName").text();
+	var owner = getOwnerFromElem(ownerElem);
 	var changeForm = $(templateContents["changeSubaccountOwner"]).clone();
 	changeForm.find(".subaccountOwnerLine .accountName").text(owner);
 	for (let subaccount of subaccounts[owner]) {
@@ -70,7 +139,7 @@ $("#subaccountsEditor").delegate("button.addSubaccount", "click", function() {
 	ownerElem.replaceWith(changeForm);
 }).delegate(".changeMainAccountForm", "submit", function() {
 	var ownerElem = $(this).closest(".subaccountOwner");
-	var owner = ownerElem.find(".subaccountOwnerLine .accountName").text();
+	var owner = getOwnerFromElem(ownerElem);
 	var newOwner = (new FormData(ownerElem[0])).get("newOwner");
 	if (newOwner == "$noChange") {
 		ownerElem.replaceWith( makeOwnerElem(owner) );
