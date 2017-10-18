@@ -8,12 +8,12 @@
 <h1 data-l10n="subaccountsEditorHeader"></h1>
 <div id="subaccountsEditor">
 	<div id="subaccountsEditorExplainer" data-l10n="subaccountsExplain" hidden></div>
-	<button class="newOwner" data-l10n="subaccountsEditorAddMainAccount"></button>
+	<button type="button" class="newOwner" data-l10n="subaccountsEditorAddMainAccount"></button>
 	<form class="subaccountOwner newOwnerForm" hidden>
 		<div class="subaccountOwnerLine">
 			<input class="newSubaccountOwnerInput" required
 				data-l10n="subaccountsEditorOwnerPlaceholder" data-l10n-attr="placeholder">
-			<button class="cancelOwner" data-l10n="subaccountsEditorCancelOwner"></button>
+			<button type="button" tabindex="1" class="cancelOwner" data-l10n="subaccountsEditorCancelOwner"></button>
 		</div>
 		<div class="firstSubaccount">
 			<input class="subaccountInput" required
@@ -26,7 +26,7 @@
 	<div class="subaccountOwner">
 		<div class="subaccountOwnerLine">
 			<span class="accountName"></span>
-			<button class="changeMainAccount" data-l10n="subaccountsEditorChangeMain"></button>
+			<button type="button" class="changeMainAccount" data-l10n="subaccountsEditorChangeMain"></button>
 		</div>
 		<button class="addSubaccount" data-l10n="subaccountsEditorAddSubaccount"></button>
 		<form class="addSubaccountForm" hidden>
@@ -39,7 +39,7 @@
 <template id="subaccountLine">
 	<div class="subaccountLine">
 		<span class="accountName"></span>
-		<button class="removeSubaccount" data-l10n="subaccountsRemove"></button>
+		<button type="button" class="removeSubaccount" data-l10n="subaccountsRemove"></button>
 	</div>
 </template>
 <template id="changeSubaccountOwner">
