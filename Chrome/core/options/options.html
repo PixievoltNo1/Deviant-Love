@@ -3,6 +3,7 @@
 <script src="../jquery.js" defer></script>
 <script src="../apiAdapter.js" defer></script>
 <script src="options.js" defer></script>
+<link rel="stylesheet" href="options.css">
 </head>
 <body>
 <h1 data-l10n="subaccountsEditorHeader"></h1>
@@ -10,12 +11,14 @@
 	<div id="subaccountsEditorExplainer" data-l10n="subaccountsExplain" hidden></div>
 	<button type="button" class="newOwner" data-l10n="subaccountsEditorAddMainAccount"></button>
 	<form class="subaccountOwner newOwnerForm" hidden>
-		<div class="subaccountOwnerLine">
-			<input class="newSubaccountOwnerInput" required
-				data-l10n="subaccountsEditorOwnerPlaceholder" data-l10n-attr="placeholder">
+		<div class="editorLine ownerLine">
+			<span class="accountName">
+				<input class="newSubaccountOwnerInput" required
+					data-l10n="subaccountsEditorOwnerPlaceholder" data-l10n-attr="placeholder">
+			</span>
 			<button type="button" tabindex="1" class="cancelOwner" data-l10n="subaccountsEditorCancelOwner"></button>
 		</div>
-		<div class="firstSubaccount">
+		<div class="editorLine firstSubaccount">
 			<input class="subaccountInput" required
 				data-l10n="subaccountsEditorAddPlaceholder" data-l10n-attr="placeholder">
 			<button type="submit" data-l10n="subaccountsAddConfirm"></button>
@@ -24,35 +27,39 @@
 </div>
 <template id="subaccountOwner">
 	<div class="subaccountOwner">
-		<div class="subaccountOwnerLine">
+		<div class="editorLine ownerLine">
 			<span class="accountName"></span>
 			<button type="button" class="changeMainAccount" data-l10n="subaccountsEditorChangeMain"></button>
 		</div>
-		<button class="addSubaccount" data-l10n="subaccountsEditorAddSubaccount"></button>
-		<form class="addSubaccountForm" hidden>
-			<input class="subaccountInput" required
-				data-l10n="subaccountsEditorAddPlaceholder" data-l10n-attr="placeholder">
-			<button type="submit" data-l10n="subaccountsAddConfirm"></button>
-		</form>
+		<div class="editorLine subaccountInsertionPoint">
+			<button type="button" class="addSubaccount" data-l10n="subaccountsEditorAddSubaccount"></button>
+			<form class="addSubaccountForm" hidden>
+				<input class="subaccountInput" required
+					data-l10n="subaccountsEditorAddPlaceholder" data-l10n-attr="placeholder">
+				<button type="submit" data-l10n="subaccountsAddConfirm"></button>
+			</form>
+		</div>
 	</div>
 </template>
 <template id="subaccountLine">
-	<div class="subaccountLine">
+	<div class="editorLine">
 		<span class="accountName"></span>
 		<button type="button" class="removeSubaccount" data-l10n="subaccountsRemove"></button>
 	</div>
 </template>
 <template id="changeSubaccountOwner">
 	<form class="subaccountOwner changeMainAccountForm">
-		<div class="subaccountOwnerLine"><label>
+		<div class="editorLine ownerLine"><label>
 			<input type="radio" name="newOwner" value="$noChange" checked>
 			<span class="accountName"></span>
 		</label></div>
-		<button type="submit" data-l10n="subaccountsEditorConfirmMainChange"></button>
+		<div class="editorLine subaccountInsertionPoint">
+			<button type="submit" data-l10n="subaccountsEditorConfirmMainChange"></button>
+		</div>
 	</form>
 </template>
 <template id="changeSubaccountOwnerOption">
-	<div class="subaccountLine"><label>
+	<div class="editorLine"><label>
 		<input type="radio" name="newOwner">
 		<span class="accountName"></span>
 	</label></div>

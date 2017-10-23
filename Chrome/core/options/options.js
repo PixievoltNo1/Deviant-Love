@@ -7,13 +7,19 @@ for (let elem of Array.from( document.getElementsByTagName("template") )) {
 var subaccounts;
 apiAdapter.retrieve(["subaccounts"]).then((data) => {
 	({subaccounts} = data);
-	for (let owner in subaccounts) {
-		$(".newOwner").before( makeOwnerElem(owner) );
+	if (!subaccounts) {
+		subaccounts = {};
+		return;
+	} else {
+		$("#subaccountsEditorExplainer").remove();
+		for (let owner in subaccounts) {
+			$(".newOwner").before( makeOwnerElem(owner) );
+		}
 	}
 });
 function makeOwnerElem(owner) {
 	var ownerElem = $(templateContents["subaccountOwner"]).clone();
-	ownerElem.find(".subaccountOwnerLine .accountName").text(owner);
+	ownerElem.find(".ownerLine .accountName").text(owner);
 	if (owner in subaccounts) {
 		for (let subaccount of subaccounts[owner]) {
 			addSubaccountLine(ownerElem, subaccount);
@@ -24,10 +30,10 @@ function makeOwnerElem(owner) {
 function addSubaccountLine(ownerElem, subaccount) {
 	var subaccountElem = $(templateContents["subaccountLine"]).clone();
 	subaccountElem.find(".accountName").text(subaccount);
-	ownerElem.find(".addSubaccount").before(subaccountElem);
+	ownerElem.find(".subaccountInsertionPoint").before(subaccountElem);
 }
 function getOwnerFromElem(ownerElem) {
-	return ownerElem.find(".subaccountOwnerLine .accountName").text();
+	return ownerElem.find(".ownerLine .accountName").text();
 }
 function findOwnerElem(owner) {
 	for (let elem of $(".subaccountOwner")) {
@@ -135,10 +141,10 @@ $("#subaccountsEditor").delegate("form", "submit", function(event) {
 			this.hidden = true;
 			this.previousElementSibling.hidden = false;
 			$(".newOwner").before(appendMe);
+			$("#subaccountsEditorExplainer").remove();
 		}
 		$("body").css("cursor", "");
 	});
-	// TODO: Cancel button event handler
 }).delegate("button.cancelOwner", "click", function() {
 	var form = $(".newOwnerForm")[0];
 	form.hidden = true;
@@ -146,7 +152,7 @@ $("#subaccountsEditor").delegate("form", "submit", function(event) {
 }).delegate("button.removeSubaccount", "click", function() {
 	var ownerElem = $(this).closest(".subaccountOwner");
 	var owner = getOwnerFromElem(ownerElem);
-	var unownedElem = $(this).closest(".subaccountLine").remove();
+	var unownedElem = $(this).closest(".editorLine").remove();
 	var unowned = unownedElem.find(".accountName").text(); // got a faceful of Hidden Power
 	subaccounts[owner].splice(subaccounts[owner].indexOf(unowned), 1);
 	if (subaccounts[owner].length == 0) {
@@ -158,12 +164,12 @@ $("#subaccountsEditor").delegate("form", "submit", function(event) {
 	var ownerElem = $(this).closest(".subaccountOwner");
 	var owner = getOwnerFromElem(ownerElem);
 	var changeForm = $(templateContents["changeSubaccountOwner"]).clone();
-	changeForm.find(".subaccountOwnerLine .accountName").text(owner);
+	changeForm.find(".ownerLine .accountName").text(owner);
 	for (let subaccount of subaccounts[owner]) {
 		let subaccountElem = $(templateContents["changeSubaccountOwnerOption"]).clone();
 		subaccountElem.find(".accountName").text(subaccount);
 		subaccountElem.find("input").attr("value", subaccount);
-		changeForm.find("button[type='submit']").before(subaccountElem);
+		changeForm.find(".subaccountInsertionPoint").before(subaccountElem);
 	}
 	ownerElem.replaceWith(changeForm);
 }).delegate(".changeMainAccountForm", "submit", function() {

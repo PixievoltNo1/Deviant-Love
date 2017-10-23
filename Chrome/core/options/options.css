@@ -1,0 +1,43 @@
+form {
+	margin: 0;
+}
+#subaccountsEditor {
+	border: 1px solid black;
+	font-size: 14px;
+	height: 249px;
+	overflow: auto;
+}
+#subaccountsEditor > :nth-child(n+2) {
+	border-top: 1px solid hsl(0, 0%, 40%);
+}
+.subaccountOwner > :nth-child(n+2) {
+	border-top: 1px solid hsl(0, 0%, 80%);
+}
+.editorLine {
+	display: flex;
+	flex-direction: row;
+	align-items: center;
+	padding-left: 21px;
+	height: 24px;
+}
+.ownerLine {
+	padding-left: 7px;
+}
+.accountName {
+	flex: 1;
+}
+/* !importants are for overriding Chrome options page styling */
+.accountName + button {
+    background: none !important;
+    border: none;
+	box-shadow: none !important;
+    text-decoration: underline;
+	color: rgb(0, 0, 238) !important;
+	cursor: pointer;
+}
+.accountName + button:focus {
+	outline: 1px dotted black !important;
+}
+#subaccountsEditor button, #subaccountsEditor input {
+	font-size: 12px;
+}
