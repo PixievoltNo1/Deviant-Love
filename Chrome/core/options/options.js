@@ -42,16 +42,16 @@ function findOwnerElem(owner) {
 		}
 	}
 }
-function nameCheck(name) {
+function nameCheck(input) {
 	// TODO: DRY this after rewriting #addSubaccount handler in core.js
-	name = name.toLowerCase();
+	var name = input.toLowerCase();
 	for (let owner in subaccounts) {
 		if (owner.toLowerCase() == name) {
 			return {name: owner, isOwner: true};
 		}
 		for (let subaccount of subaccounts[owner]) {
 			if (subaccount.toLowerCase() == name) {
-				return {name: subaccount, isSubaccount: true};
+				return {name: subaccount, ownedBy: owner};
 			}
 		}
 	}
@@ -61,26 +61,29 @@ function nameCheck(name) {
 		var verifiedName = $(profileDoc).find("#gmi-Gruser").attr("gmi-name");
 		if (!verifiedName) {
 			var warning = "CantVerifyCasing";
-			verifiedName = name;
+			verifiedName = input;
 		}
 		return {name: verifiedName, warning};
 	}, (xhr) => {
 		if (xhr.status == 404) {
-			throw "NotFound";
+			throw ["NotFound", [name]];
 		}
-		throw "Communcation";
+		throw ["Communcation"];
 	});
 }
 async function addSubaccount(owner, ownerElem, owned) {
 	try {
-		var {name, isSubaccount, isOwner, warning} = await nameCheck(owned);
-		if (isSubaccount) {
-			throw "AlreadyOwned";
+		var {name, ownedBy, isOwner, warning} = await nameCheck(owned);
+		if (ownedBy) {
+			throw ["AlreadyOwned", [ownedBy]];
+		}
+		if (!(owner in subaccounts)) {
+			subaccounts[owner] = [];
 		}
 		subaccounts[owner].push(name);
 		addSubaccountLine(ownerElem, name);
 		if (isOwner) {
-			for (let subaccount in subaccounts[name]) {
+			for (let subaccount of subaccounts[name]) {
 				addSubaccountLine(ownerElem, subaccount);
 				subaccounts[owner].push(subaccount);
 			}
@@ -89,15 +92,37 @@ async function addSubaccount(owner, ownerElem, owned) {
 		}
 		apiAdapter.store("subaccounts", subaccounts);
 		if (warning) {
-			// TODO: Show warning
+			showSubaccountWarning(warning, [name]);
 		}
 		return true;
-	} catch (errName) {
-		// TODO: Show error box
+	} catch (err) {
+		showSubaccountError(...err);
 	}
 }
-$("#subaccountsEditor").delegate("form", "submit", function(event) {
-	event.preventDefault();
+function showSubaccountError(msgKey, replacements) {
+	document.querySelector(".subaccountsMessage.warning").hidden = true;
+	var errElem = document.querySelector(".subaccountsMessage.error");
+	errElem.textContent = apiAdapter.getL10nMsg("subaccountsError" + msgKey, replacements);
+	errElem.hidden = false;
+}
+function showSubaccountWarning(msgKey, replacements) {
+	var warnElem = document.querySelector(".subaccountsMessage.warning");
+	if (warnElem.hidden) {
+		$(warnElem).empty();
+	}
+	$("<p>").text( apiAdapter.getL10nMsg("subaccountsWarning" + msgKey, replacements) )
+		.appendTo(warnElem);
+	warnElem.hidden = false;
+}
+$("#subaccountsEditor").delegate("form, button", "submit click", function(event) {
+	if (event.type == "submit") {
+		event.preventDefault();
+	}
+	if ($("#subaccountsEditor").find(".editorShield").length) {
+		event.stopImmediatePropagation();
+		return;
+	}
+	$(".subaccountsMessage").prop("hidden", true);
 }).delegate("button.addSubaccount", "click", function() {
 	this.hidden = true;
 	this.nextElementSibling.hidden = false;
@@ -105,45 +130,53 @@ $("#subaccountsEditor").delegate("form", "submit", function(event) {
 }).delegate(".addSubaccountForm", "submit", function() {
 	var ownerElem = $(this).closest(".subaccountOwner");
 	var owner = getOwnerFromElem(ownerElem);
-	$("body").css("cursor", "wait"); // Replace this with creating a screen element
+	var shield = $("<div>").addClass("editorShield").appendTo("#subaccountsEditor");
 	addSubaccount(owner, ownerElem, $(this).find(".subaccountInput").val()).then((ok) => {
 		if (ok) {
 			this.hidden = true;
 			this.previousElementSibling.hidden = false;
+			this.reset();
 		}
-		$("body").css("cursor", "");
+		shield.remove();
 	});
-}).delegate("button.newOwner", "click", function() {
+}).delegate("button.openNewOwner", "click", function() {
 	this.hidden = true;
 	this.nextElementSibling.hidden = false;
 	this.nextElementSibling.querySelector(".newSubaccountOwnerInput").focus();
 }).delegate(".newOwnerForm", "submit", function() {
 	var checkResults = nameCheck(this.querySelector(".newSubaccountOwnerInput").value);
-	if (checkResults.isSubaccount) {
-		// TODO: Error
+	if (checkResults.ownedBy) {
+		showSubaccountError("OwnerIsOwned", [checkResults.name, checkResults.ownedBy]);
 		return;
 	}
+	var shield = $("<div>").addClass("editorShield").appendTo("#subaccountsEditor");
 	Promise.resolve(checkResults).then(({name, isOwner, warning}) => {
-		// TODO: Process warning
+		if (warning) {
+			showSubaccountWarning(warning, [name]);
+		}
 		if (!isOwner) {
 			var ownerElem = makeOwnerElem(name);
 			var appendMe = ownerElem;
-			subaccounts[name] = [];
 		} else {
-			var ownerElem = $(findOwnerElem(owner));
+			var ownerElem = $(findOwnerElem(name));
+			showSubaccountWarning("OwnerAlreadyAdded", [name]);
 		}
 		return Promise.all([
 			addSubaccount(name, ownerElem, this.querySelector(".subaccountInput").value),
 			appendMe
 		]);
+	}, (err) => {
+		showSubaccountError(...err);
+		return [];
 	}).then(([ok, appendMe]) => {
 		if (ok) {
 			this.hidden = true;
 			this.previousElementSibling.hidden = false;
+			this.reset();
 			$(".newOwner").before(appendMe);
 			$("#subaccountsEditorExplainer").remove();
 		}
-		$("body").css("cursor", "");
+		shield.remove();
 	});
 }).delegate("button.cancelOwner", "click", function() {
 	var form = $(".newOwnerForm")[0];

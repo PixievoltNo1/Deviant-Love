@@ -444,7 +444,7 @@ function report(results, prefs, ui, love) {
 				$("#addNotice").l10n("subaccountsWarning" + warning, warningPart).show();
 			}
 		}, function(error, errorPart) {
-			$("#addNotice").l10n("subaccountsError" + error, errorPart).show();
+			$("#addNotice").l10n("subaccountsError" + error, errorPart || input).show();
 		} ).always( function() {
 			$("body").css("cursor", "");
 		} );

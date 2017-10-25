@@ -4,7 +4,7 @@
 	Check core.js for the complete legal stuff.
 */
 "use strict";
-var adapter = Object.extend({
+var adapter = Object.assign({
 	displayType: "popup",
 	prepComplete: function() {
 		chrome.runtime.sendMessage({action: "echo", echoAction: "scanningComplete"});

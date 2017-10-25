@@ -1,11 +1,37 @@
+h1 {
+	font-size: 22px;
+}
 form {
 	margin: 0;
 }
+.subaccountsMessage, #syncStatus {
+	padding: 7px;
+	font-size: 12px;
+}
+.ok { background: hsl(112, 58%, 82%); }
+.warning { background: hsl(57, 100%, 88%); }
+.error { background: hsl(0, 100%, 75%); }
+p { line-height: initial; }
+p:first-child { margin-top: 0; }
+p:last-child { margin-bottom: 0; }
+
 #subaccountsEditor {
 	border: 1px solid black;
+	background: white;
 	font-size: 14px;
-	height: 249px;
+	height: 299px;
 	overflow: auto;
+}
+#subaccountsEditorExplainer {
+	padding: 7px;
+}
+.editorShield {
+	cursor: wait;
+	position: fixed;
+	top: 0;
+	bottom: 0;
+	left: 0;
+	right: 0;
 }
 #subaccountsEditor > :nth-child(n+2) {
 	border-top: 1px solid hsl(0, 0%, 40%);
@@ -23,6 +49,10 @@ form {
 .ownerLine {
 	padding-left: 7px;
 }
+.openNewOwner {
+	margin-left: 7px;
+}
+.ownerLine .accountName, .openNewOwner { font-weight: bold; }
 .accountName {
 	flex: 1;
 }
@@ -40,4 +70,12 @@ form {
 }
 #subaccountsEditor button, #subaccountsEditor input {
 	font-size: 12px;
+}
+.subaccountsMessage {
+	border: 1px solid black;
+	border-top: none;
+}
+
+#syncStatus {
+	border: 1px solid black;
 }

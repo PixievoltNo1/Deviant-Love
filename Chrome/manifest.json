@@ -29,6 +29,6 @@
 	"web_accessible_resources": ["popup.html", "popup.js", "core/"],
 
 	"permissions": ["contextMenus", "storage", "*://*.deviantart.com/"],
-	"minimum_chrome_version": "54",
+	"minimum_chrome_version": "55",
 	"manifest_version": 2
 }

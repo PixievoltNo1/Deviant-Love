@@ -8,23 +8,29 @@
 <body>
 <h1 data-l10n="subaccountsEditorHeader"></h1>
 <div id="subaccountsEditor">
-	<div id="subaccountsEditorExplainer" data-l10n="subaccountsExplain" hidden></div>
-	<button type="button" class="newOwner" data-l10n="subaccountsEditorAddMainAccount"></button>
-	<form class="subaccountOwner newOwnerForm" hidden>
-		<div class="editorLine ownerLine">
-			<span class="accountName">
-				<input class="newSubaccountOwnerInput" required
-					data-l10n="subaccountsEditorOwnerPlaceholder" data-l10n-attr="placeholder">
-			</span>
-			<button type="button" tabindex="1" class="cancelOwner" data-l10n="subaccountsEditorCancelOwner"></button>
-		</div>
-		<div class="editorLine firstSubaccount">
-			<input class="subaccountInput" required
-				data-l10n="subaccountsEditorAddPlaceholder" data-l10n-attr="placeholder">
-			<button type="submit" data-l10n="subaccountsAddConfirm"></button>
-		</div>
-	</form>
+	<div id="subaccountsEditorExplainer" data-l10n="subaccountsEditorExplain"></div>
+	<div class="newOwner">
+		<button type="button" class="openNewOwner" data-l10n="subaccountsEditorAddMainAccount"></button>
+		<form class="subaccountOwner newOwnerForm" hidden>
+			<div class="editorLine ownerLine">
+				<span class="accountName">
+					<input class="newSubaccountOwnerInput" required
+						data-l10n="subaccountsEditorOwnerPlaceholder" data-l10n-attr="placeholder">
+				</span>
+				<button type="button" tabindex="-1" class="cancelOwner" data-l10n="subaccountsEditorCancelOwner"></button>
+			</div>
+			<div class="editorLine firstSubaccount">
+				<input class="subaccountInput" required
+					data-l10n="subaccountsEditorAddPlaceholder" data-l10n-attr="placeholder">
+				<button type="submit" data-l10n="subaccountsAddConfirm"></button>
+			</div>
+		</form>
+	</div>
 </div>
+<div class="subaccountsMessage warning" hidden></div>
+<div class="subaccountsMessage error" hidden></div>
+<h1 data-l10n="syncHeader"></h1>
+<div id="syncStatus"></div>
 <template id="subaccountOwner">
 	<div class="subaccountOwner">
 		<div class="editorLine ownerLine">
