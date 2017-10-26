@@ -1,3 +1,6 @@
+body {
+	font-family: sans-serif;
+}
 h1 {
 	font-size: 22px;
 }
@@ -10,7 +13,7 @@ form {
 }
 .ok { background: hsl(112, 58%, 82%); }
 .warning { background: hsl(57, 100%, 88%); }
-.error { background: hsl(0, 100%, 75%); }
+.error { background: hsl(0, 100%, 76%); }
 p { line-height: initial; }
 p:first-child { margin-top: 0; }
 p:last-child { margin-bottom: 0; }
@@ -19,8 +22,12 @@ p:last-child { margin-bottom: 0; }
 	border: 1px solid black;
 	background: white;
 	font-size: 14px;
-	height: 299px;
+	height: 301px;
 	overflow: auto;
+}
+#subaccountsEditor, .subaccountsMessage {
+	box-sizing: border-box;
+	max-width: 400px;
 }
 #subaccountsEditorExplainer {
 	padding: 7px;
@@ -34,7 +41,7 @@ p:last-child { margin-bottom: 0; }
 	right: 0;
 }
 #subaccountsEditor > :nth-child(n+2) {
-	border-top: 1px solid hsl(0, 0%, 40%);
+	border-top: 1px solid hsl(0, 0%, 50%);
 }
 .subaccountOwner > :nth-child(n+2) {
 	border-top: 1px solid hsl(0, 0%, 80%);

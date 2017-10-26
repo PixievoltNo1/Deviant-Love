@@ -94,5 +94,9 @@
 	"subaccountsEditorCancelOwner": { "message": "Cancel" },
 	"subaccountsEditorConfirmMainChange": { "message": "Set main account" },
 	"syncHeader": { "message": "Sync" },
-	"syncBrowserSyncOK": { "message": "No problems detected! Your settings will be synced if browser sync is enabled." }
+	"syncByBrowserOK": { "message": "No problems detected! Your settings will be synced if browser sync is enabled." },
+	"syncByBrowserError": { "message": "Failed to save sync data with this error: $1" },
+	"syncByBrowserUnsupported": { "message": "Sync isn't available in this version of this browser." },
+	"syncLastSaved": { "message": "Sync data last saved on: $1" },
+	"syncLastSuccessfulSync": { "message": "Last successful sync on: $1" }
 }

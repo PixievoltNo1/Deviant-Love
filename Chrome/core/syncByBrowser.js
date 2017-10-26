@@ -1,4 +1,9 @@
-var mirrorBlacklist = ["syncError", "lastSuccessfulSync"];
+/*
+	This file is part of Deviant Love.
+	Copyright Pikadude No. 1
+	Check core.js for the complete legal stuff.
+*/
+var mirrorBlacklist = ["syncError"];
 chrome.storage.onChanged.addListener(checkForUnsync);
 function checkForUnsync(changes, areaName) {
 	if (Object.keys(changes).every( (key) => { return mirrorBlacklist.includes(key); } )) {
@@ -13,6 +18,11 @@ function checkForUnsync(changes, areaName) {
 var localSaveTime = new Promise((resolve) => { chrome.storage.local.get("lastSaved", resolve); });
 var syncSaveTime = new Promise((resolve) => { chrome.storage.sync.get("lastSaved", resolve); });
 Promise.all([localSaveTime, syncSaveTime]).then(([localGet, syncGet]) => {
+	if (!syncGet) {
+		// We're in Firefox 52, which doesn't support sync storage
+		chrome.storage.onChanged.removeListener(checkForUnsync);
+		return;
+	}
 	var localSaveTime = localGet.lastSaved, syncSaveTime = syncGet.lastSaved;
 	if (syncSaveTime == null) {
 		chrome.storage.local.set({ lastSaved: (new Date()).toISOString() });
@@ -36,12 +46,9 @@ function mirrorByBrowser(source) {
 		}
 		chrome.storage[dest].set(allData, () => {
 			if (chrome.runtime.lastError) {
-				chrome.storage.local.set({syncError: chrome.runtime.lastError});
-				chrome.storage.sync.get({lastSaved: false}, ({lastSaved}) => {
-					chrome.storage.local.set({lastSuccessfulSync: lastSaved});
-				});
+				chrome.storage.local.set({syncError: chrome.runtime.lastError.message});
 			} else {
-				chrome.storage.local.remove(["syncError", "lastSuccessfulSync"]);
+				chrome.storage.local.remove(["syncError"]);
 			}
 			chrome.storage.onChanged.addListener(checkForUnsync);
 		});

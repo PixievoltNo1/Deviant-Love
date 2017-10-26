@@ -1,9 +1,15 @@
+/*
+	This file is part of Deviant Love.
+	Copyright Pikadude No. 1
+	Check core.js for the complete legal stuff.
+*/
 var templateContents = {};
 fillL10n(document);
 for (let elem of Array.from( document.getElementsByTagName("template") )) {
 	fillL10n(elem.content);
 	templateContents[elem.id] = document.importNode(elem.content, true);
 }
+
 var subaccounts;
 apiAdapter.retrieve(["subaccounts"]).then((data) => {
 	({subaccounts} = data);
@@ -220,6 +226,46 @@ $("#subaccountsEditor").delegate("form, button", "submit click", function(event)
 		ownerElem.replaceWith( makeOwnerElem(newOwner) );
 	}
 });
+
+var syncError, lastSaved;
+var syncElem = document.getElementById("syncStatus");
+var localGet = new Promise((resolve) => { chrome.storage.local.get("syncError", resolve); });
+var syncGet = new Promise((resolve) => { chrome.storage.sync.get("lastSaved", resolve); });
+Promise.all([localGet, syncGet]).then(([localVal, syncVal]) => {
+	if (!syncVal) {
+		// We're in Firefox 52, which doesn't support sync storage
+		syncElem.className = "error";
+		$("<p>").text( apiAdapter.getL10nMsg("syncByBrowserUnsupported") ).appendTo(syncElem);
+		return;
+	}
+	syncError = localVal.syncError;
+	lastSaved = syncVal.lastSaved;
+	printSyncStatus();
+	chrome.storage.onChanged.addListener((changes, areaName) => {
+		if (areaName == "local" && "syncError" in changes) {
+			syncError = changes.syncError.newValue;
+		} else if (areaName == "sync" && "lastSaved" in changes) {
+			lastSaved = changes.lastSaved.newValue;
+		} else { return; }
+		$("#syncStatus").empty();
+		printSyncStatus();
+	});
+});
+function printSyncStatus() {
+	var lastSavedDisplay = (new Date(lastSaved)).toLocaleString();
+	if (!syncError) {
+		syncElem.className = "ok";
+		$("<p>").text( apiAdapter.getL10nMsg("syncByBrowserOK") ).appendTo(syncElem);
+		$("<p>").text( apiAdapter.getL10nMsg("syncLastSaved", [lastSavedDisplay]) )
+			.appendTo(syncElem);
+	} else {
+		syncElem.className = "error";
+		$("<p>").text( apiAdapter.getL10nMsg("syncByBrowserError", [syncError]) ).appendTo(syncElem);
+		$("<p>").text( apiAdapter.getL10nMsg("syncLastSuccessfulSync", [lastSavedDisplay]) )
+			.appendTo(syncElem);
+	}
+}
+
 function fillL10n(parent) {
 	for (let elem of Array.from( parent.querySelectorAll("[data-l10n]") )) {
 		var message = apiAdapter.getL10nMsg( elem.dataset.l10n );
