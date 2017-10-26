@@ -50,15 +50,17 @@ chrome.runtime.onMessage.addListener( function(thing, buddy, callback) {switch (
 }} );
 chrome.runtime.sendMessage({action: "showLove"});
 
-document.querySelector("#gruze-main").addEventListener("mouseover", function(event) {
-	var thing = event.target;
-	if ( thing.matches(".thumb") ) {
+document.querySelector("#gruze-main").addEventListener("mouseover", function hi(event) {
+	var thumb = event.target.closest(".thumb");
+	if (thumb) {
 		chrome.runtime.sendMessage({action: "showArtistLove",
-			artist: thing.querySelector("a.username").textContent});
-		thing.addEventListener("mouseout", function byebye() {
+			artist: thumb.querySelector("a.username").textContent});
+		thumb.addEventListener("mouseout", function bye() {
 			chrome.runtime.sendMessage({action: "noArtistLove"});
-			thing.removeEventListener("mouseout", byebye, false);
+			thumb.removeEventListener("mouseout", bye, false);
+			document.querySelector("#gruze-main").addEventListener("mouseover", hi);
 		}, false);
+		this.removeEventListener("mouseover", "hi");
 	}
 }, false);
 var keepAlive;
