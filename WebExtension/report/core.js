@@ -626,7 +626,7 @@ function nextTip() {
 	});
 }
 function tipOfTheMoment(tip) {
-	$("#tOTMIcon").attr("src", "core/" + tip.icon);
+	$("#tOTMIcon").attr("src", "/images/" + tip.icon);
 	$("#tOTMText").html(tip.html);
 }
 function makeL10nMethod(methodName, effect) {

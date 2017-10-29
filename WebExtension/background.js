@@ -9,11 +9,11 @@ chrome.runtime.onMessage.addListener( function(thing, buddy, callback) {switch (
 		chrome.pageAction.show(buddy.tab.id);
 	break;
 	case "showX":
-		chrome.pageAction.setIcon({tabId: buddy.tab.id, path: "38HeartClose.png"});
+		chrome.pageAction.setIcon({tabId: buddy.tab.id, path: "/images/heart/38Close.png"});
 		chrome.pageAction.setTitle({tabId: buddy.tab.id, title: chrome.i18n.getMessage("heartX")});
 	break;
 	case "noX":
-		chrome.pageAction.setIcon({tabId: buddy.tab.id, path: "38Heart.png"});
+		chrome.pageAction.setIcon({tabId: buddy.tab.id, path: "/images/heart/38.png"});
 		chrome.pageAction.setTitle({tabId: buddy.tab.id, title: "Deviant Love"});
 	break;
 	case "showArtistLove":

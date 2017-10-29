@@ -88,7 +88,7 @@ function activate(firstDeviant) {
 				chrome.runtime.onMessage.removeListener(popupReady);
 			}
 		} );
-		popup.src = chrome.runtime.getURL("popup.html" + (firstDeviant ? "#" + firstDeviant : ""));
+		popup.src = chrome.runtime.getURL("report/popup.html" + (firstDeviant ? "#" + firstDeviant : ""));
 	} else if (popupStage == "scanning") {
 		chrome.runtime.sendMessage({action: "echo", echoAction: "resumeScan"});
 		// http://timtaubert.de/blog/2012/09/css-transitions-for-dynamically-created-dom-elements/

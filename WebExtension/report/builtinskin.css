@@ -54,7 +54,7 @@ a img {
 	border-top: 0;
 }
 #scanResults {
-	background: url("heart/scalable.svg"), linear-gradient(to bottom, hsl(40, 100%, 70%), hsl(40, 100%, 50%));
+	background: url("/images/heart/scalable.svg"), linear-gradient(to bottom, hsl(40, 100%, 70%), hsl(40, 100%, 50%));
 	background-size: 48px 48px, auto;
 	background-position: 5px center, 0 0;
 	background-repeat: no-repeat, repeat;
@@ -94,10 +94,10 @@ a img {
 	border: 0;
 }
 #goFind {
-	background: url("find.svg");
+	background: url("/images/find.svg");
 }
 #noFind {
-	background: url("findClose.svg");
+	background: url("/images/findClose.svg");
 	display: none;
 }
 .lookWhatIFound #noFind {
@@ -128,7 +128,7 @@ a img {
 	font-size: 14.5px;
 }
 #watchFailure {
-    background-image: url("failed.svg"), url("deviantart/Watch.png");
+    background-image: url("/images/failed.svg"), url("/images/deviantart/Watch.png");
     background-position: 5px center, 7px center;
     background-repeat: no-repeat, no-repeat;
     padding-left: 30px;
@@ -178,7 +178,7 @@ a img {
 	margin: 0 0.2em;
 }
 .deviationWatch.true {
-	background: url("deviantart/DeviationWatch.png");
+	background: url("/images/deviantart/DeviationWatch.png");
 	background-position: center;
 	background-repeat: no-repeat;
 }
@@ -193,10 +193,10 @@ a img {
 	background-repeat: no-repeat;
 }
 .deviant:hover .subaccountsButton:not(.has):not(.editing):not(:hover) {
-	background-image: url("combineSilhouette.svg");
+	background-image: url("/images/combineSilhouette.svg");
 }
 .subaccountsButton.has, .subaccountsButton.editing, .subaccountsButton:hover {
-	background-image: url("combine.svg");
+	background-image: url("/images/combine.svg");
 }
 .closerLook {
 	display: flex;
@@ -229,7 +229,7 @@ a img {
 	top: 0;
 	bottom: 0;
 	z-index: 1;
-	content: url(spinner.svg);
+	content: url(/images/spinner.svg);
 	animation: 5s linear infinite spin;
 }
 .deviantLinks {
@@ -247,9 +247,9 @@ a img {
 .deviantLinks a + a {
 	margin-left: 3px;
 }
-.profileLink { background-image: url(deviantart/Profile.png); }
-.galleryLink { background-image: url(deviantart/Gallery.png); }
-.favouritesLink { background-image: url(deviantart/Favourites.png); }
+.profileLink { background-image: url(/images/deviantart/Profile.png); }
+.galleryLink { background-image: url(/images/deviantart/Gallery.png); }
+.favouritesLink { background-image: url(/images/deviantart/Favourites.png); }
 .deviationList {
 	flex: 1;
 	padding: 0 0.2em;
@@ -263,7 +263,7 @@ a img {
 	position: relative;
 }
 #closeSubaccountsEditor {
-	background-image: url(close.svg);
+	background-image: url(/images/close.svg);
 	background-position: center;
 	background-repeat: no-repeat;
 	position: absolute;
