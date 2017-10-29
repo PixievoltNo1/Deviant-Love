@@ -25,6 +25,7 @@
 	"content_scripts": [{
 		"matches": ["*://*.deviantart.com/favourites/*"],
 		"js": ["favesPages/detector.js", "favesPages/manager.js"],
+		"css": ["favesPages/favesPages.css"],
 		"run_at": "document_end"
 	}],
 	"web_accessible_resources": ["report/popup.html"],

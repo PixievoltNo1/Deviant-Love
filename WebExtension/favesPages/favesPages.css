@@ -1,0 +1,28 @@
+#DeviantLovePopup {
+	border: 2px solid black;
+	border-top: 0;
+	height: calc(100% - 22px);
+	width: 444px;
+	position: fixed;
+	right: 50px;
+	top: 0;
+	z-index: 501;
+	transition: transform 0.6s ease-out;
+}
+#DeviantLovePopup:not(.reveal) {
+	transform: translateY(-100%);
+}
+#DeviantLoveShield {
+	position: fixed;
+	top: 0;
+	bottom: 0;
+	left: 0;
+	right: 0;
+	background: white;
+	opacity: 0.4;
+	z-index: 500;
+	transition: opacity 0.6s linear;
+}
+#DeviantLoveShield:not(.reveal) {
+	opacity: 0;
+}

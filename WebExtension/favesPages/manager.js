@@ -5,29 +5,13 @@
 */
 "use strict";
 
-var popup = document.createElement("iframe"), popupCSS = popup.style;
-popupCSS.border = "2px solid black";
-popupCSS.borderTop = "0";
-popupCSS.height = "calc(100% - 22px)";
-popupCSS.width = "444px";
-popupCSS.position = "fixed";
-popupCSS.right = "50px";
-popupCSS.bottom = window.innerHeight + "px";
-popupCSS.display = "none";
-popupCSS.zIndex = "501";
-popupCSS.transition = "bottom 0.6s ease-out";
+var popup = document.createElement("iframe");
+popup.id = "DeviantLovePopup";
+popup.hidden = true;
 document.body.appendChild(popup);
-var shield = document.createElement("div"), shieldCSS = shield.style;
-shieldCSS.position = "fixed";
-shieldCSS.top = "0";
-shieldCSS.bottom = "0";
-shieldCSS.left = "0";
-shieldCSS.right = "0";
-shieldCSS.opacity = "0";
-shieldCSS.backgroundColor = "white";
-shieldCSS.display = "none";
-shieldCSS.zIndex = "500";
-shieldCSS.transition = "opacity 0.6s linear";
+var shield = document.createElement("div");
+shield.id = "DeviantLoveShield";
+shield.hidden = true;
 document.body.appendChild(shield);
 var popupState = "inactive";
 var popupStage = "uninitialized";
@@ -76,8 +60,8 @@ checkVisibility();
 document.addEventListener("visibilitychange", checkVisibility, false);
 
 function activate(firstDeviant) {
-	popupCSS.display = "";
-	shieldCSS.display = "";
+	popup.hidden = false;
+	shield.hidden = false;
 	popupState = "preparing";
 	if (popupStage == "uninitialized") {
 		chrome.runtime.onMessage.addListener( function popupReady(thing, buddy, callback) {
@@ -100,8 +84,8 @@ function activate(firstDeviant) {
 		chrome.runtime.sendMessage({action: "echoWithCallback", echoAction: "changeTip"}, reveal);
 	}
 	function reveal() {
-		popupCSS.bottom = "20px";
-		shieldCSS.opacity = "0.4";
+		popup.classList.add("reveal");
+		shield.classList.add("reveal");
 		popupState = "active";
 		chrome.runtime.sendMessage({action: "showX"});
 		shield.addEventListener("click", deactivate, false);
@@ -112,14 +96,14 @@ function deactivate() {
 	if (popupStage == "scanning") {
 		chrome.runtime.sendMessage({action: "echo", echoAction: "pauseScan"})
 	}
-	popup.addEventListener("webkitTransitionEnd", function hide() {
-		popupCSS.display = "none";
-		shieldCSS.display = "none";
-		popup.removeEventListener("webkitTransitionEnd", hide, false);
+	popup.addEventListener("transitionend", function hide() {
+		popup.hidden = true;
+		shield.hidden = true;
+		popup.removeEventListener("transitionend", hide, false);
 		popupState = "inactive";
 	}, false);
-	popupCSS.bottom = window.innerHeight + "px";
-	shieldCSS.opacity = "0";
+	popup.classList.remove("reveal");
+	shield.classList.remove("reveal");
 	popupState = "deactivating";
 	chrome.runtime.sendMessage({action: "noX"});
 }
