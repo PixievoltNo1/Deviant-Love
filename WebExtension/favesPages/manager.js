@@ -4,6 +4,7 @@
 	Check core.js for the complete legal stuff.
 */
 "use strict";
+if (!(window.chrome && chrome.runtime)) { window.chrome = browser; }
 
 var popup = document.createElement("iframe");
 popup.id = "DeviantLovePopup";

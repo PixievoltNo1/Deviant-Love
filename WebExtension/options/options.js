@@ -3,6 +3,9 @@
 	Copyright Pikadude No. 1
 	Check core.js for the complete legal stuff.
 */
+"use strict";
+if (!(window.chrome && chrome.runtime)) { window.chrome = browser; }
+
 var templateContents = {};
 fillL10n(document);
 for (let elem of Array.from( document.getElementsByTagName("template") )) {
@@ -214,7 +217,7 @@ $("#subaccountsEditor").delegate("form, button", "submit click", function(event)
 }).delegate(".changeMainAccountForm", "submit", function() {
 	var ownerElem = $(this).closest(".subaccountOwner");
 	var owner = getOwnerFromElem(ownerElem);
-	var newOwner = (new FormData(ownerElem[0])).get("newOwner");
+	var newOwner = ownerElem.find(":checked")[0].value;
 	if (newOwner == "$noChange") {
 		ownerElem.replaceWith( makeOwnerElem(owner) );
 	} else {

@@ -2,6 +2,7 @@
 	"name": "Deviant Love",
 	"version": "2.4",
 	"description": "__MSG_extDesc__",
+	"author": "Pikadude No. 1",
 	"icons": {
 		"16": "images/heart/16.png",
 		"48": "images/heart/48.png",
@@ -14,7 +15,7 @@
 		"persistent": false
 	},
 	"page_action": {
-		"default_icon": "images/heart/38.png",
+		"default_icon": { "38": "images/heart/38.png" },
 		"default_title": "Deviant Love"
 	},
 	"options_ui": {
@@ -22,6 +23,7 @@
 		"chrome_style": true,
 		"browser_style": true
 	},
+	"options_page": "options/options.html",
 	"content_scripts": [{
 		"matches": ["*://*.deviantart.com/favourites/*"],
 		"js": ["favesPages/detector.js", "favesPages/manager.js"],
@@ -38,5 +40,6 @@
 			"strict_min_version": "52.0"
 		}
 	},
+	"minimum_edge_version" : "39.14942",
 	"manifest_version": 2
 }

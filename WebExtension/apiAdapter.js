@@ -1,3 +1,11 @@
+/*
+	This file is part of Deviant Love.
+	Copyright Pikadude No. 1
+	Check core.js for the complete legal stuff.
+*/
+"use strict";
+if (!(window.chrome && chrome.runtime)) { window.chrome = browser; }
+
 var apiAdapter = {
 	getL10nMsg: function(msgName, replacements) {
 		return chrome.i18n.getMessage(msgName, replacements);
