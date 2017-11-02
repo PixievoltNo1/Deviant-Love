@@ -17,6 +17,12 @@
 */
 "use strict";
 
+var templateContents = {};
+for (let elem of Array.from( document.getElementsByTagName("template") )) {
+	fillL10n(elem.content);
+	templateContents[elem.id] = document.importNode(elem.content, true);
+}
+
 function Deviant(name) {
 	this.name = name;
 	this.deviations = [];
@@ -521,69 +527,55 @@ function report(results, prefs, ui, love) {
 		// "You have energy like a little angry battery with no friends."
 		var rageDressing = document.createDocumentFragment();
 		var elem = document.createElement.bind(document);
-		// Chrome 44 is too slow at fetching these message repeatedly
-		var subaccountsOpenTooltip = adapter.getL10nMsg("subaccountsOpen");
+		// Chrome 44 is too slow at fetching this message repeatedly
 		var watchingThisArtistTooltip = adapter.getL10nMsg("watchingThisArtist");
 		finkRats.forEach( function(deviant) {
 			// Hot loop! A little optimization can make a lot of difference.
-			var devWatchElem = $(elem("div")).attr("class", "deviationWatch").html("&nbsp;");
-			var subaccountsElem = $(elem("div")).attr("class", "subaccountsButton").html("&nbsp;")
-				.attr("title", subaccountsOpenTooltip);
-			var lineElem = $(elem("div")).attr("class", "deviantLine").append(
-				devWatchElem,
-				$(elem("span")).attr("class", "deviantFaves").text(deviant.deviations.length),
-				$(elem("span")).attr("class", "deviantName").text(deviant.name),
-				subaccountsElem
-			);
-			var deviantElem = $(elem("div")).attr({"class": "deviant", id: "deviant_" + deviant.name})
-				.append(lineElem);
+			var deviantElem = $(templateContents["deviant"]).clone();
+			deviantElem.attr("id", "deviant_" + deviant.name);
+			deviantElem.find(".deviantFaves").text(deviant.deviations.length);
+			deviantElem.find(".deviantName").text(deviant.name);
 			if (watchedArtists instanceof Set && watchedArtists.has(deviant.name)) {
-				devWatchElem.addClass("true").attr("title", watchingThisArtistTooltip);
+				deviantElem.find(".deviationWatch").addClass("true")
+					.attr("title", watchingThisArtistTooltip);
 			}
 			if (deviant.name in deviants.subaccounts) {
-				subaccountsElem.addClass("has");
+				deviantElem.find(".subaccountsButton").addClass("has");
 			}
 			rageDressing.appendChild(deviantElem[0]);
 		} );
 		return rageDressing; // on a salad of evil
 	}
 	function buildCloserLook(deviant, deviations) {
-		var closerLook = $("<div>", {"class": "closerLook"}).css("overflow", "hidden");
+		var closerLook = $(templateContents["closerLook"]).clone();
 
-		var deviantDetails = $("<div>", {"class": "deviantDetails"});
+		var deviantDetails = closerLook.find(".deviantDetails");
 		var deviantAvatar = $("<img>", {width: 50, height: 50})
 			.bind("load", function() { this.parentNode.classList.remove("loading"); } );
-		deviantDetails.append( $("<a>", {"href": deviant.baseURL, "class": "avatar loading"})
-			.append(deviantAvatar) );
+		deviantDetails.find(".avatar").attr("href", deviant.baseURL).append(deviantAvatar);
 		if (deviant.avatar) {
 			deviantAvatar.attr("src", deviant.avatar);
 		} else {
-			$.ajax(deviant.baseURL, {responseType: "text"}).then( function(profileHtml) {
-				// <html> and <head> may be filtered
-				var avatarElem = $("<div>" + profileHtml + "</div>").find("link[rel='image_src']");
-				if (avatarElem.length == 0) { return $.Deferred().reject(); }
+			$.ajax(deviant.baseURL, {responseType: "text"}).then( function(profileHTML) {
+				var profileDoc = (new DOMParser()).parseFromString(profileHTML, "text/html");
+				var avatarElem = profileDoc.find("link[rel='image_src']");
+				if (avatarElem.length == 0) { throw false; }
 				deviant.avatar = avatarElem.attr("href");
 				deviantAvatar.attr("src", deviant.avatar);
 			} ).fail( function() {
 				deviantAvatar.parent().removeClass("loading");
 			} );
 		}
-		deviantDetails.append($("<div>", {"class": "deviantLinks"}) // Note two opening parens and only one closing paren
-			.append($("<a>", {"href": deviant.baseURL, "class": "profileLink"})
-				.l10nTooltip("profile"))
-			.append($("<a>", {"href": deviant.baseURL + "gallery/", "class": "galleryLink"})
-				.l10nTooltip("gallery"))
-			.append($("<a>", {"href": deviant.baseURL + "favourites/", "class": "favouritesLink"})
-				.l10nTooltip("favourites")))
-		deviantDetails.appendTo(closerLook);
+		closerLook.find(".profileLink").attr("href", deviant.baseURL);
+		closerLook.find(".galleryLink").attr("href", deviant.baseURL + "gallery/");
+		closerLook.find(".favouritesLink").attr("href", deviant.baseURL + "favourites/");
 
-		var deviationList = $("<div>", {"class": "deviationList"});
+		var deviationList = closerLook.find(".deviationList");
 		deviations.forEach( function(deviation) {
 			$("<div>", {"class": "deviation"})
 				.append($("<a>", {href: deviation.URL}).text(deviation.name))
 				.appendTo(deviationList)
 		} );
-		deviationList.appendTo(closerLook);
 
 		return closerLook;
 	}

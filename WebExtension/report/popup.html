@@ -10,13 +10,40 @@
 /* Fix text appearing too small in Chrome 38 due to mystery user stylesheet */
 body { font-size: 100%; }
 </style>
-<script src="/lib/jquery.js"></script>
-<script src="/lib/velocity.js"></script>
-<script src="scanner.js"></script>
-<script src="deviantCollection.js"></script>
-<script src="/apiAdapter.js"></script>
-<script src="find.js"></script>
-<script src="core.js"></script>
-<script src="popup.js"></script>
-<body class="popup"></body>
+<script src="/lib/jquery.js" defer></script>
+<script src="/lib/velocity.js" defer></script>
+<script src="scanner.js" defer></script>
+<script src="deviantCollection.js" defer></script>
+<script src="/apiAdapter.js" defer></script>
+<script src="/htmlLocalizer.js" defer></script>
+<script src="find.js" defer></script>
+<script src="core.js" defer></script>
+<script src="popup.js" defer></script>
+<body class="popup">
+
+<template id="deviant">
+	<div class="deviant">
+		<div class="deviantLine">
+			<div class="deviationWatch">&nbsp;</div>
+			<span class="deviantFaves"></span>
+			<span class="deviantName"></span>
+			<div class="subaccountsButton" data-l10n="subaccountsOpen" data-l10n-attr="title">&nbsp;</div>
+		</div>
+	</div>
+</template>
+<template id="closerLook">
+	<div class="closerLook" style="overflow: hidden;">
+		<div class="deviantDetails">
+			<a class="avatar loading"></a>
+			<div class="deviantLinks">
+				<a class="profileLink" data-l10n="profile" data-l10n-attr="title"></a>
+				<a class="galleryLink" data-l10n="gallery" data-l10n-attr="title"></a>
+				<a class="favouritesLink" data-l10n="favourites" data-l10n-attr="title"></a>
+			</div>
+		</div>
+		<div class="deviationList"></div>
+	</div>
+</template>
+
+</body>
 </html>
