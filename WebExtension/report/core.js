@@ -526,15 +526,14 @@ function report(results, prefs, ui, love) {
 	function snackOnMyWrath(finkRats) {
 		// "You have energy like a little angry battery with no friends."
 		var rageDressing = document.createDocumentFragment();
-		var elem = document.createElement.bind(document);
 		// Chrome 44 is too slow at fetching this message repeatedly
 		var watchingThisArtistTooltip = adapter.getL10nMsg("watchingThisArtist");
 		finkRats.forEach( function(deviant) {
 			// Hot loop! A little optimization can make a lot of difference.
-			var deviantElem = $(templateContents["deviant"]).clone();
+			var deviantElem = $(templateContents["deviant"].cloneNode(true));
 			deviantElem.attr("id", "deviant_" + deviant.name);
-			deviantElem.find(".deviantFaves").text(deviant.deviations.length);
-			deviantElem.find(".deviantName").text(deviant.name);
+			deviantElem.find(".deviantFaves")[0].textContent = deviant.deviations.length;
+			deviantElem.find(".deviantName")[0].textContent = deviant.name;
 			if (watchedArtists instanceof Set && watchedArtists.has(deviant.name)) {
 				deviantElem.find(".deviationWatch").addClass("true")
 					.attr("title", watchingThisArtistTooltip);
