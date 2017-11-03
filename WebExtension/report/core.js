@@ -41,27 +41,18 @@ function beginPreparations(love) {
 	var firstDeviant;
 
 	$("body").css("cursor", "wait");
-	var preparationScreen = $("<div>", {id: "preparationScreen"}).appendTo(document.body);
+	$(templateContents.preparationScreenTemplate).clone().appendTo(document.body);
 	var scanMessage = ({
 		featured: "scanningFeatured",
 		allFaves: "scanningAll",
 		collection: "scanningCollection",
 		search: "scanningSearch"
 	})[love.pageType];
-	$("<div>", {id: "scanMessage"}).l10n(scanMessage).appendTo(preparationScreen);
-	var scanProgressBar = $("<progress>", {id: "scanProgressBar", max: 1, value: 0});
-	var scanPercentageText = $("<div>", {id: "scanPercentageText"}).text("0%");
-	$("<div>", {id: "scanPercentage"})
-		.append(scanProgressBar, scanPercentageText)
-		.appendTo(preparationScreen);
+	$("#scanMessage").l10n(scanMessage);
 	if (!love.maxDeviations) {
-		scanProgressBar.removeAttr("value");
-		scanPercentageText.hide();
+		$("#scanProgressBar").removeAttr("value");
+		$("#scanPercentageText").hide();
 	}
-	$("<div>", {id: "scannedDeviations"}).appendTo(preparationScreen);
-	var watchStatus = $("<div>", {id: "watchStatus"}).appendTo(preparationScreen);
-	$("<div>", {id: "scanError"}).l10n("scanError").hide().appendTo(preparationScreen);
-	$("<button>", {id: "retryButton"}).l10n("scanErrorRetry").hide().appendTo(preparationScreen);
 	window.startScan = function() {
 		scannerController = researchLove(love.feedHref, love.maxDeviations);
 		scannerController.progress.add(setProgress);
@@ -95,23 +86,19 @@ function beginPreparations(love) {
 	function setProgress(data) {
 		$("#scannedDeviations").l10n("scannedDeviations", data.found);
 		if (data.percent) {
-			scanProgressBar.attr("value", data.percent);
-			scanPercentageText.text( Math.floor(data.percent * 100) + "%" );
+			$("#scanProgressBar").attr("value", data.percent);
+			$("#scanPercentageText").text( Math.floor(data.percent * 100) + "%" );
 		}
 	}
 	function scanError() {
 		scannerController.pause();
 		$("body").css("cursor", "");
-		$("#scanPercentage").hide();
-		$("#scannedDeviations").hide();
-		watchStatus.hide();
-		$("#scanError, #retryButton").show();
+		$("#scanStatus").prop("hidden", true);
+		$("#scanFailed").prop("hidden", false);
 	}
 	$("#retryButton").bind("click", function() {
-		$(this).add("#scanError").hide();
-		$("#scanPercentage").show();
-		$("#scannedDeviations").show();
-		watchStatus.show();
+		$("#scanFailed").prop("hidden", true);
+		$("#scanStatus").prop("hidden", false);
 		$("body").css("cursor", "wait");
 		scannerController.resume();
 		scannerController.retry();
@@ -120,7 +107,7 @@ function beginPreparations(love) {
 		firstDeviant = deviantName;
 	}
 	function collectWatchlist(list) {
-		watchStatus.l10n("watchSuccess");
+		$("#watchStatus").l10n("watchSuccess");
 		return list;
 	}
 	function watchError(thrown) {
@@ -128,7 +115,7 @@ function beginPreparations(love) {
 			scanError();
 			return thrown.retryResult.then(collectWatchlist, watchError);
 		}
-		watchStatus.l10n( (thrown.reason == "notLoggedIn") ?
+		$("#watchStatus").l10n( (thrown.reason == "notLoggedIn") ?
 			"watchErrorNotLoggedIn" : "watchErrorInternal" );
 		return {error: thrown.reason};
 	}
@@ -139,7 +126,7 @@ function beginPreparations(love) {
 			watchedArtists: watched
 		};
 		adapter.prepComplete(results);
-		preparationScreen.remove();
+		$("#preparationScreen").remove();
 		var ui = {firstTip, firstDeviant};
 		report(results, prefs, ui, love);
 	}
@@ -205,27 +192,7 @@ function report(results, prefs, ui, love) {
 		.appendTo(mainScreen);
 	normalMode();
 	if (lovedArtists.css("position") == "static") { lovedArtists.css("position", "relative") } // Needed for scrollToDeviationList. It's as weird as it to ensure future compatibility with the skinning feature.
-	var subaccountsEditor = $("<div>", {id: "subaccountsEditor"}).hide().appendTo(mainScreen)
-		.append( $("<div>", {id: "closeSubaccountsEditor"}).l10nTooltip("subaccountsClose") );
-	$("<div>", {id: "subaccountsList"})
-		.append( $("<div>", {id: "subaccountsListHeader", "class": "sectionHeader"}) )
-		.append( $("<div>", {id: "subaccountsListContents"}) )
-		.appendTo(subaccountsEditor);
-	$("<form>", {id: "addSubaccount"})
-		.append( $("<div>", {"class": "sectionHeader"}).l10n("subaccountsAdd") )
-		.append( $("<label>")
-			.append($("<input>", {type: "radio", name: "addDirection", value: "inputToThis"}))
-			.append($("<span>", {id: "inputToThisText"})) )
-		.append( $("<label>")
-			.append($("<input>", {type: "radio", name: "addDirection", value: "thisToInput"}))
-			.append($("<span>", {id: "thisToInputText"})) )
-		.append( $("<div>", {"class": "textEntryLine"})
-			.append( $("<input>", {type: "text", id: "relatedAccount"})
-				.l10nPlaceholder("subaccountsAddNamePlaceholder") )
-			.append( $("<button>", {type: "submit", id: "confirmAdd"})
-				.l10n("subaccountsAddConfirm") ) )
-		.append( $("<div>", {id: "addNotice"}).hide() )
-		.appendTo(subaccountsEditor);
+	$(templateContents.subaccountsEditorTemplate).clone().appendTo(mainScreen);
 	$("<div>", {id: "tipOfTheMoment"})
 		.append($("<img>", {id: "tOTMIcon"}))
 		.append($("<div>", {id: "tOTMText"}))
@@ -339,14 +306,14 @@ function report(results, prefs, ui, love) {
 			$("input[value='inputToThis']").prop("checked", true);
 			$("#relatedAccount").val("");
 			$("#addNotice").hide();
-			$("#subaccountsEditor").show();
+			$("#subaccountsEditor").prop("hidden", false);
 		} else {
 			$("#closeSubaccountsEditor").trigger("click");
 		}
 	} );
 	$("#closeSubaccountsEditor").bind("click", function() {
 		$(".subaccountsButton.editing").removeClass("editing");
-		$("#subaccountsEditor").hide();
+		$("#subaccountsEditor").prop("hidden", true);
 	} );
 	$("#addSubaccount").bind("submit", function(event) {
 		event.preventDefault();

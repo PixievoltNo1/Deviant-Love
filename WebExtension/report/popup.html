@@ -44,6 +44,48 @@ body { font-size: 100%; }
 		<div class="deviationList"></div>
 	</div>
 </template>
+<template id="subaccountsEditorTemplate">
+	<div id="subaccountsEditor" hidden>
+		<div id="closeSubaccountsEditor" data-l10n="subaccountsClose" data-l10n-attr="title"></div>
+		<div id="subaccountsList">
+			<div id="subaccountsListHeader" class="sectionHeader"></div>
+			<div id="subaccountsListContents"></div>
+		</div>
+		<form id="addSubaccount">
+			<div class="sectionHeader" data-l10n="subaccountsAdd"></div>
+			<label>
+				<input type="radio" name="addDirection" value="inputToThis"><span id="inputToThisText"></span>
+			</label>
+			<label>
+				<input type="radio" name="addDirection" value="thisToInput"><span id="thisToInputText"></span>
+			</label>
+			<div class="textEntryLine">
+				<input type="text" id="relatedAccount" data-l10n="subaccountsAddNamePlaceholder" data-l10n-attr="placeholder">
+				<button type="submit" id="confirmAdd" data-l10n="subaccountsAddConfirm"></button>
+			</div>
+			<div id="addNotice"></div>
+		</form>
+	</div>
+</template>
+<template id="preparationScreenTemplate">
+	<div id="preparationScreen">
+		<div id="scanMessage"></div>
+		<div id="scanStatus">
+			<div id="scanProgress">
+				<div id="scanPercentage">
+					<progress id="scanProgressBar" max="1" value="0"></progress>
+					<div id="scanPercentageText">0%</div>
+				</div>
+				<div id="scannedDeviations"></div>
+				<div id="watchStatus"></div>
+			</div>
+		</div>
+		<div id="scanFailed" hidden>
+			<div id="scanError" data-l10n="scanError"></div>
+			<button id="retryButton" type="button" data-l10n="scanErrorRetry"></button>
+		</div>
+	</div>
+</template>
 
 </body>
 </html>
