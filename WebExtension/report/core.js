@@ -151,10 +151,10 @@ function report(results, prefs, ui, love) {
 	mainScreen.appendTo(document.body);
 	var scanResults = $("<div>", {id: "scanResults"});
 	var scanResultsLine1 = ({
-		featured: "scanResultsPopupFeaturedLine1",
-		allFaves: "scanResultsPopupAllLine1",
-		collection: "scanResultsPopupCollectionLine1",
-		search: "scanResultsPopupSearchLine1"
+		featured: "scanResultsFeaturedLine1",
+		allFaves: "scanResultsAllLine1",
+		collection: "scanResultsCollectionLine1",
+		search: "scanResultsSearchLine1"
 	})[love.pageType];
 	scanResults.append($("<div>").l10nHtml(scanResultsLine1,
 		'<span class="dynamic">' + Number(totalDeviations) + '</span>')); // The Number call is there to help out AMO reviewers; same for the other calls below
