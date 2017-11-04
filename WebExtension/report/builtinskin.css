@@ -10,17 +10,12 @@ body {
 }
 body > div {
 	height: 100%; /* match height of <body> set by browser-specific code */
+	padding: 9px;
 }
 a:link { color: rgb(0, 0, 238); }
 a:visited { color: rgb(85, 26, 139); }
 a img {
 	border: 0;
-}
-.popup > div {
-	padding: 9px;
-}
-.sidebar > div {
-	padding: 6px;
 }
 
 #scanMessage {

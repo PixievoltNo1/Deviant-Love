@@ -7,7 +7,6 @@
 if (!(window.chrome && chrome.runtime)) { window.chrome = browser; }
 
 var adapter = Object.assign({
-	displayType: "popup",
 	prepComplete: function() {
 		chrome.runtime.sendMessage({action: "echo", echoAction: "scanningComplete"});
 	}

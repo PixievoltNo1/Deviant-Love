@@ -150,28 +150,14 @@ function report(results, prefs, ui, love) {
 	var mainScreen = $("<div>", {id: "mainScreen"});
 	mainScreen.appendTo(document.body);
 	var scanResults = $("<div>", {id: "scanResults"});
-	if (adapter.displayType == "popup") {
-		var scanResultsLine1 = ({
-			featured: "scanResultsPopupFeaturedLine1",
-			allFaves: "scanResultsPopupAllLine1",
-			collection: "scanResultsPopupCollectionLine1",
-			search: "scanResultsPopupSearchLine1"
-		})[love.pageType];
-		scanResults.append($("<div>").l10nHtml(scanResultsLine1,
-			'<span class="dynamic">' + Number(totalDeviations) + '</span>')); // The Number call is there to help out AMO reviewers; same for the other calls below
-	} else { // adapter.displayType == "sidebar"
-		if (/[\<\>\&]/.test(love.ownerOrTitle)) {love.ownerOrTitle = "?????????";};
-		var scanResultsLine1 = (love.pageType == "collection") ?
-			"scanResultsSidebarCollectionLine1" :
-			"scanResultsSidebarNonCollectionLine1";
-		var scanResultsLine2 = (love.pageType == "featured") ? "scanResultsSidebarFeaturedLine2"
-			: (love.pageType == "search") ? "scanResultsSidebarSearchLine2"
-			: "scanResultsSidebarOtherLine2";
-		scanResults.append($("<div>").l10nHtml(scanResultsLine1,
-			'<span class="dynamic">' + love.ownerOrTitle + '</span>')) // love.ownerOrTitle is filtered for safety a few lines up
-			.append($("<div>").l10nHtml(scanResultsLine2,
-			'<span class="dynamic">' + Number(totalDeviations) + '</span>'))
-	}
+	var scanResultsLine1 = ({
+		featured: "scanResultsPopupFeaturedLine1",
+		allFaves: "scanResultsPopupAllLine1",
+		collection: "scanResultsPopupCollectionLine1",
+		search: "scanResultsPopupSearchLine1"
+	})[love.pageType];
+	scanResults.append($("<div>").l10nHtml(scanResultsLine1,
+		'<span class="dynamic">' + Number(totalDeviations) + '</span>')); // The Number call is there to help out AMO reviewers; same for the other calls below
 	scanResults.append($("<div>", {id: "artistCount"}).l10nHtml("scanResultsLastLine",
 		'<span class="dynamic">' + Number(deviants.list.length) + '</span>'))
 		.appendTo(mainScreen);
@@ -473,7 +459,7 @@ function report(results, prefs, ui, love) {
 		if ($("#mainScreen").hasClass("lookWhatIFound")) {
 			normalMode();
 		}
-		$("#deviant_" + deviantName).trigger("click", isFirst || adapter.displayType == "popup")
+		$("#deviant_" + deviantName).trigger("click", isFirst)
 			.get(0).scrollIntoView();
 	}
 	if (ui.firstDeviant) {

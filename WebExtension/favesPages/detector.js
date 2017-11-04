@@ -23,15 +23,7 @@ function findLove(favesWindow) {
 		love.pageType = "search";
 	}
 	// While the mechanism for declaring RSS feeds is standardized, the dA layout is not and can change. Be careful!
-	var element;
-	if (love.pageType != "collection") {
-		element = document.querySelector(".gruserbadge a.u");
-		love.ownerOrTitle = element ? element.textContent : "???????";
-	} else {
-		element = document.querySelector(".folderview-top .folder-title");
-		love.ownerOrTitle = element ? element.textContent : "???????";
-	}
-	element = document.querySelector("#gallery_pager");
+	var element = document.querySelector("#gallery_pager");
 	love.maxDeviations = element ? Number(element.getAttribute("gmi-limit")) : null;
 	// "1" is a junk value DeviantArt uses when it doesn't know
 	if (love.maxDeviations == 1) {
