@@ -1,4 +1,4 @@
-#DeviantLovePopup {
+#DeviantLovePanel {
 	border: 2px solid black;
 	border-top: 0;
 	height: calc(100% - 22px);
@@ -9,7 +9,7 @@
 	z-index: 501;
 	transition: transform 0.6s ease-out;
 }
-#DeviantLovePopup:not(.reveal) {
+#DeviantLovePanel:not(.reveal) {
 	transform: translateY(-100%);
 }
 #DeviantLoveShield {

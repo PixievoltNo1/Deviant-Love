@@ -4,9 +4,9 @@
 	Check core.js for the complete legal stuff.
 */
 "use strict";
+if (!(window.chrome && chrome.runtime)) { window.chrome = browser; }
 
-function findLove(favesWindow) {
-	var win = favesWindow || window;
+function findLove(win = window) {
 	var document = win.document;
 	var location = win.location;
 	var love = {};
@@ -32,3 +32,8 @@ function findLove(favesWindow) {
 
 	return love;
 }
+
+chrome.runtime.sendMessage({action: "showLove"});
+chrome.runtime.onMessage.addListener(({action}, buddy, callback) => {
+	if (action == "getLove") { callback( findLove() ); }
+});

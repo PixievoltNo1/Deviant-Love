@@ -13,11 +13,12 @@ var adapter = Object.assign({
 }, apiAdapter);
 
 var scannerController;
-chrome.runtime.sendMessage({action: "echoWithCallback", echoAction: "popupSetup"},
+chrome.runtime.sendMessage({action: "echoWithCallback", echoAction: "getLove"},
 	function(love) {
 		beginPreparations(love);
 		if (location.hash) {showDeviant(location.hash.slice(1))};
 		scannerController = startScan();
+		chrome.runtime.sendMessage({action: "echo", echoAction: "panelReady"});
 	}
 );
 chrome.runtime.onMessage.addListener(function(thing, buddy, callback) {switch (thing.action) {
