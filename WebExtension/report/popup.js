@@ -13,16 +13,13 @@ var adapter = Object.assign({
 }, apiAdapter);
 
 var scannerController;
-$(document).ready( function() {
-	$("body").css({ "height": $(window).height() });
-	chrome.runtime.sendMessage({action: "echoWithCallback", echoAction: "popupSetup"},
-		function(love) {
-			beginPreparations(love);
-			if (location.hash) {showDeviant(location.hash.slice(1))};
-			scannerController = startScan();
-		}
-	)
-} );
+chrome.runtime.sendMessage({action: "echoWithCallback", echoAction: "popupSetup"},
+	function(love) {
+		beginPreparations(love);
+		if (location.hash) {showDeviant(location.hash.slice(1))};
+		scannerController = startScan();
+	}
+);
 chrome.runtime.onMessage.addListener(function(thing, buddy, callback) {switch (thing.action) {
 	case "pauseScan":
 		scannerController.pause();
@@ -45,7 +42,4 @@ chrome.runtime.onMessage.addListener(function(thing, buddy, callback) {switch (t
 $(document).delegate("a", "click", function(event) {
 	if (event.button == 0) { window.open(this.href); }
 	event.preventDefault();
-} );
-$(window).bind("resize", function() {
-	$("body").height($(window).height());
 } );

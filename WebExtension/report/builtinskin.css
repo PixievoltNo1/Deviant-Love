@@ -9,7 +9,7 @@ body {
 	margin: 0;
 }
 body > div {
-	height: 100%; /* match height of <body> set by browser-specific code */
+	height: 100vh;
 	padding: 9px;
 }
 a:link { color: rgb(0, 0, 238); }
