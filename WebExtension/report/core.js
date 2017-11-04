@@ -192,7 +192,6 @@ function report(results, prefs, ui, love) {
 		.appendTo(mainScreen);
 	normalMode();
 	if (lovedArtists.css("position") == "static") { lovedArtists.css("position", "relative") } // Needed for scrollToDeviationList. It's as weird as it to ensure future compatibility with the skinning feature.
-	$(templateContents.subaccountsEditorTemplate).clone().appendTo(mainScreen);
 	$("<div>", {id: "tipOfTheMoment"})
 		.append($("<img>", {id: "tOTMIcon"}))
 		.append($("<div>", {id: "tOTMText"}))
@@ -290,37 +289,32 @@ function report(results, prefs, ui, love) {
 	$("#lovedArtists").delegate(".subaccountsButton", "click", function(event) {
 		var button = $(this);
 		if (!button.hasClass("editing")) {
-			$(".subaccountsButton.editing").removeClass("editing");
+			$(".closeSubaccountsEditor").trigger("click");
 			button.addClass("editing");
 			editingSubaccountsOf = button.siblings(".deviantName").text();
-			$("#subaccountsEditor").toggleClass("has", editingSubaccountsOf in deviants.subaccounts);
-			$("#subaccountsListHeader").l10n("subaccountsList", editingSubaccountsOf);
-			$("#subaccountsListContents").empty();
+			var editor = $(templateContents.subaccountsEditor).children().clone();
+			editor.find(".subaccountsListHeader").l10n("subaccountsList", editingSubaccountsOf);
 			if (editingSubaccountsOf in deviants.subaccounts) {
-				$("#subaccountsListContents").append(
+				editor.addClass("has").find(".subaccountsListContents").append(
 					deviants.subaccounts[editingSubaccountsOf].map(buildSubaccountLine)
 				);
 			}
-			$("#inputToThisText").l10n("subaccountsAddInputToCurrent", editingSubaccountsOf);
-			$("#thisToInputText").l10n("subaccountsAddCurrentToInput", editingSubaccountsOf);
-			$("input[value='inputToThis']").prop("checked", true);
-			$("#relatedAccount").val("");
-			$("#addNotice").hide();
-			$("#subaccountsEditor").prop("hidden", false);
+			editor.find(".inputToThisText").l10n("subaccountsAddInputToCurrent", editingSubaccountsOf);
+			editor.find(".thisToInputText").l10n("subaccountsAddCurrentToInput", editingSubaccountsOf);
+			editor.insertAfter("#lovedArtists");
 		} else {
-			$("#closeSubaccountsEditor").trigger("click");
+			$(".closeSubaccountsEditor").trigger("click");
 		}
 	} );
-	$("#closeSubaccountsEditor").bind("click", function() {
+	mainScreen.delegate(".closeSubaccountsEditor", "click", function() {
 		$(".subaccountsButton.editing").removeClass("editing");
-		$("#subaccountsEditor").prop("hidden", true);
-	} );
-	$("#addSubaccount").bind("submit", function(event) {
+		$(".subaccountsEditor").remove();
+	} ).delegate(".addSubaccount", "submit", function(event) {
 		event.preventDefault();
-		var input = $("#relatedAccount").val();
+		var input = $(".relatedAccount").val();
 		if (input == "") { return; }
 		$("body").css("cursor", "wait");
-		$("#addNotice").hide();
+		$(".addNotice").hide();
 		$.when( (function() {
 			var lcInput = input.toLowerCase();
 			for (var name of deviants.effectiveMap.keys()) {
@@ -380,8 +374,8 @@ function report(results, prefs, ui, love) {
 			}
 			if ($("input[value='inputToThis']").prop("checked")) {
 				var getting = editingSubaccountsOf, gotten = related;
-				$("#subaccountsListContents").append( buildSubaccountLine( related ) );
-				$("#subaccountsEditor").addClass("has");
+				$(".subaccountsListContents").append( buildSubaccountLine( related ) );
+				$(".subaccountsEditor").addClass("has");
 			} else {
 				var gotten = editingSubaccountsOf, getting = related;
 			}
@@ -392,7 +386,7 @@ function report(results, prefs, ui, love) {
 					if (gotten in deviants.subaccounts) {
 						for (var subaccount of deviants.subaccounts[gotten]) {
 							if ($("input[value='inputToThis']").prop("checked")) {
-								$("#subaccountsListContents").append( buildSubaccountLine( subaccount ) );
+								$(".subaccountsListContents").append( buildSubaccountLine( subaccount ) );
 							}
 						}
 					}
@@ -412,24 +406,23 @@ function report(results, prefs, ui, love) {
 				$("#deviant_" + getting).find(".subaccountsButton")
 					.removeClass("editing").trigger("click");
 			}
-			$("#relatedAccount").val("");
+			$(".relatedAccount").val("");
 			if (warning) {
-				$("#addNotice").l10n("subaccountsWarning" + warning, warningPart).show();
+				$(".addNotice").l10n("subaccountsWarning" + warning, warningPart).show();
 			}
 		}, function(error, errorPart) {
-			$("#addNotice").l10n("subaccountsError" + error, errorPart || input).show();
+			$(".addNotice").l10n("subaccountsError" + error, errorPart || input).show();
 		} ).always( function() {
 			$("body").css("cursor", "");
 		} );
-	} );
-	$("#subaccountsEditor").delegate(".removeSubaccount", "click", function() {
+	} ).delegate(".removeSubaccount", "click", function() {
 		var removedName = $(this).siblings(".subaccountName").text();
 		deviants.subaccounts[editingSubaccountsOf].splice(
 			deviants.subaccounts[editingSubaccountsOf].indexOf(removedName), 1);
 		$(this).parent().remove();
 		if (deviants.subaccounts[editingSubaccountsOf].length == 0) {
 			delete deviants.subaccounts[editingSubaccountsOf];
-			$("#subaccountsEditor").removeClass("has");
+			$(".subaccountsEditor").removeClass("has");
 		}
 		if (deviants.baseMap.has(removedName)) {
 			deviantsMod(function() {
@@ -497,7 +490,7 @@ function report(results, prefs, ui, love) {
 		var watchingThisArtistTooltip = adapter.getL10nMsg("watchingThisArtist");
 		finkRats.forEach( function(deviant) {
 			// Hot loop! A little optimization can make a lot of difference.
-			var deviantElem = $(templateContents["deviant"].cloneNode(true));
+			var deviantElem = $(templateContents["deviant"].cloneNode(true)).children();
 			deviantElem.attr("id", "deviant_" + deviant.name);
 			deviantElem.find(".deviantFaves")[0].textContent = deviant.deviations.length;
 			deviantElem.find(".deviantName")[0].textContent = deviant.name;
@@ -513,7 +506,7 @@ function report(results, prefs, ui, love) {
 		return rageDressing; // on a salad of evil
 	}
 	function buildCloserLook(deviant, deviations) {
-		var closerLook = $(templateContents["closerLook"]).clone();
+		var closerLook = $(templateContents["closerLook"]).children().clone();
 
 		var deviantDetails = closerLook.find(".deviantDetails");
 		var deviantAvatar = $("<img>", {width: 50, height: 50})
