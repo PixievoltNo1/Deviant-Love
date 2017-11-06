@@ -13,6 +13,20 @@ var shield = document.createElement("div");
 shield.id = "DeviantLoveShield";
 shield.hidden = true;
 document.body.appendChild(shield);
+var heartIcons = [
+	Object.assign(document.createElement("link"), {
+		href: chrome.runtime.getURL("images/heart/48.png"),
+		rel: "icon",
+		sizes: "48x48"
+	}),
+	Object.assign(document.createElement("link"), {
+		href: chrome.runtime.getURL("images/heart/scalable.svg"),
+		rel: "icon",
+		sizes: "any",
+		type: "image/svg+xml"
+	}),
+];
+var normalIcons = Array.from(document.querySelectorAll("link[rel~=icon]"));
 var panelState = "inactive";
 var panelStage = "uninitialized";
 
@@ -58,6 +72,13 @@ function activate(firstDeviant) {
 		panelState = "active";
 		chrome.runtime.sendMessage({action: "showX"});
 		shield.addEventListener("click", deactivate, false);
+		for (let icon of normalIcons) {
+			icon.remove();
+		}
+		for (let icon of heartIcons) {
+			document.head.appendChild(icon);
+		}
+		document.title = "Deviant Love - " + document.title;
 	}
 }
 function deactivate() {
@@ -75,4 +96,11 @@ function deactivate() {
 	shield.classList.remove("reveal");
 	panelState = "deactivating";
 	chrome.runtime.sendMessage({action: "noX"});
+	for (let icon of heartIcons) {
+		icon.remove();
+	}
+	for (let icon of normalIcons) {
+		document.head.appendChild(icon);
+	}
+	document.title = document.title.replace("Deviant Love - ", "");
 }

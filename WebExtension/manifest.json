@@ -30,7 +30,7 @@
 		"css": ["favesPages/favesPages.css"],
 		"run_at": "document_end"
 	}],
-	"web_accessible_resources": ["report/popup.html"],
+	"web_accessible_resources": ["report/popup.html", "images/heart/*"],
 
 	"permissions": ["contextMenus", "storage", "*://*.deviantart.com/"],
 	"minimum_chrome_version": "55",
