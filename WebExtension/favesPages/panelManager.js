@@ -36,7 +36,7 @@ chrome.runtime.onMessage.addListener( function(thing, buddy, callback) {switch (
 		if (panelState == "active") {deactivate()};
 	break;
 	case "artistRequested":
-		activate(thing.artist);
+		if (panelState == "inactive") {activate(thing.artist)}
 	break;
 	case "scanningComplete":
 		panelStage = "love";
