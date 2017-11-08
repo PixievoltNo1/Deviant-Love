@@ -13,7 +13,20 @@ for (let thumb of Array.from( container.querySelectorAll(".thumb") )) {
 chrome.runtime.sendMessage({action: "addArtistNames", names: [...artistNames]});
 (new MutationObserver(processMutations)).observe(container, {childList: true});
 function processMutations(records) {
-	// TODO: Write this
+	var newNodes = [], newNames = [];
+	for (let record of records) {
+		newNodes.push(...Array.from(record.addedNodes));
+	}
+	for (let node of newNodes) {
+		if (!(node instanceof Element && node.classList.contains("thumb"))) { continue; }
+		let name = getArtistFromThumb(node);
+		if (artistNames.has(name)) { continue; }
+		artistNames.add(name);
+		newNames.push(name);
+	}
+	if (newNames.length) {
+		chrome.runtime.sendMessage({action: "addArtistNames", names: newNames});
+	}
 }
 function getArtistFromThumb(thumb) {
 	return thumb.querySelector("a.username").textContent;
