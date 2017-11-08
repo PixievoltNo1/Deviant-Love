@@ -5,16 +5,22 @@
 */
 "use strict";
 
-chrome.runtime.onMessage.addListener(({action, names}, buddy, callback) => {
-	if (action == "addArtistNames" && buddy.tab.selected) { processNames(names); }
-});
-chrome.tabs.onActivated.addListener(({tabId}) => {
-	chrome.contextMenus.removeAll(() => {
-		chrome.tabs.sendMessage(tabId, {action: "getArtistNames"}, (names) => {
-			if (names) { processNames(names); }
+if (chrome.contextMenus) {
+	chrome.runtime.onMessage.addListener(({action, names}, buddy, callback) => {
+		if (action == "addArtistNames" && buddy.tab.selected) { processNames(names); }
+	});
+	chrome.tabs.onActivated.addListener(({tabId}) => {
+		chrome.contextMenus.removeAll(() => {
+			chrome.tabs.sendMessage(tabId, {action: "getArtistNames"}, (names) => {
+				if (names) { processNames(names); }
+			});
 		});
 	});
-});
+	chrome.contextMenus.onClicked.addListener( function(click, buddy) {
+		var artist = click.menuItemId.substr( "artistLove:".length );
+		chrome.tabs.sendMessage(buddy.id, {action: "artistRequested", artist: artist});
+	} );
+}
 
 function processNames(names) {
 	for (let name of names) {
@@ -26,7 +32,3 @@ function processNames(names) {
 		});
 	}
 }
-chrome.contextMenus.onClicked.addListener( function(click, buddy) {
-	var artist = click.menuItemId.substr( "artistLove:".length );
-	chrome.tabs.sendMessage(buddy.id, {action: "artistRequested", artist: artist});
-} );

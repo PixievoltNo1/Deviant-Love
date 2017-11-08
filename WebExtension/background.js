@@ -11,12 +11,20 @@ chrome.runtime.onMessage.addListener( function(thing, buddy, callback) {switch (
 		chrome.pageAction.show(buddy.tab.id);
 	break;
 	case "showX":
-		chrome.pageAction.setIcon({tabId: buddy.tab.id, path: "/images/heart/38Close.png"});
-		chrome.pageAction.setTitle({tabId: buddy.tab.id, title: chrome.i18n.getMessage("heartX")});
+		if (chrome.pageAction.setIcon) {
+			chrome.pageAction.setIcon({tabId: buddy.tab.id, path: "/images/heart/38Close.png"});
+		}
+		if (chrome.pageAction.setTitle) {
+			chrome.pageAction.setTitle({tabId: buddy.tab.id, title: chrome.i18n.getMessage("heartX")});
+		}
 	break;
 	case "noX":
-		chrome.pageAction.setIcon({tabId: buddy.tab.id, path: "/images/heart/38.png"});
-		chrome.pageAction.setTitle({tabId: buddy.tab.id, title: "Deviant Love"});
+		if (chrome.pageAction.setIcon) {
+			chrome.pageAction.setIcon({tabId: buddy.tab.id, path: "/images/heart/38.png"});
+		}
+		if (chrome.pageAction.setTitle) {
+			chrome.pageAction.setTitle({tabId: buddy.tab.id, title: "Deviant Love"});
+		}
 	break;
 	// For communication between manager.js and popup.js
 	case "echo":
