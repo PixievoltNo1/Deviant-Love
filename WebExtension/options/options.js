@@ -234,9 +234,12 @@ var syncError, lastSaved;
 var syncElem = document.getElementById("syncStatus");
 var localGet = new Promise((resolve) => { chrome.storage.local.get("syncError", resolve); });
 var syncGet = new Promise((resolve) => { chrome.storage.sync.get("lastSaved", resolve); });
-Promise.all([localGet, syncGet]).then(([localVal, syncVal]) => {
-	if (!syncVal) {
-		// We're in Firefox 52, which doesn't support sync storage
+var supportCheck = new Promise((resolve) => {
+	chrome.runtime.sendMessage({action: "checkSyncByBrowserSupport"}, resolve);
+});
+Promise.all([localGet, syncGet, supportCheck]).then(([localVal, syncVal, supportCheck]) => {
+	if (!syncVal || !supportCheck) {
+		// The browser forbids use of chrome.storage.sync or doesn't actually sync it
 		syncElem.className = "error";
 		$("<p>").text( apiAdapter.getL10nMsg("syncByBrowserUnsupported") ).appendTo(syncElem);
 		return;
