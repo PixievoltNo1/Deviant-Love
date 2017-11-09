@@ -32,7 +32,7 @@
 	}],
 	"web_accessible_resources": ["report/popup.html", "images/heart/*"],
 
-	"permissions": ["contextMenus", "storage", "*://*.deviantart.com/"],
+	"permissions": ["contextMenus", "storage", "*://*.deviantart.com/", "*://sta.sh/*"],
 	"minimum_chrome_version": "55",
 	"applications": {
 		"gecko": {
