@@ -17,36 +17,33 @@ function checkForUnsync(changes, areaName) {
 		mirrorByBrowser(areaName);
 	}
 }
-if (!disableSyncByBrowser) {
+var localGet = new Promise((resolve) => { chrome.storage.local.get("lastSaved", resolve); });
+var syncGet = new Promise((resolve) => { chrome.storage.sync.get("lastSaved", resolve); });
+Promise.all([localGet, syncGet, allowSyncByBrowser]).then(([localVal, syncVal, allowed]) => {
+	if (!syncVal || !allowed) {
+		// The browser forbids use of chrome.storage.sync or doesn't actually sync it
+		return;
+	}
 	chrome.storage.onChanged.addListener(checkForUnsync);
-	var localSaveTime = new Promise((resolve) => { chrome.storage.local.get("lastSaved", resolve); });
-	var syncSaveTime = new Promise((resolve) => { chrome.storage.sync.get("lastSaved", resolve); });
-	Promise.all([localSaveTime, syncSaveTime]).then(([localGet, syncGet]) => {
-		if (!syncGet) {
-			// We're in Firefox 52, which doesn't support sync storage
-			chrome.storage.onChanged.removeListener(checkForUnsync);
-			return;
-		}
-		var localSaveTime = localGet.lastSaved, syncSaveTime = syncGet.lastSaved;
-		if (syncSaveTime == null) {
-			chrome.storage.local.set({ lastSaved: (new Date()).toISOString() });
-			// This will trigger mirroring in checkForUnsync
-		} else if (localSaveTime == null) {
+	var localSaveTime = localVal.lastSaved, syncSaveTime = syncVal.lastSaved;
+	if (syncSaveTime == null) {
+		chrome.storage.local.set({ lastSaved: (new Date()).toISOString() });
+		// This will trigger mirroring in checkForUnsync
+	} else if (localSaveTime == null) {
+		mirrorByBrowser("sync");
+	} else if (syncSaveTime != localSaveTime) {
+		if (Date.parse(syncSaveTime) > Date.parse(localSaveTime)) {
 			mirrorByBrowser("sync");
-		} else if (syncSaveTime != localSaveTime) {
-			if (Date.parse(syncSaveTime) > Date.parse(localSaveTime)) {
-				mirrorByBrowser("sync");
-			} else {
-				mirrorByBrowser("local");
-			}
+		} else {
+			mirrorByBrowser("local");
 		}
-	});
-}
+	}
+});
 function mirrorByBrowser(source) {
 	var dest = (source == "sync") ? "local" : "sync";
 	chrome.storage.onChanged.removeListener(checkForUnsync);
 	chrome.storage[source].get(null, function(allData) {
-		for (let blacklisted in mirrorBlacklist) {
+		for (let blacklisted of mirrorBlacklist) {
 			delete allData[blacklisted];
 		}
 		chrome.storage[dest].set(allData, () => {

@@ -237,8 +237,8 @@ var syncGet = new Promise((resolve) => { chrome.storage.sync.get("lastSaved", re
 var supportCheck = new Promise((resolve) => {
 	chrome.runtime.sendMessage({action: "checkSyncByBrowserSupport"}, resolve);
 });
-Promise.all([localGet, syncGet, supportCheck]).then(([localVal, syncVal, supportCheck]) => {
-	if (!syncVal || !supportCheck) {
+Promise.all([localGet, syncGet, supportCheck]).then(([localVal, syncVal, allowed]) => {
+	if (!syncVal || !allowed) {
 		// The browser forbids use of chrome.storage.sync or doesn't actually sync it
 		syncElem.className = "error";
 		$("<p>").text( apiAdapter.getL10nMsg("syncByBrowserUnsupported") ).appendTo(syncElem);

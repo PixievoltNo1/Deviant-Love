@@ -7,12 +7,14 @@
 // Some WebExtension features are not easily feature-detected. Anything that must be gated by browser & version will be dealt with here.
 // There are currently no checks that concern browsers that don't support Promise-returning browser.* APIs.
 
-var disableSyncByBrowser = false;
+var allowSyncByBrowser = Promise.resolve(true);
 if (window.browser && browser.runtime.getBrowserInfo) {
-	browser.runtime.getBrowserInfo().then(versionCheck);
+	let versionCheckResults = browser.runtime.getBrowserInfo().then(versionCheck);
+	allowSyncByBrowser = versionCheckResults.then((results) => { return !results.disableSyncByBrowser; });
 }
 
 function versionCheck({name, version}) {
+	var results = {};
 	// Firefox for Android <56 doesn't implement chrome.pageAction.show correctly. Older versions have more deficiencies.
 	if (name == "Fennec" && parseInt(version) < 56) {
 		browser.management.uninstallSelf({
@@ -22,9 +24,10 @@ function versionCheck({name, version}) {
 	}
 	// Firefox for Android's chrome.storage.sync won't actually sync until an unknown future version.
 	if (name == "Fennec" && parseInt(version) < Infinity) {
-		disableSyncByBrowser = true;
+		results.disableSyncByBrowser = true;
 	}
+	return results;
 }
 (window.browser || chrome).runtime.onMessage.addListener(({action}, buddy, callback) => {
-	if (action == "checkSyncByBrowserSupport") { callback(!disableSyncByBrowser); }
+	if (action == "checkSyncByBrowserSupport") { allowSyncByBrowser.then(callback); return true; }
 });
