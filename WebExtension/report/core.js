@@ -187,10 +187,9 @@ function report(results, prefs, ui, love) {
 	// Set up interaction
 	lovedArtists.delegate(".deviant", "touchstart", function() {
 		this.classList.add("touched");
-	}).delegate(".deviant", "touchend", function() {
-		var touchTime = Date.now();
-		$(this).unbind(".switchToMouse").bind("mouseenter.switchToMouse", function() {
-			if (Date.now() - 100 < touchTime) { return; }
+	}).delegate(".deviant", "touchend", function(touchEvent) {
+		$(this).unbind(".switchToMouse").bind("mouseenter.switchToMouse", function(mouseEvent) {
+			if (touchEvent.timeStamp - 200 < mouseEvent.timeStamp) { return; }
 			$(this).removeClass("touched").unbind(".switchToMouse");
 		});
 	}).delegate(".deviant:not(.opened)", "click", function(event, suppressAnimation) {
