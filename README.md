@@ -4,6 +4,8 @@ To try the in-development code in this repo, you'll need to load the WebExtensio
 
 * Firefox: https://developer.mozilla.org/en-US/Add-ons/WebExtensions/Temporary_Installation_in_Firefox
 * Chrome: https://developer.chrome.com/extensions/getstarted#unpacked
-	* Chrome will complain about parts of manifest.json it doesn't recognize, but this won't cause problems.
+* Edge: https://docs.microsoft.com/en-us/microsoft-edge/extensions/guides/adding-and-removing-extensions
+
+Your browser may complain about parts of manifest.json it doesn't recognize. This won't cause problems.
 
 If you have any questions, feel free to either send me a dA Note or leave a comment on [the deviation page](http://fav.me/d2my13o), whichever you feel is more appropriate.
