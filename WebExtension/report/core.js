@@ -185,7 +185,15 @@ function report(results, prefs, ui, love) {
 	tipOfTheMoment(ui.firstTip);
 
 	// Set up interaction
-	lovedArtists.delegate(".deviant:not(.opened)", "click", function(event, suppressAnimation) {
+	lovedArtists.delegate(".deviant", "touchstart", function() {
+		this.classList.add("touched");
+	}).delegate(".deviant", "touchend", function() {
+		var touchTime = Date.now();
+		$(this).unbind(".switchToMouse").bind("mouseenter.switchToMouse", function() {
+			if (Date.now() - 100 < touchTime) { return; }
+			$(this).removeClass("touched").unbind(".switchToMouse");
+		});
+	}).delegate(".deviant:not(.opened)", "click", function(event, suppressAnimation) {
 		if ( $(event.target).hasClass("subaccountsButton") ) { return; }
 		$(".opened.deviant").removeClass("opened");
 		if (!suppressAnimation) {
@@ -199,7 +207,7 @@ function report(results, prefs, ui, love) {
 		}
 
 		var deviant = deviants.effectiveMap.get($(".deviantName", this).text());
-		var closerLook = buildCloserLook(deviant, deviant.deviations);
+		var closerLook = buildCloserLook(deviant, deviant.deviations, this.classList.contains("touched"));
 		$(this).append(closerLook).addClass("opened");
 		if (!suppressAnimation) {
 			var closerLookHeight = closerLook.height();
@@ -273,11 +281,12 @@ function report(results, prefs, ui, love) {
 	$("#noFind").bind("click", normalMode);
 	var editingSubaccountsOf;
 	$("#lovedArtists").delegate(".subaccountsButton", "click", function(event) {
-		var button = $(this);
+		var deviant = $(this).closest(".deviant");
+		var button = deviant.find(".subaccountsButton.line");
 		if (!button.hasClass("editing")) {
 			$(".closeSubaccountsEditor").trigger("click");
 			button.addClass("editing");
-			editingSubaccountsOf = button.siblings(".deviantName").text();
+			editingSubaccountsOf = deviant.find(".deviantName").text();
 			var editor = $(templateContents.subaccountsEditor).children().clone();
 			editor.find(".subaccountsListHeader").l10n("subaccountsList", editingSubaccountsOf);
 			if (editingSubaccountsOf in deviants.subaccounts) {
@@ -386,10 +395,10 @@ function report(results, prefs, ui, love) {
 			deviants.subaccounts[getting] = (deviants.subaccounts[getting] || [])
 				.concat(gotten, (deviants.subaccounts[gotten] || []));
 			delete deviants.subaccounts[gotten];
-			$("#deviant_" + getting).find(".subaccountsButton").addClass("has");
+			$("#deviant_" + getting).find(".subaccountsButton.line").addClass("has");
 			adapter.store("subaccounts", deviants.subaccounts);
 			if ($("input[value='thisToInput']").prop("checked")) {
-				$("#deviant_" + getting).find(".subaccountsButton")
+				$("#deviant_" + getting).find(".subaccountsButton.line")
 					.removeClass("editing").trigger("click");
 			}
 			$(".relatedAccount").val("");
@@ -423,7 +432,7 @@ function report(results, prefs, ui, love) {
 				}
 			});
 			if (deviants.effectiveMap.has(editingSubaccountsOf)) {
-				$("#deviant_" + editingSubaccountsOf).find(".subaccountsButton")
+				$("#deviant_" + editingSubaccountsOf).find(".subaccountsButton.line")
 					.removeClass("editing").trigger("click");
 			}
 		}
@@ -450,7 +459,7 @@ function report(results, prefs, ui, love) {
 		if (keepOpen) {
 			$("#deviant_" + editingSubaccountsOf).trigger("click", true);
 		}
-		$("#deviant_" + editingSubaccountsOf).find(".subaccountsButton").addClass("editing");
+		$("#deviant_" + editingSubaccountsOf).find(".subaccountsButton.line").addClass("editing");
 		$("#deviant_" + editingSubaccountsOf)[0].scrollIntoView();
 	}
 
@@ -491,7 +500,7 @@ function report(results, prefs, ui, love) {
 		} );
 		return rageDressing; // on a salad of evil
 	}
-	function buildCloserLook(deviant, deviations) {
+	function buildCloserLook(deviant, deviations, forTouchscreen) {
 		var closerLook = $(templateContents["closerLook"]).children().clone();
 
 		var deviantDetails = closerLook.find(".deviantDetails");
@@ -510,6 +519,11 @@ function report(results, prefs, ui, love) {
 			} ).fail( function() {
 				deviantAvatar.parent().removeClass("loading");
 			} );
+		}
+		if (!forTouchscreen) {
+			closerLook.addClass("mouse").find(".touch").remove();
+		} else {
+			closerLook.addClass("touch").find(".mouse").remove();
 		}
 		closerLook.find(".profileLink").attr("href", deviant.baseURL);
 		closerLook.find(".galleryLink").attr("href", deviant.baseURL + "gallery/");
