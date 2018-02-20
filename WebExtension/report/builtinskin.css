@@ -132,7 +132,7 @@ a img {
 	background: hsl(357, 90%, 76%);
 	cursor: pointer;
 }
-.deviant:hover:not(.touched) {
+.deviant:hover {
 	background: linear-gradient(to bottom, hsl(357, 90%, 88%), hsl(357, 90%, 82%));
 }
 .deviant.opened.opened {
@@ -187,7 +187,7 @@ a img {
 	background-repeat: no-repeat;
 	background-image: url("/images/combineSilhouette.svg"); /* for when only the below rule matches */
 }
-.deviant:hover:not(.touched) .subaccountsButton.line {
+.deviant:hover .subaccountsButton.line {
 	display: inline-block;
 }
 .subaccountsButton.line.has, .subaccountsButton.line.editing, .subaccountsButton.line:hover {
@@ -204,9 +204,6 @@ a img {
 	padding: 9px 4px;
 	text-align: center;
 	position: relative;
-}
-.closerLook.touch .deviantDetails {
-	width: 108px;
 }
 .avatar {
 	display: inline-block;
@@ -247,31 +244,6 @@ a img {
 }
 .deviantLinks.mouse a + a {
 	margin-left: 3px;
-}
-.deviantLinks.touch > * {
-	display: block;
-	width: 100%;
-	height: 22px;
-	line-height: 20px;
-	font-size: 12px;
-	border: 1px solid hsl(16, 100%, 25%);
-	border-radius: 3px;
-	background-color: hsl(6, 90%, 88%);
-	background-repeat: no-repeat;
-	background-position: 2px 50%;
-	padding: 0;
-	padding-left: 22px;
-	padding-right: 2px;
-	color: black;
-	text-decoration: none;
-	text-align: left;
-	cursor: pointer;
-}
-.deviantLinks.touch > :not(:first-child) {
-    margin-top: 3px;
-}
-.deviantLinks.touch > .subaccountsButton {
-	background-image: url("/images/combine.svg");
 }
 .profileLink { background-image: url(/images/deviantart/Profile.png); }
 .galleryLink { background-image: url(/images/deviantart/Gallery.png); }

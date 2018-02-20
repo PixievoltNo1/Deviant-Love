@@ -185,14 +185,7 @@ function report(results, prefs, ui, love) {
 	tipOfTheMoment(ui.firstTip);
 
 	// Set up interaction
-	lovedArtists.delegate(".deviant", "touchstart", function() {
-		this.classList.add("touched");
-	}).delegate(".deviant", "touchend", function(touchEvent) {
-		$(this).unbind(".switchToMouse").bind("mouseenter.switchToMouse", function(mouseEvent) {
-			if (touchEvent.timeStamp - 200 < mouseEvent.timeStamp) { return; }
-			$(this).removeClass("touched").unbind(".switchToMouse");
-		});
-	}).delegate(".deviant:not(.opened)", "click", function(event, suppressAnimation) {
+	lovedArtists.delegate(".deviant:not(.opened)", "click", function(event, suppressAnimation) {
 		if ( $(event.target).hasClass("subaccountsButton") ) { return; }
 		$(".opened.deviant").removeClass("opened");
 		if (!suppressAnimation) {
@@ -206,7 +199,7 @@ function report(results, prefs, ui, love) {
 		}
 
 		var deviant = deviants.effectiveMap.get($(".deviantName", this).text());
-		var closerLook = buildCloserLook(deviant, deviant.deviations, this.classList.contains("touched"));
+		var closerLook = buildCloserLook(deviant, deviant.deviations);
 		$(this).append(closerLook).addClass("opened");
 		if (!suppressAnimation) {
 			var closerLookHeight = closerLook.height();
@@ -499,7 +492,7 @@ function report(results, prefs, ui, love) {
 		} );
 		return rageDressing; // on a salad of evil
 	}
-	function buildCloserLook(deviant, deviations, forTouchscreen) {
+	function buildCloserLook(deviant, deviations) {
 		var closerLook = $(templateContents["closerLook"]).children().clone();
 
 		var deviantDetails = closerLook.find(".deviantDetails");
@@ -518,11 +511,6 @@ function report(results, prefs, ui, love) {
 			} ).fail( function() {
 				deviantAvatar.parent().removeClass("loading");
 			} );
-		}
-		if (!forTouchscreen) {
-			closerLook.addClass("mouse").find(".touch").remove();
-		} else {
-			closerLook.addClass("touch").find(".mouse").remove();
 		}
 		closerLook.find(".profileLink").attr("href", deviant.baseURL);
 		closerLook.find(".galleryLink").attr("href", deviant.baseURL + "gallery/");
