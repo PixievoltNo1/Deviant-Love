@@ -16,7 +16,7 @@
 		"persistent": false
 	},
 	"page_action": {
-		"default_icon": { "38": "images/heart/38.png" },
+		"default_icon": { "32": "images/heart/32.png" },
 		"default_title": "Deviant Love"
 	},
 	"options_ui": {

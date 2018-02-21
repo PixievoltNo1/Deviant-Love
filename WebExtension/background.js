@@ -12,7 +12,7 @@ chrome.runtime.onMessage.addListener( function(thing, buddy, callback) {switch (
 	break;
 	case "showX":
 		if (chrome.pageAction.setIcon) {
-			chrome.pageAction.setIcon({tabId: buddy.tab.id, path: "/images/heart/38Close.png"});
+			chrome.pageAction.setIcon({tabId: buddy.tab.id, path: "/images/heart/32Close.png"});
 		}
 		if (chrome.pageAction.setTitle) {
 			chrome.pageAction.setTitle({tabId: buddy.tab.id, title: chrome.i18n.getMessage("heartX")});
@@ -20,7 +20,7 @@ chrome.runtime.onMessage.addListener( function(thing, buddy, callback) {switch (
 	break;
 	case "noX":
 		if (chrome.pageAction.setIcon) {
-			chrome.pageAction.setIcon({tabId: buddy.tab.id, path: "/images/heart/38.png"});
+			chrome.pageAction.setIcon({tabId: buddy.tab.id, path: "/images/heart/32.png"});
 		}
 		if (chrome.pageAction.setTitle) {
 			chrome.pageAction.setTitle({tabId: buddy.tab.id, title: "Deviant Love"});
