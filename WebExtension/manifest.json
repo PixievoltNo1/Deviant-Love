@@ -1,6 +1,6 @@
 {
 	"name": "Deviant Love",
-	"version": "2.99.1",
+	"version": "2.5",
 	"description": "__MSG_extDesc__",
 	"author": "Pikadude No. 1",
 	"icons": {
@@ -40,6 +40,5 @@
 			"strict_min_version": "52.0"
 		}
 	},
-	"minimum_edge_version" : "40.15063.0.0",
 	"manifest_version": 2
 }
