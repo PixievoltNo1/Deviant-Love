@@ -1,5 +1,7 @@
 Deviant Love is a browser extension that takes the DeviantArt faves page you've visited and sorts the art in it by artist. For more about using or installing Deviant Love, see [its page on DeviantArt](http://fav.me/d2my13o).
 
+This project has a Code of Conduct. By participating in this project, you agree to be as courteous, welcoming, and generally a lovely person as its terms require. ♡
+
 To try the in-development code in this repo, you'll need to load the WebExtension folder. Follow the instructions for your browser:
 
 * Firefox: https://developer.mozilla.org/en-US/Add-ons/WebExtensions/Temporary_Installation_in_Firefox
