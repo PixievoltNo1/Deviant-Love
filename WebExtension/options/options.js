@@ -1,7 +1,7 @@
 /*
 	This file is part of Deviant Love.
 	Copyright Pikadude No. 1
-	Check core.js for the complete legal stuff.
+	Check core.module.js for the complete legal stuff.
 */
 "use strict";
 if (!(window.chrome && chrome.runtime)) { window.chrome = browser; }
@@ -52,7 +52,7 @@ function findOwnerElem(owner) {
 	}
 }
 function nameCheck(input) {
-	// TODO: DRY this after rewriting #addSubaccount handler in core.js
+	// TODO: DRY this after rewriting #addSubaccount handler in core.module.js
 	var name = input.toLowerCase();
 	for (let owner in subaccounts) {
 		if (owner.toLowerCase() == name) {

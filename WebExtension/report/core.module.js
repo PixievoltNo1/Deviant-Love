@@ -15,7 +15,9 @@
 	You should have received a copy of the GNU General Public License
 	along with Deviant Love.  If not, see <http://www.gnu.org/licenses/>.
 */
-"use strict";
+import Store from "svelte/store";
+import { adapter } from "./environment.module.js";
+export { beginPreparations, tipOfTheMoment };
 
 var templateContents = {};
 for (let elem of Array.from( document.getElementsByTagName("template") )) {
