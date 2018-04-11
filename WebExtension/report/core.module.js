@@ -15,10 +15,14 @@
 	You should have received a copy of the GNU General Public License
 	along with Deviant Love.  If not, see <http://www.gnu.org/licenses/>.
 */
-import Store from "svelte/store";
+import { Store } from "svelte/store";
 import { adapter } from "./environment.module.js";
 export { beginPreparations, tipOfTheMoment };
+import PreparationScreen from "./svelte/PreparationScreen.html";
 
+var store = new Store({
+	l10n: adapter.getL10nMsg,
+});
 var templateContents = {};
 for (let elem of Array.from( document.getElementsByTagName("template") )) {
 	fillL10n(elem.content);
@@ -42,22 +46,17 @@ function beginPreparations(love) {
 	var scannerController;
 	var firstDeviant;
 
-	$("body").css("cursor", "wait");
-	$(templateContents.preparationScreenTemplate).clone().appendTo(document.body);
-	var scanMessage = ({
-		featured: "scanningFeatured",
-		allFaves: "scanningAll",
-		collection: "scanningCollection",
-		search: "scanningSearch"
-	})[love.pageType];
-	$("#scanMessage").l10n(scanMessage);
-	if (!love.maxDeviations) {
-		$("#scanProgressBar").removeAttr("value");
-		$("#scanPercentageText").hide();
-	}
+	var screen = new PreparationScreen({
+		target: document.body,
+		store,
+		data: {
+			pageType: love.pageType,
+			maxDeviations: love.maxDeviations,
+		}
+	});
 	window.startScan = function() {
 		scannerController = researchLove(love.feedHref, love.maxDeviations);
-		scannerController.progress.add(setProgress);
+		scannerController.progress.add((data) => { screen.set(data); });
 		var faves = scannerController.faves.catch( function catcher(thrown) {
 			scanError();
 			return thrown.retryResult.catch(catcher);
@@ -85,31 +84,20 @@ function beginPreparations(love) {
 
 		return {deviantMap, totalDeviations};
 	}
-	function setProgress(data) {
-		$("#scannedDeviations").l10n("scannedDeviations", data.found);
-		if (data.percent) {
-			$("#scanProgressBar").attr("value", data.percent);
-			$("#scanPercentageText").text( Math.floor(data.percent * 100) + "%" );
-		}
-	}
 	function scanError() {
 		scannerController.pause();
-		$("body").css("cursor", "");
-		$("#scanStatus").prop("hidden", true);
-		$("#scanFailed").prop("hidden", false);
+		screen.set({errored: true, stopped: true});
 	}
-	$("#retryButton").bind("click", function() {
-		$("#scanFailed").prop("hidden", true);
-		$("#scanStatus").prop("hidden", false);
-		$("body").css("cursor", "wait");
+	screen.on("retry", () => {
+		screen.set({errored: false, stopped: false});
 		scannerController.resume();
 		scannerController.retry();
-	} );
+	});
 	window.showDeviant = function(deviantName) {
 		firstDeviant = deviantName;
 	}
 	function collectWatchlist(list) {
-		$("#watchStatus").l10n("watchSuccess");
+		screen.set({watchStatus: "watchSuccess"});
 		return list;
 	}
 	function watchError(thrown) {
@@ -117,8 +105,8 @@ function beginPreparations(love) {
 			scanError();
 			return thrown.retryResult.then(collectWatchlist, watchError);
 		}
-		$("#watchStatus").l10n( (thrown.reason == "notLoggedIn") ?
-			"watchErrorNotLoggedIn" : "watchErrorInternal" );
+		screen.set( {watchStatus: (thrown.reason == "notLoggedIn") ?
+			"watchErrorNotLoggedIn" : "watchErrorInternal"} );
 		return {error: thrown.reason};
 	}
 	function finish([organizedFaves, watched, prefs, firstTip]) {
@@ -128,7 +116,7 @@ function beginPreparations(love) {
 			watchedArtists: watched
 		};
 		adapter.prepComplete(results);
-		$("#preparationScreen").remove();
+		screen.destroy();
 		var ui = {firstTip, firstDeviant};
 		report(results, prefs, ui, love);
 	}
@@ -475,9 +463,6 @@ function report(results, prefs, ui, love) {
 	if (ui.firstDeviant) {
 		showDeviant(ui.firstDeviant, true);
 	}
-
-	// All done, now go play!
-	$("body").css("cursor", "");
 
 	function snackOnMyWrath(finkRats) {
 		// "You have energy like a little angry battery with no friends."
