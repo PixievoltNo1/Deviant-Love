@@ -492,9 +492,9 @@ function report(results, ui, love) {
 		} else {
 			$.ajax(deviant.baseURL, {responseType: "text"}).then( function(profileHTML) {
 				var profileDoc = (new DOMParser()).parseFromString(profileHTML, "text/html");
-				var avatarElem = profileDoc.find("link[rel='image_src']");
-				if (avatarElem.length == 0) { throw false; }
-				deviant.avatar = avatarElem.attr("href");
+				var avatarElem = profileDoc.querySelector("link[rel='image_src']");
+				if (avatarElem == null) { throw false; }
+				deviant.avatar = avatarElem.getAttribute("href");
 				deviantAvatar.attr("src", deviant.avatar);
 			} ).fail( function() {
 				deviantAvatar.parent().removeClass("loading");
