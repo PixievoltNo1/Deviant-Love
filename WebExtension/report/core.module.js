@@ -16,13 +16,16 @@
 	along with Deviant Love.  If not, see <http://www.gnu.org/licenses/>.
 */
 import { Store } from "svelte/store";
+import storePersist from "../storePersist.module.js";
 import { adapter } from "./environment.module.js";
 export { beginPreparations, tipOfTheMoment };
 import PreparationScreen from "./svelte/PreparationScreen.html";
+import MiniSubaccountsEditor from "./svelte/MiniSubaccountsEditor.html";
 
 var store = new Store({
 	l10n: adapter.getL10nMsg,
 });
+var prefsLoaded = storePersist(store);
 var templateContents = {};
 for (let elem of Array.from( document.getElementsByTagName("template") )) {
 	fillL10n(elem.content);
@@ -63,7 +66,7 @@ function beginPreparations(love) {
 		} );
 		var organized = faves.then(organizeData);
 		var watched = scannerController.watched.then(collectWatchlist, watchError);
-		Promise.all([organized, watched, getAllUserPrefs(), nextTip()]).then(finish);
+		Promise.all([organized, watched, nextTip(), prefsLoaded]).then(finish);
 		return scannerController;
 	}
 	function organizeData(faves) {
@@ -109,7 +112,7 @@ function beginPreparations(love) {
 			"watchErrorNotLoggedIn" : "watchErrorInternal"} );
 		return {error: thrown.reason};
 	}
-	function finish([organizedFaves, watched, prefs, firstTip]) {
+	function finish([organizedFaves, watched, firstTip]) {
 		let results = {
 			deviants: new DeviantCollection(organizedFaves.deviantMap, Deviant),
 			totalDeviations: organizedFaves.totalDeviations,
@@ -118,7 +121,7 @@ function beginPreparations(love) {
 		adapter.prepComplete(results);
 		screen.destroy();
 		var ui = {firstTip, firstDeviant};
-		report(results, prefs, ui, love);
+		report(results, ui, love);
 	}
 }
 function restore(scanData, love) {
@@ -127,14 +130,14 @@ function restore(scanData, love) {
 		firstDeviant = deviantName;
 	};
 	scanData.deviants = new DeviantCollection(scanData.deviants);
-	Promise.all([getAllUserPrefs(), nextTip()]).then(function([prefs, tip]) {
+	Promise.all([nextTip(), prefsLoaded]).then(function([tip]) {
 		var ui = {firstTip: tip, firstDeviant: firstDeviant};
-		report(scanData, prefs, ui, love);
+		report(scanData, ui, love);
 	});
 }
-function report(results, prefs, ui, love) {
+function report(results, ui, love) {
 	var {deviants, totalDeviations, watchedArtists} = results;
-	deviants.setSubaccounts(prefs.subaccounts);
+	deviants.setSubaccounts(store.get("subaccounts"));
 
 	// Construct the UI
 	var mainScreen = $("<div>", {id: "mainScreen"});
@@ -268,31 +271,32 @@ function report(results, prefs, ui, love) {
 		}
 	});
 	$("#noFind").bind("click", normalMode);
-	var editingSubaccountsOf;
+	var editingSubaccountsOf, miniSubaccountsEditor;
 	$("#lovedArtists").delegate(".subaccountsButton", "click", function(event) {
 		var deviant = $(this).closest(".deviant");
 		var button = deviant.find(".subaccountsButton.line");
 		if (!button.hasClass("editing")) {
-			$(".closeSubaccountsEditor").trigger("click");
 			button.addClass("editing");
 			editingSubaccountsOf = deviant.find(".deviantName").text();
-			var editor = $(templateContents.subaccountsEditor).children().clone();
-			editor.find(".subaccountsListHeader").l10n("subaccountsList", editingSubaccountsOf);
-			if (editingSubaccountsOf in deviants.subaccounts) {
-				editor.addClass("has").find(".subaccountsListContents").append(
-					deviants.subaccounts[editingSubaccountsOf].map(buildSubaccountLine)
-				);
+			if (miniSubaccountsEditor) {
+				miniSubaccountsEditor.set({owner: editingSubaccountsOf});
+			} else {
+				var insertMe = document.createDocumentFragment();
+				miniSubaccountsEditor = new MiniSubaccountsEditor({
+					target: insertMe,
+					data: {owner: editingSubaccountsOf},
+					store
+				});
+				$("#lovedArtists").after(insertMe);
 			}
-			editor.find(".inputToThisText").l10n("subaccountsAddInputToCurrent", editingSubaccountsOf);
-			editor.find(".thisToInputText").l10n("subaccountsAddCurrentToInput", editingSubaccountsOf);
-			editor.insertAfter("#lovedArtists");
 		} else {
 			$(".closeSubaccountsEditor").trigger("click");
 		}
 	} );
 	mainScreen.delegate(".closeSubaccountsEditor", "click", function() {
 		$(".subaccountsButton.editing").removeClass("editing");
-		$(".subaccountsEditor").remove();
+		miniSubaccountsEditor.destroy();
+		miniSubaccountsEditor = null;
 	} ).delegate(".addSubaccount", "submit", function(event) {
 		event.preventDefault();
 		var input = $(".relatedAccount").val();
@@ -358,8 +362,6 @@ function report(results, prefs, ui, love) {
 			}
 			if ($("input[value='inputToThis']").prop("checked")) {
 				var getting = editingSubaccountsOf, gotten = related;
-				$(".subaccountsListContents").append( buildSubaccountLine( related ) );
-				$(".subaccountsEditor").addClass("has");
 			} else {
 				var gotten = editingSubaccountsOf, getting = related;
 			}
@@ -367,25 +369,19 @@ function report(results, prefs, ui, love) {
 				deviantsMod(function() {
 					var gettingObj = deviants.effectiveMap.get(getting), gottenObj = deviants.effectiveMap.get(gotten);
 					deviants.mergeDeviations(gettingObj, [gottenObj]);
-					if (gotten in deviants.subaccounts) {
-						for (var subaccount of deviants.subaccounts[gotten]) {
-							if ($("input[value='inputToThis']").prop("checked")) {
-								$(".subaccountsListContents").append( buildSubaccountLine( subaccount ) );
-							}
-						}
-					}
 					if (deviants.baseMap.has(gotten)) {
 						deviants.subaccountOwners.set(gottenObj, gettingObj);
 					}
 					deviants.effectiveMap.delete(gotten);
 					editingSubaccountsOf = getting;
+					// miniSubaccountsEditor gets updated by the .trigger("click") below
 				});
 			}
 			deviants.subaccounts[getting] = (deviants.subaccounts[getting] || [])
 				.concat(gotten, (deviants.subaccounts[gotten] || []));
 			delete deviants.subaccounts[gotten];
 			$("#deviant_" + getting).find(".subaccountsButton.line").addClass("has");
-			adapter.store("subaccounts", deviants.subaccounts);
+			store.set({subaccounts: deviants.subaccounts});
 			if ($("input[value='thisToInput']").prop("checked")) {
 				$("#deviant_" + getting).find(".subaccountsButton.line")
 					.removeClass("editing").trigger("click");
@@ -403,10 +399,8 @@ function report(results, prefs, ui, love) {
 		var removedName = $(this).siblings(".subaccountName").text();
 		deviants.subaccounts[editingSubaccountsOf].splice(
 			deviants.subaccounts[editingSubaccountsOf].indexOf(removedName), 1);
-		$(this).parent().remove();
 		if (deviants.subaccounts[editingSubaccountsOf].length == 0) {
 			delete deviants.subaccounts[editingSubaccountsOf];
-			$(".subaccountsEditor").removeClass("has");
 		}
 		if (deviants.baseMap.has(removedName)) {
 			deviantsMod(function() {
@@ -425,7 +419,7 @@ function report(results, prefs, ui, love) {
 					.removeClass("editing").trigger("click");
 			}
 		}
-		adapter.store("subaccounts", deviants.subaccounts);
+		store.set({subaccounts: deviants.subaccounts});
 	} );
 	// Helper functions for subaccount event handlers
 	function removeDeviations(account, removeMe) {
@@ -524,19 +518,6 @@ function report(results, prefs, ui, love) {
 
 		return closerLook;
 	}
-	function buildSubaccountLine(accountName) {
-		var line = $("<div>", {"class": "subaccount"});
-
-		var baseURL = "http://" + accountName.toLowerCase() + ".deviantart.com/";
-		line.append($("<a>", {"href": baseURL, "class": "profileLink"})
-			.l10nTooltip("profile"));
-		line.append($("<a>", {"href": baseURL + "gallery/", "class": "galleryLink"})
-			.l10nTooltip("gallery"));
-		line.append($("<span>", {"class": "subaccountName"}).text(accountName));
-		line.append($("<button>", {"class": "removeSubaccount"}).l10n("subaccountsRemove"));
-
-		return line;
-	}
 	function normalMode() {
 		$("#mainScreen").removeClass("lookWhatIFound");
 		$("#lovedArtists").removeClass("noResults").empty()
@@ -544,12 +525,6 @@ function report(results, prefs, ui, love) {
 	}
 }
 
-function getAllUserPrefs() {
-	return adapter.retrieve("subaccounts").then( function(data) {
-		data.subaccounts = data.subaccounts || {};
-		return data;
-	} );
-}
 function nextTip() {
 	return Promise.all(
 		[adapter.retrieve("nextTip"), $.getJSON( adapter.getL10nFile("TipOfTheMoment.json") )]
