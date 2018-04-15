@@ -29,7 +29,7 @@ function processMutations(records) {
 	}
 }
 function getArtistFromThumb(thumb) {
-	return thumb.querySelector("a.username").textContent;
+	return thumb.querySelector(".info .username").textContent;
 }
 chrome.runtime.onMessage.addListener(({action}, buddy, callback) => {
 	if (action == "getArtistNames") { callback([...artistNames]); }
