@@ -1,0 +1,25 @@
+<div class="deviant" id="deviant_{{deviant.name}}">
+	<div class="deviantLine">
+		{{#if watchedArtists && watchedArtists.has(deviant.name)}}
+			<div class="deviationWatch true" title="{{$l10nCache.watchingThisArtist}}">&nbsp;</div>
+		{{else}}
+			<div class="deviationWatch">&nbsp;</div>
+		{{/if}}
+		<span class="deviantFaves">{{deviant.deviations.length}}</span>
+		<span class="deviantName">{{deviant.name}}</span>
+		<div class="subaccountsButton line {{deviant.name in $subaccounts ? 'has' : ''}}
+			{{editingSubaccounts ? 'editing' : ''}}" title="{{$l10nCache.subaccountsOpen}}">&nbsp;</div>
+	</div>
+</div>
+<script>
+import { cacheMessages } from "../l10nCache.js";
+cacheMessages("watchingThisArtist", "subaccountsOpen");
+export default {
+	oncreate() {
+		this.get("registry").set(this.get("deviant").name, this);
+	},
+	ondestroy() {
+		this.get("registry").delete(this.get("deviant").name);
+	},
+};
+</script>

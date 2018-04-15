@@ -1,0 +1,26 @@
+{{#each deviants as deviant @name}}
+	<DeviantEntry :deviant :registry :watchedArtists/>
+{{/each}}
+<script>
+import DeviantEntry from "./DeviantEntry.html";
+export default {
+	components: { DeviantEntry },
+	data: () => {
+		return {
+			registry: new Map(),
+		};
+	},
+	oncreate() {
+		var observer = this.store.observe("editingSubaccountsOf", (newVal, oldVal) => {
+			var registry = this.get("registry");
+			if (oldVal) {
+				registry.get(oldVal).set({editingSubaccounts: false});
+			}
+			if (newVal) {
+				registry.get(newVal).set({editingSubaccounts: true});
+			}
+		});
+		this.on("destroy", () => { observer.cancel(); });
+	},
+};
+</script>

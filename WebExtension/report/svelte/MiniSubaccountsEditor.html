@@ -2,7 +2,9 @@
 	<div class="closeSubaccountsEditor" title="{{$l10n('subaccountsClose')}}"></div>
 	{{#if owned}}
 		<div class="subaccountsList">
-			<div class="subaccountsListHeader sectionHeader">{{$l10n("subaccountsList", [owner])}}</div>
+			<div class="subaccountsListHeader sectionHeader">
+				{{$l10n("subaccountsList", [$editingSubaccountsOf])}}
+			</div>
 			<div class="subaccountsListContents">
 				{{#each owned as subaccount}}
 					<div class="subaccount">
@@ -23,11 +25,11 @@
 		<div class="sectionHeader">{{$l10n("subaccountsAdd")}}</div>
 		<label>
 			<input type="radio" name="addDirection" value="inputToThis" checked>
-			{{$l10n("subaccountsAddInputToCurrent", [owner])}}
+			{{$l10n("subaccountsAddInputToCurrent", [$editingSubaccountsOf])}}
 		</label>
 		<label>
 			<input type="radio" name="addDirection" value="thisToInput">
-			{{$l10n("subaccountsAddCurrentToInput", [owner])}}
+			{{$l10n("subaccountsAddCurrentToInput", [$editingSubaccountsOf])}}
 		</label>
 		<div class="textEntryLine">
 			<input type="text" class="relatedAccount" placeholder="{{$l10n('subaccountsAddNamePlaceholder')}}">
@@ -39,8 +41,8 @@
 <script>
 export default {
 	computed: {
-		owned: (owner, $subaccounts) => {
-			return $subaccounts[owner];
+		owned: ($editingSubaccountsOf, $subaccounts) => {
+			return $subaccounts[$editingSubaccountsOf];
 		},
 	},
 };
