@@ -13,7 +13,7 @@ export default {
 	oncreate() {
 		var observer = this.store.observe("editingSubaccountsOf", (newVal, oldVal) => {
 			var registry = this.get("registry");
-			if (oldVal) {
+			if (oldVal && registry.has(oldVal)) {
 				registry.get(oldVal).set({editingSubaccounts: false});
 			}
 			if (newVal) {

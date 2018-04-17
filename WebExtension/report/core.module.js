@@ -379,12 +379,13 @@ function report(results, ui, love) {
 						deviants.subaccountOwners.set(gottenObj, gettingObj);
 					}
 					deviants.effectiveMap.delete(gotten);
+					store.set({editingSubaccountsOf: getting});
 				});
 			}
 			deviants.subaccounts[getting] = (deviants.subaccounts[getting] || [])
 				.concat(gotten, (deviants.subaccounts[gotten] || []));
 			delete deviants.subaccounts[gotten];
-			store.set({subaccounts: deviants.subaccounts, editingSubaccountsOf: getting});
+			store.set({subaccounts: deviants.subaccounts});
 			$(".relatedAccount").val("");
 			if (warning) {
 				$(".addNotice").l10n("subaccountsWarning" + warning, warningPart).show();
@@ -424,9 +425,8 @@ function report(results, ui, love) {
 		});
 	}
 	function deviantsMod(mod) {
-		var editingSubaccountsOf = store.get("editingSubaccountsOf");
-		// mod() may change the value of $("#deviant_" + editingSubaccountsOf), so don't save it
-		var keepOpen = $("#deviant_" + editingSubaccountsOf).hasClass("opened");
+		// mod() may change the value of $("#deviant_" + store.get("editingSubaccountsOf")), so don't save it
+		var keepOpen = $("#deviant_" + store.get("editingSubaccountsOf")).hasClass("opened");
 		mod();
 		deviants.buildList();
 		$("#artistCount").l10nHtml("scanResultsLastLine",
@@ -437,9 +437,11 @@ function report(results, ui, love) {
 			deviantsComponent.set({deviants: deviants.list});
 		}
 		if (keepOpen) {
-			$("#deviant_" + editingSubaccountsOf).trigger("click", true);
+			$("#deviant_" + store.get("editingSubaccountsOf"))
+				.removeClass("opened").find(".closerLook").remove();
+			$("#deviant_" + store.get("editingSubaccountsOf")).trigger("click", true);
 		}
-		$("#deviant_" + editingSubaccountsOf)[0].scrollIntoView();
+		$("#deviant_" + store.get("editingSubaccountsOf"))[0].scrollIntoView();
 	}
 
 	// Handle requests for a particular deviant that were made elsewhere (e.g. context menu)
