@@ -8,7 +8,8 @@
 		<span class="deviantFaves">{{deviant.deviations.length}}</span>
 		<span class="deviantName">{{deviant.name}}</span>
 		<div class="subaccountsButton line {{deviant.name in $subaccounts ? 'has' : ''}}
-			{{editingSubaccounts ? 'editing' : ''}}" title="{{$l10nCache.subaccountsOpen}}">&nbsp;</div>
+			{{$editingSubaccountsOf == deviant.name ? 'editing' : ''}}"
+			title="{{$l10nCache.subaccountsOpen}}">&nbsp;</div>
 	</div>
 </div>
 <script>

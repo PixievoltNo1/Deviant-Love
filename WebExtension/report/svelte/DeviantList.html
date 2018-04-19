@@ -10,17 +10,5 @@ export default {
 			registry: new Map(),
 		};
 	},
-	oncreate() {
-		var observer = this.store.observe("editingSubaccountsOf", (newVal, oldVal) => {
-			var registry = this.get("registry");
-			if (oldVal && registry.has(oldVal)) {
-				registry.get(oldVal).set({editingSubaccounts: false});
-			}
-			if (newVal) {
-				registry.get(newVal).set({editingSubaccounts: true});
-			}
-		});
-		this.on("destroy", () => { observer.cancel(); });
-	},
 };
 </script>
