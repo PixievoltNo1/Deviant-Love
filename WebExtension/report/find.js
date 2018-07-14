@@ -1,7 +1,7 @@
 /*
 	This file is part of Deviant Love.
 	Copyright Pikadude No. 1
-	Check core.js for the complete legal stuff.
+	Check core.module.js for the complete legal stuff.
 */
 function findStuff(queryText, deviants) {
 	if (queryTroubleCheck(queryText) != false) { return };

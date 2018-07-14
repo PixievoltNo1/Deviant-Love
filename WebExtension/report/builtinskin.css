@@ -274,9 +274,6 @@ a img {
 .subaccountsEditor > .sectionHeader {
 	padding-right: 1.25em;
 }
-.subaccountsEditor:not(.has) .subaccountsList {
-	display: none;
-}
 .subaccount {
     position: relative;
     padding: 1px 3px;

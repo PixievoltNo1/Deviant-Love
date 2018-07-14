@@ -1,7 +1,7 @@
 /*
 	This file is part of Deviant Love.
 	Copyright Pikadude No. 1
-	Check core.js for the complete legal stuff.
+	Check core.module.js for the complete legal stuff.
 */
 "use strict";
 // Some WebExtension features are not easily feature-detected. Anything that must be gated by browser & version will be dealt with here.

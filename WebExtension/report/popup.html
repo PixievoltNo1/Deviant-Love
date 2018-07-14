@@ -1,10 +1,11 @@
 <!--
 	This file is part of Deviant Love.
 	Copyright Pikadude No. 1
-	Check core.js for the complete legal stuff.
+	Check core.module.js for the complete legal stuff.
 -->
 <!doctype html>
 <html>
+<meta charset="utf-8">
 <link rel="stylesheet" href="builtinskin.css" type="text/css">
 <style type="text/css">
 /* Fix text appearing too small in Chrome 38 due to mystery user stylesheet */
@@ -18,20 +19,9 @@ body { font-size: 100%; }
 <script src="/apiAdapter.js" defer></script>
 <script src="/htmlLocalizer.js" defer></script>
 <script src="find.js" defer></script>
-<script src="core.js" defer></script>
-<script src="popup.js" defer></script>
+<script src="/build/core.js" defer></script>
 <body>
 
-<template id="deviant">
-	<div class="deviant">
-		<div class="deviantLine">
-			<div class="deviationWatch">&nbsp;</div>
-			<span class="deviantFaves"></span>
-			<span class="deviantName"></span>
-			<div class="subaccountsButton line" data-l10n="subaccountsOpen" data-l10n-attr="title">&nbsp;</div>
-		</div>
-	</div>
-</template>
 <template id="closerLook">
 	<div class="closerLook" style="overflow: hidden;">
 		<div class="deviantDetails">
@@ -43,48 +33,6 @@ body { font-size: 100%; }
 			</div>
 		</div>
 		<div class="deviationList"></div>
-	</div>
-</template>
-<template id="subaccountsEditor">
-	<div class="subaccountsEditor">
-		<div class="closeSubaccountsEditor" data-l10n="subaccountsClose" data-l10n-attr="title"></div>
-		<div class="subaccountsList">
-			<div class="subaccountsListHeader sectionHeader"></div>
-			<div class="subaccountsListContents"></div>
-		</div>
-		<form class="addSubaccount">
-			<div class="sectionHeader" data-l10n="subaccountsAdd"></div>
-			<label>
-				<input type="radio" name="addDirection" value="inputToThis" checked><span class="inputToThisText"></span>
-			</label>
-			<label>
-				<input type="radio" name="addDirection" value="thisToInput"><span class="thisToInputText"></span>
-			</label>
-			<div class="textEntryLine">
-				<input type="text" class="relatedAccount" data-l10n="subaccountsAddNamePlaceholder" data-l10n-attr="placeholder">
-				<button type="submit" class="confirmAdd" data-l10n="subaccountsAddConfirm"></button>
-			</div>
-			<div class="addNotice"></div>
-		</form>
-	</div>
-</template>
-<template id="preparationScreenTemplate">
-	<div id="preparationScreen">
-		<div id="scanMessage"></div>
-		<div id="scanStatus">
-			<div id="scanProgress">
-				<div id="scanPercentage">
-					<progress id="scanProgressBar" max="1" value="0"></progress>
-					<div id="scanPercentageText">0%</div>
-				</div>
-				<div id="scannedDeviations"></div>
-				<div id="watchStatus"></div>
-			</div>
-		</div>
-		<div id="scanFailed" hidden>
-			<div id="scanError" data-l10n="scanError"></div>
-			<button id="retryButton" type="button" data-l10n="scanErrorRetry"></button>
-		</div>
 	</div>
 </template>
 

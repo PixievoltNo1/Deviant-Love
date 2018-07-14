@@ -1,7 +1,7 @@
 /*
 	This file is part of Deviant Love.
 	Copyright Pikadude No. 1
-	Check core.js for the complete legal stuff.
+	Check core.module.js for the complete legal stuff.
 */
 "use strict";
 
@@ -29,7 +29,7 @@ function processMutations(records) {
 	}
 }
 function getArtistFromThumb(thumb) {
-	return thumb.querySelector("a.username").textContent;
+	return thumb.querySelector(".info .username").textContent;
 }
 chrome.runtime.onMessage.addListener(({action}, buddy, callback) => {
 	if (action == "getArtistNames") { callback([...artistNames]); }

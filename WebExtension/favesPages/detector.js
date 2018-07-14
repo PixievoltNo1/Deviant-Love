@@ -1,7 +1,7 @@
 /*
 	This file is part of Deviant Love.
 	Copyright Pikadude No. 1
-	Check core.js for the complete legal stuff.
+	Check core.module.js for the complete legal stuff.
 */
 "use strict";
 if (!(window.chrome && chrome.runtime)) { window.chrome = browser; }
@@ -12,7 +12,7 @@ function findLove(win = window) {
 	var love = {};
 
 	love.feedHref = document.querySelector('link[rel="alternate"][type="application/rss+xml"]').href;
-	if (location.pathname == "/favourites/" && location.search == "") {
+	if (location.pathname.endsWith("/favourites/") && location.search == "") {
 		love.pageType = "featured";
 	} else if (location.search == "?catpath=/") {
 		love.pageType = "allFaves";

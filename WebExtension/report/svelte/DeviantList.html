@@ -1,0 +1,14 @@
+{#each deviants as deviant (deviant.name)}
+	<DeviantEntry {deviant} {registry} {watchedArtists}/>
+{/each}
+<script>
+import DeviantEntry from "./DeviantEntry.html";
+export default {
+	components: { DeviantEntry },
+	data: () => {
+		return {
+			registry: new Map(),
+		};
+	},
+};
+</script>

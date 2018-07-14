@@ -1,7 +1,7 @@
 /*
 	This file is part of Deviant Love.
 	Copyright Pikadude No. 1
-	Check core.js for the complete legal stuff.
+	Check core.module.js for the complete legal stuff.
 */
 "use strict";
 
@@ -55,7 +55,8 @@ function activate(firstDeviant) {
 				chrome.runtime.onMessage.removeListener(panelReady);
 			}
 		} );
-		panel.src = chrome.runtime.getURL("report/popup.html" + (firstDeviant ? "#" + firstDeviant : ""));
+		panel.contentWindow.location.replace(
+			chrome.runtime.getURL("report/popup.html" + (firstDeviant ? "#" + firstDeviant : "")) );
 	} else if (panelStage == "scanning") {
 		chrome.runtime.sendMessage({action: "echo", echoAction: "resumeScan"});
 		// http://timtaubert.de/blog/2012/09/css-transitions-for-dynamically-created-dom-elements/

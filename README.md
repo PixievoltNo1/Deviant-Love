@@ -1,6 +1,22 @@
 Deviant Love is a browser extension that takes the DeviantArt faves page you've visited and sorts the art in it by artist. For more about using or installing Deviant Love, see [its page on DeviantArt](http://fav.me/d2my13o).
 
-To try the in-development code in this repo, you'll need to load the WebExtension folder. Follow the instructions for your browser:
+This project has a Code of Conduct. By participating in this project, you agree to be as courteous, welcoming, and generally a lovely person as its terms require. ♡
+
+# First-time / Post-package.json-update setup
+
+After you obtain this repo's files for the first time, or whenever I update package.json, you'll need to run `npm install` in the repo's folder. You can get npm by installing [Node.js](https://nodejs.org/).
+
+# Building the extension's files
+
+After setup, if you just want to build the files needed to try Deviant Love, run `npm run build`.
+
+If you want to help develop Deviant Love, start `npm run watch` - it'll watch the [ES6 modules](https://hacks.mozilla.org/2015/08/es6-in-depth-modules/) (\*.module.js) and [Svelte](https://svelte.technology/) templates (svelte/\*.html) that this project uses, and rebuild the appropriate files when they change.
+
+If you'd like to tinker with the build process itself, check with [Webpack](https://webpack.js.org/) for the docs on webpack.config.js.
+
+# Testing the built extension
+
+With all the built files ready, use the WebExtension folder with the instructions for your browser:
 
 * Firefox: https://developer.mozilla.org/en-US/Add-ons/WebExtensions/Temporary_Installation_in_Firefox
 * Chrome: https://developer.chrome.com/extensions/getstarted#unpacked
@@ -8,4 +24,4 @@ To try the in-development code in this repo, you'll need to load the WebExtensio
 
 Your browser may complain about parts of manifest.json it doesn't recognize. This won't cause problems.
 
-If you have any questions, feel free to either send me a dA Note or leave a comment on [the deviation page](http://fav.me/d2my13o), whichever you feel is more appropriate.
+If you'd like to contact me, feel free to either [send me a DA Note](http://www.deviantart.com/messages/notes/#to=pikadudeno1) or leave a comment on [the Group page](https://deviantlovesoftware.deviantart.com/).

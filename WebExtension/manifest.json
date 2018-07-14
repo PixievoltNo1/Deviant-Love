@@ -3,6 +3,7 @@
 	"version": "2.5",
 	"description": "__MSG_extDesc__",
 	"author": "Pikadude No. 1",
+	"homepage_url": "https://deviantlovesoftware.deviantart.com/",
 	"icons": {
 		"16": "images/heart/16.png",
 		"48": "images/heart/48.png",
@@ -25,7 +26,7 @@
 	},
 	"options_page": "options/options.html",
 	"content_scripts": [{
-		"matches": ["*://*.deviantart.com/favourites/*"],
+		"matches": ["*://www.deviantart.com/*/favourites/*"],
 		"js": ["favesPages/detector.js", "favesPages/panelManager.js", "favesPages/artistNames.js"],
 		"css": ["favesPages/favesPages.css"],
 		"run_at": "document_end"
