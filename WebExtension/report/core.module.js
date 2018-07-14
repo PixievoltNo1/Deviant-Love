@@ -141,7 +141,7 @@ function restore(scanData, love) {
 }
 function report(results, ui, love) {
 	var {deviants, totalDeviations, watchedArtists, watchError} = results;
-	deviants.setSubaccounts(store.get("subaccounts"));
+	deviants.setSubaccounts(store.get().subaccounts);
 	var deviantsComponent;
 
 	// Construct the UI
@@ -367,9 +367,9 @@ function report(results, ui, love) {
 				related = related.related;
 			}
 			if ($("input[value='inputToThis']").prop("checked")) {
-				var getting = store.get("editingSubaccountsOf"), gotten = related;
+				var getting = store.get().editingSubaccountsOf, gotten = related;
 			} else {
-				var gotten = store.get("editingSubaccountsOf"), getting = related;
+				var gotten = store.get().editingSubaccountsOf, getting = related;
 			}
 			if (deviants.effectiveMap.has(gotten)) {
 				deviantsMod(function() {
@@ -397,7 +397,7 @@ function report(results, ui, love) {
 		} );
 	} ).delegate(".removeSubaccount", "click", function() {
 		var removedName = $(this).siblings(".subaccountName").text();
-		var oldOwner = store.get("editingSubaccountsOf");
+		var oldOwner = store.get().editingSubaccountsOf;
 		deviants.subaccounts[oldOwner].splice(
 			deviants.subaccounts[oldOwner].indexOf(removedName), 1);
 		if (deviants.subaccounts[oldOwner].length == 0) {
@@ -425,8 +425,8 @@ function report(results, ui, love) {
 		});
 	}
 	function deviantsMod(mod) {
-		// mod() may change the value of $("#deviant_" + store.get("editingSubaccountsOf")), so don't save it
-		var keepOpen = $("#deviant_" + store.get("editingSubaccountsOf")).hasClass("opened");
+		// mod() may change the value of $("#deviant_" + store.get().editingSubaccountsOf), so don't save it
+		var keepOpen = $("#deviant_" + store.get().editingSubaccountsOf).hasClass("opened");
 		mod();
 		deviants.buildList();
 		$("#artistCount").l10nHtml("scanResultsLastLine",
@@ -437,11 +437,11 @@ function report(results, ui, love) {
 			deviantsComponent.set({deviants: deviants.list});
 		}
 		if (keepOpen) {
-			$("#deviant_" + store.get("editingSubaccountsOf"))
+			$("#deviant_" + store.get().editingSubaccountsOf)
 				.removeClass("opened").find(".closerLook").remove();
-			$("#deviant_" + store.get("editingSubaccountsOf")).trigger("click", true);
+			$("#deviant_" + store.get().editingSubaccountsOf).trigger("click", true);
 		}
-		$("#deviant_" + store.get("editingSubaccountsOf"))[0].scrollIntoView();
+		$("#deviant_" + store.get().editingSubaccountsOf)[0].scrollIntoView();
 	}
 
 	// Handle requests for a particular deviant that were made elsewhere (e.g. context menu)

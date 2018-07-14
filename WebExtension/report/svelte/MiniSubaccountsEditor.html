@@ -1,39 +1,39 @@
 <div class="subaccountsEditor">
-	<div class="closeSubaccountsEditor" title="{{$l10n('subaccountsClose')}}"></div>
-	{{#if owned}}
+	<div class="closeSubaccountsEditor" title="{$l10n('subaccountsClose')}"></div>
+	{#if owned}
 		<div class="subaccountsList">
 			<div class="subaccountsListHeader sectionHeader">
-				{{$l10n("subaccountsList", [$editingSubaccountsOf])}}
+				{$l10n("subaccountsList", [$editingSubaccountsOf])}
 			</div>
 			<div class="subaccountsListContents">
-				{{#each owned as subaccount}}
+				{#each owned as subaccount}
 					<div class="subaccount">
-						<a class="profileLink" title="{{$l10n('profile')}}"
-						   href="https://{{subaccount.toLowerCase()}}.deviantart.com/"></a>
-						<a class="galleryLink" title="{{$l10n('gallery')}}"
-						   href="https://{{subaccount.toLowerCase()}}.deviantart.com/gallery/"></a>
-						<span class="subaccountName">{{subaccount}}</span>
+						<a class="profileLink" title="{$l10n('profile')}"
+						   href="https://{subaccount.toLowerCase()}.deviantart.com/"></a>
+						<a class="galleryLink" title="{$l10n('gallery')}"
+						   href="https://{subaccount.toLowerCase()}.deviantart.com/gallery/"></a>
+						<span class="subaccountName">{subaccount}</span>
 						<button type="button" class="removeSubaccount">
-							{{$l10n("subaccountsRemove")}}
+							{$l10n("subaccountsRemove")}
 						</button>
 					</div>
-				{{/each}}
+				{/each}
 			</div>
 		</div>
-	{{/if}}
+	{/if}
 	<form class="addSubaccount">
-		<div class="sectionHeader">{{$l10n("subaccountsAdd")}}</div>
+		<div class="sectionHeader">{$l10n("subaccountsAdd")}</div>
 		<label>
 			<input type="radio" name="addDirection" value="inputToThis" checked>
-			{{$l10n("subaccountsAddInputToCurrent", [$editingSubaccountsOf])}}
+			{$l10n("subaccountsAddInputToCurrent", [$editingSubaccountsOf])}
 		</label>
 		<label>
 			<input type="radio" name="addDirection" value="thisToInput">
-			{{$l10n("subaccountsAddCurrentToInput", [$editingSubaccountsOf])}}
+			{$l10n("subaccountsAddCurrentToInput", [$editingSubaccountsOf])}
 		</label>
 		<div class="textEntryLine">
-			<input type="text" class="relatedAccount" placeholder="{{$l10n('subaccountsAddNamePlaceholder')}}">
-			<button type="submit" class="confirmAdd">{{$l10n("subaccountsAddConfirm")}}</button>
+			<input type="text" class="relatedAccount" placeholder="{$l10n('subaccountsAddNamePlaceholder')}">
+			<button type="submit" class="confirmAdd">{$l10n("subaccountsAddConfirm")}</button>
 		</div>
 		<div class="addNotice" hidden></div>
 	</form>
@@ -41,7 +41,7 @@
 <script>
 export default {
 	computed: {
-		owned: ($editingSubaccountsOf, $subaccounts) => {
+		owned: ({$editingSubaccountsOf, $subaccounts}) => {
 			return $subaccounts[$editingSubaccountsOf];
 		},
 	},

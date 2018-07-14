@@ -1,26 +1,26 @@
-<div id="preparationScreen" style="{{stopped ? '' : 'cursor: wait;'}}">
-	<div id="scanMessage">{{$l10n(scanMessage)}}</div>
-	{{#if !errored}}
+<div id="preparationScreen" style="{stopped ? '' : 'cursor: wait;'}">
+	<div id="scanMessage">{$l10n(scanMessage)}</div>
+	{#if !errored}
 		<div id="scanStatus">
 			<div id="scanPercentage">
-				{{#if maxDeviations}}
-					<progress id="scanProgressBar" value="{{percent}}"></progress>
-					<div id="scanPercentageText">{{Math.floor(percent * 100)}}%</div>
-				{{else}}
+				{#if maxDeviations}
+					<progress id="scanProgressBar" value="{percent}"></progress>
+					<div id="scanPercentageText">{Math.floor(percent * 100)}%</div>
+				{:else}
 					<progress id="scanProgressBar"></progress>
-				{{/if}}
+				{/if}
 			</div>
-			<div id="scannedDeviations">{{$l10n("scannedDeviations", [found])}}</div>
-			<div id="watchStatus">{{watchStatus ? $l10n(watchStatus) : ""}}</div>
+			<div id="scannedDeviations">{$l10n("scannedDeviations", [found])}</div>
+			<div id="watchStatus">{watchStatus ? $l10n(watchStatus) : ""}</div>
 		</div>
-	{{else}}
+	{:else}
 		<div id="scanFailed">
-			<div id="scanError">{{$l10n("scanError")}}</div>
+			<div id="scanError">{$l10n("scanError")}</div>
 			<button id="retryButton" type="button" on:click="fire('retry')">
-				{{$l10n("scanErrorRetry")}}
+				{$l10n("scanErrorRetry")}
 			</button>
 		</div>
-	{{/if}}
+	{/if}
 </div>
 <script>
 export default {
@@ -29,7 +29,7 @@ export default {
 		found: 0,
 	}; },
 	computed: {
-		scanMessage: (pageType) => {
+		scanMessage: ({pageType}) => {
 			return ( {
 				featured: "scanningFeatured",
 				allFaves: "scanningAll",

@@ -1,6 +1,6 @@
-{{#each deviants as deviant @name}}
-	<DeviantEntry :deviant :registry :watchedArtists/>
-{{/each}}
+{#each deviants as deviant (deviant.name)}
+	<DeviantEntry {deviant} {registry} {watchedArtists}/>
+{/each}
 <script>
 import DeviantEntry from "./DeviantEntry.html";
 export default {
