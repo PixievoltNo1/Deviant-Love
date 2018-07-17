@@ -493,7 +493,7 @@ function report(results, ui, love) {
 	}
 }
 
-function nextTip() {
+export function nextTip() {
 	return Promise.all(
 		[adapter.retrieve("nextTip"), $.getJSON( adapter.getL10nFile("TipOfTheMoment.json") )]
 	).then(function(results) {
