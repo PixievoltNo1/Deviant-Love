@@ -1,5 +1,6 @@
 <div class="subaccountsEditor">
-	<div class="closeSubaccountsEditor" title="{$l10n('subaccountsClose')}"></div>
+	<div class="closeSubaccountsEditor" title="{$l10n('subaccountsClose')}"
+		on:click="$set({editingSubaccountsOf: false})"></div>
 	{#if owned}
 		<div class="subaccountsList">
 			<div class="subaccountsListHeader sectionHeader">

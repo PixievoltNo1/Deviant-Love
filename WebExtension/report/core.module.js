@@ -21,7 +21,7 @@ import { setUpStoreL10nCache } from "./l10nCache.module.js";
 import { adapter } from "./environment.module.js";
 export { beginPreparations, tipOfTheMoment };
 import PreparationScreen from "./svelte/PreparationScreen.html";
-import MiniSubaccountsEditor from "./svelte/MiniSubaccountsEditor.html";
+import MainScreen from "./svelte/MainScreen.html";
 import DeviantList from "./svelte/DeviantList.html";
 
 var store = new Store({
@@ -115,7 +115,7 @@ function beginPreparations(love) {
 			"watchErrorNotLoggedIn" : "watchErrorInternal"} );
 		return {watchError: thrown.reason};
 	}
-	function finish([organizedFaves, {watchedArtists = null, watchError = false}, firstTip]) {
+	function finish([organizedFaves, {watchedArtists = null, watchError = false}]) {
 		let results = {
 			deviants: new DeviantCollection(organizedFaves.deviantMap, Deviant),
 			totalDeviations: organizedFaves.totalDeviations,
@@ -124,7 +124,7 @@ function beginPreparations(love) {
 		};
 		adapter.prepComplete(results);
 		screen.destroy();
-		var ui = {firstTip, firstDeviant};
+		var ui = {firstDeviant};
 		report(results, ui, love);
 	}
 }
@@ -134,8 +134,8 @@ function restore(scanData, love) {
 		firstDeviant = deviantName;
 	};
 	scanData.deviants = new DeviantCollection(scanData.deviants);
-	Promise.all([nextTip(), prefsLoaded]).then(function([tip]) {
-		var ui = {firstTip: tip, firstDeviant: firstDeviant};
+	Promise.all([nextTip(), prefsLoaded]).then(function() {
+		var ui = {firstDeviant: firstDeviant};
 		report(scanData, ui, love);
 	});
 }
@@ -145,8 +145,12 @@ function report(results, ui, love) {
 	var deviantsComponent;
 
 	// Construct the UI
-	var mainScreen = $("<div>", {id: "mainScreen"});
-	mainScreen.appendTo(document.body);
+	var screen = new MainScreen({
+		target: document.body,
+		store,
+		data: {
+		}
+	});
 	var scanResults = $("<div>", {id: "scanResults"});
 	var scanResultsLine1 = ({
 		featured: "scanResultsFeaturedLine1",
@@ -158,14 +162,14 @@ function report(results, ui, love) {
 		'<span class="dynamic">' + Number(totalDeviations) + '</span>')); // The Number call is there to help out AMO reviewers; same for the other calls below
 	scanResults.append($("<div>", {id: "artistCount"}).l10nHtml("scanResultsLastLine",
 		'<span class="dynamic">' + Number(deviants.list.length) + '</span>'))
-		.appendTo(mainScreen);
+		.prependTo("#mainScreen");
 	$("<form>", {id: "findBar", "class": "textEntryLine"})
 		.append($("<input>", {type: "text", id: "query"}))
 		.append($("<button>", {type: "submit", id: "goFind"}))
 		.append($("<button>", {type: "button", id: "noFind"}))
-		.appendTo(mainScreen);
+		.insertAfter(scanResults);
 	$("#query").l10nPlaceholder("queryPlaceholder");
-	$("<div>", {id: "queryError"}).hide().appendTo(mainScreen);
+	$("<div>", {id: "queryError"}).hide().insertAfter("#findBar");
 	var normalModePrefix = $();
 	if (watchError) {
 		normalModePrefix = $("<div>", {id: "watchFailure", "class": "notice"})
@@ -173,14 +177,9 @@ function report(results, ui, love) {
 	}
 	var lovedArtists = $("<div>", {id: "lovedArtists"})
 		.css({"overflow-y": "auto", "overflow-x": "hidden"})
-		.appendTo(mainScreen);
+		.insertAfter("#queryError");
 	normalMode();
 	if (lovedArtists.css("position") == "static") { lovedArtists.css("position", "relative") } // Needed for scrollToDeviationList. It's as weird as it to ensure future compatibility with the skinning feature.
-	$("<div>", {id: "tipOfTheMoment"})
-		.append($("<img>", {id: "tOTMIcon"}))
-		.append($("<div>", {id: "tOTMText"}))
-		.appendTo(mainScreen);
-	tipOfTheMoment(ui.firstTip);
 
 	// Set up interaction
 	lovedArtists.delegate(".deviant", "touchstart", function() {
@@ -281,29 +280,15 @@ function report(results, ui, love) {
 		}
 	});
 	$("#noFind").bind("click", normalMode);
-	var miniSubaccountsEditor;
 	$("#lovedArtists").delegate(".subaccountsButton", "click", function(event) {
-		var deviant = $(this).closest(".deviant");
-		var button = deviant.find(".subaccountsButton.line");
-		if (!button.hasClass("editing")) {
-			store.set({editingSubaccountsOf: deviant.find(".deviantName").text()})
-			if (!miniSubaccountsEditor) {
-				var insertMe = document.createDocumentFragment();
-				miniSubaccountsEditor = new MiniSubaccountsEditor({
-					target: insertMe,
-					store
-				});
-				$("#lovedArtists").after(insertMe);
-			}
+		var deviantName = $(this).closest(".deviant").find(".deviantName").text();
+		if (deviantName != store.get().editingSubaccountsOf) {
+			store.set({editingSubaccountsOf: deviantName});
 		} else {
-			$(".closeSubaccountsEditor").trigger("click");
+			store.set({editingSubaccountsOf: false});
 		}
 	} );
-	mainScreen.delegate(".closeSubaccountsEditor", "click", function() {
-		miniSubaccountsEditor.destroy();
-		miniSubaccountsEditor = null;
-		store.set({editingSubaccountsOf: null});
-	} ).delegate(".addSubaccount", "submit", function(event) {
+	$("#mainScreen").delegate(".addSubaccount", "submit", function(event) {
 		event.preventDefault();
 		var input = $(".relatedAccount").val();
 		if (input == "") { return; }
@@ -510,16 +495,11 @@ function nextTip() {
 		[adapter.retrieve("nextTip"), $.getJSON( adapter.getL10nFile("TipOfTheMoment.json") )]
 	).then(function(results) {
 		var nextTip = results[0].nextTip || 0, tips = results[1];
-		var returnValue = tips[nextTip];
+		store.set({tip: tips[nextTip]});
 		nextTip++;
 		if (nextTip >= tips.length) {nextTip = 0;};
 		adapter.store("nextTip", nextTip);
-		return returnValue;
 	});
-}
-function tipOfTheMoment(tip) {
-	$("#tOTMIcon").attr("src", "/images/" + tip.icon);
-	$("#tOTMText").html(tip.html);
 }
 function makeL10nMethod(methodName, effect) {
 	$.fn[methodName] = function(msgName) {

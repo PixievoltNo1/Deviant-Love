@@ -29,10 +29,7 @@ chrome.runtime.onMessage.addListener(function(thing, buddy, callback) {switch (t
 		scannerController.resume();
 	break;
 	case "changeTip":
-		nextTip().then( function(tip) {
-			tipOfTheMoment(tip);
-			callback();
-		} );
+		nextTip().then(callback);
 		return true;
 	break;
 	case "artistRequested":

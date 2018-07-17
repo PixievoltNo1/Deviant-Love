@@ -1,0 +1,30 @@
+<div id="mainScreen">
+	<!--
+	<div id="scanResults">
+
+	</div>
+	<div id="lovedArtists" style="overflow-y: auto; overflow-x: hidden; position: relative;">
+		{#if mode == "normal"}
+			{#if watchError}
+				<div id="watchFailure" class="notice">
+					{$l10n(watchError == "notLoggedIn" ? "watchErrorNotLoggedIn" : "watchErrorInternal")}
+				</div>
+			{/if}
+			<DeviantList deviants={deviantList} {watchedArtists}/>
+		{/if}
+	</div>
+	-->
+	{#if $editingSubaccountsOf}
+		<MiniSubaccountsEditor/>
+	{/if}
+	<div id="tipOfTheMoment">
+		<img id="totmIcon" alt="" src="/images/{$tip.icon}">
+		<div id="totmText">{@html $tip.html}</div>
+	</div>
+</div>
+<script>
+import MiniSubaccountsEditor from "./MiniSubaccountsEditor.html";
+export default {
+	components: { MiniSubaccountsEditor },
+};
+</script>
