@@ -41,7 +41,8 @@
 	"findAmpersandHint": { "message": "The exact phrase you enter in the find bar is treated as one term to search for. To search for multiple terms, separate them with: &" },
 	"foundDeviants": { "message": "Found $1 deviant(s)" },
 	"foundDeviantSubaccount": { "message": "Found subaccount $1" },
-	"foundDeviations": { "message": "Found $2 deviation(s) from $1" },
+	"foundDeviations": { "message": "Found $1 deviation(s) from $2 artists" },
+	"foundDeviationsArtistHeader": { "message": "From $1:" },
 	"foundNothing": { "message": "Sorry, there are no matches!" },
 	"watchingThisArtist": {
 		"message": "You are watching this artist's deviations",

@@ -23,6 +23,7 @@ export { beginPreparations, tipOfTheMoment };
 import PreparationScreen from "./svelte/PreparationScreen.html";
 import MainScreen from "./svelte/MainScreen.html";
 import DeviantList from "./svelte/DeviantList.html";
+import FindModeContent from "./svelte/FindModeContent.html";
 
 var store = new Store({
 	l10n: adapter.getL10nMsg,
@@ -142,16 +143,16 @@ function restore(scanData, love) {
 function report(results, ui, love) {
 	var {deviants, totalDeviations, watchedArtists, watchError} = results;
 	deviants.setSubaccounts(store.get().subaccounts);
-	var deviantsComponent;
 
 	// Construct the UI
 	var screen = new MainScreen({
 		target: document.body,
 		store,
 		data: {
+			deviantList: deviants.list, watchedArtists, watchError
 		}
 	});
-	var scanResults = $("<div>", {id: "scanResults"});
+	var scanResults = $("#scanResults");
 	var scanResultsLine1 = ({
 		featured: "scanResultsFeaturedLine1",
 		allFaves: "scanResultsAllLine1",
@@ -161,8 +162,7 @@ function report(results, ui, love) {
 	scanResults.append($("<div>").l10nHtml(scanResultsLine1,
 		'<span class="dynamic">' + Number(totalDeviations) + '</span>')); // The Number call is there to help out AMO reviewers; same for the other calls below
 	scanResults.append($("<div>", {id: "artistCount"}).l10nHtml("scanResultsLastLine",
-		'<span class="dynamic">' + Number(deviants.list.length) + '</span>'))
-		.prependTo("#mainScreen");
+		'<span class="dynamic">' + Number(deviants.list.length) + '</span>'));
 	$("<form>", {id: "findBar", "class": "textEntryLine"})
 		.append($("<input>", {type: "text", id: "query"}))
 		.append($("<button>", {type: "submit", id: "goFind"}))
@@ -170,19 +170,10 @@ function report(results, ui, love) {
 		.insertAfter(scanResults);
 	$("#query").l10nPlaceholder("queryPlaceholder");
 	$("<div>", {id: "queryError"}).hide().insertAfter("#findBar");
-	var normalModePrefix = $();
-	if (watchError) {
-		normalModePrefix = $("<div>", {id: "watchFailure", "class": "notice"})
-			.l10n( (watchError == "notLoggedIn") ? "watchErrorNotLoggedIn" : "watchErrorInternal" );
-	}
-	var lovedArtists = $("<div>", {id: "lovedArtists"})
-		.css({"overflow-y": "auto", "overflow-x": "hidden"})
-		.insertAfter("#queryError");
 	normalMode();
-	if (lovedArtists.css("position") == "static") { lovedArtists.css("position", "relative") } // Needed for scrollToDeviationList. It's as weird as it to ensure future compatibility with the skinning feature.
 
 	// Set up interaction
-	lovedArtists.delegate(".deviant", "touchstart", function() {
+	$("#lovedArtists").delegate(".deviant", "touchstart", function() {
 		this.classList.add("touched");
 	}).delegate(".deviant", "touchend", function(touchEvent) {
 		$(this).unbind(".switchToMouse").bind("mouseenter.switchToMouse", function(mouseEvent) {
@@ -239,45 +230,26 @@ function report(results, ui, love) {
 			$("#queryError").hide();
 		}
 	} );
+	var findComponent;
 	$("#findBar").bind("submit", function(event) {
 		event.preventDefault();
 		var query = $("#query").val();
 		if (query == "") { return; }
 		if (queryTroubleCheck(query)) { return; }
 
-		var {deviantMatches, deviantMatchingSubaccount, deviationMatches} = findStuff(query, deviants);
+		var queryResults = findStuff(query, deviants);
 
-		$("#mainScreen").addClass("lookWhatIFound");
-		deviantsComponent.destroy();
-		var lovedArtists = $("#lovedArtists").empty().removeClass("noResults");
-		if (deviantMatches.length == 0 && deviationMatches.length == 0) {
-			lovedArtists.l10n("foundNothing").addClass("noResults");
-		}
-		if (deviantMatches.length > 0) {
-			lovedArtists.append( $("<div>", {"class": "sectionHeader"})
-				.l10n("foundDeviants", deviantMatches.length) );
-			deviantsComponent = new DeviantList({
+		screen.set({mode: "find"});
+		if (!findComponent) {
+			findComponent = new FindModeContent({
 				target: document.getElementById("lovedArtists"),
-				data: { deviants: deviantMatches, watchedArtists },
-				store
-			});
-			for (var deviantName in deviantMatchingSubaccount) {
-				$("#deviant_" + deviantName).prepend( $("<div>", {"class": "deviantNote"})
-					.l10n("foundDeviantSubaccount", deviantMatchingSubaccount[deviantName]) )
-			}
+				data: {queryResults},
+				store,
+			})
+		} else {
+			findComponent.set({queryResults});
 		}
-		if (deviationMatches.length > 0) {
-			deviationMatches.forEach( function(found) {
-				var closerLook = buildCloserLook(found.deviant, found.deviations);
-				lovedArtists.append( $("<div>", {"class": "sectionHeader"})
-					.l10n("foundDeviations", found.deviant.name, found.deviations.length) )
-					.append(closerLook);
-			} );
-		}
-		if (query.indexOf(" ") != -1 && query.indexOf("&") == -1) {
-			$("<div>", {"id": "ampersandHint", "class": "notice"}).l10n("findAmpersandHint")
-				.appendTo(lovedArtists);
-		}
+		findComponent.set({showAmpersandHint: query.indexOf(" ") != -1 && query.indexOf("&") == -1});
 	});
 	$("#noFind").bind("click", normalMode);
 	$("#lovedArtists").delegate(".subaccountsButton", "click", function(event) {
@@ -416,11 +388,8 @@ function report(results, ui, love) {
 		deviants.buildList();
 		$("#artistCount").l10nHtml("scanResultsLastLine",
 			'<span class="dynamic">' + Number(deviants.list.length) + '</span>');
-		if ($("#mainScreen").hasClass("lookWhatIFound")) {
-			normalMode();
-		} else {
-			deviantsComponent.set({deviants: deviants.list});
-		}
+		screen.set({deviantList: deviants.list});
+		normalMode();
 		if (keepOpen) {
 			$("#deviant_" + store.get().editingSubaccountsOf)
 				.removeClass("opened").find(".closerLook").remove();
@@ -430,11 +399,9 @@ function report(results, ui, love) {
 	}
 
 	// Handle requests for a particular deviant that were made elsewhere (e.g. context menu)
-	window.showDeviant = function(deviantName, isFirst) {
-		if ($("#mainScreen").hasClass("lookWhatIFound")) {
-			normalMode();
-		}
-		$("#deviant_" + deviantName).trigger("click", isFirst)
+	window.showDeviant = function(deviantName, suppressAnimation) {
+		normalMode();
+		$("#deviant_" + deviantName).trigger("click", suppressAnimation)
 			.get(0).scrollIntoView();
 	}
 	if (ui.firstDeviant) {
@@ -480,13 +447,11 @@ function report(results, ui, love) {
 		return closerLook;
 	}
 	function normalMode() {
-		$("#mainScreen").removeClass("lookWhatIFound");
-		$("#lovedArtists").removeClass("noResults").empty().append(normalModePrefix);
-		deviantsComponent = new DeviantList({
-			target: document.getElementById("lovedArtists"),
-			data: { deviants: deviants.list, watchedArtists },
-			store
-		});
+		if (findComponent) {
+			findComponent.destroy();
+			findComponent = null;
+		}
+		screen.set({mode: "normal"});
 	}
 }
 

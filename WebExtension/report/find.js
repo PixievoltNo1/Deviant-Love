@@ -13,8 +13,9 @@ function findStuff(queryText, deviants) {
 	} );
 
 	var deviantMatches = [];
-	var deviantMatchingSubaccount = {};
+	var matchedBySubaccount = {};
 	var deviationMatches = [];
+	var deviationTotal = 0;
 	deviants.list.forEach( function(deviant) {
 		if (checkDeviants && isMatch(deviant.name)) {
 			deviantMatches.push(deviant);
@@ -22,7 +23,7 @@ function findStuff(queryText, deviants) {
 			deviants.subaccounts[deviant.name].some( function(subaccountName) {
 				if (isMatch(subaccountName)) {
 					deviantMatches.push(deviant);
-					deviantMatchingSubaccount[deviant.name] = subaccountName;
+					matchedBySubaccount[deviant.name] = subaccountName;
 					return true;
 				}
 			} );
@@ -30,6 +31,7 @@ function findStuff(queryText, deviants) {
 		var deviantDeviationMatches = [];
 		deviant.deviations.forEach( function(deviation) {
 			if (isMatch(deviation.name)) {
+				++deviationTotal;
 				deviantDeviationMatches.push(deviation);
 			}
 		} );
@@ -43,7 +45,8 @@ function findStuff(queryText, deviants) {
 			return needle.indexOf(chunk) != -1;
 		} );
 	}
-	return {deviantMatches, deviantMatchingSubaccount, deviationMatches};
+	return {deviants: deviantMatches, matchedBySubaccount,
+		deviations: deviationMatches, deviationTotal};
 }
 function queryTroubleCheck(query) {
 	var invalidChar = query.search(/[^a-zA-Z0-9 \_\'\"\+\.\,\$\?\:\-\!\=\~\`\@\#\%\^\*\[\]\(\)\/\{\}\\\|\&]/);

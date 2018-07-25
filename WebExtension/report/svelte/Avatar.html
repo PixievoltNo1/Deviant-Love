@@ -1,0 +1,26 @@
+<a class="avatar {loading ? 'loading' : ''}" href="{deviant.baseURL}">
+	<img ref:img width="50" height="50" alt="{deviant.name}"
+		on:load="set({loading: false})" on:error="set({loading: false})">
+</a>
+<script>
+export default {
+	data() {
+		return {loading: true};
+	},
+	oncreate() {
+		var {deviant} = this.get();
+		if (deviant.avatar) {
+			this.refs.img.src = deviant.avatar;
+		} else {
+			$.ajax(deviant.baseURL, {responseType: "text"}).then( (profileHTML) => {
+				var profileDoc = (new DOMParser()).parseFromString(profileHTML, "text/html");
+				var avatarElem = profileDoc.querySelector("link[rel='image_src']");
+				if (avatarElem == null) { throw false; }
+				this.refs.img.src = deviant.avatar = avatarElem.getAttribute("href");
+			} ).fail( () => {
+				this.set({loading: false});
+			} );
+		}
+	},
+};
+</script>

@@ -1,0 +1,49 @@
+<!--
+<form id="findBar" class="textEntryLine">
+	<input type="text" id="query">
+	<button type="submit" id="goFind"></button>
+</form>
+{#if queryError}
+
+{/if}
+-->
+{#if queryResults}
+	{#if queryResults.deviants.length}
+		<div class="sectionHeader">{$l10n("foundDeviants", queryResults.deviants.length)}</div>
+		<DeviantList deviants={queryResults.deviants} {watchedArtists}/>
+	{/if}
+	{#if queryResults.deviations.length}
+		<div class="sectionHeader">
+			{$l10n("foundDeviations", [queryResults.deviationTotal, queryResults.deviations.length])}
+		</div>
+		{#each queryResults.deviations as {deviant, deviations} (deviant.name)}
+			<div class="deviationResultGroup">
+				<div class="deviationResultGroupHeader">{$l10n("foundDeviationsArtistHeader", deviant.name)}</div>
+				<DeviationList {deviations}/>
+				<div class="deviationResultGroupSidebar">
+					<Avatar {deviant}/>
+					<button type="button" class="viewDeviant" on:click="fire('viewDeviant', {deviant})">
+						{deviant.deviations.length}
+					</button>
+				</div>
+			</div>
+		{/each}
+	{/if}
+	{#if !(queryResults.deviants.length || queryResults.deviations.length)}
+		<div class="noResults">{$l10n("foundNothing")}</div>
+	{/if}
+{:else}
+
+{/if}
+{#if showAmpersandHint}
+	<div id="ampersandHint" class="notice">{$l10n("findAmpersandHint")}</div>
+{/if}
+<script>
+// TODO: Handle queryResults.matchedBySubaccount
+import DeviantList from "./DeviantList.html";
+import DeviationList from "./DeviationList.html";
+import Avatar from "./Avatar.html";
+export default {
+	components: { DeviantList, DeviationList, Avatar }
+}
+</script>

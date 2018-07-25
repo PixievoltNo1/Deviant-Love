@@ -95,7 +95,7 @@ a img {
 	background: url("/images/findClose.svg");
 	display: none;
 }
-.lookWhatIFound #noFind {
+.findMode #noFind {
 	display: block;
 }
 .sectionHeader {

@@ -1,8 +1,13 @@
-<div id="mainScreen">
-	<!--
+<div id="mainScreen" class="{mode}Mode">
 	<div id="scanResults">
 
 	</div>
+	<!--
+	<div id="actionBar">
+		<button type="button" class="findAction {mode == 'find' ? 'active' : ''}"
+			on:click="set({mode: 'find'})">{$l10n('findAction')}</button>
+	</div>
+	-->
 	<div id="lovedArtists" style="overflow-y: auto; overflow-x: hidden; position: relative;">
 		{#if mode == "normal"}
 			{#if watchError}
@@ -11,9 +16,10 @@
 				</div>
 			{/if}
 			<DeviantList deviants={deviantList} {watchedArtists}/>
+		{:elseif mode == "find"}
+			<!-- <FindModeContent {queryResults} on:viewDeviant=""/> -->
 		{/if}
 	</div>
-	-->
 	{#if $editingSubaccountsOf}
 		<MiniSubaccountsEditor/>
 	{/if}
@@ -23,8 +29,9 @@
 	</div>
 </div>
 <script>
+import DeviantList from "./DeviantList.html";
 import MiniSubaccountsEditor from "./MiniSubaccountsEditor.html";
 export default {
-	components: { MiniSubaccountsEditor },
+	components: { DeviantList, MiniSubaccountsEditor },
 };
 </script>
