@@ -15,7 +15,7 @@
 					{$l10n(watchError == "notLoggedIn" ? "watchErrorNotLoggedIn" : "watchErrorInternal")}
 				</div>
 			{/if}
-			<DeviantList deviants={deviantList} {watchedArtists}/>
+			<DeviantList deviants={deviantList} {watchedArtists} ref:normalList/>
 		{:elseif mode == "find"}
 			<!-- <FindModeContent {queryResults} on:viewDeviant=""/> -->
 		{/if}

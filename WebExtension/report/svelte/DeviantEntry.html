@@ -1,5 +1,5 @@
-<div class="deviant" id="deviant_{deviant.name}">
-	<div class="deviantLine">
+<div class="deviant {open ? 'opened' : ''}" id="deviant_{deviant.name}">
+	<div class="deviantLine" on:click="fire('openMe')">
 		{#if watchedArtists && watchedArtists.has(deviant.name)}
 			<div class="deviationWatch true" title="{$l10nCache.watchingThisArtist}">&nbsp;</div>
 		{:else}
@@ -9,18 +9,80 @@
 		<span class="deviantName">{deviant.name}</span>
 		<div class="subaccountsButton line {deviant.name in $subaccounts ? 'has' : ''}
 			{$editingSubaccountsOf == deviant.name ? 'editing' : ''}"
-			title="{$l10nCache.subaccountsOpen}">&nbsp;</div>
+			on:click="toggleSubaccounts(event)" title="{$l10nCache.subaccountsOpen}">&nbsp;</div>
 	</div>
+	{#if open || closing}
+		<div ref:closerLook class="closerLook touch" style="overflow: hidden; height: auto;">
+			<div class="deviantDetails">
+				<Avatar {deviant}/>
+				<div class="deviantLinks touch">
+					<a class="profileLink" href="{deviant.baseURL}">{$l10n("profile")}</a>
+					<a class="galleryLink" href="{deviant.baseURL}gallery/">{$l10n("gallery")}</a>
+					<a class="favouritesLink" href="{deviant.baseURL}favorites/">{$l10n("favourites")}</a>
+					<button type="button" class="subaccountsButton" on:click="toggleSubaccounts()">
+						{$l10n("subaccountsOpen")}</button>
+				</div>
+			</div>
+			<DeviationList deviations={deviant.deviations}/>
+		</div>
+	{/if}
 </div>
 <script>
+import Avatar from "./Avatar.html";
+import DeviationList from "./DeviationList.html";
+import anime from "animejs";
 import { cacheMessages } from "../l10nCache.module.js";
 cacheMessages("watchingThisArtist", "subaccountsOpen");
+const closerLookEasing = [0, 0, .6, 1];
 export default {
+	components: { Avatar, DeviationList },
 	oncreate() {
-		this.get().registry.set(this.get("deviant").name, this);
+		this.get().registry.set(this.get().deviant.name, this);
 	},
 	ondestroy() {
-		this.get().registry.delete(this.get("deviant").name);
+		this.get().registry.delete(this.get().deviant.name);
+	},
+	methods: {
+		// TODO: Manage the content element's scroll position
+		open(transition) {
+			this.set({open: true});
+			if (transition) {
+				var {closerLook} = this.refs;
+				var targetHeight = getComputedStyle(closerLook).height;
+				anime({
+					targets: closerLook,
+					height: [0, targetHeight],
+					duration: 400,
+					easing: closerLookEasing,
+					complete() {
+						closerLook.style.height = "auto";
+					}
+				});
+			}
+		},
+		close(transition) {
+			this.set({open: false, closing: transition});
+			if (transition) {
+				anime({
+					targets: this.refs.closerLook,
+					height: 0,
+					duration: 400,
+					easing: closerLookEasing,
+					complete: () => {
+						this.set({closing: false});
+					},
+				});
+			}
+		},
+		toggleSubaccounts(event) {
+			if (event) { event.stopPropagation(); }
+			var {name} = this.get().deviant;
+			if (this.store.get().editingSubaccountsOf != name) {
+				this.store.set({editingSubaccountsOf: name});
+			} else {
+				this.store.set({editingSubaccountsOf: false});
+			}
+		}
 	},
 };
 </script>

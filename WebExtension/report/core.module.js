@@ -27,6 +27,7 @@ import FindModeContent from "./svelte/FindModeContent.html";
 
 var store = new Store({
 	l10n: adapter.getL10nMsg,
+	visible: true,
 });
 var prefsLoaded = storePersist(store);
 setUpStoreL10nCache(store);
@@ -180,32 +181,7 @@ function report(results, ui, love) {
 			if (touchEvent.timeStamp - 200 < mouseEvent.timeStamp) { return; }
 			$(this).removeClass("touched").unbind(".switchToMouse");
 		});
-	}).delegate(".deviant:not(.opened)", "click", function(event, suppressAnimation) {
-		if ( $(event.target).hasClass("subaccountsButton") ) { return; }
-		$(".opened.deviant").removeClass("opened");
-		if (!suppressAnimation) {
-			$(".deviant > .closerLook").velocity({height: 0}, {
-				duration: 400,
-				easing: "swing",
-				complete: function() {$(this).remove();}
-			});
-		} else {
-			$(".deviant > .closerLook").remove();
-		}
-
-		var deviant = deviants.effectiveMap.get($(".deviantName", this).text());
-		var closerLook = buildCloserLook(deviant, deviant.deviations, this.classList.contains("touched"));
-		$(this).append(closerLook).addClass("opened");
-		if (!suppressAnimation) {
-			var closerLookHeight = closerLook.height();
-			closerLook.height(0).velocity({height: closerLookHeight}, {
-				duration: 400,
-				easing: "swing",
-				progress: scrollToDeviationList,
-				complete: function(elements) { elements[0].style.height = ""; }
-			});
-		}
-	} );
+	});
 	function scrollToDeviationList() {
 	// Differs from the DOM method scrollIntoView in that it doesn't align .opened.deviant with either the top or bottom of the display area unless that is necessary to keep it in view
 		// It's actually easier NOT to use jQuery here.
@@ -252,14 +228,6 @@ function report(results, ui, love) {
 		findComponent.set({showAmpersandHint: query.indexOf(" ") != -1 && query.indexOf("&") == -1});
 	});
 	$("#noFind").bind("click", normalMode);
-	$("#lovedArtists").delegate(".subaccountsButton", "click", function(event) {
-		var deviantName = $(this).closest(".deviant").find(".deviantName").text();
-		if (deviantName != store.get().editingSubaccountsOf) {
-			store.set({editingSubaccountsOf: deviantName});
-		} else {
-			store.set({editingSubaccountsOf: false});
-		}
-	} );
 	$("#mainScreen").delegate(".addSubaccount", "submit", function(event) {
 		event.preventDefault();
 		var input = $(".relatedAccount").val();
@@ -391,61 +359,20 @@ function report(results, ui, love) {
 		screen.set({deviantList: deviants.list});
 		normalMode();
 		if (keepOpen) {
-			$("#deviant_" + store.get().editingSubaccountsOf)
-				.removeClass("opened").find(".closerLook").remove();
-			$("#deviant_" + store.get().editingSubaccountsOf).trigger("click", true);
+			screen.refs.normalList.showDeviant(store.get().editingSubaccountsOf);
 		}
 		$("#deviant_" + store.get().editingSubaccountsOf)[0].scrollIntoView();
 	}
 
 	// Handle requests for a particular deviant that were made elsewhere (e.g. context menu)
-	window.showDeviant = function(deviantName, suppressAnimation) {
+	window.showDeviant = function(deviantName) {
 		normalMode();
-		$("#deviant_" + deviantName).trigger("click", suppressAnimation)
-			.get(0).scrollIntoView();
+		screen.refs.normalList.showDeviant(deviantName);
 	}
 	if (ui.firstDeviant) {
-		showDeviant(ui.firstDeviant, true);
+		showDeviant(ui.firstDeviant);
 	}
 
-	function buildCloserLook(deviant, deviations, forTouchscreen) {
-		var closerLook = $(templateContents["closerLook"]).children().clone();
-
-		var deviantDetails = closerLook.find(".deviantDetails");
-		var deviantAvatar = $("<img>", {width: 50, height: 50})
-			.bind("load", function() { this.parentNode.classList.remove("loading"); } );
-		deviantDetails.find(".avatar").attr("href", deviant.baseURL).append(deviantAvatar);
-		if (deviant.avatar) {
-			deviantAvatar.attr("src", deviant.avatar);
-		} else {
-			$.ajax(deviant.baseURL, {responseType: "text"}).then( function(profileHTML) {
-				var profileDoc = (new DOMParser()).parseFromString(profileHTML, "text/html");
-				var avatarElem = profileDoc.querySelector("link[rel='image_src']");
-				if (avatarElem == null) { throw false; }
-				deviant.avatar = avatarElem.getAttribute("href");
-				deviantAvatar.attr("src", deviant.avatar);
-			} ).fail( function() {
-				deviantAvatar.parent().removeClass("loading");
-			} );
-		}
-		if (!forTouchscreen) {
-			closerLook.addClass("mouse").find(".touch").remove();
-		} else {
-			closerLook.addClass("touch").find(".mouse").remove();
-		}
-		closerLook.find(".profileLink").attr("href", deviant.baseURL);
-		closerLook.find(".galleryLink").attr("href", deviant.baseURL + "gallery/");
-		closerLook.find(".favouritesLink").attr("href", deviant.baseURL + "favourites/");
-
-		var deviationList = closerLook.find(".deviationList");
-		deviations.forEach( function(deviation) {
-			$("<div>", {"class": "deviation"})
-				.append($("<a>", {href: deviation.URL}).text(deviation.name))
-				.appendTo(deviationList)
-		} );
-
-		return closerLook;
-	}
 	function normalMode() {
 		if (findComponent) {
 			findComponent.destroy();

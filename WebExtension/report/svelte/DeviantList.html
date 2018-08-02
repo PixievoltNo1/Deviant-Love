@@ -1,5 +1,5 @@
 {#each deviants as deviant (deviant.name)}
-	<DeviantEntry {deviant} {registry} {watchedArtists}/>
+	<DeviantEntry {deviant} {registry} {watchedArtists} on:openMe="showDeviant(deviant.name)"/>
 {/each}
 <script>
 import DeviantEntry from "./DeviantEntry.html";
@@ -9,6 +9,27 @@ export default {
 		return {
 			registry: new Map(),
 		};
+	},
+	onstate({changed}) {
+		if (changed.deviants) {
+			this.set({freshEntries: true});
+			Promise.resolve().then(() => { this.set({freshEntries: false}); } );
+		}
+	},
+	methods: {
+		showDeviant(name) {
+			var showTransition = !this.get().freshEntries && this.store.get().visible;
+			var oldEntry = this.get().opened;
+			var newEntry = this.get().registry.get(name);
+			if (oldEntry == newEntry) {
+				return;
+			}
+			if (oldEntry) {
+				oldEntry.close(showTransition);
+			}
+			newEntry.open(showTransition);
+			this.set({opened: newEntry});
+		}
 	},
 };
 </script>
