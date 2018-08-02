@@ -28,7 +28,7 @@ function processNames(names) {
 			title: chrome.i18n.getMessage("artistCheck", name),
 			id: "artistLove:" + name,
 			contexts: ["link"],
-			targetUrlPatterns: ["*://" + name.toLowerCase() + ".deviantart.com/*"]
+			targetUrlPatterns: [`*://www.deviantart.com/${ name.toLowerCase() }/*`]
 		});
 	}
 }
