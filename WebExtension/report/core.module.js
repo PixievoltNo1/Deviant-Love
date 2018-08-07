@@ -42,7 +42,7 @@ function Deviant(name) {
 Object.defineProperties(Deviant.prototype, {
 	baseURL: {
 		get: function() {
-			return this.baseURL = "http://" + this.name.toLowerCase() + ".deviantart.com/";
+			return this.baseURL = `https://www.deviantart.com/${ this.name.toLowerCase() }/`;
 		}, set: function(val) {
 			Object.defineProperty(this, "baseURL", {value: val, enumerable: true})
 		}
