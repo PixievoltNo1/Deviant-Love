@@ -31,11 +31,6 @@ var store = new Store({
 });
 var prefsLoaded = storePersist(store);
 setUpStoreL10nCache(store);
-var templateContents = {};
-for (let elem of Array.from( document.getElementsByTagName("template") )) {
-	fillL10n(elem.content);
-	templateContents[elem.id] = document.importNode(elem.content, true);
-}
 
 function Deviant(name) {
 	this.name = name;
