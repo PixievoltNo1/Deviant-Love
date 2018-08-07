@@ -182,22 +182,6 @@ function report(results, ui, love) {
 			$(this).removeClass("touched").unbind(".switchToMouse");
 		});
 	});
-	function scrollToDeviationList() {
-	// Differs from the DOM method scrollIntoView in that it doesn't align .opened.deviant with either the top or bottom of the display area unless that is necessary to keep it in view
-		// It's actually easier NOT to use jQuery here.
-		var lovedArtistsElem = document.getElementById("lovedArtists");
-		var openedDeviantElem = document.querySelector(".opened.deviant");
-		var scroll = lovedArtistsElem.scrollTop;
-		if (scroll + lovedArtistsElem.clientHeight <
-			openedDeviantElem.offsetTop + openedDeviantElem.offsetHeight) {
-			scroll = openedDeviantElem.offsetTop + openedDeviantElem.offsetHeight
-				- lovedArtistsElem.clientHeight;
-		}
-		if (scroll > openedDeviantElem.offsetTop) {
-			scroll = openedDeviantElem.offsetTop;
-		}
-		lovedArtistsElem.scrollTop = scroll;
-	}
 	$("#query").bind("input", function(event) {
 		var checkResult = queryTroubleCheck(this.value);
 		if (typeof checkResult == "object") {

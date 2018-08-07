@@ -1,4 +1,4 @@
-<div class="deviant {open ? 'opened' : ''}" id="deviant_{deviant.name}">
+<div class="deviant {open ? 'opened' : ''}" id="deviant_{deviant.name}" ref:root>
 	<div class="deviantLine" on:click="fire('openMe')">
 		{#if watchedArtists && watchedArtists.has(deviant.name)}
 			<div class="deviationWatch true" title="{$l10nCache.watchingThisArtist}">&nbsp;</div>
@@ -43,7 +43,6 @@ export default {
 		this.get().registry.delete(this.get().deviant.name);
 	},
 	methods: {
-		// TODO: Manage the content element's scroll position
 		open(transition) {
 			this.set({open: true});
 			if (transition) {
@@ -54,10 +53,26 @@ export default {
 					height: [0, targetHeight],
 					duration: 400,
 					easing: closerLookEasing,
+					run: () => {
+						var lovedArtistsElem = document.getElementById("lovedArtists");
+						var openedDeviantElem = this.refs.root;
+						var scroll = lovedArtistsElem.scrollTop;
+						if (scroll + lovedArtistsElem.clientHeight <
+							openedDeviantElem.offsetTop + openedDeviantElem.offsetHeight) {
+							scroll = openedDeviantElem.offsetTop + openedDeviantElem.offsetHeight
+								- lovedArtistsElem.clientHeight;
+						}
+						if (scroll > openedDeviantElem.offsetTop) {
+							scroll = openedDeviantElem.offsetTop;
+						}
+						lovedArtistsElem.scrollTop = scroll;
+					},
 					complete() {
 						closerLook.style.height = "auto";
 					}
 				});
+			} else {
+				this.refs.root.scrollIntoView();
 			}
 		},
 		close(transition) {
