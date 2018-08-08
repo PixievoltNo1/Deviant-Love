@@ -58,7 +58,6 @@ function activate(firstDeviant) {
 		panel.contentWindow.location.replace(
 			chrome.runtime.getURL("report/popup.html" + (firstDeviant ? "#" + firstDeviant : "")) );
 	} else if (panelStage == "scanning") {
-		chrome.runtime.sendMessage({action: "echo", echoAction: "resumeScan"});
 		// http://timtaubert.de/blog/2012/09/css-transitions-for-dynamically-created-dom-elements/
 		window.getComputedStyle(panel).display;
 		window.getComputedStyle(shield).display;
@@ -72,6 +71,7 @@ function activate(firstDeviant) {
 		shield.classList.add("reveal");
 		panelState = "active";
 		chrome.runtime.sendMessage({action: "showX"});
+		chrome.runtime.sendMessage({action: "echo", echoAction: "showing"});
 		shield.addEventListener("click", deactivate, false);
 		for (let icon of normalIcons) {
 			icon.remove();
@@ -84,9 +84,6 @@ function activate(firstDeviant) {
 }
 function deactivate() {
 	shield.removeEventListener("click", deactivate, false);
-	if (panelStage == "scanning") {
-		chrome.runtime.sendMessage({action: "echo", echoAction: "pauseScan"})
-	}
 	panel.addEventListener("transitionend", function hide() {
 		panel.hidden = true;
 		shield.hidden = true;
@@ -97,6 +94,7 @@ function deactivate() {
 	shield.classList.remove("reveal");
 	panelState = "deactivating";
 	chrome.runtime.sendMessage({action: "noX"});
+	chrome.runtime.sendMessage({action: "echo", echoAction: "hiding"});
 	for (let icon of heartIcons) {
 		icon.remove();
 	}

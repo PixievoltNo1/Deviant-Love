@@ -4,7 +4,7 @@
 	Check core.module.js for the complete legal stuff.
 */
 if (!(window.chrome && chrome.runtime)) { window.chrome = browser; }
-import { beginPreparations, nextTip } from "./core.module.js";
+import { beginPreparations, nextTip, store } from "./core.module.js";
 
 export var adapter = Object.assign({
 	prepComplete: function() {
@@ -12,21 +12,19 @@ export var adapter = Object.assign({
 	}
 }, apiAdapter);
 
-var scannerController;
 chrome.runtime.sendMessage({action: "echoWithCallback", echoAction: "getLove"},
 	function(love) {
 		beginPreparations(love);
 		if (location.hash) {showDeviant(location.hash.slice(1))};
-		scannerController = startScan();
 		chrome.runtime.sendMessage({action: "echo", echoAction: "panelReady"});
 	}
 );
 chrome.runtime.onMessage.addListener(function(thing, buddy, callback) {switch (thing.action) {
-	case "pauseScan":
-		scannerController.pause();
+	case "showing":
+		store.set({visible: true});
 	break;
-	case "resumeScan":
-		scannerController.resume();
+	case "hiding":
+		store.set({visible: false});
 	break;
 	case "changeTip":
 		nextTip().then(callback);

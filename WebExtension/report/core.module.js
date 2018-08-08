@@ -25,7 +25,7 @@ import MainScreen from "./svelte/MainScreen.html";
 import DeviantList from "./svelte/DeviantList.html";
 import FindModeContent from "./svelte/FindModeContent.html";
 
-var store = new Store({
+export var store = new Store({
 	l10n: adapter.getL10nMsg,
 	visible: true,
 });
@@ -46,9 +46,6 @@ Object.defineProperties(Deviant.prototype, {
 	}
 });
 function beginPreparations(love) {
-	var scannerController;
-	var firstDeviant;
-
 	var screen = new PreparationScreen({
 		target: document.body,
 		store,
@@ -57,18 +54,21 @@ function beginPreparations(love) {
 			maxDeviations: love.maxDeviations,
 		}
 	});
-	window.startScan = function() {
-		scannerController = researchLove(love.feedHref, love.maxDeviations);
-		scannerController.progress.add((data) => { screen.set(data); });
-		var faves = scannerController.faves.catch( function catcher(thrown) {
-			scanError();
-			return thrown.retryResult.catch(catcher);
-		} );
-		var organized = faves.then(organizeData);
-		var watchResult = scannerController.watched.then(collectWatchlist, watchError);
-		Promise.all([organized, watchResult, nextTip(), prefsLoaded]).then(finish);
-		return scannerController;
-	}
+	var scannerController = researchLove(love.feedHref, love.maxDeviations);
+	scannerController.progress.add((data) => { screen.set(data); });
+	var faves = scannerController.faves.catch( function catcher(thrown) {
+		scanError();
+		return thrown.retryResult.catch(catcher);
+	} );
+	var organized = faves.then(organizeData);
+	var watchResult = scannerController.watched.then(collectWatchlist, watchError);
+	Promise.all([organized, watchResult, nextTip(), prefsLoaded]).then(finish);
+	var visibilityListener = store.on("state", ({changed, current}) => {
+		if (changed.visible) {
+			scannerController[current.visible ? "resume" : "pause"]();
+		}
+	});
+	screen.on("destroy", () => { visibilityListener.cancel(); });
 	function organizeData(faves) {
 		var deviantMap = new Map();
 		faves.forEach(function(item, pos) {
@@ -96,6 +96,7 @@ function beginPreparations(love) {
 		scannerController.resume();
 		scannerController.retry();
 	});
+	var firstDeviant;
 	window.showDeviant = function(deviantName) {
 		firstDeviant = deviantName;
 	}
