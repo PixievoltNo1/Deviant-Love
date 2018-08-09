@@ -26,7 +26,7 @@ chrome.runtime.onMessage.addListener( function(thing, buddy, callback) {switch (
 			chrome.pageAction.setTitle({tabId: buddy.tab.id, title: "Deviant Love"});
 		}
 	break;
-	// For communication between manager.js and popup.js
+	// For communication between panelManager.js and environment.module.js
 	case "echo":
 		thing.action = thing.echoAction;
 		chrome.tabs.sendMessage(buddy.tab.id, thing);
