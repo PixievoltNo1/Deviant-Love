@@ -7,11 +7,11 @@
 
 var panel = document.createElement("iframe");
 panel.id = "DeviantLovePanel";
-panel.hidden = true;
+panel.classList.add("hide");
 document.body.appendChild(panel);
 var shield = document.createElement("div");
 shield.id = "DeviantLoveShield";
-shield.hidden = true;
+shield.classList.add("hide");
 document.body.appendChild(shield);
 var heartIcons = [
 	Object.assign(document.createElement("link"), {
@@ -44,8 +44,6 @@ chrome.runtime.onMessage.addListener( function(thing, buddy, callback) {switch (
 }} );
 
 function activate(firstDeviant) {
-	panel.hidden = false;
-	shield.hidden = false;
 	panelState = "preparing";
 	if (panelStage == "uninitialized") {
 		chrome.runtime.onMessage.addListener( function panelReady(thing) {
@@ -58,17 +56,13 @@ function activate(firstDeviant) {
 		panel.contentWindow.location.replace(
 			chrome.runtime.getURL("report/popup.html" + (firstDeviant ? "#" + firstDeviant : "")) );
 	} else if (panelStage == "scanning") {
-		// http://timtaubert.de/blog/2012/09/css-transitions-for-dynamically-created-dom-elements/
-		window.getComputedStyle(panel).display;
-		window.getComputedStyle(shield).display;
-		// With our elements' display truly set, we are free to transition them! Thanks, Tim! ♡
 		reveal();
 	} else {
 		chrome.runtime.sendMessage({action: "echoWithCallback", echoAction: "changeTip"}, reveal);
 	}
 	function reveal() {
-		panel.classList.add("reveal");
-		shield.classList.add("reveal");
+		panel.classList.remove("hide");
+		shield.classList.remove("hide");
 		panelState = "active";
 		chrome.runtime.sendMessage({action: "showX"});
 		chrome.runtime.sendMessage({action: "echo", echoAction: "showing"});
@@ -85,13 +79,11 @@ function activate(firstDeviant) {
 function deactivate() {
 	shield.removeEventListener("click", deactivate, false);
 	panel.addEventListener("transitionend", function hide() {
-		panel.hidden = true;
-		shield.hidden = true;
 		panel.removeEventListener("transitionend", hide, false);
 		panelState = "inactive";
 	}, false);
-	panel.classList.remove("reveal");
-	shield.classList.remove("reveal");
+	panel.classList.add("hide");
+	shield.classList.add("hide");
 	panelState = "deactivating";
 	chrome.runtime.sendMessage({action: "noX"});
 	chrome.runtime.sendMessage({action: "echo", echoAction: "hiding"});

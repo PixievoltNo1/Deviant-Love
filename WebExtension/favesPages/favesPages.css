@@ -8,10 +8,11 @@
 	right: 50px;
 	top: 0;
 	z-index: 501;
-	transition: transform 0.6s ease-out;
+	transition: 0.6s ease-out;
 }
-#DeviantLovePanel:not(.reveal) {
+#DeviantLovePanel.hide {
 	transform: translateY(-100%);
+	visibility: hidden;
 }
 #DeviantLoveShield {
 	position: fixed;
@@ -20,12 +21,13 @@
 	left: 0;
 	right: 0;
 	background: white;
-	opacity: 0.4;
 	z-index: 500;
-	transition: opacity 0.6s linear;
+	opacity: 0.4;
+	transition: 0.6s linear;
 }
-#DeviantLoveShield:not(.reveal) {
+#DeviantLoveShield.hide {
 	opacity: 0;
+	visibility: hidden;
 }
 @media not all and (min-width: 550px) {
 	#DeviantLovePanel {
@@ -33,10 +35,9 @@
 		height: 100%;
 		width: 100%;
 		right: 0;
-		opacity: 1;
-		transition: transform 0.3s ease-out, opacity 0.3s ease-out;
+		transition: 0.3s ease-out;
 	}
-	#DeviantLovePanel:not(.reveal) {
+	#DeviantLovePanel.hide {
 		transform: scale(1.2);
 		opacity: 0;
 	}
