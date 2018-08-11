@@ -17,7 +17,7 @@
 			{/if}
 			<DeviantList deviants={deviantList} {watchedArtists} ref:normalList/>
 		{:elseif mode == "find"}
-			<FindModeContent ref:findModeContent {queryResults}/>
+			<FindModeContent ref:findModeContent {queryResults} {watchedArtists}/>
 		{/if}
 	</div>
 	{#if $editingSubaccountsOf}
