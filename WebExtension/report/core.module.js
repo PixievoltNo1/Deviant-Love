@@ -22,8 +22,6 @@ import { adapter } from "./environment.module.js";
 export { beginPreparations, tipOfTheMoment };
 import PreparationScreen from "./svelte/PreparationScreen.html";
 import MainScreen from "./svelte/MainScreen.html";
-import DeviantList from "./svelte/DeviantList.html";
-import FindModeContent from "./svelte/FindModeContent.html";
 
 export var store = new Store({
 	l10n: adapter.getL10nMsg,
@@ -146,7 +144,7 @@ function report(results, ui, love) {
 		target: document.body,
 		store,
 		data: {
-			deviantList: deviants.list, watchedArtists, watchError
+			deviantList: deviants.list, watchedArtists, watchError, mode: "normal"
 		}
 	});
 	var scanResults = $("#scanResults");
@@ -167,7 +165,6 @@ function report(results, ui, love) {
 		.insertAfter(scanResults);
 	$("#query").l10nPlaceholder("queryPlaceholder");
 	$("<div>", {id: "queryError"}).hide().insertAfter("#findBar");
-	normalMode();
 
 	// Set up interaction
 	$("#lovedArtists").delegate(".deviant", "touchstart", function() {
@@ -186,7 +183,6 @@ function report(results, ui, love) {
 			$("#queryError").hide();
 		}
 	} );
-	var findComponent;
 	$("#findBar").bind("submit", function(event) {
 		event.preventDefault();
 		var query = $("#query").val();
@@ -195,19 +191,11 @@ function report(results, ui, love) {
 
 		var queryResults = findStuff(query, deviants);
 
-		screen.set({mode: "find"});
-		if (!findComponent) {
-			findComponent = new FindModeContent({
-				target: document.getElementById("lovedArtists"),
-				data: {queryResults},
-				store,
-			})
-		} else {
-			findComponent.set({queryResults});
-		}
+		screen.set({mode: "find", queryResults});
+		var findComponent = screen.refs.findModeContent;
 		findComponent.set({showAmpersandHint: query.indexOf(" ") != -1 && query.indexOf("&") == -1});
 	});
-	$("#noFind").bind("click", normalMode);
+	$("#noFind").bind("click", () => { screen.set({mode: "normal"}); });
 	$("#mainScreen").delegate(".addSubaccount", "submit", function(event) {
 		event.preventDefault();
 		var input = $(".relatedAccount").val();
@@ -336,8 +324,7 @@ function report(results, ui, love) {
 		deviants.buildList();
 		$("#artistCount").l10nHtml("scanResultsLastLine",
 			'<span class="dynamic">' + Number(deviants.list.length) + '</span>');
-		screen.set({deviantList: deviants.list});
-		normalMode();
+		screen.set({mode: "normal", deviantList: deviants.list});
 		if (keepOpen) {
 			screen.refs.normalList.showDeviant(store.get().editingSubaccountsOf);
 		}
@@ -346,19 +333,11 @@ function report(results, ui, love) {
 
 	// Handle requests for a particular deviant that were made elsewhere (e.g. context menu)
 	window.showDeviant = function(deviantName) {
-		normalMode();
+		screen.set({mode: "normal"});
 		screen.refs.normalList.showDeviant(deviantName);
 	}
 	if (ui.firstDeviant) {
 		showDeviant(ui.firstDeviant);
-	}
-
-	function normalMode() {
-		if (findComponent) {
-			findComponent.destroy();
-			findComponent = null;
-		}
-		screen.set({mode: "normal"});
 	}
 }
 

@@ -17,7 +17,7 @@
 			{/if}
 			<DeviantList deviants={deviantList} {watchedArtists} ref:normalList/>
 		{:elseif mode == "find"}
-			<!-- <FindModeContent {queryResults} on:viewDeviant=""/> -->
+			<FindModeContent ref:findModeContent {queryResults}/>
 		{/if}
 	</div>
 	{#if $editingSubaccountsOf}
@@ -30,8 +30,9 @@
 </div>
 <script>
 import DeviantList from "./DeviantList.html";
+import FindModeContent from "./FindModeContent.html";
 import MiniSubaccountsEditor from "./MiniSubaccountsEditor.html";
 export default {
-	components: { DeviantList, MiniSubaccountsEditor },
+	components: { DeviantList, FindModeContent, MiniSubaccountsEditor },
 };
 </script>
