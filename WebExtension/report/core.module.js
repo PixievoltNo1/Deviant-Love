@@ -196,6 +196,11 @@ function report(results, ui, love) {
 		findComponent.set({showAmpersandHint: query.indexOf(" ") != -1 && query.indexOf("&") == -1});
 	});
 	$("#noFind").bind("click", () => { screen.set({mode: "normal"}); });
+	screen.on("update", ({changed, current}) => {
+		if (changed.mode && current.mode == "find") {
+			screen.refs.findModeContent.on("viewDeviant", showDeviant);
+		}
+	});
 	$("#mainScreen").delegate(".addSubaccount", "submit", function(event) {
 		event.preventDefault();
 		var input = $(".relatedAccount").val();

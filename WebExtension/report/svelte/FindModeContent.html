@@ -22,7 +22,7 @@
 				<DeviationList {deviations}/>
 				<div class="deviationResultGroupSidebar">
 					<Avatar {deviant}/>
-					<button type="button" class="viewDeviant" on:click="fire('viewDeviant', {deviant})">
+					<button type="button" class="viewDeviant" on:click="fire('viewDeviant', deviant.name)">
 						{deviant.deviations.length}
 					</button>
 				</div>
