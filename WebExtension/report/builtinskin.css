@@ -228,21 +228,21 @@ a img {
 	content: url(/images/spinner.svg);
 	animation: 5s linear infinite spin;
 }
-.deviantLinks.mouse {
+.deviantLinks {
 	display: flex;
 	justify-content: center;
 	height: 20px;
 	margin-top: 6px;
 	margin-bottom: -1px;
 }
-.deviantLinks.mouse a {
+.deviantLinks a {
 	display: inline-block;
 	width: 20px;
 	height: 20px;
 	background-position: center;
 	background-repeat: no-repeat;
 }
-.deviantLinks.mouse a + a {
+.deviantLinks a + a {
 	margin-left: 3px;
 }
 .profileLink { background-image: url(/images/deviantart/Profile.png); }
