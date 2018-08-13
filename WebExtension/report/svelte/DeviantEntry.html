@@ -1,4 +1,7 @@
 <div class="deviant {open ? 'opened' : ''}" id="deviant_{deviant.name}" ref:root>
+	{#if note}
+		<div class="deviantNote">{$l10n(...note)}</div>
+	{/if}
 	<div class="deviantLine" on:click="fire('openMe')">
 		{#if watchedArtists && watchedArtists.has(deviant.name)}
 			<div class="deviationWatch true" title="{$l10nCache.watchingThisArtist}">&nbsp;</div>
