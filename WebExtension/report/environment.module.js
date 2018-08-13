@@ -4,7 +4,7 @@
 	Check core.module.js for the complete legal stuff.
 */
 if (!(window.chrome && chrome.runtime)) { window.chrome = browser; }
-import { beginPreparations, nextTip } from "./core.module.js";
+import { beginPreparations, nextTip, tipOfTheMoment } from "./core.module.js";
 
 export var adapter = Object.assign({
 	prepComplete: function() {
