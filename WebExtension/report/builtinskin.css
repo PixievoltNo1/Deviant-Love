@@ -109,6 +109,24 @@ a img {
 #lovedArtists.noResults {
 	padding: 2px;
 }
+.deviationResultGroup {
+	display: grid;
+	grid-template-columns: 1fr 80px;
+	grid-template-rows: min-content 1fr;
+}
+.deviationResultGroupSidebar {
+	grid-column: 2;
+	grid-row: 1 / -1;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+}
+.viewDeviant::before {
+	content: "(";
+}
+.viewDeviant::after {
+	content: ")";
+}
 #lovedArtists {
 	flex: 1;
 }
@@ -200,13 +218,10 @@ a img {
 	align-items: stretch;
 }
 .deviantDetails {
-	width: 80px;
+	width: 108px;
 	padding: 9px 4px;
 	text-align: center;
 	position: relative;
-}
-.closerLook.touch .deviantDetails {
-	width: 108px;
 }
 .avatar {
 	display: inline-block;
