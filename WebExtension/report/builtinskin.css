@@ -98,16 +98,13 @@ a img {
 .findMode #noFind {
 	display: block;
 }
+.findMode #lovedArtists {
+    background: hsl(46, 100%, 43%);
+}
 .sectionHeader {
 	padding: 0.1em 0.5em;
 	font-weight: bold;
 	background-color: hsl(53, 93%, 75%);
-}
-#lovedArtists.noResults {
-	background-color: hsl(55, 100%, 94%);
-}
-#lovedArtists.noResults {
-	padding: 2px;
 }
 .deviationResultGroup {
 	display: grid;
@@ -130,7 +127,7 @@ a img {
 #lovedArtists {
 	flex: 1;
 }
-#lovedArtists, .closerLook {
+#lovedArtists, .closerLook, .deviantList {
 	background: hsl(357, 90%, 54%);
 }
 .notice {

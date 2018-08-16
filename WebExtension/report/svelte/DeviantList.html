@@ -1,6 +1,8 @@
-{#each deviants as deviant (deviant.name)}
-	<DeviantEntry {deviant} {registry} {watchedArtists} on:openMe="showDeviant(deviant.name)"/>
-{/each}
+<div class="deviantList" style="position: static;">
+	{#each deviants as deviant (deviant.name)}
+		<DeviantEntry {deviant} {registry} {watchedArtists} on:openMe="showDeviant(deviant.name)"/>
+	{/each}
+</div>
 <script>
 import DeviantEntry from "./DeviantEntry.html";
 export default {
