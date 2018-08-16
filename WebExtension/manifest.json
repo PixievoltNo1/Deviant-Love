@@ -1,9 +1,9 @@
 {
 	"name": "Deviant Love",
-	"version": "2.99.1",
+	"version": "2.99.2",
 	"description": "__MSG_extDesc__",
 	"author": "Pikadude No. 1",
-	"homepage_url": "https://deviantlovesoftware.deviantart.com/",
+	"homepage_url": "https://www.deviantart.com/deviantlovesoftware",
 	"icons": {
 		"16": "images/heart/16.png",
 		"48": "images/heart/48.png",
@@ -41,6 +41,5 @@
 			"strict_min_version": "52.0"
 		}
 	},
-	"minimum_edge_version" : "40.15063.0.0",
 	"manifest_version": 2
 }
