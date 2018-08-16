@@ -99,17 +99,36 @@ a img {
 	display: block;
 }
 .findMode #lovedArtists {
-    background: hsl(46, 100%, 43%);
+	background: hsl(46, 100%, 43%);
 }
-.sectionHeader {
+#lovedArtists > .sectionHeader {
 	padding: 0.1em 0.5em;
-	font-weight: bold;
+	font-weight: 800;
+	font-size: 120%;
+	text-align: center;
 	background-color: hsl(53, 93%, 75%);
+	border: solid hsl(46, 100%, 43%);
+	border-width: 3px 0 1px;
+}
+#lovedArtists > .sectionHeader:first-child {
+	border-top-width: 0;
 }
 .deviationResultGroup {
 	display: grid;
 	grid-template-columns: 1fr 80px;
 	grid-template-rows: min-content 1fr;
+	border-top: 1px solid hsl(46, 100%, 43%);
+}
+.sectionHeader + .deviationResultGroup {
+	border-top: none;
+}
+.deviationResultGroupHeader {
+	background-color: hsl(54, 91%, 84%);
+	font-weight: bold;
+	padding: 0 0.2em;
+}
+.deviationResultGroup > .deviationList {
+	background-color: hsl(56, 89%, 93%);
 }
 .deviationResultGroupSidebar {
 	grid-column: 2;
@@ -117,6 +136,11 @@ a img {
 	display: flex;
 	flex-direction: column;
 	align-items: center;
+	background-color: hsl(50, 95%, 60%);
+	padding: 6px 4px;
+}
+.deviationResultGroupSidebar > :not(:first-child) {
+	margin-top: 6px;
 }
 .viewDeviant::before {
 	content: "(";
@@ -216,12 +240,15 @@ a img {
 }
 .deviantDetails {
 	width: 108px;
-	padding: 9px 4px;
-	text-align: center;
-	position: relative;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	padding: 6px 4px;
+}
+.deviantDetails > :not(:first-child) {
+	margin-top: 6px;
 }
 .avatar {
-	display: inline-block;
 	background-color: white;
 	box-shadow: hsla(0, 0%, 0%, 0.8) 2px 2px 2px;
 	position: relative;
@@ -295,8 +322,12 @@ a img {
     height: 1.25em;
     background-size: 0.8em;
 }
-.subaccountsEditor > .sectionHeader {
+.subaccountsEditor .sectionHeader {
+	font-weight: bold;
+	padding: 0.1em;
+	padding-left: 0.5em;
 	padding-right: 1.25em;
+	background-color: hsl(53, 93%, 75%);
 }
 .subaccount {
     position: relative;
