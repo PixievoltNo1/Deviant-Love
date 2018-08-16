@@ -9,7 +9,7 @@
 -->
 {#if queryResults}
 	{#if queryResults.deviants.length}
-		<div class="sectionHeader">{$l10n("foundDeviants", queryResults.deviants.length)}</div>
+		<div class="sectionHeader">{$l10n("foundDeviants", [queryResults.deviants.length])}</div>
 		<DeviantList deviants={queryResults.deviants} {watchedArtists} ref:deviantList/>
 	{/if}
 	{#if queryResults.deviations.length}
@@ -39,14 +39,13 @@
 	<div id="ampersandHint" class="notice">{$l10n("findAmpersandHint")}</div>
 {/if}
 <script>
-// TODO: Handle queryResults.matchedBySubaccount
 import DeviantList from "./DeviantList.html";
 import DeviationList from "./DeviationList.html";
 import Avatar from "./Avatar.html";
 export default {
 	components: { DeviantList, DeviationList, Avatar },
-	onstate({changed, current, previous = {}}) {
-		if (changed.queryResults) {
+	onupdate({changed, current, previous = {}}) {
+		if (changed.queryResults && this.refs.deviantList) {
 			var entries = this.refs.deviantList.get().registry;
 			if (previous.queryResults) {
 				for (let deviant of Object.keys(previous.queryResults.matchedBySubaccount)) {
