@@ -6,11 +6,7 @@
 if (!(window.chrome && chrome.runtime)) { window.chrome = browser; }
 import { beginPreparations, nextTip, store } from "./core.module.js";
 
-export var adapter = Object.assign({
-	prepComplete: function() {
-		chrome.runtime.sendMessage({action: "echo", echoAction: "scanningComplete"});
-	}
-}, apiAdapter);
+export var adapter = apiAdapter;
 
 chrome.runtime.sendMessage({action: "echoWithCallback", echoAction: "getLove"},
 	function(love) {
@@ -21,14 +17,16 @@ chrome.runtime.sendMessage({action: "echoWithCallback", echoAction: "getLove"},
 );
 chrome.runtime.onMessage.addListener(function(thing, buddy, callback) {switch (thing.action) {
 	case "showing":
-		store.set({visible: true});
+		var waitFor = [];
+		store.fire("beforeShow", (waitForThis) => { waitFor.push(waitForThis); });
+		Promise.all(waitFor).then(() => {
+			store.set({visible: true});
+			callback();
+		});
+		return true;
 	break;
 	case "hiding":
 		store.set({visible: false});
-	break;
-	case "changeTip":
-		nextTip().then(callback);
-		return true;
 	break;
 	case "artistRequested":
 		showDeviant(thing.artist);

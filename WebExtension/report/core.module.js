@@ -118,7 +118,6 @@ function beginPreparations(love) {
 			watchedArtists,
 			watchError,
 		};
-		adapter.prepComplete(results);
 		screen.destroy();
 		var ui = {firstDeviant};
 		report(results, ui, love);
@@ -344,6 +343,10 @@ function report(results, ui, love) {
 	if (ui.firstDeviant) {
 		showDeviant(ui.firstDeviant);
 	}
+	
+	store.on("beforeShow", (delay) => {
+		delay( nextTip() );
+	});
 }
 
 export function nextTip() {

@@ -28,7 +28,7 @@ var heartIcons = [
 ];
 var normalIcons = Array.from(document.querySelectorAll("link[rel~=icon]"));
 var panelState = "inactive";
-var panelStage = "uninitialized";
+var panelInitialized = false;
 
 chrome.runtime.onMessage.addListener( function(thing, buddy, callback) {switch (thing.action) {
 	case "spark":
@@ -38,34 +38,28 @@ chrome.runtime.onMessage.addListener( function(thing, buddy, callback) {switch (
 	case "artistRequested":
 		if (panelState == "inactive") {activate(thing.artist)}
 	break;
-	case "scanningComplete":
-		panelStage = "love";
-	break;
 }} );
 
 function activate(firstDeviant) {
 	panelState = "preparing";
-	if (panelStage == "uninitialized") {
+	if (!panelInitialized) {
 		chrome.runtime.onMessage.addListener( function panelReady(thing) {
 			if (thing.action == "panelReady") {
-				panelStage = "scanning";
+				panelInitialized = true;
 				reveal();
 				chrome.runtime.onMessage.removeListener(panelReady);
 			}
 		} );
 		panel.contentWindow.location.replace(
 			chrome.runtime.getURL("report/popup.html" + (firstDeviant ? "#" + firstDeviant : "")) );
-	} else if (panelStage == "scanning") {
-		reveal();
 	} else {
-		chrome.runtime.sendMessage({action: "echoWithCallback", echoAction: "changeTip"}, reveal);
+		chrome.runtime.sendMessage({action: "echoWithCallback", echoAction: "showing"}, reveal);
 	}
 	function reveal() {
 		panel.classList.remove("hide");
 		shield.classList.remove("hide");
 		panelState = "active";
 		chrome.runtime.sendMessage({action: "showX"});
-		chrome.runtime.sendMessage({action: "echo", echoAction: "showing"});
 		shield.addEventListener("click", deactivate, false);
 		for (let icon of normalIcons) {
 			icon.remove();
