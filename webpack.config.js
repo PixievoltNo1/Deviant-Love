@@ -7,6 +7,7 @@ module.exports = function(env = {}) { return {
 	mode: "none",
 	entry: {
 		core: './WebExtension/report/core.module.js',
+		options: './WebExtension/options/options.module.js',
 	},
 	output: {
 		path: path.resolve(__dirname, env.release ? 'release/build' : 'WebExtension/build'),
@@ -26,6 +27,20 @@ module.exports = function(env = {}) { return {
 				}
 			},
 		],
+	},
+	optimization: {
+		splitChunks: {
+			minSize: 0,
+			cacheGroups: {
+				shared: {
+					name: "shared",
+					chunks({name}) {
+						return (name == "core" || name == "options");
+					},
+					minChunks: 2,
+				}
+			}
+		},
 	},
 	plugins: [
 		new webpack.optimize.ModuleConcatenationPlugin(),
