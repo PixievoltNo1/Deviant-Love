@@ -61,5 +61,6 @@ module.exports = function(env = {}) { return {
 	],
 	stats: {
 		optimizationBailout: true,
+		warningsFilter: "Avoid using autofocus",
 	},
 }; };
