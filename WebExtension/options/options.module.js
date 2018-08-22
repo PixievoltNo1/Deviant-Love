@@ -3,53 +3,25 @@
 	Copyright Pikadude No. 1
 	Check core.module.js for the complete legal stuff.
 */
-"use strict";
 if (!(window.chrome && chrome.runtime)) { window.chrome = browser; }
+import Options from "./svelte/Options.html";
+import { Store } from "svelte/store";
+import storePersist from "../storePersist.module.js";
 
-var templateContents = {};
-fillL10n(document);
-for (let elem of Array.from( document.getElementsByTagName("template") )) {
-	fillL10n(elem.content);
-	templateContents[elem.id] = document.importNode(elem.content, true);
-}
-
-var subaccounts;
-apiAdapter.retrieve(["subaccounts"]).then((data) => {
-	({subaccounts} = data);
-	if (!subaccounts) {
-		subaccounts = {};
-		return;
-	} else {
-		$("#subaccountsEditorExplainer").remove();
-		for (let owner in subaccounts) {
-			$(".newOwner").before( makeOwnerElem(owner) );
-		}
-	}
+var store = new Store({
+	l10n: apiAdapter.getL10nMsg,
 });
-function makeOwnerElem(owner) {
-	var ownerElem = $(templateContents["subaccountOwner"]).clone();
-	ownerElem.find(".ownerLine .accountName").text(owner);
-	if (owner in subaccounts) {
-		for (let subaccount of subaccounts[owner]) {
-			addSubaccountLine(ownerElem, subaccount);
-		}
-	}
-	return ownerElem;
-}
-function addSubaccountLine(ownerElem, subaccount) {
-	var subaccountElem = $(templateContents["subaccountLine"]).clone();
-	subaccountElem.find(".accountName").text(subaccount);
-	ownerElem.find(".subaccountInsertionPoint").before(subaccountElem);
-}
+var subaccounts;
+storePersist(store).then(() => {
+	store.set({prefsLoaded: true});
+	({subaccounts} = store.get());
+});
+var options = new Options({
+	target: document.body,
+	store,
+});
 function getOwnerFromElem(ownerElem) {
 	return ownerElem.find(".ownerLine .accountName").text();
-}
-function findOwnerElem(owner) {
-	for (let elem of $(".subaccountOwner")) {
-		if (getOwnerFromElem( $(elem) ) == owner) {
-			return elem;
-		}
-	}
 }
 function nameCheck(input) {
 	// TODO: DRY this after rewriting #addSubaccount handler in core.module.js
@@ -80,7 +52,7 @@ function nameCheck(input) {
 		throw ["Communcation"];
 	});
 }
-async function addSubaccount(owner, ownerElem, owned) {
+async function addSubaccount(owner, owned) {
 	try {
 		var {name, ownedBy, isOwner, warning} = await nameCheck(owned);
 		if (ownedBy) {
@@ -90,16 +62,13 @@ async function addSubaccount(owner, ownerElem, owned) {
 			subaccounts[owner] = [];
 		}
 		subaccounts[owner].push(name);
-		addSubaccountLine(ownerElem, name);
 		if (isOwner) {
 			for (let subaccount of subaccounts[name]) {
-				addSubaccountLine(ownerElem, subaccount);
 				subaccounts[owner].push(subaccount);
 			}
-			findOwnerElem(name).remove();
 			delete subaccounts[name];
 		}
-		apiAdapter.store("subaccounts", subaccounts);
+		store.set({subaccounts});
 		if (warning) {
 			showSubaccountWarning(warning, [name]);
 		}
@@ -132,27 +101,16 @@ $("#subaccountsEditor").delegate("form, button", "submit click", function(event)
 		return;
 	}
 	$(".subaccountsMessage").prop("hidden", true);
-}).delegate("button.addSubaccount", "click", function() {
-	this.hidden = true;
-	this.nextElementSibling.hidden = false;
-	this.nextElementSibling.querySelector(".subaccountInput").focus();
 }).delegate(".addSubaccountForm", "submit", function() {
+	// TODO: Re-implement hiding the form after a successful add
 	var ownerElem = $(this).closest(".subaccountOwner");
 	var owner = getOwnerFromElem(ownerElem);
 	var shield = $("<div>").addClass("editorShield").appendTo("#subaccountsEditor");
-	addSubaccount(owner, ownerElem, $(this).find(".subaccountInput").val()).then((ok) => {
-		if (ok) {
-			this.hidden = true;
-			this.previousElementSibling.hidden = false;
-			this.reset();
-		}
+	addSubaccount(owner, $(this).find(".subaccountInput").val()).then((ok) => {
 		shield.remove();
 	});
-}).delegate("button.openNewOwner", "click", function() {
-	this.hidden = true;
-	this.nextElementSibling.hidden = false;
-	this.nextElementSibling.querySelector(".newSubaccountOwnerInput").focus();
 }).delegate(".newOwnerForm", "submit", function() {
+	// TODO: Re-implement hiding the form after a successful add
 	var checkResults = nameCheck(this.querySelector(".newSubaccountOwnerInput").value);
 	if (checkResults.ownedBy) {
 		showSubaccountError("OwnerIsOwned", [checkResults.name, checkResults.ownedBy]);
@@ -163,70 +121,36 @@ $("#subaccountsEditor").delegate("form, button", "submit click", function(event)
 		if (warning) {
 			showSubaccountWarning(warning, [name]);
 		}
-		if (!isOwner) {
-			var ownerElem = makeOwnerElem(name);
-			var appendMe = ownerElem;
-		} else {
-			var ownerElem = $(findOwnerElem(name));
+		if (isOwner) {
 			showSubaccountWarning("OwnerAlreadyAdded", [name]);
 		}
-		return Promise.all([
-			addSubaccount(name, ownerElem, this.querySelector(".subaccountInput").value),
-			appendMe
-		]);
+		return addSubaccount(name, this.querySelector(".subaccountInput").value);
 	}, (err) => {
 		showSubaccountError(...err);
 		return [];
-	}).then(([ok, appendMe]) => {
-		if (ok) {
-			this.hidden = true;
-			this.previousElementSibling.hidden = false;
-			this.reset();
-			$(".newOwner").before(appendMe);
-			$("#subaccountsEditorExplainer").remove();
-		}
+	}).then((ok) => {
 		shield.remove();
 	});
-}).delegate("button.cancelOwner", "click", function() {
-	var form = $(".newOwnerForm")[0];
-	form.hidden = true;
-	form.previousElementSibling.hidden = false;
 }).delegate("button.removeSubaccount", "click", function() {
-	var ownerElem = $(this).closest(".subaccountOwner");
-	var owner = getOwnerFromElem(ownerElem);
-	var unownedElem = $(this).closest(".editorLine").remove();
-	var unowned = unownedElem.find(".accountName").text(); // got a faceful of Hidden Power
+	var owner = getOwnerFromElem( $(this).closest(".subaccountOwner") );
+	var unowned = $(this).closest(".editorLine").find(".accountName").text(); // got a faceful of Hidden Power
 	subaccounts[owner].splice(subaccounts[owner].indexOf(unowned), 1);
 	if (subaccounts[owner].length == 0) {
-		ownerElem.remove();
 		delete subaccounts[owner];
 	}
-	apiAdapter.store("subaccounts", subaccounts);
-}).delegate("button.changeMainAccount", "click", function() {
-	var ownerElem = $(this).closest(".subaccountOwner");
-	var owner = getOwnerFromElem(ownerElem);
-	var changeForm = $(templateContents["changeSubaccountOwner"]).clone();
-	changeForm.find(".ownerLine .accountName").text(owner);
-	for (let subaccount of subaccounts[owner]) {
-		let subaccountElem = $(templateContents["changeSubaccountOwnerOption"]).clone();
-		subaccountElem.find(".accountName").text(subaccount);
-		subaccountElem.find("input").attr("value", subaccount);
-		changeForm.find(".subaccountInsertionPoint").before(subaccountElem);
-	}
-	ownerElem.replaceWith(changeForm);
+	store.set({subaccounts});
 }).delegate(".changeMainAccountForm", "submit", function() {
 	var ownerElem = $(this).closest(".subaccountOwner");
 	var owner = getOwnerFromElem(ownerElem);
 	var newOwner = ownerElem.find(":checked")[0].value;
-	if (newOwner == "$noChange") {
-		ownerElem.replaceWith( makeOwnerElem(owner) );
-	} else {
+	// TODO: Re-implement returning the mode to normal if $noChange is selected
+	if (newOwner != "$noChange") {
+		// TODO: Rewrite to preserve object entry order
 		var owned = subaccounts[owner];
 		owned[ owned.indexOf(newOwner) ] = owner;
 		subaccounts[newOwner] = owned;
 		delete subaccounts[owner];
-		apiAdapter.store("subaccounts", subaccounts);
-		ownerElem.replaceWith( makeOwnerElem(newOwner) );
+		store.set({subaccounts});
 	}
 });
 

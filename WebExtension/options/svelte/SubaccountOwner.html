@@ -1,0 +1,54 @@
+<div class="subaccountOwner">
+	{#if mode == "normal"}
+		<div class="editorLine ownerLine">
+			<span class="accountName">{owner}</span>
+			<button type="button" class="changeMainAccount" on:click="set({mode: 'changeOwner'})">
+				{$l10n("subaccountsEditorChangeMain")}
+			</button>
+		</div>
+		{#each owned as subaccount}
+			<div class="editorLine">
+				<span class="accountName">{subaccount}</span>
+				<button type="button" class="removeSubaccount">{$l10n("subaccountsRemove")}</button>
+			</div>
+		{/each}
+		<div class="editorLine">
+			{#if !showAddSubaccount}
+				<button type="button" class="addSubaccount" on:click="set({showAddSubaccount: true})">
+					{$l10n("subaccountsEditorAddSubaccount")}
+				</button>
+			{:else}
+				<form class="addSubaccountForm">
+					<input class="subaccountInput" required autofocus
+						placeholder="{$l10n('subaccountsEditorAddPlaceholder')}">
+					<button type="submit">{$l10n("subaccountsAddConfirm")}</button>
+				</form>
+			{/if}
+		</div>
+	{:elseif mode == "changeOwner"}
+		<form class="subaccountOwner changeMainAccountForm">
+			<div class="editorLine ownerLine"><label>
+				<input type="radio" name="newOwner" value="$noChange" checked>
+				<span class="accountName">{owner}</span>
+			</label></div>
+			{#each owned as subaccount}
+				<div class="editorLine"><label>
+					<input type="radio" name="newOwner" value="{subaccount}">
+					<span class="accountName">{subaccount}</span>
+				</label></div>
+			{/each}
+			<div class="editorLine">
+				<button type="submit">{$l10n("subaccountsEditorConfirmMainChange")}</button>
+			</div>
+		</form>
+	{/if}
+</div>
+<script>
+export default {
+	data() {
+		return {
+			mode: "normal",
+		};
+	},
+}
+</script>

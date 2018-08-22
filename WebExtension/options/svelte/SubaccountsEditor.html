@@ -1,0 +1,43 @@
+<div id="subaccountsEditor">
+	{#if $prefsLoaded}
+		{#each Object.entries($subaccounts) as [owner, owned] (owner)}
+			<SubaccountOwner {owner} {owned} />
+		{:else}
+			<div id="subaccountsEditorExplainer">{$l10n("subaccountsEditorExplain")}</div>
+		{/each}
+		<div class="newOwner">
+			{#if !showNewOwnerForm}
+				<button type="button" on:click="set({showNewOwnerForm: true})">
+					{$l10n("subaccountsEditorAddMainAccount")}
+				</button>
+			{:else}
+				<form class="subaccountOwner newOwnerForm">
+					<div class="editorLine ownerLine">
+						<span class="accountName">
+							<input class="newSubaccountOwnerInput" required autofocus
+								placeholder="{$l10n(subaccountsEditorOwnerPlaceholder)}">
+						</span>
+						<button type="button" tabindex="-1" class="cancelOwner"
+							on:click="set({showNewOwnerForm: false})">
+							{$l10n("subaccountsEditorCancelOwner")}
+						</button>
+					</div>
+					<div class="editorLine firstSubaccount">
+						<input class="subaccountInput" required
+							placeholder="{$l10n('subaccountsEditorAddPlaceholder')}">
+						<button type="submit">{$l10n("subaccountsAddConfirm")}</button>
+					</div>
+				</form>
+			{/if}
+		</div>
+	{/if}
+</div>
+<div class="subaccountsMessage warning" hidden></div>
+<div class="subaccountsMessage error" hidden></div>
+<script>
+// TODO: Make sure automatic focusing here and in SubaccountOwner works correctly
+import SubaccountOwner from "./SubaccountOwner.html";
+export default {
+	components: { SubaccountOwner },
+};
+</script>
