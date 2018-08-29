@@ -7,6 +7,7 @@ if (!(window.chrome && chrome.runtime)) { window.chrome = browser; }
 import Options from "./svelte/Options.html";
 import { Store } from "svelte/store";
 import storePersist from "../storePersist.module.js";
+import lookUpDeviant from "../report/lookUpDeviant.module.js";
 
 var store = new Store({
 	l10n: apiAdapter.getL10nMsg,
@@ -36,20 +37,14 @@ function nameCheck(input) {
 			}
 		}
 	}
-	var profileURL = "http://" + name + ".deviantart.com/";
-	return $.ajax(profileURL, {responseType: "text"}).then((profileHTML) => {
-		var profileDoc = (new DOMParser()).parseFromString(profileHTML, "text/html");
-		var verifiedName = $(profileDoc).find("#gmi-Gruser").attr("gmi-name");
-		if (!verifiedName) {
-			var warning = "CantVerifyCasing";
-			verifiedName = input;
+	return lookUpDeviant(name).then((results) => {
+		if (results.name) {
+			return {name: results.name};
+		} else {
+			return {name: input, warning: ["CantVerifyCasing", [input]]}
 		}
-		return {name: verifiedName, warning};
-	}, (xhr) => {
-		if (xhr.status == 404) {
-			throw ["NotFound", [name]];
-		}
-		throw ["Communcation"];
+	}, (err) => {
+		throw [err, [input]];
 	});
 }
 async function addSubaccount(owner, owned) {

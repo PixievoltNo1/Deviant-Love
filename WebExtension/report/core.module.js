@@ -22,6 +22,7 @@ import { adapter } from "./environment.module.js";
 export { beginPreparations, tipOfTheMoment };
 import PreparationScreen from "./svelte/PreparationScreen.html";
 import MainScreen from "./svelte/MainScreen.html";
+import lookUpDeviant from "./lookUpDeviant.module.js";
 
 export var store = new Store({
 	l10n: adapter.getL10nMsg,
@@ -234,30 +235,22 @@ function report(results, ui, love) {
 					}
 				}
 			}
-			var request = $.ajax("http://" + lcInput + ".deviantart.com/", {responseType: "text"});
-			return request.then( function(profileHtml) {
-				// <html> and <head> may be filtered
-				var profileElem = $("<div>" + profileHtml + "</div>");
-				var verifiedName = profileElem.find("#gmi-Gruser").attr("gmi-name");
+			return lookUpDeviant(lcInput).then((results) => {
+				var verifiedName = results.name;
 				if (!verifiedName) {
 					var warn = true;
 					verifiedName = input;
 				}
 				if ($("input[value='thisToInput']").prop("checked")) {
 					var newDeviant = new Deviant(verifiedName);
-					newDeviant.avatar = profileElem.find("link[rel='image_src']").attr("href");
+					newDeviant.avatar = results.avatar;
 					deviants.effectiveMap.set(verifiedName, newDeviant);
 				}
 				if (warn) {
 					return { related: input, warning: "CantVerifyCasing", warningPart: input };
 				}
 				return verifiedName;
-			}, function(xhr) {
-				if (xhr.status == 404) {
-					throw "NotFound";
-				}
-				throw "Communcation";
-			} );
+			});
 		})() ).then( function(related) {
 			if (typeof related == "object") {
 				var warning = related.warning, warningPart = related.warningPart;
@@ -343,7 +336,7 @@ function report(results, ui, love) {
 	if (ui.firstDeviant) {
 		showDeviant(ui.firstDeviant);
 	}
-	
+
 	store.on("beforeShow", (delay) => {
 		delay( nextTip() );
 	});
