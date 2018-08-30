@@ -1,4 +1,4 @@
-<div class="deviant {open ? 'opened' : ''}" id="deviant_{deviant.name}" ref:root>
+<div class="deviant" class:opened="open" id="deviant_{deviant.name}" ref:root>
 	{#if note}
 		<div class="deviantNote">{$l10n(...note)}</div>
 	{/if}
@@ -10,8 +10,8 @@
 		{/if}
 		<span class="deviantFaves">{deviant.deviations.length}</span>
 		<span class="deviantName">{deviant.name}</span>
-		<div class="subaccountsButton line {deviant.name in $subaccounts ? 'has' : ''}
-			{$editingSubaccountsOf == deviant.name ? 'editing' : ''}"
+		<div class="subaccountsButton line" class:has="deviant.name in $subaccounts"
+			class:editing="$editingSubaccountsOf == deviant.name"
 			on:click="toggleSubaccounts(event)" title="{$l10nCache.subaccountsOpen}">&nbsp;</div>
 	</div>
 	{#if open || closing}
