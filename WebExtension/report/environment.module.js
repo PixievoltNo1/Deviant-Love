@@ -5,8 +5,7 @@
 */
 if (!(window.chrome && chrome.runtime)) { window.chrome = browser; }
 import { beginPreparations, nextTip, store } from "./core.module.js";
-
-export var adapter = apiAdapter;
+export * from "../apiAdapter.module.js";
 
 chrome.runtime.sendMessage({action: "echoWithCallback", echoAction: "getLove"},
 	function(love) {

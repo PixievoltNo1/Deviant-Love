@@ -18,14 +18,14 @@
 import { Store } from "svelte/store";
 import storePersist from "../storePersist.module.js";
 import { setUpStoreL10nCache } from "./l10nCache.module.js";
-import { adapter } from "./environment.module.js";
+import * as env from "./environment.module.js";
 export { beginPreparations, tipOfTheMoment };
 import PreparationScreen from "./svelte/PreparationScreen.html";
 import MainScreen from "./svelte/MainScreen.html";
 import lookUpDeviant from "./lookUpDeviant.module.js";
 
 export var store = new Store({
-	l10n: adapter.getL10nMsg,
+	l10n: env.getL10nMsg,
 	visible: true,
 });
 var prefsLoaded = storePersist(store);
@@ -348,13 +348,13 @@ document.body.addEventListener("touchend", function prepareForSwitchToMouse(touc
 }, {passive: true, once: true});
 export function nextTip() {
 	return Promise.all(
-		[adapter.retrieve("nextTip"), $.getJSON( adapter.getL10nFile("TipOfTheMoment.json") )]
+		[env.retrieve("nextTip"), $.getJSON( env.getL10nMsg("fileTipOfTheMoment") )]
 	).then(function(results) {
 		var nextTip = results[0].nextTip || 0, tips = results[1];
 		store.set({tip: tips[nextTip]});
 		nextTip++;
 		if (nextTip >= tips.length) {nextTip = 0;};
-		adapter.store("nextTip", nextTip);
+		env.store("nextTip", nextTip);
 	});
 }
 function makeL10nMethod(methodName, effect) {
@@ -363,7 +363,7 @@ function makeL10nMethod(methodName, effect) {
 		if (replacements.length == 0) {replacements = undefined};
 		// This data will be needed when the user will be able to change the language at runtime
 		// this.attr("data-l10n", msgName).data("l10nMethod", methodName);
-		effect.call(this, adapter.getL10nMsg(msgName, replacements));
+		effect.call(this, env.getL10nMsg(msgName, replacements));
 		return this;
 	}
 }

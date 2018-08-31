@@ -4,6 +4,7 @@
 	Check core.module.js for the complete legal stuff.
 */
 if (!(window.chrome && chrome.runtime)) { window.chrome = browser; }
+import * as apiAdapter from "../apiAdapter.module.js";
 import Options from "./svelte/Options.html";
 import { Store } from "svelte/store";
 import storePersist from "../storePersist.module.js";
