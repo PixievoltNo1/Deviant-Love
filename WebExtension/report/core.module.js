@@ -167,14 +167,6 @@ function report(results, ui, love) {
 	$("<div>", {id: "queryError"}).hide().insertAfter("#findBar");
 
 	// Set up interaction
-	$("#lovedArtists").delegate(".deviant", "touchstart", function() {
-		this.classList.add("touched");
-	}).delegate(".deviant", "touchend", function(touchEvent) {
-		$(this).unbind(".switchToMouse").bind("mouseenter.switchToMouse", function(mouseEvent) {
-			if (touchEvent.timeStamp - 200 < mouseEvent.timeStamp) { return; }
-			$(this).removeClass("touched").unbind(".switchToMouse");
-		});
-	});
 	$("#query").bind("input", function(event) {
 		var checkResult = queryTroubleCheck(this.value);
 		if (typeof checkResult == "object") {
@@ -342,6 +334,18 @@ function report(results, ui, love) {
 	});
 }
 
+document.body.addEventListener("touchstart", () => {
+	store.set({usingTouch: true});
+}, {passive: true});
+document.body.addEventListener("touchend", function prepareForSwitchToMouse(touchEvent) {
+	document.body.addEventListener("mousemove", function switchToMouse(mouseEvent) {
+		if (touchEvent.timeStamp - 200 < mouseEvent.timeStamp) { return; }
+		store.set({usingTouch: false});
+		document.body.removeEventListener("mousemove", switchToMouse);
+		document.body.addEventListener("touchend", prepareForSwitchToMouse,
+			{passive: true, once: true});
+	});
+}, {passive: true, once: true});
 export function nextTip() {
 	return Promise.all(
 		[adapter.retrieve("nextTip"), $.getJSON( adapter.getL10nFile("TipOfTheMoment.json") )]

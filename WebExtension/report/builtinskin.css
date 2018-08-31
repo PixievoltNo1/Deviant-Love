@@ -226,7 +226,7 @@ a img {
 	background-repeat: no-repeat;
 	background-image: url("/images/combineSilhouette.svg"); /* for when only the below rule matches */
 }
-.deviant:hover:not(.touched) .subaccountsButton.line {
+#mainScreen:not(.usingTouch) .deviant:hover .subaccountsButton.line {
 	display: inline-block;
 }
 .subaccountsButton.line.has, .subaccountsButton.line.editing, .subaccountsButton.line:hover {
