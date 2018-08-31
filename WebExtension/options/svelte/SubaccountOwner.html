@@ -9,7 +9,9 @@
 		{#each owned as subaccount}
 			<div class="editorLine">
 				<span class="accountName">{subaccount}</span>
-				<button type="button" class="removeSubaccount">{$l10n("subaccountsRemove")}</button>
+				<button type="button" class="removeSubaccount"
+					on:click="fire('remove', {owner, removing: subaccount})">
+					{$l10n("subaccountsRemove")}</button>
 			</div>
 		{/each}
 		<div class="editorLine">
@@ -18,22 +20,22 @@
 					{$l10n("subaccountsEditorAddSubaccount")}
 				</button>
 			{:else}
-				<form class="addSubaccountForm">
-					<input class="subaccountInput" required autofocus
+				<form class="addSubaccountForm" on:submit="fire('add')">
+					<input bind:value="newSubaccount" required autofocus
 						placeholder="{$l10n('subaccountsEditorAddPlaceholder')}">
 					<button type="submit">{$l10n("subaccountsAddConfirm")}</button>
 				</form>
 			{/if}
 		</div>
 	{:elseif mode == "changeOwner"}
-		<form class="subaccountOwner changeMainAccountForm">
+		<form class="subaccountOwner changeMainAccountForm" on:submit="changeOwner()">
 			<div class="editorLine ownerLine"><label>
-				<input type="radio" name="newOwner" value="$noChange" checked>
+				<input type="radio" bind:group="newOwner" name="newOwner" value="$noChange" checked>
 				<span class="accountName">{owner}</span>
 			</label></div>
 			{#each owned as subaccount}
 				<div class="editorLine"><label>
-					<input type="radio" name="newOwner" value="{subaccount}">
+					<input type="radio" bind:group="newOwner" name="newOwner" value="{subaccount}">
 					<span class="accountName">{subaccount}</span>
 				</label></div>
 			{/each}
@@ -50,5 +52,15 @@ export default {
 			mode: "normal",
 		};
 	},
-}
+	methods: {
+		changeOwner() {
+			var {newOwner} = this.get();
+			if (newOwner == "$noChange") {
+				this.set({mode: "normal"});
+			} else {
+				this.fire("changeOwner"); // this object will be destroyed & replaced
+			}
+		},
+	},
+};
 </script>

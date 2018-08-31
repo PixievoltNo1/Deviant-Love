@@ -21,9 +21,7 @@ var options = new Options({
 	target: document.body,
 	store,
 });
-function getOwnerFromElem(ownerElem) {
-	return ownerElem.find(".ownerLine .accountName").text();
-}
+var {subaccountsEditor} = options.refs;
 function nameCheck(input) {
 	// TODO: DRY this after rewriting #addSubaccount handler in core.module.js
 	var name = input.toLowerCase();
@@ -88,30 +86,23 @@ function showSubaccountWarning(msgKey, replacements) {
 	warnElem.hidden = false;
 }
 $("#subaccountsEditor").delegate("form, button", "submit click", function(event) {
-	if (event.type == "submit") {
-		event.preventDefault();
-	}
-	if ($("#subaccountsEditor").find(".editorShield").length) {
-		event.stopImmediatePropagation();
-		return;
-	}
 	$(".subaccountsMessage").prop("hidden", true);
-}).delegate(".addSubaccountForm", "submit", function() {
-	// TODO: Re-implement hiding the form after a successful add
-	var ownerElem = $(this).closest(".subaccountOwner");
-	var owner = getOwnerFromElem(ownerElem);
-	var shield = $("<div>").addClass("editorShield").appendTo("#subaccountsEditor");
-	addSubaccount(owner, $(this).find(".subaccountInput").val()).then((ok) => {
-		shield.remove();
+});
+subaccountsEditor.on("add", function(ownerComponent) {
+	subaccountsEditor.set({busy: true});
+	var {owner, newSubaccount} = ownerComponent.get();
+	addSubaccount(owner, newSubaccount).then((ok) => {
+		ownerComponent.set({newSubaccount: "", showAddSubaccount: false});
+		subaccountsEditor.set({busy: false});
 	});
-}).delegate(".newOwnerForm", "submit", function() {
-	// TODO: Re-implement hiding the form after a successful add
-	var checkResults = nameCheck(this.querySelector(".newSubaccountOwnerInput").value);
+});
+subaccountsEditor.on("newOwner", function() {
+	var checkResults = nameCheck(subaccountsEditor.get().newOwner);
 	if (checkResults.ownedBy) {
 		showSubaccountError("OwnerIsOwned", [checkResults.name, checkResults.ownedBy]);
 		return;
 	}
-	var shield = $("<div>").addClass("editorShield").appendTo("#subaccountsEditor");
+	subaccountsEditor.set({busy: true});
 	Promise.resolve(checkResults).then(({name, isOwner, warning}) => {
 		if (warning) {
 			showSubaccountWarning(warning, [name]);
@@ -119,34 +110,32 @@ $("#subaccountsEditor").delegate("form, button", "submit click", function(event)
 		if (isOwner) {
 			showSubaccountWarning("OwnerAlreadyAdded", [name]);
 		}
-		return addSubaccount(name, this.querySelector(".subaccountInput").value);
+		return addSubaccount(name, subaccountsEditor.get().firstSubaccount);
 	}, (err) => {
 		showSubaccountError(...err);
-		return [];
+		return false;
 	}).then((ok) => {
-		shield.remove();
+		if (ok) {
+			subaccountsEditor.set({showNewOwnerForm: false});
+		}
+		subaccountsEditor.set({busy: false});
 	});
-}).delegate("button.removeSubaccount", "click", function() {
-	var owner = getOwnerFromElem( $(this).closest(".subaccountOwner") );
-	var unowned = $(this).closest(".editorLine").find(".accountName").text(); // got a faceful of Hidden Power
-	subaccounts[owner].splice(subaccounts[owner].indexOf(unowned), 1);
+});
+subaccountsEditor.on("remove", function({owner, removing}) {
+	subaccounts[owner].splice(subaccounts[owner].indexOf(removing), 1);
 	if (subaccounts[owner].length == 0) {
 		delete subaccounts[owner];
 	}
 	store.set({subaccounts});
-}).delegate(".changeMainAccountForm", "submit", function() {
-	var ownerElem = $(this).closest(".subaccountOwner");
-	var owner = getOwnerFromElem(ownerElem);
-	var newOwner = ownerElem.find(":checked")[0].value;
-	// TODO: Re-implement returning the mode to normal if $noChange is selected
-	if (newOwner != "$noChange") {
-		// TODO: Rewrite to preserve object entry order
-		var owned = subaccounts[owner];
-		owned[ owned.indexOf(newOwner) ] = owner;
-		subaccounts[newOwner] = owned;
-		delete subaccounts[owner];
-		store.set({subaccounts});
-	}
+});
+subaccountsEditor.on("changeOwner", function(ownerComponent) {
+	// TODO: Rewrite to preserve object entry order
+	var {owner, newOwner} = ownerComponent.get();
+	var owned = subaccounts[owner];
+	owned[ owned.indexOf(newOwner) ] = owner;
+	subaccounts[newOwner] = owned;
+	delete subaccounts[owner];
+	store.set({subaccounts});
 });
 
 var syncError, lastSaved;
