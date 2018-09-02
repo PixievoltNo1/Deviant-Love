@@ -3,9 +3,6 @@
 	Copyright Pikadude No. 1
 	Check core.module.js for the complete legal stuff.
 */
-"use strict";
-if (!(window.chrome && chrome.runtime)) { window.chrome = browser; }
-
 export function getL10nMsg(msgName, replacements) {
 	return chrome.i18n.getMessage(msgName, replacements);
 }

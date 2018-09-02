@@ -3,7 +3,6 @@
 	Copyright Pikadude No. 1
 	Check core.module.js for the complete legal stuff.
 */
-if (!(window.chrome && chrome.runtime)) { window.chrome = browser; }
 import { beginPreparations, nextTip, store } from "./core.module.js";
 export * from "../apiAdapter.module.js";
 

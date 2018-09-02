@@ -4,7 +4,6 @@
 	Check core.module.js for the complete legal stuff.
 */
 "use strict";
-if (!(window.chrome && chrome.runtime)) { window.chrome = browser; }
 
 chrome.runtime.onMessage.addListener( function(thing, buddy, callback) {switch (thing.action) {
 	case "showLove":

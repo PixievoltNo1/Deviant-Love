@@ -4,7 +4,6 @@
 	Check core.module.js for the complete legal stuff.
 */
 "use strict";
-if (!(window.chrome && chrome.runtime)) { window.chrome = browser; }
 
 function findLove(win = window) {
 	var document = win.document;
