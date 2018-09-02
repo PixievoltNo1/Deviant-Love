@@ -93,7 +93,7 @@ subaccountsEditor.on("add", function(ownerComponent) {
 	subaccountsEditor.set({busy: true});
 	var {owner, newSubaccount} = ownerComponent.get();
 	addSubaccount(owner, newSubaccount).then((ok) => {
-		ownerComponent.set({newSubaccount: "", showAddSubaccount: false});
+		ownerComponent.set({showAddSubaccount: false});
 		subaccountsEditor.set({busy: false});
 	});
 });
@@ -130,12 +130,17 @@ subaccountsEditor.on("remove", function({owner, removing}) {
 	store.set({subaccounts});
 });
 subaccountsEditor.on("changeOwner", function(ownerComponent) {
-	// TODO: Rewrite to preserve object entry order
 	var {owner, newOwner} = ownerComponent.get();
-	var owned = subaccounts[owner];
-	owned[ owned.indexOf(newOwner) ] = owner;
-	subaccounts[newOwner] = owned;
-	delete subaccounts[owner];
+	var newSubaccounts = {};
+	for (let [entryOwner, owned] of Object.entries(subaccounts)) {
+		if (entryOwner == owner) {
+			owned[ owned.indexOf(newOwner) ] = owner;
+			newSubaccounts[newOwner] = owned;
+		} else {
+			newSubaccounts[entryOwner] = owned;
+		}
+	}
+	subaccounts = newSubaccounts;
 	store.set({subaccounts});
 });
 

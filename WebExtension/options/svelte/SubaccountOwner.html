@@ -16,7 +16,8 @@
 		{/each}
 		<div class="editorLine">
 			{#if !showAddSubaccount}
-				<button type="button" class="addSubaccount" on:click="set({showAddSubaccount: true})">
+				<button type="button" class="addSubaccount"
+					on:click="set({showAddSubaccount: true, newSubaccount: ''})">
 					{$l10n("subaccountsEditorAddSubaccount")}
 				</button>
 			{:else}

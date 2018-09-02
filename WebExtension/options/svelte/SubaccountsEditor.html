@@ -5,13 +5,14 @@
 	{#if $prefsLoaded}
 		{#each Object.entries($subaccounts) as [owner, owned] (owner)}
 			<SubaccountOwner {owner} {owned} on:add="editorEvent('add', this)"
-				on:remove="editorEvent('remove', event)" on:change="editorEvent('change', this)"/>
+				on:remove="editorEvent('remove', event)" on:changeOwner="editorEvent('changeOwner', this)"/>
 		{:else}
 			<div id="subaccountsEditorExplainer">{$l10n("subaccountsEditorExplain")}</div>
 		{/each}
 		<div class="newOwner">
 			{#if !showNewOwnerForm}
-				<button type="button" on:click="set({showNewOwnerForm: true})">
+				<button type="button"
+					on:click="set({showNewOwnerForm: true, newOwner: '', firstSubaccount: ''})">
 					{$l10n("subaccountsEditorAddMainAccount")}
 				</button>
 			{:else}
@@ -19,7 +20,7 @@
 					<div class="editorLine ownerLine">
 						<span class="accountName">
 							<input bind:value="newOwner" required autofocus
-								placeholder="{$l10n(subaccountsEditorOwnerPlaceholder)}">
+								placeholder="{$l10n('subaccountsEditorOwnerPlaceholder')}">
 						</span>
 						<button type="button" tabindex="-1" class="cancelOwner"
 							on:click="set({showNewOwnerForm: false})">
@@ -45,7 +46,7 @@ export default {
 	methods: {
 		editorEvent(eventName, details) {
 			if (!this.get().busy) {
-				fire(eventName, details);
+				this.fire(eventName, details);
 			}
 			// TODO: Clear warning & error
 		},
