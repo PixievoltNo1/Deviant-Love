@@ -39,17 +39,17 @@ function nameCheck(input) {
 		if (results.name) {
 			return {name: results.name};
 		} else {
-			return {name: input, warning: ["CantVerifyCasing", [input]]}
+			return { name: input, warning: {msg: "CantVerifyCasing", parts: [input]} };
 		}
 	}, (err) => {
-		throw [err, [input]];
+		throw {msg: err, parts: [input]};
 	});
 }
 async function addSubaccount(owner, owned) {
 	try {
 		var {name, ownedBy, isOwner, warning} = await nameCheck(owned);
 		if (ownedBy) {
-			throw ["AlreadyOwned", [ownedBy]];
+			throw {msg: "AlreadyOwned", parts: [ownedBy]};
 		}
 		if (!(owner in subaccounts)) {
 			subaccounts[owner] = [];
@@ -63,56 +63,39 @@ async function addSubaccount(owner, owned) {
 		}
 		store.set({subaccounts});
 		if (warning) {
-			showSubaccountWarning(warning, [name]);
+			subaccountsEditor.addWarning(warning);
 		}
 		return true;
-	} catch (err) {
-		showSubaccountError(...err);
+	} catch (error) {
+		subaccountsEditor.set({error});
 	}
 }
-function showSubaccountError(msgKey, replacements) {
-	document.querySelector(".subaccountsMessage.warning").hidden = true;
-	var errElem = document.querySelector(".subaccountsMessage.error");
-	errElem.textContent = apiAdapter.getL10nMsg("subaccountsError" + msgKey, replacements);
-	errElem.hidden = false;
-}
-function showSubaccountWarning(msgKey, replacements) {
-	var warnElem = document.querySelector(".subaccountsMessage.warning");
-	if (warnElem.hidden) {
-		$(warnElem).empty();
-	}
-	$("<p>").text( apiAdapter.getL10nMsg("subaccountsWarning" + msgKey, replacements) )
-		.appendTo(warnElem);
-	warnElem.hidden = false;
-}
-$("#subaccountsEditor").delegate("form, button", "submit click", function(event) {
-	$(".subaccountsMessage").prop("hidden", true);
-});
 subaccountsEditor.on("add", function(ownerComponent) {
 	subaccountsEditor.set({busy: true});
 	var {owner, newSubaccount} = ownerComponent.get();
 	addSubaccount(owner, newSubaccount).then((ok) => {
-		ownerComponent.set({showAddSubaccount: false});
+		if (ok) {
+			ownerComponent.set({showAddSubaccount: false});
+		}
 		subaccountsEditor.set({busy: false});
 	});
 });
 subaccountsEditor.on("newOwner", function() {
 	var checkResults = nameCheck(subaccountsEditor.get().newOwner);
-	if (checkResults.ownedBy) {
-		showSubaccountError("OwnerIsOwned", [checkResults.name, checkResults.ownedBy]);
-		return;
-	}
 	subaccountsEditor.set({busy: true});
-	Promise.resolve(checkResults).then(({name, isOwner, warning}) => {
+	Promise.resolve(checkResults).then(({name, isOwner, ownedBy, warning}) => {
 		if (warning) {
-			showSubaccountWarning(warning, [name]);
+			subaccountsEditor.addWarning(warning);
+		}
+		if (ownedBy) {
+			throw {msg: "OwnerIsOwned", parts: [name, ownedBy]};
 		}
 		if (isOwner) {
-			showSubaccountWarning("OwnerAlreadyAdded", [name]);
+			subaccountsEditor.addWarning({msg: "OwnerAlreadyAdded", parts: [name]});
 		}
 		return addSubaccount(name, subaccountsEditor.get().firstSubaccount);
-	}, (err) => {
-		showSubaccountError(...err);
+	}).catch((error) => {
+		subaccountsEditor.set({error});
 		return false;
 	}).then((ok) => {
 		if (ok) {

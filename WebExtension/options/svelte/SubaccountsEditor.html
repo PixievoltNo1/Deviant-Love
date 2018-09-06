@@ -37,18 +37,33 @@
 		</div>
 	{/if}
 </div>
-<div class="subaccountsMessage warning" hidden></div>
-<div class="subaccountsMessage error" hidden></div>
+{#if warnings.length}
+	<div class="subaccountsMessage warning">
+		{#each warnings as {msg, parts}}
+			<p>{$l10n("subaccountsWarning" + msg, parts)}</p>
+		{/each}
+	</div>
+{/if}
+{#if error}
+	<div class="subaccountsMessage error">{$l10n("subaccountsError" + error.msg, error.parts)}</div>
+{/if}
 <script>
 import SubaccountOwner from "./SubaccountOwner.html";
 export default {
 	components: { SubaccountOwner },
+	data() { return {
+		warnings: [],
+	}; },
 	methods: {
 		editorEvent(eventName, details) {
-			if (!this.get().busy) {
-				this.fire(eventName, details);
-			}
-			// TODO: Clear warning & error
+			if (this.get().busy) { return; }
+			this.set({warnings: [], error: null});
+			this.fire(eventName, details);
+		},
+		addWarning(warning) {
+			var {warnings} = this.get();
+			warnings.push(warning);
+			this.set({warnings});
 		},
 	},
 	oncreate() {
