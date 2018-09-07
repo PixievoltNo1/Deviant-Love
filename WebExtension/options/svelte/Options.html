@@ -1,10 +1,11 @@
 <h1>{$l10n("subaccountsEditorHeader")}</h1>
 <SubaccountsEditor ref:subaccountsEditor/>
 <h1>{$l10n("syncHeader")}</h1>
-<div id="syncStatus"></div>
+<SyncStatus/>
 <script>
 import SubaccountsEditor from "./SubaccountsEditor.html";
+import SyncStatus from "./SyncStatus.html";
 export default {
-	components: { SubaccountsEditor },
+	components: { SubaccountsEditor, SyncStatus },
 };
 </script>

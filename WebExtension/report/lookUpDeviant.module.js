@@ -6,7 +6,7 @@
 export default async function(name) {
 	var results = {};
 	try {
-		var profileHtml = await $.ajax(`https://www.deviantart.com/${name}/`, {responseType: "text"});
+		var profileHtml = await (await fetch(`https://www.deviantart.com/${name}/`)).text();
 	} catch (xhr) {
 		if (xhr.status == "404") {
 			throw "NotFound";

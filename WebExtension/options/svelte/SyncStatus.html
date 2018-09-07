@@ -1,0 +1,30 @@
+<div id="syncStatus" class="{overall}">
+	{#if unsupported}
+		<p>{$l10n("syncByBrowserUnsupported")}</p>
+	{:elseif overall == "ok"}
+		<p>{$l10n("syncByBrowserOK")}</p>
+		<p>{$l10n("syncLastSaved", [lastSavedDisplay])}</p>
+	{:else}
+		<p>{$l10n("syncByBrowserError", [syncError])}</p>
+		{#if lastSaved}
+			<p>{$l10n("syncLastSuccessfulSync", [lastSavedDisplay])}</p>
+		{/if}
+	{/if}
+</div>
+<script>
+import { subscribeToSyncStatus } from "../../apiAdapter.module.js";
+export default {
+	computed: {
+		lastSavedDisplay: ({lastSaved}) => { return (new Date(lastSaved)).toLocaleString(); },
+	},
+	data() { return {
+		overall: "checking",
+	}; },
+	oncreate() {
+		subscribeToSyncStatus((status) => {
+			status.overall = Boolean(status.unsupported || status.syncError) ? "error" : "ok";
+			this.set(status)
+		});
+	},
+};
+</script>
