@@ -7,7 +7,7 @@ export default async function(store, prefs = Object.keys(prefSpec)) {
 		if (wake) { wakes.set(key, wake); }
 		if (sleep) { sleeps.set(key, sleep); }
 	}
-	var data = await new Promise((resolve) => { chrome.storage.sync.get(request, resolve) });
+	var data = await new Promise((resolve) => { chrome.storage.local.get(request, resolve) });
 	for (let [key, wake] of wakes.entries()) {
 		data[key] = wake(data[key]);
 	}
@@ -17,7 +17,7 @@ export default async function(store, prefs = Object.keys(prefSpec)) {
 			if (!changed[key]) { continue; }
 			let data = store.get()[key];
 			if (sleeps.has(key)) { data = sleeps.get(key)(data); }
-			chrome.storage.sync.set({[key]: data});
+			chrome.storage.local.set({[key]: data});
 		}
 	});
 	return true;
