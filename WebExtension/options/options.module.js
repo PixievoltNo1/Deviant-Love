@@ -39,7 +39,8 @@ function nameCheck(input) {
 		if (results.name) {
 			return {name: results.name};
 		} else {
-			return { name: input, warning: {msg: "CantVerifyCasing", parts: [input]} };
+			subaccountsEditor.addWarning( {msg: "CantVerifyCasing", parts: [input]} );
+			return { name: input };
 		}
 	}, (err) => {
 		throw {msg: err, parts: [input]};
@@ -47,7 +48,7 @@ function nameCheck(input) {
 }
 async function addSubaccount(owner, owned) {
 	try {
-		var {name, ownedBy, isOwner, warning} = await nameCheck(owned);
+		var {name, ownedBy, isOwner} = await nameCheck(owned);
 		if (ownedBy) {
 			throw {msg: "AlreadyOwned", parts: [ownedBy]};
 		}
@@ -62,9 +63,6 @@ async function addSubaccount(owner, owned) {
 			delete subaccounts[name];
 		}
 		store.set({subaccounts});
-		if (warning) {
-			subaccountsEditor.addWarning(warning);
-		}
 		return true;
 	} catch (error) {
 		subaccountsEditor.set({error});
@@ -83,10 +81,7 @@ subaccountsEditor.on("add", function(ownerComponent) {
 subaccountsEditor.on("newOwner", function() {
 	var checkResults = nameCheck(subaccountsEditor.get().newOwner);
 	subaccountsEditor.set({busy: true});
-	Promise.resolve(checkResults).then(({name, isOwner, ownedBy, warning}) => {
-		if (warning) {
-			subaccountsEditor.addWarning(warning);
-		}
+	Promise.resolve(checkResults).then(({name, isOwner, ownedBy}) => {
 		if (ownedBy) {
 			throw {msg: "OwnerIsOwned", parts: [name, ownedBy]};
 		}
