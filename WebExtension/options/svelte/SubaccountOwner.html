@@ -2,7 +2,8 @@
 	{#if mode == "normal"}
 		<div class="editorLine ownerLine">
 			<span class="accountName">{owner}</span>
-			<button type="button" class="changeMainAccount" on:click="set({mode: 'changeOwner'})">
+			<button type="button" class="changeMainAccount"
+				on:click="set({mode: 'changeOwner', newOwner: '$noChange'})">
 				{$l10n("subaccountsEditorChangeMain")}
 			</button>
 		</div>
@@ -31,7 +32,7 @@
 	{:elseif mode == "changeOwner"}
 		<form class="subaccountOwner changeMainAccountForm" on:submit="changeOwner()">
 			<div class="editorLine ownerLine"><label>
-				<input type="radio" bind:group="newOwner" name="newOwner" value="$noChange" checked>
+				<input type="radio" bind:group="newOwner" name="newOwner" value="$noChange">
 				<span class="accountName">{owner}</span>
 			</label></div>
 			{#each owned as subaccount}
