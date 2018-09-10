@@ -73,10 +73,11 @@ export default {
 						if (ownedBy) {
 							throw {msg: "OwnerIsOwned", parts: [name, ownedBy]};
 						}
+						var {firstSubaccount} = ui.get();
 						if (isOwner) {
-							ui.warn({msg: "OwnerAlreadyAdded", parts: [name]});
+							ui.warn({msg: "OwnerAlreadyAdded", parts: [name, firstSubaccount]});
 						}
-						await addSubaccount(name, ui.get().firstSubaccount);
+						await addSubaccount(name, firstSubaccount);
 						ui.set({showNewOwnerForm: false});
 					},
 					remove({owner, removing}) {

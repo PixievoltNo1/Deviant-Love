@@ -6,12 +6,20 @@
 export default async function(name) {
 	var results = {};
 	try {
-		var profileHtml = await (await fetch(`https://www.deviantart.com/${name}/`)).text();
-	} catch (xhr) {
-		if (xhr.status == "404") {
-			throw "NotFound";
-		} else {
+		let response = await fetch(`https://www.deviantart.com/${name}/`);
+		if (!response.ok) {
+			if (response.status == 404) {
+				throw "NotFound";
+			} else {
+				throw "Communication";
+			}
+		}
+		var profileHtml = await response.text();
+	} catch (error) {
+		if (typeof error != "string") {
 			throw "Communication";
+		} else {
+			throw error;
 		}
 	}
 	var profileDoc = (new DOMParser()).parseFromString(profileHtml, "text/html");

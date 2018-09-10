@@ -74,7 +74,7 @@
 	"subaccountsErrorCommunication": { "message": "Can't verify the account exists due to an error communicating with DeviantArt. Try again later." },
 	"subaccountsErrorOwnerIsOwned": { "message": "$1 is a subaccount of $2, and cannot be added as an owner." },
 	"subaccountsWarningCantVerifyCasing": { "message": "Due to a Deviant Love issue, the correct capitalization for $1 couldn't be determined. If you need to change it, remove it and add it again." },
-	"subaccountsWarningOwnerAlreadyAdded": { "message": "You've already added $1 as an owner. The given subaccount was added to their subaccounts." },
+	"subaccountsWarningOwnerAlreadyAdded": { "message": "You've already added $1 as an owner. Deviant Love is adding $2 to their subaccounts." },
 	"subaccountsEditorHeader": { "message": "Subaccounts" },
 	"subaccountsEditorExplain": {
 		"message": "Know a deviant who has multiple accounts? Tell Deviant Love about their subaccounts, and all their artwork will appear under one name!"
