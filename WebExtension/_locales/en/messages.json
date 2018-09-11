@@ -33,6 +33,9 @@
 	"scanResultsCollectionLine1": { "message": "This Collection has $1 faves" },
 	"scanResultsSearchLine1": { "message": "This page has $1 search results" },
 	"scanResultsLastLine": { "message": "from $1 different artists!" },
+	"findAction": { "message": "Find" },
+	"optionsAction": { "message": "Options" },
+	"close": { "message": "Close" },
 	"queryPlaceholder": { "message": "Find art(ists) by name" },
 	"findErrorForbiddenCharacter": { "message": "DeviantArt doesn't allow the use of $1 in deviant or deviation names." },
 	"findAmpersandHint": { "message": "The exact phrase you enter in the find bar is treated as one term to search for. To search for multiple terms, separate them with: &" },
@@ -45,24 +48,14 @@
 		"message": "You are watching this artist's deviations",
 		"description": "Icon tooltip"
 	},
-	"profile": {
-		"message": "Profile",
-		"description": "Link tooltip"
-	},
-	"gallery": {
-		"message": "Gallery",
-		"description": "Link tooltip"
-	},
-	"favourites": {
-		"message": "Favourites",
-		"description": "Link tooltip"
-	},
+	"profile": { "message": "Profile" },
+	"gallery": { "message": "Gallery" },
+	"favourites": { "message": "Favourites" },
 	"subaccountsOpen": {
 		"message": "Subaccounts",
 		"description": "Tooltip for the report's subaccounts button"
 	},
 	"subaccountsList": { "message": "$1's subaccounts" },
-	"subaccountsClose": { "message": "Close" },
 	"subaccountsRemove": { "message": "Remove" },
 	"subaccountsAdd": { "message": "Add a subaccount" },
 	"subaccountsAddInputToCurrent": { "message": "Add the following to $1's subaccounts" },

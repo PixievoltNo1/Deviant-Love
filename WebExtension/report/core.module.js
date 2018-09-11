@@ -158,39 +158,32 @@ function report(results, ui, love) {
 		'<span class="dynamic">' + Number(totalDeviations) + '</span>')); // The Number call is there to help out AMO reviewers; same for the other calls below
 	scanResults.append($("<div>", {id: "artistCount"}).l10nHtml("scanResultsLastLine",
 		'<span class="dynamic">' + Number(deviants.list.length) + '</span>'));
-	$("<form>", {id: "findBar", "class": "textEntryLine"})
-		.append($("<input>", {type: "text", id: "query"}))
-		.append($("<button>", {type: "submit", id: "goFind"}))
-		.append($("<button>", {type: "button", id: "noFind"}))
-		.insertAfter(scanResults);
-	$("#query").l10nPlaceholder("queryPlaceholder");
-	$("<div>", {id: "queryError"}).hide().insertAfter("#findBar");
 
-	// Set up interaction
-	$("#query").bind("input", function(event) {
-		var checkResult = queryTroubleCheck(this.value);
-		if (typeof checkResult == "object") {
-			$("#queryError").l10n(checkResult.errMsg, checkResult.offender).show();
-		} else {
-			$("#queryError").hide();
+	screen.on("state", ({changed, previous}) => {
+		if (changed.mode && previous.mode == "options") {
+			deviants.buildList();
+			$("#artistCount").l10nHtml("scanResultsLastLine",
+				'<span class="dynamic">' + Number(deviants.list.length) + '</span>');
+			screen.set({deviantList: deviants.list});
 		}
-	} );
-	$("#findBar").bind("submit", function(event) {
-		event.preventDefault();
-		var query = $("#query").val();
-		if (query == "") { return; }
-		if (queryTroubleCheck(query)) { return; }
-
-		var queryResults = findStuff(query, deviants);
-
-		screen.set({mode: "find", queryResults});
-		var findComponent = screen.refs.findModeContent;
-		findComponent.set({showAmpersandHint: query.indexOf(" ") != -1 && query.indexOf("&") == -1});
 	});
-	$("#noFind").bind("click", () => { screen.set({mode: "normal"}); });
 	screen.on("update", ({changed, current}) => {
 		if (changed.mode && current.mode == "find") {
-			screen.refs.findModeContent.on("viewDeviant", showDeviant);
+			var {findModeContent} = screen.refs;
+			findModeContent.on("viewDeviant", showDeviant);
+			findModeContent.on("state", ({changed, current, previous}) => {
+				if (changed.input) {
+					if (current.input == "") {
+						findModeContent.set({queryError: false});
+					} else {
+						findModeContent.set( {queryError: queryTroubleCheck(current.input)} );
+					}
+				}
+				if (changed.submitted) {
+					var queryResults = findStuff(current.submitted, deviants);
+					screen.set({mode: "find", queryResults});
+				}
+			});
 		}
 	});
 	$("#mainScreen").delegate(".addSubaccount", "submit", function(event) {

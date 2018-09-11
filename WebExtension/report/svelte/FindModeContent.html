@@ -1,49 +1,54 @@
-<!--
-<form id="findBar" class="textEntryLine">
-	<input type="text" id="query">
+<form id="findBar" class="textEntryLine" on:submit="handleSubmit(event)">
+	<input type="text" id="query" bind:value="input" autofocus>
 	<button type="submit" id="goFind"></button>
+	<button type="button" class="closeButton" on:click="fire('close')">
+		{$l10n("close")}</button>
 </form>
 {#if queryError}
-
+	<div id="queryError">{$l10n(queryError.errMsg, queryError.parts)}</div>
 {/if}
--->
-{#if queryResults}
-	{#if queryResults.deviants.length}
-		<div class="sectionHeader">{$l10n("foundDeviants", [queryResults.deviants.length])}</div>
-		<DeviantList deviants={queryResults.deviants} {watchedArtists} ref:deviantList/>
-	{/if}
-	{#if queryResults.deviations.length}
-		<div class="sectionHeader">
-			{$l10n("foundDeviations", [queryResults.deviationTotal, queryResults.deviations.length])}
-		</div>
-		{#each queryResults.deviations as {deviant, deviations} (deviant.name)}
-			<div class="deviationResultGroup">
-				<div class="deviationResultGroupHeader">{$l10n("foundDeviationsArtistHeader", deviant.name)}</div>
-				<DeviationList {deviations}/>
-				<div class="deviationResultGroupSidebar">
-					<Avatar {deviant}/>
-					<button type="button" class="viewDeviant" on:click="fire('viewDeviant', deviant.name)">
-						{deviant.deviations.length}
-					</button>
-				</div>
+<div id="resultsDisplay">
+	{#if queryResults}
+		{#if queryResults.deviants.length}
+			<div class="sectionHeader">{$l10n("foundDeviants", [queryResults.deviants.length])}</div>
+			<DeviantList deviants={queryResults.deviants} {watchedArtists} ref:deviantList/>
+		{/if}
+		{#if queryResults.deviations.length}
+			<div class="sectionHeader">
+				{$l10n("foundDeviations", [queryResults.deviationTotal, queryResults.deviations.length])}
 			</div>
-		{/each}
+			{#each queryResults.deviations as {deviant, deviations} (deviant.name)}
+				<div class="deviationResultGroup">
+					<div class="deviationResultGroupHeader">{$l10n("foundDeviationsArtistHeader", deviant.name)}</div>
+					<DeviationList {deviations}/>
+					<div class="deviationResultGroupSidebar">
+						<Avatar {deviant}/>
+						<button type="button" class="viewDeviant" on:click="fire('viewDeviant', deviant.name)">
+							{deviant.deviations.length}
+						</button>
+					</div>
+				</div>
+			{/each}
+		{/if}
+		{#if !(queryResults.deviants.length || queryResults.deviations.length)}
+			<div class="noResults notice">{$l10n("foundNothing")}</div>
+		{/if}
+	{:else}
+		<!-- TODO: Show help text for find mode -->
 	{/if}
-	{#if !(queryResults.deviants.length || queryResults.deviations.length)}
-		<div class="noResults notice">{$l10n("foundNothing")}</div>
+	{#if showAmpersandHint}
+		<div id="ampersandHint" class="notice">{$l10n("findAmpersandHint")}</div>
 	{/if}
-{:else}
-
-{/if}
-{#if showAmpersandHint}
-	<div id="ampersandHint" class="notice">{$l10n("findAmpersandHint")}</div>
-{/if}
+</div>
 <script>
 import DeviantList from "./DeviantList.html";
 import DeviationList from "./DeviationList.html";
 import Avatar from "./Avatar.html";
 export default {
 	components: { DeviantList, DeviationList, Avatar },
+	data() { return {
+		input: "",
+	}; },
 	onupdate({changed, current, previous = {}}) {
 		if (changed.queryResults && this.refs.deviantList) {
 			var entries = this.refs.deviantList.get().registry;
@@ -56,6 +61,19 @@ export default {
 				entries.get(deviant).set({note: ["foundDeviantSubaccount", subaccount]});
 			}
 		}
+	},
+	methods: {
+		handleSubmit(event) {
+			event.preventDefault();
+			if (this.get().queryError) { return; }
+			this.set({submitted: this.get().input});
+		},
+	},
+	computed: {
+		showAmpersandHint: function({input, submitted}) {
+			var checkMe = submitted || input;
+			return checkMe.indexOf(" ") != -1 && checkMe.indexOf("&") == -1;
+		},
 	},
 }
 </script>

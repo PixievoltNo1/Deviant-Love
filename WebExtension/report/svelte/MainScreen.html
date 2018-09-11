@@ -2,12 +2,12 @@
 	<div id="scanResults">
 
 	</div>
-	<!--
 	<div id="actionBar">
-		<button type="button" class="findAction {mode == 'find' ? 'active' : ''}"
-			on:click="set({mode: 'find'})">{$l10n('findAction')}</button>
+		{#each ["find", "options"] as action}
+			<button type="button" class="{action}Action" class:active="action == mode"
+				on:click="useAction(action)">{$l10n(action + "Action")}</button>
+		{/each}
 	</div>
-	-->
 	<div id="lovedArtists" style="overflow-y: auto; overflow-x: hidden; position: relative;">
 		{#if mode == "normal"}
 			{#if watchError}
@@ -17,7 +17,15 @@
 			{/if}
 			<DeviantList deviants={deviantList} {watchedArtists} ref:normalList/>
 		{:elseif mode == "find"}
-			<FindModeContent ref:findModeContent {queryResults} {watchedArtists}/>
+			<FindModeContent ref:findModeContent {queryResults} {watchedArtists}
+				on:close="set({mode: 'normal'})"/>
+		{:elseif mode == "options"}
+			<button type="button" class="closeButton" on:click="set({mode: 'normal'})">
+				{$l10n("close")}</button>
+			<h1>{$l10n("subaccountsEditorHeader")}</h1>
+			<SubaccountsEditor prefsLoaded={true}/>
+			<h1>{$l10n("syncHeader")}</h1>
+			<SyncStatus/>
 		{/if}
 	</div>
 	{#if $editingSubaccountsOf}
@@ -32,7 +40,18 @@
 import DeviantList from "./DeviantList.html";
 import FindModeContent from "./FindModeContent.html";
 import MiniSubaccountsEditor from "./MiniSubaccountsEditor.html";
+import SubaccountsEditor from "../../options/svelte/SubaccountsEditor.html";
+import SyncStatus from "../../options/svelte/SyncStatus.html";
 export default {
-	components: { DeviantList, FindModeContent, MiniSubaccountsEditor },
+	components: { DeviantList, FindModeContent, MiniSubaccountsEditor, SubaccountsEditor, SyncStatus },
+	methods: {
+		useAction(action) {
+			if (action != this.get().mode) {
+				this.set({mode: action});
+			} else {
+				this.set({mode: "normal"});
+			}
+		},
+	},
 };
 </script>

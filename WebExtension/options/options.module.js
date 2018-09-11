@@ -13,10 +13,9 @@ var store = new Store({
 });
 var subaccounts;
 storePersist(store).then(() => {
-	store.set({prefsLoaded: true});
-	({subaccounts} = store.get());
+	options.set({prefsLoaded: true});
 });
-new Options({
+var options = new Options({
 	target: document.body,
 	store,
 });

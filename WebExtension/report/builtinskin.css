@@ -101,7 +101,7 @@ a img {
 .findMode #lovedArtists {
 	background: hsl(46, 100%, 43%);
 }
-#lovedArtists > .sectionHeader {
+#resultsDisplay > .sectionHeader {
 	padding: 0.1em 0.5em;
 	font-weight: 800;
 	font-size: 120%;
@@ -110,7 +110,7 @@ a img {
 	border: solid hsl(46, 100%, 43%);
 	border-width: 3px 0 1px;
 }
-#lovedArtists > .sectionHeader:first-child {
+#resultsDisplay > .sectionHeader:first-child {
 	border-top-width: 0;
 }
 .deviationResultGroup {

@@ -2,7 +2,7 @@
 	{#if busy}
 		<div class="editorShield"></div>
 	{/if}
-	{#if $prefsLoaded}
+	{#if prefsLoaded}
 		{#each Object.entries($subaccounts) as [owner, owned] (owner)}
 			<SubaccountOwner {owner} {owned} on:add="edit('add', this)"
 				on:remove="edit('remove', event)" on:changeOwner="edit('changeOwner', this)"/>

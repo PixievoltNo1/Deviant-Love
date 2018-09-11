@@ -51,7 +51,7 @@ function findStuff(queryText, deviants) {
 function queryTroubleCheck(query) {
 	var invalidChar = query.search(/[^a-zA-Z0-9 \_\'\"\+\.\,\$\?\:\-\!\=\~\`\@\#\%\^\*\[\]\(\)\/\{\}\\\|\&]/);
 	if (invalidChar != -1) {
-		return {errMsg: "findErrorForbiddenCharacter", offender: query.charAt(invalidChar)};
+		return {errMsg: "findErrorForbiddenCharacter", parts: [query.charAt(invalidChar)]};
 	}
 
 	return false;
