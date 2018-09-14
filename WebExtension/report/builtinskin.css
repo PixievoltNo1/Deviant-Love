@@ -78,7 +78,7 @@ a img {
 	display: flex;
 	flex-direction: row;
 	align-items: center;
-    background: hsl(40, 100%, 45%);
+    background: hsl(35, 100%, 50%);
 	height: 25px; /* include 1px border */
 }
 .action {
@@ -99,7 +99,7 @@ a img {
 .action:first-child {
 	margin-left: auto;
 }
-.action:hover {
+:not(.usingTouch) .action:hover {
 	background: hsla(0, 0%, 100%, 0.55);
 }
 .action:active {
