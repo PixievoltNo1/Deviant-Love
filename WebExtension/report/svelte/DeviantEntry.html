@@ -57,18 +57,18 @@ export default {
 					duration: 400,
 					easing: closerLookEasing,
 					run: () => {
-						var lovedArtistsElem = document.getElementById("lovedArtists");
 						var openedDeviantElem = this.refs.root;
-						var scroll = lovedArtistsElem.scrollTop;
-						if (scroll + lovedArtistsElem.clientHeight <
+						var containerElem = openedDeviantElem.offsetParent;
+						var scroll = containerElem.scrollTop;
+						if (scroll + containerElem.clientHeight <
 							openedDeviantElem.offsetTop + openedDeviantElem.offsetHeight) {
 							scroll = openedDeviantElem.offsetTop + openedDeviantElem.offsetHeight
-								- lovedArtistsElem.clientHeight;
+								- containerElem.clientHeight;
 						}
 						if (scroll > openedDeviantElem.offsetTop) {
 							scroll = openedDeviantElem.offsetTop;
 						}
-						lovedArtistsElem.scrollTop = scroll;
+						containerElem.scrollTop = scroll;
 					},
 					complete() {
 						closerLook.style.height = "auto";

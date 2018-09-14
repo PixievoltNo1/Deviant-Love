@@ -181,7 +181,8 @@ function report(results, ui, love) {
 				}
 				if (changed.submitted) {
 					var queryResults = findStuff(current.submitted, deviants);
-					screen.set({mode: "find", queryResults});
+					// TODO: Once findModeContent can react to subaccounts changes, set this on screen instead
+					findModeContent.set({queryResults});
 				}
 			});
 		}

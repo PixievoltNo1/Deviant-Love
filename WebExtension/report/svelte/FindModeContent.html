@@ -7,7 +7,8 @@
 {#if queryError}
 	<div id="queryError">{$l10n(queryError.errMsg, queryError.parts)}</div>
 {/if}
-<div id="resultsDisplay">
+<div id="resultsDisplay" style="overflow-y: auto; overflow-x: hidden; position: relative;"
+	class:hasResults="hasResults"> <!-- shorthand form is bugged in Svelte <= 2.13.4 -->
 	{#if queryResults}
 		{#if queryResults.deviants.length}
 			<div class="sectionHeader">{$l10n("foundDeviants", [queryResults.deviants.length])}</div>
@@ -30,11 +31,11 @@
 				</div>
 			{/each}
 		{/if}
-		{#if !(queryResults.deviants.length || queryResults.deviations.length)}
-			<div class="noResults notice">{$l10n("foundNothing")}</div>
+		{#if !hasResults}
+			<div id="noResults">{$l10n("foundNothing")}</div>
 		{/if}
 	{:else}
-		<!-- TODO: Show help text for find mode -->
+		<div id="findHelp">{$l10n("findHelp")}</div>
 	{/if}
 	{#if showAmpersandHint}
 		<div id="ampersandHint" class="notice">{$l10n("findAmpersandHint")}</div>
@@ -73,6 +74,10 @@ export default {
 		showAmpersandHint: function({input, submitted}) {
 			var checkMe = submitted || input;
 			return checkMe.indexOf(" ") != -1 && checkMe.indexOf("&") == -1;
+		},
+		hasResults: function({queryResults}) {
+			if (!queryResults) { return false; }
+			return Boolean(queryResults.deviants.length || queryResults.deviations.length);
 		},
 	},
 }

@@ -36,7 +36,7 @@
 	"findAction": { "message": "Find" },
 	"optionsAction": { "message": "Options" },
 	"close": { "message": "Close" },
-	"queryPlaceholder": { "message": "Find art(ists) by name" },
+	"findHelp": { "message": "Find art & artists from the scanned page by name" },
 	"findErrorForbiddenCharacter": { "message": "DeviantArt doesn't allow the use of $1 in deviant or deviation names." },
 	"findAmpersandHint": { "message": "The exact phrase you enter in the find bar is treated as one term to search for. To search for multiple terms, separate them with: &" },
 	"foundDeviants": { "message": "Found $1 deviant(s)" },

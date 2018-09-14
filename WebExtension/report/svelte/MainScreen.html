@@ -4,7 +4,7 @@
 	</div>
 	<div id="actionBar">
 		{#each ["find", "options"] as action}
-			<button type="button" class="{action}Action" class:active="action == mode"
+			<button type="button" class="action {action}Action" class:current="action == mode"
 				on:click="useAction(action)">{$l10n(action + "Action")}</button>
 		{/each}
 	</div>

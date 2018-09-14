@@ -18,6 +18,21 @@ a img {
 	border: 0;
 }
 
+.closeButton {
+	display: flex;
+	flex-direction: row;
+	align-items: center;
+	font-size: 16px;
+}
+.closeButton::before {
+	width: 20px;
+	height: 16px;
+	margin-right: 4px;
+	content: " ";
+	background-size: contain;
+	background-image: url(/images/close.svg);
+}
+
 #scanMessage {
 	font-size: 200%;
 	margin-bottom: 10px;
@@ -59,47 +74,112 @@ a img {
 #scanResults .dynamic {
 	font-weight: bold;
 }
+#actionBar {
+	display: flex;
+	flex-direction: row;
+	align-items: center;
+    background: hsl(40, 100%, 45%);
+	height: 25px; /* include 1px border */
+}
+.action {
+	flex: none;
+	display: flex;
+	flex-direction: row;
+	align-items: center;
+	justify-content: center;
+	background: none;
+	border: none;
+	padding: 0;
+	margin-right: auto;
+	width: 90px;
+	height: 20px;
+	border-radius: 4px;
+	font-size: 16px;
+}
+.action:first-child {
+	margin-left: auto;
+}
+.action:hover {
+	background: hsla(0, 0%, 100%, 0.55);
+}
+.action:active {
+	background: hsla(0, 0%, 80%, 0.55);
+}
+.action.current {
+	background: hsla(0, 0%, 100%, 0.70);
+    height: 22px;
+    border: 1px solid hsla(0, 0%, 0%, 0.4);
+}
+.action.current:active {
+	background: hsla(0, 0%, 80%, 0.70);
+}
+.action::before {
+	width: 18px;
+	height: 18px;
+	margin-right: 4px;
+	content: " ";
+	background-size: contain;
+}
+.findAction::before { background-image: url(/images/find.svg); }
+.optionsAction::before { background-image: url(/images/iconmonstr/gear-1-recolored.svg); }
+.textEntryLine {
+	display: flex;
+	flex-direction: row;
+}
+.textEntryLine > * {
+	margin: 2px;
+	padding: 0;
+}
+.textEntryLine > :not(:first-child) {
+	margin-left: 0;
+}
+.textEntryLine > input {
+	flex: 1;
+}
+#goFind {
+	width: 20px;
+	background: url("/images/find.svg");
+	background-position: center;
+	background-repeat: no-repeat;
+	border: 0;
+}
+.findMode #lovedArtists {
+	display: flex;
+	flex-direction: column;
+}
+.findMode #lovedArtists > :not(:first-child) {
+	border-top: 1px solid black;
+}
 #findBar {
+	flex: none;
 	background-color: hsl(55, 100%, 55%);
 }
 #findBar > * {
 	height: 20px;
 }
-.textEntryLine {
-	display: flex;
-	flex-direction: row;
-	padding: 1px;
-}
-.textEntryLine > * {
-	display: block;
-	margin: 1px;
-	padding: 0;
-}
-.textEntryLine > input {
-	flex: 1;
+#findBar > .closeButton {
+    padding: 0 2px;
+    margin: 0;
+    height: 24px;
+    border: none;
+    border-left: 1px solid hsl(0, 0%, 0%);
+    background: hsl(58, 100%, 72%);
 }
 #queryError {
+	flex: none;
 	background-color: hsl(55, 96%, 84%);
 	padding: 2px;
 }
-#findBar button {
-	width: 20px;
-	background-position: center;
-	background-repeat: no-repeat;
-	border: 0;
+#resultsDisplay {
+	flex: 1;
+	background: hsl(48, 100%, 54%);
 }
-#goFind {
-	background: url("/images/find.svg");
-}
-#noFind {
-	background: url("/images/findClose.svg");
-	display: none;
-}
-.findMode #noFind {
-	display: block;
-}
-.findMode #lovedArtists {
+#resultsDisplay.hasResults {
 	background: hsl(46, 100%, 43%);
+}
+#findHelp, #noResults {
+	margin: 20px 40px;
+	font-size: 20px;
 }
 #resultsDisplay > .sectionHeader {
 	padding: 0.1em 0.5em;
@@ -156,7 +236,7 @@ a img {
 }
 .notice {
 	margin: 4px;
-	padding: 3px;
+	padding: 3px 5px;
 	border-radius: 4px;
 	background-color: hsla(0, 100%, 100%, .6);
 	font-size: 14.5px;
