@@ -36,3 +36,7 @@ chrome.runtime.sendMessage({action: "showLove"});
 chrome.runtime.onMessage.addListener(({action}, buddy, callback) => {
 	if (action == "getLove") { callback( findLove() ); }
 });
+// Workaround for https://bugzilla.mozilla.org/show_bug.cgi?id=1485863
+window.addEventListener("pagehide", () => {
+	chrome.runtime.sendMessage({action: "hideLove"});
+});

@@ -9,6 +9,9 @@ chrome.runtime.onMessage.addListener( function(thing, buddy, callback) {switch (
 	case "showLove":
 		chrome.pageAction.show(buddy.tab.id);
 	break;
+	case "hideLove":
+		chrome.pageAction.hide(buddy.tab.id);
+	break;
 	case "showX":
 		if (chrome.pageAction.setIcon) {
 			chrome.pageAction.setIcon({tabId: buddy.tab.id, path: "/images/heart/32Close.png"});
