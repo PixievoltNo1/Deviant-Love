@@ -21,9 +21,6 @@ module.exports = function(env = {}) { return {
 				test: /\.html$/,
 				use: {
 					loader: "svelte-loader",
-					options: {
-						store: true,
-					}
 				}
 			},
 		],
