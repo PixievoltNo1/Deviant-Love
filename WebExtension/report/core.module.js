@@ -161,6 +161,7 @@ function report(results, ui, love) {
 
 	screen.on("state", ({changed, previous}) => {
 		if (changed.mode && previous.mode == "options") {
+			deviants.setSubaccounts(store.get().subaccounts);
 			deviants.buildList();
 			$("#artistCount").l10nHtml("scanResultsLastLine",
 				'<span class="dynamic">' + Number(deviants.list.length) + '</span>');
