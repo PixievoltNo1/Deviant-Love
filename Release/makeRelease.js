@@ -52,6 +52,7 @@ if (!previewVersion) {
 	archive.pipe( fs.createWriteStream(filename) );
 	let fxManifest = Object.assign({}, manifest);
 	fxManifest.version = previewVersion;
+	fxManifest.applications.gecko.update_url = "https://pikadudeno1.com/deviantlove/updates.json";
 	archive.glob("**", {ignore: [...globalIgnore, "manifest.json"], cwd: webextDir})
 		.append(JSON.stringify(fxManifest), {name: "manifest.json"});
 	archive.finalize();
