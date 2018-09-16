@@ -228,6 +228,93 @@ a img {
 .viewDeviant::after {
 	content: ")";
 }
+.optionsMode #lovedArtists {
+	padding: 9px;
+	background: hsl(357, 75%, 62%);
+}
+.optionsMode .closeButton {
+	position: absolute;
+	top: 4px;
+	right: 4px;
+	border: 1px solid black;
+	background: hsl(0, 100%, 88%);
+}
+.optionsMode .sectionHeader {
+	font-size: 22px;
+	font-weight: bold;
+	margin: 7px 0;
+}
+
+.subaccountsMessage, #syncStatus {
+	padding: 7px;
+	font-size: 12px;
+}
+.optionsMode #lovedArtists .ok { background: hsl(112, 58%, 82%); }
+.optionsMode #lovedArtists .warning { background: hsl(57, 100%, 88%); }
+.optionsMode #lovedArtists .error { background: hsl(0, 100%, 76%); }
+.subaccountsMessage p:first-child, #syncStatus p:first-child { margin-top: 0; }
+.subaccountsMessage p:last-child, #syncStatus p:last-child { margin-bottom: 0; }
+#subaccountsEditor {
+	border: 1px solid black;
+	background: white;
+	font-size: 14px;
+	height: 301px;
+	overflow: auto;
+}
+#subaccountsEditorExplainer {
+	padding: 7px;
+}
+.editorShield {
+	cursor: wait;
+	position: fixed;
+	top: 0;
+	bottom: 0;
+	left: 0;
+	right: 0;
+}
+#subaccountsEditor > :not(:first-child) {
+	border-top: 1px solid hsl(0, 0%, 50%);
+}
+.subaccountOwner > :not(:first-child) {
+	border-top: 1px solid hsl(0, 0%, 80%);
+}
+.editorLine {
+	display: flex;
+	flex-direction: row;
+	align-items: center;
+	padding-left: 21px;
+	height: 24px;
+}
+.ownerLine {
+	padding-left: 7px;
+}
+.openNewOwner {
+	margin-left: 7px;
+}
+.ownerLine .accountName, .openNewOwner { font-weight: bold; }
+.accountName {
+	flex: 1;
+}
+.accountName + button {
+    background: none;
+    border: none;
+    text-decoration: underline;
+	color: rgb(0, 0, 238);
+	cursor: pointer;
+}
+.accountName + button:focus {
+	outline: 1px dotted black;
+}
+#subaccountsEditor button, #subaccountsEditor input {
+	font-size: 12px;
+}
+.subaccountsMessage {
+	border: 1px solid black;
+	border-top: none;
+}
+#syncStatus {
+	border: 1px solid black;
+}
 #lovedArtists {
 	flex: 1;
 }
@@ -409,7 +496,7 @@ a img {
 	padding-right: 1.25em;
 	background-color: hsl(53, 93%, 75%);
 }
-.subaccount {
+.subaccountsEditor .subaccount {
     position: relative;
     padding: 1px 3px;
     padding-right: 5em;
@@ -417,10 +504,10 @@ a img {
 	overflow: hidden;
 	text-overflow: ellipsis;
 }
-.subaccount > * {
+.subaccountsEditor .subaccount > * {
 	vertical-align: middle;
 }
-.subaccount a {
+.subaccountsEditor .subaccount a {
 	display: inline-block;
 	width: 18px;
 	height: 18px;
@@ -428,10 +515,10 @@ a img {
 	background-repeat: no-repeat;
 	margin-right: 2px;
 }
-.subaccountName {
+.subaccountsEditor .subaccountName {
 	margin-left: 1px;
 }
-.removeSubaccount {
+.subaccountsEditor .removeSubaccount {
     position: absolute;
     top: 0;
     right: 0;
@@ -444,13 +531,13 @@ a img {
 	color: rgb(0, 0, 238);
 	cursor: pointer;
 }
-.addSubaccount > label {
+.subaccountsEditor .addSubaccount > label {
 	display: block;
 }
-.confirmAdd {
+.subaccountsEditor .confirmAdd {
 	padding: 0 4px;
 }
-.addNotice {
+.subaccountsEditor .addNotice {
 	padding: 0 2px;
 }
 #tipOfTheMoment {

@@ -22,9 +22,9 @@
 		{:elseif mode == "options"}
 			<button type="button" class="closeButton" on:click="set({mode: 'normal'})">
 				{$l10n("close")}</button>
-			<h1>{$l10n("subaccountsEditorHeader")}</h1>
+			<div class="sectionHeader">{$l10n("subaccountsEditorHeader")}</div>
 			<SubaccountsEditor prefsLoaded={true}/>
-			<h1>{$l10n("syncHeader")}</h1>
+			<div class="sectionHeader">{$l10n("syncHeader")}</div>
 			<SyncStatus/>
 		{/if}
 	</div>
