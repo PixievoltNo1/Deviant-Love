@@ -2,13 +2,10 @@
   "scripts": {
     "build": "webpack",
     "watch": "webpack --watch",
-    "premakeRelease": "rimraf release",
-    "makeRelease": "webpack --env.release"
+    "makeRelease": "node Release/makeRelease.js"
   },
   "devDependencies": {
-    "copy-webpack-plugin": "^4.5.2",
     "file-url": "^2.0.2",
-    "rimraf": "^2.6.2",
     "svelte": "^2.9.7",
     "svelte-loader": "^2.10.0",
     "webpack": "^4.16.2",
