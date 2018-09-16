@@ -1,3 +1,4 @@
 node_modules/
 WebExtension/build/
-release/
+*.zip
+*.xpi

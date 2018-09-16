@@ -1,7 +1,6 @@
 var webpack = require('webpack');
 var path = require('path');
 var fileUrl = require('file-url');
-var CopyWebpackPlugin = require('copy-webpack-plugin')
 
 module.exports = function(env = {}) { return {
 	mode: "none",
@@ -10,7 +9,7 @@ module.exports = function(env = {}) { return {
 		options: './WebExtension/options/options.module.js',
 	},
 	output: {
-		path: path.resolve(__dirname, env.release ? 'release/build' : 'WebExtension/build'),
+		path: path.resolve(__dirname, 'WebExtension/build'),
 		filename: '[name].js'
 	},
 	// Firefox & Chrome don't correctly handle relative URLs for source maps in extensions. Workaround is in plugins.
@@ -48,13 +47,7 @@ module.exports = function(env = {}) { return {
 				publicPath: fileUrl("WebExtension/build") + "/",
 				filename: "[file].map"
 			}),
-		] : [ // for release builds
-			new CopyWebpackPlugin([
-				{ from: 'WebExtension', to: '../' }
-			], {
-				ignore: ['*.module.js', 'build/**', '**/svelte/**']
-			}),
-		] )
+		] : [] )
 	],
 	stats: {
 		warningsFilter: "Avoid using autofocus",
