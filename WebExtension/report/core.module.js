@@ -129,7 +129,7 @@ function restore(scanData, love) {
 	window.showDeviant = function(deviantName) {
 		firstDeviant = deviantName;
 	};
-	scanData.deviants = new DeviantCollection(scanData.deviants);
+	// TODO: Wake scanData.deviants
 	Promise.all([nextTip(), prefsLoaded]).then(function() {
 		var ui = {firstDeviant: firstDeviant};
 		report(scanData, ui, love);
@@ -190,6 +190,7 @@ function report(results, ui, love) {
 	});
 	$("#mainScreen").delegate(".addSubaccount", "submit", function(event) {
 		event.preventDefault();
+		var {subaccounts} = store.get();
 		var input = $(".relatedAccount").val();
 		if (input == "") { return; }
 		$("body").css("cursor", "wait");
@@ -201,12 +202,12 @@ function report(results, ui, love) {
 					return name;
 				}
 			}
-			for (var name in deviants.subaccounts) {
+			for (var name in subaccounts) {
 				if (name.toLowerCase() == lcInput) {
 					return name;
 				}
 				var found;
-				deviants.subaccounts[name].some( function(subaccount) {
+				subaccounts[name].some( function(subaccount) {
 					if (subaccount.toLowerCase() == lcInput) {
 						found = subaccount;
 						return true;
@@ -248,21 +249,16 @@ function report(results, ui, love) {
 			} else {
 				var gotten = store.get().editingSubaccountsOf, getting = related;
 			}
+			subaccounts[getting] = (subaccounts[getting] || [])
+				.concat( gotten, (subaccounts[gotten] || []) );
+			delete subaccounts[gotten];
 			if (deviants.effectiveMap.has(gotten)) {
 				deviantsMod(function() {
-					var gettingObj = deviants.effectiveMap.get(getting), gottenObj = deviants.effectiveMap.get(gotten);
-					deviants.mergeDeviations(gettingObj, [gottenObj]);
-					if (deviants.baseMap.has(gotten)) {
-						deviants.subaccountOwners.set(gottenObj, gettingObj);
-					}
-					deviants.effectiveMap.delete(gotten);
+					deviants.setSubaccounts(subaccounts);
 					store.set({editingSubaccountsOf: getting});
 				});
 			}
-			deviants.subaccounts[getting] = (deviants.subaccounts[getting] || [])
-				.concat(gotten, (deviants.subaccounts[gotten] || []));
-			delete deviants.subaccounts[gotten];
-			store.set({subaccounts: deviants.subaccounts});
+			store.set({subaccounts});
 			$(".relatedAccount").val("");
 			if (warning) {
 				$(".addNotice").l10n("subaccountsWarning" + warning, warningPart).show();
@@ -274,38 +270,22 @@ function report(results, ui, love) {
 		} );
 	} ).delegate(".removeSubaccount", "click", function() {
 		var removedName = $(this).siblings(".subaccountName").text();
-		var oldOwner = store.get().editingSubaccountsOf;
-		deviants.subaccounts[oldOwner].splice(
-			deviants.subaccounts[oldOwner].indexOf(removedName), 1);
-		if (deviants.subaccounts[oldOwner].length == 0) {
-			delete deviants.subaccounts[oldOwner];
+		var {subaccounts, editingSubaccountsOf} = store.get();
+		subaccounts[editingSubaccountsOf].splice(
+			subaccounts[editingSubaccountsOf].indexOf(removedName), 1);
+		if (subaccounts[editingSubaccountsOf].length == 0) {
+			delete subaccounts[editingSubaccountsOf];
 		}
 		if (deviants.baseMap.has(removedName)) {
-			deviantsMod(function() {
-				var removed = deviants.baseMap.get(removedName);
-				deviants.subaccountOwners.delete(removed);
-				deviants.effectiveMap.set(removedName, removed);
-				var target = deviants.effectiveMap.get(oldOwner);
-				removeDeviations(target, removed.deviations);
-				if (target.deviations.length == 0) {
-					deviants.effectiveMap.delete(oldOwner);
-					store.set({editingSubaccountsOf: removedName});
-				}
-			});
+			deviantsMod( () => { deviants.setSubaccounts(subaccounts); } );
 		}
-		store.set({subaccounts: deviants.subaccounts});
+		store.set({subaccounts});
 	} );
-	// Helper functions for subaccount event handlers
-	function removeDeviations(account, removeMe) {
-		account.deviations = account.deviations.filter(function(deviation) {
-			return removeMe.indexOf(deviation) == -1;
-		});
-	}
+	// Helper function for subaccount event handlers
 	function deviantsMod(mod) {
 		// mod() may change the value of $("#deviant_" + store.get().editingSubaccountsOf), so don't save it
 		var keepOpen = $("#deviant_" + store.get().editingSubaccountsOf).hasClass("opened");
 		mod();
-		deviants.buildList();
 		$("#artistCount").l10nHtml("scanResultsLastLine",
 			'<span class="dynamic">' + Number(deviants.list.length) + '</span>');
 		screen.set({mode: "normal", deviantList: deviants.list});

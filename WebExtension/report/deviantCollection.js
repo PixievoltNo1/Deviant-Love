@@ -6,71 +6,97 @@
 function DeviantCollection(from, deviantType = Object) {
 	this.deviantType = deviantType;
 	this.subaccounts = {};
-	this.subaccountOwners = new Map();
-	if (from instanceof Map) {
-		this.setBaseMap(from);
-	} else {
-		var fromMap = new Map();
-		for (let [name, deviations] of Object.entries(from)) {
-			let deviant = new deviantType();
-			deviant.name = name;
-			deviant.deviations = deviations;
-			fromMap.set(name, deviant);
-		}
-		this.setBaseMap(fromMap);
-	}
+	this.ownerships = new Map();
+	this.baseMap = from;
+	this.effectiveMap = new Map(from);
 }
 DeviantCollection.prototype = {
-	setBaseMap(newBaseMap) {
-		this.baseMap = newBaseMap;
-		this.effectiveMap = new Map(newBaseMap);
-		/* When a future version makes it possible for setBaseMap to be called after subaccounts
-		have been set (e.g. via Through Scans), changes to effectiveMap must be re-applied. */
-	},
 	setSubaccounts(newSubaccounts) {
-		for (let checkMe in this.subaccounts) {
-			if (!(checkMe in newSubaccounts)) {
-				this.resetToBase(checkMe);
-			}
-		}
-		let newSubaccountOwners = new Map();
+		/* Must correctly handle accounts transitioning between any 2 states in a group:
+			Present in baseMap:
+			- Owner (masked object in effectiveMap)
+			- Owned (absent from effectiveMap)
+			- Neither (same object in effectiveMap)
+			Absent from baseMap:
+			- Virtual Owner (present in effectiveMap)
+			- Unknown (no presence)
+		*/
+		let {subaccounts: oldSubaccounts, ownerships: oldOwnerships} = this;
+		let newOwnerships = new Map(), isOwner = new Set();
 		for (let [ownerName, subaccountList] of Object.entries(newSubaccounts)) {
 			let subaccountObjs = [];
 			for (let subaccountName of subaccountList) {
 				if (!this.baseMap.has(subaccountName)) { continue; }
 				subaccountObjs.push(this.baseMap.get(subaccountName));
+				// Transitions: Neither > Owned, Owner > Owned
 				this.effectiveMap.delete(subaccountName);
 			}
 			if (subaccountObjs.length == 0) { continue; }
 			let owner = this.baseMap.get(ownerName);
-			if (!owner) {
-				owner = new this.deviantType();
-				owner.name = ownerName;
-				owner.deviations = [];
+			if (owner) {
+				let currentEffective = this.effectiveMap.get(ownerName);
+				// Transitions: Neither > Owner, Owned > Owner
+				if (owner == currentEffective || currentEffective == null) {
+					let maskedOwner = Object.create(owner);
+					maskedOwner.deviations = owner.deviations.slice();
+					this.effectiveMap.set(ownerName, maskedOwner);
+				}
+			} else {
+				owner = this.effectiveMap.get(ownerName);
+				// Transition: Unknown > Virtual Owner
+				if (!owner) {
+					owner = new this.deviantType();
+					owner.name = ownerName;
+					owner.deviations = [];
+					this.effectiveMap.set(ownerName, owner);
+				}
 			}
-			this.mergeDeviations(owner, subaccountObjs);
+			isOwner.add(owner);
 			for (let subaccountObj of subaccountObjs) {
-				newSubaccountOwners.set(subaccountObj, owner);
+				newOwnerships.set(subaccountObj, owner);
 			}
 		}
-		for (let checkMe in this.subaccountOwners.keys()) {
-			// if the account is now a main account and did not get an effectiveMap entry from the previous process
-			if (!newSubaccountOwners.has(checkMe) && !this.effectiveMap.has(checkMe.name)) {
-				this.effectiveMap.set(checkMe.name, checkMe);
+
+		// Process additions & filter oldOwnerships into a removal list
+		let hasAdditions = new Set();
+		for (let [owned, owner] of newOwnerships.entries()) {
+			let oldOwner = oldOwnerships.get(owned);
+			if (owner == oldOwner) {
+				oldOwnerships.delete(owned);
+			} else {
+				let addTo = this.effectiveMap.get(owner.name);
+				addTo.deviations.push(...owned.deviations);
+				hasAdditions.add(addTo);
 			}
 		}
-		this.subaccounts = newSubaccounts;
-		this.subaccountOwners = newSubaccountOwners;
+		for (let owner of hasAdditions) {
+			owner.deviations.sort( (a, b) => { return a.pos - b.pos;} );
+		}
+
+		// Process removals
+		for (let [unowned, oldOwner] of oldOwnerships) {
+			// Transition: Owned > Neither
+			if (!newOwnerships.has(unowned) && !isOwner.has(unowned)) {
+				this.resetToBase(unowned.name);
+			}
+			if (isOwner.has(oldOwner)) {
+				let removeFrom = this.effectiveMap.get(owner.name);
+				let removeMe = new Set(unowned.deviations);
+				removeFrom.deviations =
+					removeFrom.deviations.filter( (deviation) => { !removeMe.has(deviation); } );
+			} else {
+				// Transitions: Owner > Neither, Virtual Owner > Unknown
+				if (!newOwnerships.has(oldOwner)) {
+					this.resetToBase(oldOwner.name);
+				}
+			}
+		}
+
+		this.subaccounts = Object.assign({}, newSubaccounts);
+		this.ownerships = newOwnerships;
 		this.buildList();
 	},
-	getRestoreData() {
-		var restoreData = {};
-		for (let {name, deviations} of this.baseMap.values()) {
-			restoreData[name] = deviations;
-		}
-		return restoreData;
-	},
-	// Intended as internal methods, but will not be so until addSubaccount and removeSubaccount are implemented
+	// Internal methods
 	buildList() {
 		this.list = Array.from(this.effectiveMap.values()).sort( function orderMostLoved(a, b) {
 			if (a.deviations.length != b.deviations.length) {
@@ -80,20 +106,8 @@ DeviantCollection.prototype = {
 			}
 		} );
 	},
-	mergeDeviations(target, sources) {
-		if (!target.nonBase) {
-			target = Object.create(target);
-			target.nonBase = true;
-			this.effectiveMap.set(target.name, target);
-		}
-		var deviationLists = sources.map((source) => { return source.deviations; });
-		target.deviations = target.deviations.concat(...deviationLists);
-		target.deviations.sort(function earliestPos(a, b) {
-			return a.pos - b.pos;
-		});
-	},
 	resetToBase(deviantName) {
-		if (this.baseMap.has(name)) {
+		if (this.baseMap.has(deviantName)) {
 			this.effectiveMap.set(deviantName, this.baseMap.get(deviantName));
 		} else {
 			this.effectiveMap.delete(deviantName);
