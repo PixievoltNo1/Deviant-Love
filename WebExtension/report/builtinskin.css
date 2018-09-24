@@ -239,14 +239,14 @@ a img {
 	display: none;
 	background-position: center;
 	background-repeat: no-repeat;
-	background-image: url("/images/combineSilhouette.svg"); /* for when only the below rule matches */
+	background-image: url("/images/combine.svg");
 }
-#mainScreen:not(.usingTouch) .deviant:hover .subaccountsButton.line {
+:not(.usingTouch) .deviant:hover .subaccountsButton.line:not(.has):not(.editing):not(:hover) {
 	display: inline-block;
+	filter: brightness(0%) opacity(40%);
 }
 .subaccountsButton.line.has, .subaccountsButton.line.editing, .subaccountsButton.line:hover {
 	display: inline-block;
-	background-image: url("/images/combine.svg");
 }
 .closerLook {
 	display: flex;
