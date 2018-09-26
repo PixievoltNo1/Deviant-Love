@@ -249,12 +249,11 @@ a img {
 	display: inline-block;
 }
 .closerLook {
-	display: flex;
-	flex-direction: row;
-	align-items: stretch;
+	display: grid;
+	grid: "sidebar main" / 108px 1fr;
 }
 .deviantDetails {
-	width: 108px;
+	grid-area: sidebar;
 	display: flex;
 	flex-direction: column;
 	align-items: center;
@@ -292,7 +291,7 @@ a img {
 .galleryLink { background-image: url(/images/deviantart/Gallery.png); }
 .favouritesLink { background-image: url(/images/deviantart/Favourites.png); }
 .deviationList {
-	flex: 1;
+	grid-area: main;
 	padding: 0 0.2em;
 	background-color: hsl(357, 90%, 90%);
 }
