@@ -57,6 +57,9 @@ a img {
 	background-size: contain;
 	background-image: url(/images/close.svg);
 }
+.deviationList {
+	padding: 0 0.2em;
+}
 .notice {
 	margin: 4px;
 	padding: 3px 5px;
@@ -290,9 +293,8 @@ a img {
 .profileLink { background-image: url(/images/deviantart/Profile.png); }
 .galleryLink { background-image: url(/images/deviantart/Gallery.png); }
 .favouritesLink { background-image: url(/images/deviantart/Favourites.png); }
-.deviationList {
+.closerLook > .deviationList {
 	grid-area: main;
-	padding: 0 0.2em;
 	background-color: hsl(357, 90%, 90%);
 }
 .deviation {
