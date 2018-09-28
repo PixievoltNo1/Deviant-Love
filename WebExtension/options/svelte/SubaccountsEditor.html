@@ -39,13 +39,13 @@
 </div>
 {#if warnings.length}
 	<div class="subaccountsMessage warning">
-		{#each warnings as {msg, parts}}
+		{#each warnings as [msg, parts]}
 			<p>{$l10n("subaccountsWarning" + msg, parts)}</p>
 		{/each}
 	</div>
 {/if}
 {#if error}
-	<div class="subaccountsMessage error">{$l10n("subaccountsError" + error.msg, error.parts)}</div>
+	<div class="subaccountsMessage error">{$l10n("subaccountsError" + error[0], error[1])}</div>
 {/if}
 <script>
 import SubaccountOwner from "./SubaccountOwner.html";
@@ -71,11 +71,11 @@ export default {
 					async newOwner() {
 						var {name, isOwner, ownedBy} = await nameCheck(ui.get().newOwner);
 						if (ownedBy) {
-							throw {msg: "OwnerIsOwned", parts: [name, ownedBy]};
+							throw ["OwnerIsOwned", {owned: name, owner: ownedBy}];
 						}
 						var {firstSubaccount} = ui.get();
 						if (isOwner) {
-							ui.warn({msg: "OwnerAlreadyAdded", parts: [name, firstSubaccount]});
+							ui.warn(["OwnerAlreadyAdded", {owner: name, owned: firstSubaccount}]);
 						}
 						await addSubaccount(name, firstSubaccount);
 						ui.set({showNewOwnerForm: false});
@@ -111,7 +111,7 @@ export default {
 			async function addSubaccount(owner, owned) {
 				var {name, ownedBy, isOwner} = await nameCheck(owned);
 				if (ownedBy) {
-					throw {msg: "AlreadyOwned", parts: [ownedBy]};
+					throw ["AlreadyOwned", {name: ownedBy}];
 				}
 				if (!(owner in subaccounts)) {
 					subaccounts[owner] = [];
@@ -142,11 +142,11 @@ export default {
 					if (results.name) {
 						return {name: results.name};
 					} else {
-						ui.warn( {msg: "CantVerifyCasing", parts: [input]} );
+						ui.warn( ["CantVerifyCasing", {name: input}] );
 						return { name: input };
 					}
 				}, (err) => {
-					throw {msg: err, parts: [input]};
+					throw [err, {name: input}];
 				});
 			}
 		},

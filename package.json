@@ -7,6 +7,8 @@
   "devDependencies": {
     "animejs": "^2.2.0",
     "file-url": "^2.0.2",
+    "fluent": "^0.8.0",
+    "fluent-intl-polyfill": "^0.1.0",
     "svelte": "^2.13.2",
     "svelte-loader": "^2.11.0",
     "webpack": "^4.17.1",

@@ -10,7 +10,7 @@
 					<progress id="scanProgressBar"></progress>
 				{/if}
 			</div>
-			<div id="scannedDeviations">{$l10n("scannedDeviations", [found])}</div>
+			<div id="scannedDeviations">{$l10n("scannedDeviations", {num: found})}</div>
 			<div id="watchStatus">{watchStatus ? $l10n(watchStatus) : ""}</div>
 		</div>
 	{:else}

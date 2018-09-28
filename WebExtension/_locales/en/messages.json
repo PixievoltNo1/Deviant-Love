@@ -4,6 +4,7 @@
 		"description": "Extension's description as it appears on Chrome's Extensions page"
 	},
 	"fileTipOfTheMoment": { "message": "/_locales/en/TipOfTheMoment.json" },
+	"fileFluent": { "message": "/_locales/en/fluent.ftl" },
 
 	"heartX": {
 		"message": "Close Deviant Love",

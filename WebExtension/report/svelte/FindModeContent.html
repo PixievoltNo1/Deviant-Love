@@ -11,16 +11,19 @@
 	class:hasResults="hasResults"> <!-- shorthand form is bugged in Svelte <= 2.13.4 -->
 	{#if queryResults}
 		{#if queryResults.deviants.length}
-			<div class="sectionHeader">{$l10n("foundDeviants", [queryResults.deviants.length])}</div>
+			<div class="sectionHeader">{$l10n("foundDeviants", {num: queryResults.deviants.length})}</div>
 			<DeviantList deviants={queryResults.deviants} {watchedArtists} ref:deviantList/>
 		{/if}
 		{#if queryResults.deviations.length}
 			<div class="sectionHeader">
-				{$l10n("foundDeviations", [queryResults.deviationTotal, queryResults.deviations.length])}
+				{$l10n("foundDeviations",
+					{deviations: queryResults.deviationTotal, artists: queryResults.deviations.length})}
 			</div>
 			{#each queryResults.deviations as {deviant, deviations} (deviant.name)}
 				<div class="deviationResultGroup">
-					<div class="deviationResultGroupHeader">{$l10n("foundDeviationsArtistHeader", deviant.name)}</div>
+					<div class="deviationResultGroupHeader">
+						{$l10n("foundDeviationsArtistHeader", {name: deviant.name})}
+					</div>
 					<DeviationList {deviations}/>
 					<div class="deviationResultGroupSidebar">
 						<Avatar {deviant}/>
@@ -59,7 +62,7 @@ export default {
 				}
 			}
 			for (let [deviant, subaccount] of Object.entries(current.queryResults.matchedBySubaccount)) {
-				entries.get(deviant).set({note: ["foundDeviantSubaccount", subaccount]});
+				entries.get(deviant).set({note: ["foundDeviantSubaccount", {name: subaccount}]});
 			}
 		}
 	},

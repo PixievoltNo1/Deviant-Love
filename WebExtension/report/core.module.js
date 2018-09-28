@@ -23,12 +23,32 @@ export { beginPreparations, tipOfTheMoment };
 import PreparationScreen from "./svelte/PreparationScreen.html";
 import MainScreen from "./svelte/MainScreen.html";
 import lookUpDeviant from "./lookUpDeviant.module.js";
+import "fluent-intl-polyfill";
+import { FluentBundle } from "fluent";
 
 export var store = new Store({
-	l10n: env.getL10nMsg,
+	l10n: () => "",
 	visible: true,
 });
 var prefsLoaded = storePersist(store);
+fetch( env.getL10nMsg("fileFluent") )
+	.then( (response) => { return response.text(); } )
+	.then( (ftl) => {
+		var bundle = new FluentBundle('en-US');
+		var errors = bundle.addMessages(ftl);
+		logAll(errors);
+		store.set({ l10n(msg, args) {
+			var errors = [];
+			var text = bundle.format( bundle.getMessage(msg), args, errors );
+			logAll(errors);
+			return text;
+		} });
+	});
+function logAll(arr) {
+	for (let part of arr) {
+		console.log(part);
+	}
+}
 setUpStoreL10nCache(store);
 
 function Deviant(name) {

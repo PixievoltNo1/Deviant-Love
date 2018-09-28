@@ -4,7 +4,7 @@
 	{#if owned}
 		<div class="subaccountsList">
 			<div class="subaccountsListHeader sectionHeader">
-				{$l10n("subaccountsList", [$editingSubaccountsOf])}
+				{$l10n("subaccountsList", {name: $editingSubaccountsOf})}
 			</div>
 			<div class="subaccountsListContents">
 				{#each owned as subaccount}
@@ -26,11 +26,11 @@
 		<div class="sectionHeader">{$l10n("subaccountsAdd")}</div>
 		<label>
 			<input type="radio" name="addDirection" value="inputToThis" checked>
-			{$l10n("subaccountsAddInputToCurrent", [$editingSubaccountsOf])}
+			{$l10n("subaccountsAddInputToCurrent", {name: $editingSubaccountsOf})}
 		</label>
 		<label>
 			<input type="radio" name="addDirection" value="thisToInput">
-			{$l10n("subaccountsAddCurrentToInput", [$editingSubaccountsOf])}
+			{$l10n("subaccountsAddCurrentToInput", {name: $editingSubaccountsOf})}
 		</label>
 		<div class="textEntryLine">
 			<input type="text" class="relatedAccount" placeholder="{$l10n('subaccountsAddNamePlaceholder')}">
