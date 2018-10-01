@@ -17,7 +17,6 @@
 */
 import { Store } from "svelte/store";
 import storePersist from "../storePersist.module.js";
-import { setUpStoreL10nCache } from "./l10nCache.module.js";
 import * as env from "./environment.module.js";
 export { beginPreparations, tipOfTheMoment };
 import PreparationScreen from "./svelte/PreparationScreen.html";
@@ -49,7 +48,6 @@ function logAll(arr) {
 		console.log(part);
 	}
 }
-setUpStoreL10nCache(store);
 
 function Deviant(name) {
 	this.name = name;
