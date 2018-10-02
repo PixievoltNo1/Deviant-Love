@@ -28,9 +28,6 @@
 			<SyncStatus/>
 		{/if}
 	</div>
-	{#if $editingSubaccountsOf}
-		<MiniSubaccountsEditor/>
-	{/if}
 	<div id="tipOfTheMoment">
 		<img id="totmIcon" alt="" src="/images/{$tip.icon}">
 		<div id="totmText">{@html $tip.html}</div>
@@ -39,11 +36,10 @@
 <script>
 import DeviantList from "./DeviantList.html";
 import FindModeContent from "./FindModeContent.html";
-import MiniSubaccountsEditor from "./MiniSubaccountsEditor.html";
 import SubaccountsEditor from "../../options/svelte/SubaccountsEditor.html";
 import SyncStatus from "../../options/svelte/SyncStatus.html";
 export default {
-	components: { DeviantList, FindModeContent, MiniSubaccountsEditor, SubaccountsEditor, SyncStatus },
+	components: { DeviantList, FindModeContent, SubaccountsEditor, SyncStatus },
 	methods: {
 		useAction(action) {
 			if (action != this.get().mode) {

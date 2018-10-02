@@ -21,6 +21,7 @@ import * as env from "./environment.module.js";
 export { beginPreparations, tipOfTheMoment };
 import PreparationScreen from "./svelte/PreparationScreen.html";
 import MainScreen from "./svelte/MainScreen.html";
+export var initMiniSubaccountsEditor;
 import lookUpDeviant from "./lookUpDeviant.module.js";
 import "fluent-intl-polyfill";
 import { FluentBundle } from "fluent";
@@ -206,6 +207,14 @@ function report(results, ui, love) {
 			});
 		}
 	});
+	initMiniSubaccountsEditor = (editor) => {
+		var {owner} = editor.get();
+		var owned = store.get().subaccounts[owner] || [];
+		editor.set({ accounts: owned.map( (accountName) => {
+			return deviants.baseMap.get(accountName) || new Deviant(accountName);
+		} ) });
+	};
+	/*
 	$("#mainScreen").delegate(".addSubaccount", "submit", function(event) {
 		event.preventDefault();
 		var {subaccounts} = store.get();
@@ -299,6 +308,7 @@ function report(results, ui, love) {
 		}
 		store.set({subaccounts});
 	} );
+	*/
 	// Helper function for subaccount event handlers
 	function deviantsMod(mod) {
 		// mod() may change the value of $("#deviant_" + store.get().editingSubaccountsOf), so don't save it

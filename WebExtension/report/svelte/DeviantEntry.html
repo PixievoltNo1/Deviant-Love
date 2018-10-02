@@ -11,7 +11,7 @@
 		<span class="deviantFaves">{deviant.deviations.length}</span>
 		<span class="deviantName">{deviant.name}</span>
 		<div class="subaccountsButton line" class:has="deviant.name in $subaccounts"
-			class:editing="$editingSubaccountsOf == deviant.name"
+			class:editing="subaccountsOpen"
 			on:click="toggleSubaccounts(event)" title="{$l10n('subaccountsOpen')}">&nbsp;</div>
 	</div>
 	{#if open || closing}
@@ -27,16 +27,20 @@
 				</div>
 			</div>
 			<DeviationList deviations={deviant.deviations}/>
+			{#if subaccountsOpen}
+				<MiniSubaccountsEditor owner={deviant.name} />
+			{/if}
 		</div>
 	{/if}
 </div>
 <script>
 import Avatar from "./Avatar.html";
 import DeviationList from "./DeviationList.html";
+import MiniSubaccountsEditor from "./MiniSubaccountsEditor.html";
 import anime from "animejs";
 const closerLookEasing = [0, 0, .6, 1];
 export default {
-	components: { Avatar, DeviationList },
+	components: { Avatar, DeviationList, MiniSubaccountsEditor },
 	oncreate() {
 		this.get().registry.set(this.get().deviant.name, this);
 	},
@@ -77,7 +81,7 @@ export default {
 			}
 		},
 		close(transition) {
-			this.set({open: false, closing: transition});
+			this.set({open: false, closing: transition, subaccountsOpen: false});
 			if (transition) {
 				anime({
 					targets: this.refs.closerLook,
@@ -92,11 +96,11 @@ export default {
 		},
 		toggleSubaccounts(event) {
 			if (event) { event.stopPropagation(); }
-			var {name} = this.get().deviant;
-			if (this.store.get().editingSubaccountsOf != name) {
-				this.store.set({editingSubaccountsOf: name});
+			if (!this.get().subaccountsOpen) {
+				this.set({subaccountsOpen: true});
+				this.fire("openMe");
 			} else {
-				this.store.set({editingSubaccountsOf: false});
+				this.set({subaccountsOpen: false});
 			}
 		}
 	},
