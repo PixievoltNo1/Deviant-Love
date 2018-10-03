@@ -41,7 +41,8 @@ import anime from "animejs";
 const closerLookEasing = [0, 0, .6, 1];
 export default {
 	components: { Avatar, DeviationList, MiniSubaccountsEditor },
-	oncreate() {
+	onstate({previous}) {
+		if (previous) { return; }
 		this.get().registry.set(this.get().deviant.name, this);
 	},
 	ondestroy() {

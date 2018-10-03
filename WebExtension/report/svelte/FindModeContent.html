@@ -55,14 +55,22 @@ export default {
 	}; },
 	onupdate({changed, current, previous = {}}) {
 		if (changed.queryResults && this.refs.deviantList) {
+			var currentResults = current.queryResults;
+
+			// Set subaccount notes
 			var entries = this.refs.deviantList.get().registry;
 			if (previous.queryResults) {
 				for (let deviant of Object.keys(previous.queryResults.matchedBySubaccount)) {
 					entries.get(deviant).set({note: null});
 				}
 			}
-			for (let [deviant, subaccount] of Object.entries(current.queryResults.matchedBySubaccount)) {
+			for (let [deviant, subaccount] of Object.entries(currentResults.matchedBySubaccount)) {
 				entries.get(deviant).set({note: ["foundDeviantSubaccount", {name: subaccount}]});
+			}
+
+			// If results consist of nothing but 1 deviant, open their DeviantEntry
+			if (currentResults.deviants.length == 1 && !currentResults.deviations.length) {
+				this.refs.deviantList.showDeviant( currentResults.deviants[0].name );
 			}
 		}
 	},
