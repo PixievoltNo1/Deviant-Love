@@ -3,7 +3,7 @@
 	Copyright Pikadude No. 1
 	Check core.module.js for the complete legal stuff.
 */
-import { beginPreparations, nextTip, store } from "./core.module.js";
+import { beginPreparations, store } from "./core.module.js";
 export * from "../apiAdapter.module.js";
 
 chrome.runtime.sendMessage({action: "echoWithCallback", echoAction: "getLove"},

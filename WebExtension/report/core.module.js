@@ -18,7 +18,7 @@
 import { Store } from "svelte/store";
 import storePersist from "../storePersist.module.js";
 import * as env from "./environment.module.js";
-export { beginPreparations, tipOfTheMoment };
+export { beginPreparations };
 import PreparationScreen from "./svelte/PreparationScreen.html";
 import MainScreen from "./svelte/MainScreen.html";
 export var initMiniSubaccountsEditor;
@@ -349,7 +349,7 @@ document.body.addEventListener("touchend", function prepareForSwitchToMouse(touc
 			{passive: true, once: true});
 	});
 }, {passive: true, once: true});
-export function nextTip() {
+function nextTip() {
 	return Promise.all(
 		[env.retrieve("nextTip"), $.getJSON( env.getL10nMsg("fileTipOfTheMoment") )]
 	).then(function(results) {
