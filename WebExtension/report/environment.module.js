@@ -3,13 +3,12 @@
 	Copyright Pikadude No. 1
 	Check core.module.js for the complete legal stuff.
 */
-import { beginPreparations, store } from "./core.module.js";
+import { start, store, showDeviant } from "./core.module.js";
 export * from "../apiAdapter.module.js";
 
 chrome.runtime.sendMessage({action: "echoWithCallback", echoAction: "getLove"},
-	function(love) {
-		beginPreparations(love);
-		if (location.hash) {showDeviant(location.hash.slice(1))};
+	async function(love) {
+		await start({love, firstDeviant: location.hash.slice(1)});
 		chrome.runtime.sendMessage({action: "echo", echoAction: "panelReady"});
 	}
 );

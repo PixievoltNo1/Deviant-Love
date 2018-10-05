@@ -18,7 +18,7 @@
 import { Store } from "svelte/store";
 import storePersist from "../storePersist.module.js";
 import * as env from "./environment.module.js";
-export { beginPreparations };
+export var showDeviant;
 import PreparationScreen from "./svelte/PreparationScreen.html";
 import MainScreen from "./svelte/MainScreen.html";
 export var initMiniSubaccountsEditor;
@@ -26,24 +26,33 @@ import lookUpDeviant from "./lookUpDeviant.module.js";
 import "fluent-intl-polyfill";
 import { FluentBundle } from "fluent";
 
-export var store = new Store({
-	l10n: () => "",
-	visible: true,
-});
-var prefsLoaded = storePersist(store);
-fetch( env.getL10nMsg("fileFluent") )
-	.then( (response) => { return response.text(); } )
-	.then( (ftl) => {
-		var bundle = new FluentBundle('en-US');
-		var errors = bundle.addMessages(ftl);
-		logAll(errors);
-		store.set({ l10n(msg, args) {
-			var errors = [];
-			var text = bundle.format( bundle.getMessage(msg), args, errors );
-			logAll(errors);
-			return text;
-		} });
+export var store;
+export async function start({love, restoreData, firstDeviant, mobile}) {
+	store = new Store({
+		visible: true,
+		mobile,
 	});
+	await storePersist(store);
+	let response = await fetch( env.getL10nMsg("fileFluent") );
+	let ftl = await response.text();
+	var bundle = new FluentBundle('en-US');
+	var errors = bundle.addMessages(ftl);
+	logAll(errors);
+	store.set({ l10n(msg, args) {
+		var errors = [];
+		var text = bundle.format( bundle.getMessage(msg), args, errors );
+		logAll(errors);
+		return text;
+	} });
+	if (restoreData) {
+		restore(restoreData, love);
+	} else {
+		prepare(love);
+	}
+	if (firstDeviant) {
+		showDeviant(firstDeviant);
+	}
+}
 function logAll(arr) {
 	for (let part of arr) {
 		console.log(part);
@@ -63,7 +72,7 @@ Object.defineProperties(Deviant.prototype, {
 		}
 	}
 });
-function beginPreparations(love) {
+function prepare(love) {
 	var screen = new PreparationScreen({
 		target: document.body,
 		store,
@@ -80,7 +89,7 @@ function beginPreparations(love) {
 	} );
 	var organized = faves.then(organizeData);
 	var watchResult = scannerController.watched.then(collectWatchlist, watchError);
-	Promise.all([organized, watchResult, nextTip(), prefsLoaded]).then(finish);
+	Promise.all([organized, watchResult, nextTip()]).then(finish);
 	var visibilityListener = store.on("state", ({changed, current}) => {
 		if (changed.visible) {
 			scannerController[current.visible ? "resume" : "pause"]();
@@ -115,7 +124,7 @@ function beginPreparations(love) {
 		scannerController.retry();
 	});
 	var firstDeviant;
-	window.showDeviant = function(deviantName) {
+	showDeviant = function(deviantName) {
 		firstDeviant = deviantName;
 	}
 	function collectWatchlist(list) {
@@ -145,11 +154,11 @@ function beginPreparations(love) {
 }
 function restore(scanData, love) {
 	var firstDeviant;
-	window.showDeviant = function(deviantName) {
+	showDeviant = function(deviantName) {
 		firstDeviant = deviantName;
 	};
 	// TODO: Wake scanData.deviants
-	Promise.all([nextTip(), prefsLoaded]).then(function() {
+	Promise.all([nextTip()]).then(function() {
 		var ui = {firstDeviant: firstDeviant};
 		report(scanData, ui, love);
 	});
@@ -324,7 +333,7 @@ function report(results, ui, love) {
 	}
 
 	// Handle requests for a particular deviant that were made elsewhere (e.g. context menu)
-	window.showDeviant = function(deviantName) {
+	showDeviant = function(deviantName) {
 		screen.set({mode: "normal"});
 		screen.refs.normalList.showDeviant(deviantName);
 	}
