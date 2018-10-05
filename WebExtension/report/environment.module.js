@@ -6,9 +6,9 @@
 import { start, store, showDeviant } from "./core.module.js";
 export * from "../apiAdapter.module.js";
 
-chrome.runtime.sendMessage({action: "echoWithCallback", echoAction: "getLove"},
-	async function(love) {
-		await start({love, firstDeviant: location.hash.slice(1)});
+chrome.runtime.sendMessage({action: "echoWithCallback", echoAction: "getStartData"},
+	async function(startData) {
+		await start(startData);
 		chrome.runtime.sendMessage({action: "echo", echoAction: "panelReady"});
 	}
 );
@@ -27,6 +27,9 @@ chrome.runtime.onMessage.addListener(function(thing, buddy, callback) {switch (t
 	break;
 	case "artistRequested":
 		showDeviant(thing.artist);
+	break;
+	case "setMobile":
+		store.set({mobile: thing.mobile});
 	break;
 }});
 

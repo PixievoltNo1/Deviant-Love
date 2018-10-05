@@ -27,6 +27,7 @@ var heartIcons = [
 	}),
 ];
 var normalIcons = Array.from(document.querySelectorAll("link[rel~=icon]"));
+var mobileCheck = matchMedia("not all and (min-width: 550px)");
 var panelState = "inactive";
 var panelInitialized = false;
 
@@ -40,18 +41,32 @@ chrome.runtime.onMessage.addListener( function(thing, buddy, callback) {switch (
 	break;
 }} );
 
+function handleMobile() {
+	var {matches} = mobileCheck;
+	panel.classList.toggle("mobile", matches);
+	shield.classList.toggle("mobile", matches);
+	chrome.runtime.sendMessage({action: "echo", echoAction: "setMobile", mobile: matches});
+}
+handleMobile();
+
 function activate(firstDeviant) {
 	panelState = "preparing";
 	if (!panelInitialized) {
-		chrome.runtime.onMessage.addListener( function panelReady(thing) {
+		chrome.runtime.onMessage.addListener( function startHelper(thing, buddy, callback) {
+			if (thing.action == "getStartData") {
+				callback({
+					love: findLove(),
+					firstDeviant,
+					mobile: mobileCheck.matches,
+				});
+			}
 			if (thing.action == "panelReady") {
 				panelInitialized = true;
 				reveal();
-				chrome.runtime.onMessage.removeListener(panelReady);
+				chrome.runtime.onMessage.removeListener(startHelper);
 			}
 		} );
-		panel.contentWindow.location.replace(
-			chrome.runtime.getURL("report/popup.html" + (firstDeviant ? "#" + firstDeviant : "")) );
+		panel.contentWindow.location.replace( chrome.runtime.getURL("report/popup.html") );
 	} else {
 		chrome.runtime.sendMessage({action: "echoWithCallback", echoAction: "showing"}, reveal);
 	}

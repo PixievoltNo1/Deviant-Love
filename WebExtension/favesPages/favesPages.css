@@ -10,9 +10,20 @@
 	z-index: 501;
 	transition: 0.6s ease-out;
 }
+#DeviantLovePanel.mobile {
+	border: 0;
+	height: 100%;
+	width: 100%;
+	right: 0;
+	transition: 0.3s ease-out;
+}
 #DeviantLovePanel.hide {
 	transform: translateY(-100%);
 	visibility: hidden;
+}
+#DeviantLovePanel.mobile.hide {
+	transform: scale(1.2);
+	opacity: 0;
 }
 #DeviantLoveShield {
 	position: fixed;
@@ -29,17 +40,4 @@
 	opacity: 0;
 	visibility: hidden;
 }
-@media not all and (min-width: 550px) {
-	#DeviantLovePanel {
-		border: 0;
-		height: 100%;
-		width: 100%;
-		right: 0;
-		transition: 0.3s ease-out;
-	}
-	#DeviantLovePanel.hide {
-		transform: scale(1.2);
-		opacity: 0;
-	}
-	#DeviantLoveShield { display: none; }
-}
+#DeviantLoveShield.mobile { display: none; }
