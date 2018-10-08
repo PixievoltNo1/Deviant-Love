@@ -30,6 +30,7 @@ var normalIcons = Array.from(document.querySelectorAll("link[rel~=icon]"));
 var mobileCheck = matchMedia("not all and (min-width: 550px)");
 var panelState = "inactive";
 var panelInitialized = false;
+var extraStartData = {};
 
 chrome.runtime.onMessage.addListener( function(thing, buddy, callback) {switch (thing.action) {
 	case "spark":
@@ -38,6 +39,12 @@ chrome.runtime.onMessage.addListener( function(thing, buddy, callback) {switch (
 	break;
 	case "artistRequested":
 		if (panelState == "inactive") {activate(thing.artist)}
+	break;
+	case "getStartData":
+		callback( Object.assign({
+			love: findLove(),
+			mobile: mobileCheck.matches,
+		}, extraStartData) );
 	break;
 }} );
 
@@ -52,15 +59,10 @@ handleMobile();
 function activate(firstDeviant) {
 	panelState = "preparing";
 	if (!panelInitialized) {
-		chrome.runtime.onMessage.addListener( function startHelper(thing, buddy, callback) {
-			if (thing.action == "getStartData") {
-				callback({
-					love: findLove(),
-					firstDeviant,
-					mobile: mobileCheck.matches,
-				});
-			}
+		extraStartData.firstDeviant = firstDeviant;
+		chrome.runtime.onMessage.addListener( function startHelper(thing) {
 			if (thing.action == "panelReady") {
+				delete extraStartData.firstDeviant;
 				panelInitialized = true;
 				reveal();
 				chrome.runtime.onMessage.removeListener(startHelper);
