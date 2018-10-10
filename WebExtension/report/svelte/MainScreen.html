@@ -28,10 +28,12 @@
 			<SyncStatus/>
 		{/if}
 	</div>
-	<div id="tipOfTheMoment">
-		<img id="totmIcon" alt="" src="/images/{$tip.icon}">
-		<div id="totmText">{@html $tip.html}</div>
-	</div>
+	{#if mode == "normal" || !mobile}
+		<div id="tipOfTheMoment">
+			<img id="totmIcon" alt="" src="/images/{$tip.icon}">
+			<div id="totmText">{@html $tip.html}</div>
+		</div>
+	{/if}
 </div>
 <script>
 import DeviantList from "./DeviantList.html";
