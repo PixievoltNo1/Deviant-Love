@@ -188,72 +188,74 @@ a img {
     background-repeat: no-repeat, no-repeat;
     padding-left: 30px;
 }
-.deviant:not(.opened) {
-	background: hsl(357, 90%, 76%);
-	cursor: pointer;
-}
-.deviant:hover:not(.touched) {
-	background: linear-gradient(to bottom, hsl(357, 90%, 88%), hsl(357, 90%, 82%));
-}
-.deviant.opened.opened {
-	background: hsl(357, 90%, 72%);
-}
 .deviant + .deviant {
 	margin-top: 1px;
 }
-.deviantNote {
-    font-style: italic;
-    font-size: 70%;
-    margin-left: 28px;
-    line-height: 150%;
+.deviantHeader {
+	display: grid;
+	grid-template:
+		". . note ."
+		"artWatch faves name subaccounts" / 22px minmax(3em, auto) 1fr 26px;
+	grid-column-gap: 0.2em;
+	padding-left: 0.2em;
 }
-.deviantLine {
-	display: flex;
-	position: relative;
-	white-space: nowrap;
+.deviantHeader:not(.opened) {
+	background: hsl(357, 90%, 76%);
+	cursor: pointer;
 }
-.deviantName {
-	flex: 1;
-	overflow: hidden;
-	text-overflow: ellipsis;
+.deviantHeader:not(.opened):hover, .deviantHeader:not(.opened):active {
+	background: linear-gradient(to bottom, hsl(357, 90%, 88%), hsl(357, 90%, 82%));
 }
-.deviantFaves {
-	display: inline-block;
-	width: 3em;
-	text-align: right;
-	font-weight: bold;
-	margin-right: 0.2em;
+.deviantHeader.opened {
+	background: hsl(357, 90%, 72%);
 }
-.deviantFaves::before {
-	content: "(";
-}
-.deviantFaves::after {
-	content: ")";
-}
-.deviationWatch {
-	display: inline-block;
-	width: 22px;
-	margin: 0 0.2em;
-}
-.deviationWatch.true {
-	background: url("/images/deviantart/DeviationWatch.png");
-	background-position: center;
-	background-repeat: no-repeat;
-}
-.subaccountsButton.line {
-	width: 26px;
-	display: none;
-	background-position: center;
-	background-repeat: no-repeat;
-	background-image: url("/images/combine.svg");
-}
-:not(.usingTouch) .deviant:hover .subaccountsButton.line:not(.has):not(.editing):not(:hover) {
-	display: inline-block;
-	filter: brightness(0%) opacity(40%);
-}
-.subaccountsButton.line.has, .subaccountsButton.line.editing, .subaccountsButton.line:hover {
-	display: inline-block;
-}
+	.deviantNote {
+		grid-area: note;
+		font-style: italic;
+		font-size: 70%;
+		line-height: 150%;
+	}
+	.deviantName {
+		grid-area: name;
+		overflow: hidden;
+		white-space: nowrap;
+		text-overflow: ellipsis;
+	}
+	.deviantFaves {
+		grid-area: faves;
+		text-align: right;
+		font-weight: bold;
+	}
+	.deviantFaves::before {
+		content: "(";
+	}
+	.deviantFaves::after {
+		content: ")";
+	}
+	.artWatch {
+		grid-area: artWatch;
+		width: 22px;
+		background: url("/images/deviantart/DeviationWatch.png");
+		background-position: center;
+		background-repeat: no-repeat;
+	}
+	.artWatch:not(.true) {
+		filter: brightness(0%) opacity(30%);
+	}
+	.subaccountsButton.line {
+		grid-area: subaccounts;
+		display: none;
+		background-position: center;
+		background-repeat: no-repeat;
+		background-image: url("/images/combine.svg");
+	}
+	:not(.usingTouch) .deviant:hover .subaccountsButton.line:not(.has):not(.editing):not(:hover) {
+		display: inline-block;
+		filter: brightness(0%) opacity(40%);
+	}
+	.subaccountsButton.line.has, .subaccountsButton.line.editing, .subaccountsButton.line:hover {
+		display: inline-block;
+	}
 .closerLook {
 	display: grid;
 	grid: "sidebar main" / 108px 1fr;

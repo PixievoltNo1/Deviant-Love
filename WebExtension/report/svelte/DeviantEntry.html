@@ -1,12 +1,14 @@
 <div class="deviant" class:opened="open" id="deviant_{deviant.name}" ref:root>
-	{#if note}
-		<div class="deviantNote">{$l10n(...note)}</div>
-	{/if}
-	<div class="deviantLine" on:click="fire('openMe')">
-		{#if watchedArtists && watchedArtists.has(deviant.name)}
-			<div class="deviationWatch true" title="{$l10n('watchingThisArtist')}">&nbsp;</div>
-		{:else}
-			<div class="deviationWatch">&nbsp;</div>
+	<div class="deviantHeader" on:click="fire('openMe')">
+		{#if note}
+			<div class="deviantNote">{$l10n(...note)}</div>
+		{/if}
+		{#if watchedArtists}
+			{#if watchedArtists.has(deviant.name)}
+				<div class="artWatch true" title="{$l10n('artWatched')}">&nbsp;</div>
+			{:else}
+				<div class="artWatch" title="{$l10n('artNotWatched')}">&nbsp;</div>
+			{/if}
 		{/if}
 		<span class="deviantFaves">{deviant.deviations.length}</span>
 		<span class="deviantName">{deviant.name}</span>

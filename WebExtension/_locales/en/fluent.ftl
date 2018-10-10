@@ -41,7 +41,8 @@ foundDeviations = Found { $deviations ->
 }
 foundDeviationsArtistHeader = From { $name }:
 foundNothing = Sorry, there are no matches!
-watchingThisArtist = You are watching this artist's deviations
+artWatched = Watching art
+artNotWatched = Not watching art
 profile = Profile
 gallery = Gallery
 favourites = Favourites
