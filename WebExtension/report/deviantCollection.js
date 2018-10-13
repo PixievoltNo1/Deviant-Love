@@ -80,10 +80,11 @@ DeviantCollection.prototype = {
 				this.resetToBase(unowned.name);
 			}
 			if (isOwner.has(oldOwner)) {
-				let removeFrom = this.effectiveMap.get(owner.name);
+				let removeFrom = this.effectiveMap.get(oldOwner.name);
 				let removeMe = new Set(unowned.deviations);
-				removeFrom.deviations =
-					removeFrom.deviations.filter( (deviation) => { !removeMe.has(deviation); } );
+				removeFrom.deviations = removeFrom.deviations.filter(
+					(deviation) => { return !removeMe.has(deviation); }
+				);
 			} else {
 				// Transitions: Owner > Neither, Virtual Owner > Unknown
 				if (!newOwnerships.has(oldOwner)) {

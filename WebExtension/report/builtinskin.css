@@ -310,13 +310,29 @@ a img {
 	grid-area: main;
 	background: hsla(0, 0%, 0%, 0.95);
 }
-.miniSubaccountsEditor .entry {
-	display: grid;
-}
-.miniSubaccountsEditor .avatar {
-	align-self: center;
-	justify-self: center;
-}
+	.miniSubaccountsEditor .entry {
+		display: grid;
+		grid-template:
+			"avatar name" 28px
+			"avatar actions" 28px / 56px 1fr;
+		align-items: center;
+	}
+	.miniSubaccountsEditor .avatar {
+		grid-area: avatar;
+		justify-self: center;
+	}
+	.miniSubaccountsEditor .name {
+		grid-area: name;
+		color: white;
+		font-weight: bold;
+	}
+	.miniSubaccountsEditor .actions {
+		grid-area: actions;
+		display: flex;
+	}
+		.miniSubaccountsEditor .actions > * {
+			flex: 1;
+		}
 #tipOfTheMoment {
 	position: relative;
 	background-color: hsl(40, 100%, 65%);

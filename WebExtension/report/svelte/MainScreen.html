@@ -1,6 +1,11 @@
 <div id="mainScreen" class="{mode}Mode" class:usingTouch="$usingTouch">
 	<div id="scanResults">
-
+		<div id="favesLine">
+			{favesLineParts[0]}<span class="dynamic">{favesLineParts[1]}</span>{favesLineParts[2]}
+		</div>
+		<div id="artistsLine">
+			{artistsLineParts[0]}<span class="dynamic">{artistsLineParts[1]}</span>{artistsLineParts[2]}
+		</div>
 	</div>
 	<div id="actionBar">
 		{#each ["find", "options"] as action}
@@ -42,6 +47,14 @@ import SubaccountsEditor from "../../options/svelte/SubaccountsEditor.html";
 import SyncStatus from "../../options/svelte/SyncStatus.html";
 export default {
 	components: { DeviantList, FindModeContent, SubaccountsEditor, SyncStatus },
+	computed: {
+		favesLineParts({totalDeviations, pageType, $l10n}) {
+			return $l10n("headerFavesLine", {num: totalDeviations, pageType}).split("*");
+		},
+		artistsLineParts({deviantList, pageType, $l10n}) {
+			return $l10n("headerArtistsLine", {num: deviantList.length, pageType}).split("*");
+		},
+	},
 	methods: {
 		useAction(action) {
 			if (action != this.get().mode) {

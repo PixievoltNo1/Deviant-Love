@@ -75,7 +75,7 @@ export default {
 						}
 						var {firstSubaccount} = ui.get();
 						if (isOwner) {
-							ui.warn(["OwnerAlreadyAdded", {owner: name, owned: firstSubaccount}]);
+							warn(["OwnerAlreadyAdded", {owner: name, owned: firstSubaccount}]);
 						}
 						await addSubaccount(name, firstSubaccount);
 						ui.set({showNewOwnerForm: false});
@@ -85,7 +85,6 @@ export default {
 						if (subaccounts[owner].length == 0) {
 							delete subaccounts[owner];
 						}
-						store.set({subaccounts});
 					},
 					changeOwner(ownerComponent) {
 						var {owner, newOwner} = ownerComponent.get();
@@ -99,9 +98,9 @@ export default {
 							}
 						}
 						subaccounts = newSubaccounts;
-						store.set({subaccounts});
 					},
 				})[action](details);
+				store.set({subaccounts});
 			} catch (error) {
 				this.set({error});
 			} finally {
@@ -123,7 +122,6 @@ export default {
 					}
 					delete subaccounts[name];
 				}
-				store.set({subaccounts});
 			}
 			function nameCheck(input) {
 				var name = input.toLowerCase();
@@ -142,18 +140,18 @@ export default {
 					if (results.name) {
 						return {name: results.name};
 					} else {
-						ui.warn( ["CantVerifyCasing", {name: input}] );
+						warn( ["CantVerifyCasing", {name: input}] );
 						return { name: input };
 					}
 				}, (err) => {
 					throw [err, {name: input}];
 				});
 			}
-		},
-		warn(warning) {
-			var {warnings} = this.get();
-			warnings.push(warning);
-			this.set({warnings});
+			function warn(warning) {
+				var {warnings} = ui.get();
+				warnings.push(warning);
+				ui.set({warnings});
+			}
 		},
 	},
 	oncreate() {

@@ -172,27 +172,15 @@ function report(results, ui, love) {
 		target: document.body,
 		store,
 		data: {
-			deviantList: deviants.list, watchedArtists, watchError, mode: "normal"
+			deviantList: deviants.list, totalDeviations, watchedArtists, watchError,
+			pageType: love.pageType, mode: "normal"
 		}
 	});
-	var scanResults = $("#scanResults");
-	var scanResultsLine1 = ({
-		featured: "scanResultsFeaturedLine1",
-		allFaves: "scanResultsAllLine1",
-		collection: "scanResultsCollectionLine1",
-		search: "scanResultsSearchLine1"
-	})[love.pageType];
-	scanResults.append($("<div>").l10nHtml(scanResultsLine1,
-		'<span class="dynamic">' + Number(totalDeviations) + '</span>')); // The Number call is there to help out AMO reviewers; same for the other calls below
-	scanResults.append($("<div>", {id: "artistCount"}).l10nHtml("scanResultsLastLine",
-		'<span class="dynamic">' + Number(deviants.list.length) + '</span>'));
 
 	screen.on("state", ({changed, previous}) => {
 		if (changed.mode && previous.mode == "options") {
 			deviants.setSubaccounts(store.get().subaccounts);
 			deviants.buildList();
-			$("#artistCount").l10nHtml("scanResultsLastLine",
-				'<span class="dynamic">' + Number(deviants.list.length) + '</span>');
 			screen.set({deviantList: deviants.list});
 		}
 	});
@@ -218,119 +206,91 @@ function report(results, ui, love) {
 	});
 	initMiniSubaccountsEditor = (editor) => {
 		var {owner} = editor.get();
-		var owned = store.get().subaccounts[owner] || [];
-		editor.set({ accounts: owned.map( (accountName) => {
-			return deviants.baseMap.get(accountName) || new Deviant(accountName);
-		} ) });
-	};
-	/*
-	$("#mainScreen").delegate(".addSubaccount", "submit", function(event) {
-		event.preventDefault();
 		var {subaccounts} = store.get();
-		var input = $(".relatedAccount").val();
-		if (input == "") { return; }
-		$("body").css("cursor", "wait");
-		$(".addNotice").hide();
-		$.when( (function() {
-			var lcInput = input.toLowerCase();
-			for (var name of deviants.effectiveMap.keys()) {
-				if (name.toLowerCase() == lcInput) {
-					return name;
+		function setAccounts() {
+			var owned = subaccounts[owner] || [];
+			editor.set({ accounts: owned.map( (accountName) => {
+				return deviants.baseMap.get(accountName) || new Deviant(accountName);
+			} ) });
+		}
+		setAccounts();
+		// TODO: Most of the rest of this function should get de-duplicated with SubaccountsEditor.html's editorAction
+		editor.on( "add", editorAction.bind(null, async function() {
+			var {name, ownedBy, isOwner} = await nameCheck(editor.get().addMe);
+			if (ownedBy) {
+				throw ["AlreadyOwned", {name: ownedBy}];
+			}
+			if (!(owner in subaccounts)) {
+				subaccounts[owner] = [];
+			}
+			subaccounts[owner].push(name);
+			if (isOwner) {
+				for (let subaccount of subaccounts[name]) {
+					subaccounts[owner].push(subaccount);
+				}
+				delete subaccounts[name];
+			}
+			editor.set({addMe: ""})
+		}) );
+		editor.on( "remove", editorAction.bind(null, (removing) => {
+			subaccounts[owner].splice(subaccounts[owner].indexOf(removing), 1);
+			if (subaccounts[owner].length == 0) {
+				delete subaccounts[owner];
+			}
+		}) );
+		async function editorAction(action, event) {
+			if (editor.get().busy) { return; }
+			editor.set({warning: false, error: false});
+			try {
+				await action(event);
+				store.set({subaccounts});
+				setAccounts();
+				deviants.setSubaccounts(subaccounts);
+				screen.set({mode: "normal", deviantList: deviants.list});
+				screen.refs.normalList.showDeviant(owner);
+				screen.refs.normalList.get().registry.get(owner).set({subaccountsOpen: true});
+				document.getElementById("deviant_" + owner).scrollIntoView();
+			} catch (error) {
+				editor.set({error});
+			} finally {
+				editor.set({busy: false});
+			}
+		}
+		function nameCheck(input) {
+			var name = input.toLowerCase();
+			for (let owner in subaccounts) {
+				if (owner.toLowerCase() == name) {
+					return {name: owner, isOwner: true};
+				}
+				for (let subaccount of subaccounts[owner]) {
+					if (subaccount.toLowerCase() == name) {
+						return {name: subaccount, ownedBy: owner};
+					}
 				}
 			}
-			for (var name in subaccounts) {
-				if (name.toLowerCase() == lcInput) {
-					return name;
-				}
-				var found;
-				subaccounts[name].some( function(subaccount) {
-					if (subaccount.toLowerCase() == lcInput) {
-						found = subaccount;
-						return true;
-					}
-				} );
-				if (found) {
-					if ($("input[value='thisToInput']").prop("checked")) {
-						// We can safely assume "this to input's owner" is acceptable
-						return name;
-					} else {
-						// Assume nothing and let the user decide what's correct
-						return $.Deferred().reject("AlreadyOwned", name);
-					}
+			for (let known of deviants.baseMap.keys()) {
+				if (known.toLowerCase() == name) {
+					return {name: known};
 				}
 			}
-			return lookUpDeviant(lcInput).then((results) => {
-				var verifiedName = results.name;
-				if (!verifiedName) {
-					var warn = true;
-					verifiedName = input;
+			editor.set({busy: true});
+			return lookUpDeviant(name).then((results) => {
+				if (results.name) {
+					return {name: results.name};
+				} else {
+					warn( ["CantVerifyCasing", {name: input}] );
+					return { name: input };
 				}
-				if ($("input[value='thisToInput']").prop("checked")) {
-					var newDeviant = new Deviant(verifiedName);
-					newDeviant.avatar = results.avatar;
-					deviants.effectiveMap.set(verifiedName, newDeviant);
-				}
-				if (warn) {
-					return { related: input, warning: "CantVerifyCasing", warningPart: input };
-				}
-				return verifiedName;
+			}, (err) => {
+				throw [err, {name: input}];
 			});
-		})() ).then( function(related) {
-			if (typeof related == "object") {
-				var warning = related.warning, warningPart = related.warningPart;
-				related = related.related;
-			}
-			if ($("input[value='inputToThis']").prop("checked")) {
-				var getting = store.get().editingSubaccountsOf, gotten = related;
-			} else {
-				var gotten = store.get().editingSubaccountsOf, getting = related;
-			}
-			subaccounts[getting] = (subaccounts[getting] || [])
-				.concat( gotten, (subaccounts[gotten] || []) );
-			delete subaccounts[gotten];
-			if (deviants.effectiveMap.has(gotten)) {
-				deviantsMod(function() {
-					deviants.setSubaccounts(subaccounts);
-					store.set({editingSubaccountsOf: getting});
-				});
-			}
-			store.set({subaccounts});
-			$(".relatedAccount").val("");
-			if (warning) {
-				$(".addNotice").l10n("subaccountsWarning" + warning, warningPart).show();
-			}
-		}, function(error, errorPart) {
-			$(".addNotice").l10n("subaccountsError" + error, errorPart || input).show();
-		} ).always( function() {
-			$("body").css("cursor", "");
-		} );
-	} ).delegate(".removeSubaccount", "click", function() {
-		var removedName = $(this).siblings(".subaccountName").text();
-		var {subaccounts, editingSubaccountsOf} = store.get();
-		subaccounts[editingSubaccountsOf].splice(
-			subaccounts[editingSubaccountsOf].indexOf(removedName), 1);
-		if (subaccounts[editingSubaccountsOf].length == 0) {
-			delete subaccounts[editingSubaccountsOf];
 		}
-		if (deviants.baseMap.has(removedName)) {
-			deviantsMod( () => { deviants.setSubaccounts(subaccounts); } );
+		function warn(warning) {
+			var {warnings} = editor.get();
+			warnings.push(warning);
+			editor.set({warnings});
 		}
-		store.set({subaccounts});
-	} );
-	*/
-	// Helper function for subaccount event handlers
-	function deviantsMod(mod) {
-		// mod() may change the value of $("#deviant_" + store.get().editingSubaccountsOf), so don't save it
-		var keepOpen = $("#deviant_" + store.get().editingSubaccountsOf).hasClass("opened");
-		mod();
-		$("#artistCount").l10nHtml("scanResultsLastLine",
-			'<span class="dynamic">' + Number(deviants.list.length) + '</span>');
-		screen.set({mode: "normal", deviantList: deviants.list});
-		if (keepOpen) {
-			screen.refs.normalList.showDeviant(store.get().editingSubaccountsOf);
-		}
-		$("#deviant_" + store.get().editingSubaccountsOf)[0].scrollIntoView();
-	}
+	};
 
 	// Handle requests for a particular deviant that were made elsewhere (e.g. context menu)
 	showDeviant = function(deviantName) {
@@ -369,19 +329,3 @@ function nextTip() {
 		env.store("nextTip", nextTip);
 	});
 }
-function makeL10nMethod(methodName, effect) {
-	$.fn[methodName] = function(msgName) {
-		var replacements = $.makeArray(arguments).slice(1);
-		if (replacements.length == 0) {replacements = undefined};
-		// This data will be needed when the user will be able to change the language at runtime
-		// this.attr("data-l10n", msgName).data("l10nMethod", methodName);
-		effect.call(this, env.getL10nMsg(msgName, replacements));
-		return this;
-	}
-}
-[
-	["l10n", $.fn.text],
-	["l10nHtml", $.fn.html],
-	["l10nTooltip", function(msg) {this.attr("title", msg);}],
-	["l10nPlaceholder", function(msg) {this.attr("placeholder", msg);}]
-].forEach(function(args) {makeL10nMethod.apply(null, args);});

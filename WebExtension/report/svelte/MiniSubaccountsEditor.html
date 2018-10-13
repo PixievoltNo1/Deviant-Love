@@ -1,4 +1,4 @@
-<div class="miniSubaccountsEditor">
+<div class="miniSubaccountsEditor" ref:root>
 	{#each accounts as account (account.name)}
 		<div class="entry">
 			<Avatar deviant={account} />
@@ -15,13 +15,17 @@
 		<!-- TODO: Add subaccount help text -->
 	{/each}
 	<form class="addSubaccount textEntryLine">
-		<input type="text" bind:value="addMe" placeholder="{$l10n('subaccountsAddNamePlaceholder')}">
+		<input type="text" bind:value="addMe" required placeholder="{$l10n('subaccountsAddNamePlaceholder')}">
 		<button type="submit" class="confirmAdd" on:click="fire('add')">
 			{$l10n("subaccountsAddConfirm")}
 		</button>
 	</form>
-	{#if warning}
-		<div class="addMessage warning">{$l10n("subaccountsWarning" + warning[0], warning[1])}</div>
+	{#if warnings.length}
+		<div class="addMessage warning">
+			{#each warnings as [msg, parts]}
+				<p>{$l10n("subaccountsWarning" + msg, parts)}</p>
+			{/each}
+		</div>
 	{/if}
 	{#if error}
 		<div class="addMessage error">{$l10n("subaccountsError" + error[0], error[1])}</div>
@@ -35,9 +39,13 @@ export default {
 	data() { return {
 		addMe: "",
 		accounts: [],
+		warnings: [],
 	}; },
 	oncreate() {
 		initMiniSubaccountsEditor(this);
+		this.refs.root.addEventListener("submit", (event) => {
+			event.preventDefault();
+		});
 	},
 };
 </script>
