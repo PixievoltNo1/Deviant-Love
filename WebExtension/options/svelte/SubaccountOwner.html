@@ -1,21 +1,21 @@
 <div class="subaccountOwner">
 	{#if mode == "normal"}
-		<div class="editorLine ownerLine">
-			<span class="accountName">{owner}</span>
+		<div class="accountLine ownerLine">
+			<span class="name">{owner}</span>
 			<button type="button" class="changeMainAccount"
 				on:click="set({mode: 'changeOwner', newOwner: '$noChange'})">
 				{$l10n("subaccountsEditorChangeMain")}
 			</button>
 		</div>
 		{#each owned as subaccount}
-			<div class="editorLine">
-				<span class="accountName">{subaccount}</span>
+			<div class="accountLine subaccountLine">
+				<span class="name">{subaccount}</span>
 				<button type="button" class="removeSubaccount"
 					on:click="fire('remove', {owner, removing: subaccount})">
 					{$l10n("subaccountsRemove")}</button>
 			</div>
 		{/each}
-		<div class="editorLine">
+		<div class="actionLine">
 			{#if !showAddSubaccount}
 				<button type="button" class="addSubaccount"
 					on:click="set({showAddSubaccount: true, newSubaccount: ''})">
@@ -30,18 +30,18 @@
 			{/if}
 		</div>
 	{:elseif mode == "changeOwner"}
-		<form class="subaccountOwner changeMainAccountForm" on:submit="changeOwner()">
-			<div class="editorLine ownerLine"><label>
-				<input type="radio" bind:group="newOwner" name="newOwner" value="$noChange">
-				<span class="accountName">{owner}</span>
+		<form class="changeOwnerForm" on:submit="changeOwner()">
+			<div class="accountLine ownerLine"><label>
+				<input type="radio" name="newOwner" bind:group="newOwner" value="$noChange">
+				<span class="name">{owner}</span>
 			</label></div>
 			{#each owned as subaccount}
-				<div class="editorLine"><label>
-					<input type="radio" bind:group="newOwner" name="newOwner" value="{subaccount}">
-					<span class="accountName">{subaccount}</span>
+				<div class="accountLine"><label>
+					<input type="radio" name="newOwner" bind:group="newOwner" value="{subaccount}">
+					<span class="name">{subaccount}</span>
 				</label></div>
 			{/each}
-			<div class="editorLine">
+			<div class="actionLine">
 				<button type="submit">{$l10n("subaccountsEditorConfirmMainChange")}</button>
 			</div>
 		</form>

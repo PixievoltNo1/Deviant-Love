@@ -29,10 +29,8 @@ p:last-child { margin-bottom: 0; }
 	box-sizing: border-box;
 	max-width: 400px;
 }
-#subaccountsEditorExplainer {
-	padding: 7px;
-}
-.editorShield {
+#subaccountsEditor.busy::after {
+	content: " ";
 	cursor: wait;
 	position: fixed;
 	top: 0;
@@ -40,31 +38,34 @@ p:last-child { margin-bottom: 0; }
 	left: 0;
 	right: 0;
 }
-#subaccountsEditor > :nth-child(n+2) {
-	border-top: 1px solid hsl(0, 0%, 50%);
+#subaccountsEditorExplainer {
+	margin: 7px;
 }
-.subaccountOwner > :nth-child(n+2) {
-	border-top: 1px solid hsl(0, 0%, 80%);
+
+.subaccountOwner {
+	margin: 4px;
+	border: 1px solid black;
+	border-radius: 14px;
 }
-.editorLine {
+.accountLine, .actionLine {
 	display: flex;
 	flex-direction: row;
 	align-items: center;
 	padding-left: 21px;
 	height: 24px;
 }
-.ownerLine {
-	padding-left: 7px;
+.accountLine {
+	border-bottom: 1px solid hsl(0, 0%, 80%);
 }
 .openNewOwner {
-	margin-left: 7px;
+	margin: 4px;
 }
-.ownerLine .accountName, .openNewOwner { font-weight: bold; }
-.accountName {
+.ownerLine .name, .openNewOwner { font-weight: bold; }
+.accountLine .name {
 	flex: 1;
 }
 /* !importants are for overriding Chrome options page styling */
-.accountName + button {
+.accountLine button {
     background: none !important;
     border: none;
 	box-shadow: none !important;
@@ -72,7 +73,7 @@ p:last-child { margin-bottom: 0; }
 	color: rgb(0, 0, 238) !important;
 	cursor: pointer;
 }
-.accountName + button:focus {
+.accountLine button:focus {
 	outline: 1px dotted black !important;
 }
 #subaccountsEditor button, #subaccountsEditor input {
