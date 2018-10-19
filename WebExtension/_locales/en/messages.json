@@ -5,85 +5,12 @@
 	},
 	"fileTipOfTheMoment": { "message": "/_locales/en/TipOfTheMoment.json" },
 	"fileFluent": { "message": "/_locales/en/fluent.ftl" },
-
 	"heartX": {
 		"message": "Close Deviant Love",
 		"description": "Heart tooltip. Leave Deviant Love's name untranslated."
 	},
-
 	"artistCheck": {
 		"message": "List faved art from $1",
 		"description": "Context menu item text"
-	},
-
-	"scanningFeatured": { "message": "Scanning featured faves..." },
-	"scanningAll": { "message": "Scanning all faves..." },
-	"scanningCollection": { "message": "Scanning Collection..." },
-	"scanningSearch": { "message": "Scanning search results..." },
-	"scannedDeviations": { "message": "$1 deviations scanned" },
-	"scanError": { "message": "Communication with DeviantArt was unsuccessful." },
-	"scanErrorRetry": {
-		"message": "Try again",
-		"description": "Button text"
-	},
-	"watchSuccess": { "message": "Successfully retrieved your watch list" },
-	"watchErrorNotLoggedIn": { "message": "Your watch list couldn't be retrieved. It appears you're not logged in." },
-	"watchErrorInternal": { "message": "Your watch list couldn't be retrieved, likely due to an issue with Deviant Love." },
-	"scanResultsFeaturedLine1": { "message": "This page has $1 featured faves" },
-	"scanResultsAllLine1": { "message": "This page has $1 faves" },
-	"scanResultsCollectionLine1": { "message": "This Collection has $1 faves" },
-	"scanResultsSearchLine1": { "message": "This page has $1 search results" },
-	"scanResultsLastLine": { "message": "from $1 different artists!" },
-	"findAction": { "message": "Find" },
-	"optionsAction": { "message": "Options" },
-	"close": { "message": "Close" },
-	"findHelp": { "message": "Find art & artists from the scanned page by name" },
-	"findErrorForbiddenCharacter": { "message": "DeviantArt doesn't allow the use of $1 in deviant or deviation names." },
-	"findAmpersandHint": { "message": "The exact phrase you enter in the find bar is treated as one term to search for. To search for multiple terms, separate them with: &" },
-	"foundDeviants": { "message": "Found $1 deviant(s)" },
-	"foundDeviantSubaccount": { "message": "Found subaccount $1" },
-	"foundDeviations": { "message": "Found $1 deviation(s) from $2 artists" },
-	"foundDeviationsArtistHeader": { "message": "From $1:" },
-	"foundNothing": { "message": "Sorry, there are no matches!" },
-	"watchingThisArtist": {
-		"message": "You are watching this artist's deviations",
-		"description": "Icon tooltip"
-	},
-	"profile": { "message": "Profile" },
-	"gallery": { "message": "Gallery" },
-	"favourites": { "message": "Favourites" },
-	"subaccountsOpen": {
-		"message": "Subaccounts",
-		"description": "Tooltip for the report's subaccounts button"
-	},
-	"subaccountsList": { "message": "$1's subaccounts" },
-	"subaccountsRemove": { "message": "Remove" },
-	"subaccountsAdd": { "message": "Add a subaccount" },
-	"subaccountsAddInputToCurrent": { "message": "Add the following to $1's subaccounts" },
-	"subaccountsAddCurrentToInput": { "message": "Add $1 to the following's subaccounts" },
-	"subaccountsAddNamePlaceholder": { "message": "Enter account name" },
-	"subaccountsAddConfirm": { "message": "Add" },
-	"subaccountsErrorAlreadyOwned": { "message": "That subaccount already belongs to $1. (Add $1 as a subaccount to add both it and all its subaccounts.)" },
-	"subaccountsErrorNotFound": { "message": "DeviantArt reports \"not found\" for \"$1\"; check your spelling. (A deactivated account can also cause this error.)" },
-	"subaccountsErrorCommunication": { "message": "Can't verify the account exists due to an error communicating with DeviantArt. Try again later." },
-	"subaccountsErrorOwnerIsOwned": { "message": "$1 is a subaccount of $2, and cannot be added as an owner." },
-	"subaccountsWarningCantVerifyCasing": { "message": "Due to a Deviant Love issue, the correct capitalization for $1 couldn't be determined. If you need to change it, remove it and add it again." },
-	"subaccountsWarningOwnerAlreadyAdded": { "message": "You've already added $1 as an owner. Deviant Love is adding $2 to their subaccounts." },
-	"subaccountsEditorHeader": { "message": "Subaccounts" },
-	"subaccountsEditorExplain": {
-		"message": "Know a deviant who has multiple accounts? Tell Deviant Love about their subaccounts, and all their artwork will appear under one name!"
-	},
-	"subaccountsEditorAddMainAccount": { "message": "Add owner" },
-	"subaccountsEditorChangeMain": { "message": "Change main" },
-	"subaccountsEditorAddSubaccount": { "message": "Add subaccount" },
-	"subaccountsEditorAddPlaceholder": { "message": "Subaccount name here" },
-	"subaccountsEditorOwnerPlaceholder": { "message": "Owner name here" },
-	"subaccountsEditorCancelOwner": { "message": "Cancel" },
-	"subaccountsEditorConfirmMainChange": { "message": "Set main account" },
-	"syncHeader": { "message": "Sync" },
-	"syncByBrowserOK": { "message": "No problems detected! Your settings will be synced if browser sync is enabled." },
-	"syncByBrowserError": { "message": "Failed to save sync data with this error: $1" },
-	"syncByBrowserUnsupported": { "message": "Sync isn't available in this version of this browser." },
-	"syncLastSaved": { "message": "Sync data last saved on: $1" },
-	"syncLastSuccessfulSync": { "message": "Last successful sync on: $1" }
+	}
 }
