@@ -4,15 +4,13 @@
 			<SubaccountOwner {owner} {owned} on:add="edit('add', this)"
 				on:remove="edit('remove', event)" on:changeOwner="edit('changeOwner', this)"/>
 		{:else}
-			<div id="subaccountsEditorExplainer">{$l10n("subaccountsEditorExplain")}</div>
+			<div id="subaccountsEditorExplainer" class="notice">{$l10n("subaccountsEditorExplain")}</div>
 		{/each}
 		{#if !showNewOwnerForm}
-			<div class="openNewOwner">
-				<button type="button"
-					on:click="set({showNewOwnerForm: true, newOwner: '', firstSubaccount: ''})">
-					{$l10n("subaccountsEditorAddMainAccount")}
-				</button>
-			</div>
+			<button type="button" class="openNewOwner"
+				on:click="set({showNewOwnerForm: true, newOwner: '', firstSubaccount: ''})">
+				{$l10n("subaccountsEditorAddMainAccount")}
+			</button>
 		{:else}
 			<form class="subaccountOwner new" on:submit="edit('newOwner')">
 				<div class="accountLine ownerLine">
