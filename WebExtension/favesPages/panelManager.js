@@ -55,6 +55,7 @@ function handleMobile() {
 	chrome.runtime.sendMessage({action: "echo", echoAction: "setMobile", mobile: matches});
 }
 handleMobile();
+mobileCheck.addListener(handleMobile);
 
 function activate(firstDeviant) {
 	panelState = "preparing";
