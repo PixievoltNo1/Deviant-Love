@@ -47,6 +47,7 @@ profile = Profile
 gallery = Gallery
 favourites = Favourites
 subaccountsOpen = Subaccounts
+subaccountsClose = Close Subaccounts
 subaccountsList = { $name }'s subaccounts
 subaccountsRemove = Remove
 subaccountsAddNamePlaceholder = Enter account name

@@ -199,14 +199,14 @@ a img {
 	grid-column-gap: 0.2em;
 	padding-left: 0.2em;
 }
-.deviantHeader:not(.opened) {
+.deviant:not(.open) .deviantHeader {
 	background: hsl(357, 90%, 76%);
 	cursor: pointer;
 }
-.deviantHeader:not(.opened):hover, .deviantHeader:not(.opened):active {
+.deviant:not(.open) .deviantHeader:hover, .deviant:not(.open) .deviantHeader:active {
 	background: linear-gradient(to bottom, hsl(357, 90%, 88%), hsl(357, 90%, 82%));
 }
-.deviantHeader.opened {
+.deviant.open .deviantHeader {
 	background: hsl(357, 90%, 72%);
 }
 	.deviantNote {
@@ -242,24 +242,50 @@ a img {
 	.artWatch:not(.true) {
 		filter: brightness(0%) opacity(30%);
 	}
-	.subaccountsButton.line {
+	.subaccountsButton.mini {
 		grid-area: subaccounts;
 		display: none;
 		background-position: center;
 		background-repeat: no-repeat;
 		background-image: url("/images/combine.svg");
 	}
-	:not(.usingTouch) .deviant:hover .subaccountsButton.line:not(.has):not(.editing):not(:hover) {
+	:not(.usingTouch) .deviant:hover .subaccountsButton.mini:not(.has):not(.editing):not(:hover) {
 		display: inline-block;
 		filter: brightness(0%) opacity(40%);
 	}
-	.subaccountsButton.line.has, .subaccountsButton.line.editing, .subaccountsButton.line:hover {
+	.subaccountsButton.mini.has, .subaccountsButton.mini.editing, .subaccountsButton.mini:hover {
 		display: inline-block;
 	}
 .closerLook {
 	display: grid;
-	grid: "sidebar main" / 108px 1fr;
+	grid:
+		"touch touch"
+		"sidebar main" / 108px 1fr;
 }
+.touchBar {
+	grid-area: touch;
+	display: flex;
+	flex-direction: row;
+}
+	.artWatchHint {
+		font-size: 12px;
+	}
+	.subaccountsButton.touch {
+		margin-left: auto;
+		height: 22px;
+		line-height: 20px;
+		font-size: 12px;
+		border: 1px solid hsl(16, 100%, 25%);
+		border-radius: 3px;
+		background-color: hsl(6, 90%, 88%);
+		background-repeat: no-repeat;
+		background-image: url("/images/combine.svg");
+		background-position: 2px 50%;
+		padding-left: 22px;
+		padding-right: 2px;
+		color: black;
+		cursor: pointer;
+	}
 .deviantDetails {
 	grid-area: sidebar;
 	display: flex;
@@ -270,7 +296,7 @@ a img {
 .deviantDetails > :not(:first-child) {
 	margin-top: 6px;
 }
-.deviantLinks.touch > * {
+.deviantLinks > a {
 	display: block;
 	width: 100%;
 	height: 22px;
@@ -281,18 +307,16 @@ a img {
 	background-color: hsl(6, 90%, 88%);
 	background-repeat: no-repeat;
 	background-position: 2px 50%;
-	padding: 0;
 	padding-left: 22px;
 	padding-right: 2px;
 	color: black;
 	text-decoration: none;
 	text-align: left;
-	cursor: pointer;
 }
-.deviantLinks.touch > :not(:first-child) {
+.deviantLinks > :not(:first-child) {
     margin-top: 3px;
 }
-.deviantLinks.touch > .subaccountsButton {
+.deviantLinks > .subaccountsButton {
 	background-image: url("/images/combine.svg");
 }
 .profileLink { background-image: url(/images/deviantart/Profile.png); }

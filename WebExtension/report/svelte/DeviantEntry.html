@@ -1,4 +1,4 @@
-<div class="deviant" class:opened="open" id="deviant_{deviant.name}" ref:root>
+<div class="deviant" class:open class:openedByTouch id="deviant_{deviant.name}" ref:root>
 	<div class="deviantHeader" on:click="fire('openMe')">
 		{#if note}
 			<div class="deviantNote">{$l10n(...note)}</div>
@@ -12,20 +12,32 @@
 		{/if}
 		<span class="deviantFaves">{deviant.deviations.length}</span>
 		<span class="deviantName">{deviant.name}</span>
-		<div class="subaccountsButton line" class:has="deviant.name in $subaccounts"
-			class:editing="subaccountsOpen"
-			on:click="toggleSubaccounts(event)" title="{$l10n('subaccountsOpen')}">&nbsp;</div>
+		<div class="subaccountsButton mini" on:click="toggleSubaccounts(event)"
+			class:has="deviant.name in $subaccounts" class:editing="subaccountsOpen"
+			title="{$l10n(subaccountsOpen ? 'subaccountsClose' : 'subaccountsOpen')}">&nbsp;</div>
 	</div>
 	{#if open || closing}
-		<div ref:closerLook class="closerLook touch" style="overflow: hidden; height: auto;">
+		<div ref:closerLook class="closerLook" style="overflow: hidden; height: auto;">
+			{#if openedByTouch}
+				<div class="touchBar">
+					{#if watchedArtists}
+						{#if watchedArtists.has(deviant.name)}
+							<div class="artWatchHint true">{$l10n('artWatched')}</div>
+						{:else}
+							<div class="artWatchHint">{$l10n('artNotWatched')}</div>
+						{/if}
+					{/if}
+					<div class="subaccountsButton touch" on:click="toggleSubaccounts(event)"
+						class:has="deviant.name in $subaccounts" class:editing="subaccountsOpen"
+						>{$l10n(subaccountsOpen ? 'subaccountsClose' : 'subaccountsOpen')}</div>
+				</div>
+			{/if}
 			<div class="deviantDetails">
 				<Avatar {deviant}/>
-				<div class="deviantLinks touch">
+				<div class="deviantLinks">
 					<a class="profileLink" href="{deviant.baseURL}">{$l10n("profile")}</a>
 					<a class="galleryLink" href="{deviant.baseURL}gallery/">{$l10n("gallery")}</a>
 					<a class="favouritesLink" href="{deviant.baseURL}favorites/">{$l10n("favourites")}</a>
-					<button type="button" class="subaccountsButton" on:click="toggleSubaccounts()">
-						{$l10n("subaccountsOpen")}</button>
 				</div>
 			</div>
 			<DeviationList deviations={deviant.deviations}/>
@@ -52,7 +64,7 @@ export default {
 	},
 	methods: {
 		open(transition) {
-			this.set({open: true});
+			this.set({open: true, openedByTouch: this.store.get().usingTouch});
 			if (transition) {
 				var {closerLook} = this.refs;
 				var targetHeight = getComputedStyle(closerLook).height;
