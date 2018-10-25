@@ -256,6 +256,9 @@ a img {
 	.subaccountsButton.mini.has, .subaccountsButton.mini.editing, .subaccountsButton.mini:hover {
 		display: inline-block;
 	}
+	.subaccountsButton.mini.editing {
+		/* TODO */
+	}
 .closerLook {
 	display: grid;
 	grid:
@@ -266,9 +269,29 @@ a img {
 	grid-area: touch;
 	display: flex;
 	flex-direction: row;
+	padding: 3px;
+	background-color: hsl(357, 90%, 66%);
 }
 	.artWatchHint {
+		align-self: start;
+		margin-top: 2px;
+		border-radius: 4px;
+		background-color: hsla(0, 100%, 100%, .6);
+		padding: 1px 4px;
 		font-size: 12px;
+		position: relative;
+	}
+	.artWatchHint::before {
+		content: " ";
+		position: absolute;
+		top: -4px;
+		left: 5px;
+		width: 0;
+		height: 0;
+		/* Create a triangle pointing to .artWatch */
+		border-style: solid;
+		border-width: 0 4px 4px 4px;
+		border-color: transparent transparent hsla(0, 100%, 100%, .6) transparent;
 	}
 	.subaccountsButton.touch {
 		margin-left: auto;
@@ -285,6 +308,9 @@ a img {
 		padding-right: 2px;
 		color: black;
 		cursor: pointer;
+	}
+	.subaccountsButton.touch.editing {
+		/* TODO */
 	}
 .deviantDetails {
 	grid-area: sidebar;
