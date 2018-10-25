@@ -35,9 +35,9 @@
 			<div class="deviantDetails">
 				<Avatar {deviant}/>
 				<div class="deviantLinks">
-					<a class="profileLink" href="{deviant.baseURL}">{$l10n("profile")}</a>
-					<a class="galleryLink" href="{deviant.baseURL}gallery/">{$l10n("gallery")}</a>
-					<a class="favouritesLink" href="{deviant.baseURL}favorites/">{$l10n("favourites")}</a>
+					<a class="deviantLink profile" href="{deviant.baseURL}">{$l10n("profile")}</a>
+					<a class="deviantLink gallery" href="{deviant.baseURL}gallery/">{$l10n("gallery")}</a>
+					<a class="deviantLink favourites" href="{deviant.baseURL}favourites/">{$l10n("favourites")}</a>
 				</div>
 			</div>
 			<DeviationList deviations={deviant.deviations}/>

@@ -4,8 +4,8 @@
 			<Avatar deviant={account} />
 			<div class="name">{account.name}</div>
 			<div class="actions">
-				<a class="profileLink" href="{account.baseURL}">{$l10n("profile")}</a>
-				<a class="galleryLink" href="{account.baseURL}gallery/">{$l10n("gallery")}</a>
+				<a class="deviantLink profile" href="{account.baseURL}">{$l10n("profile")}</a>
+				<a class="deviantLink gallery" href="{account.baseURL}gallery/">{$l10n("gallery")}</a>
 				<button type="button" class="removeSubaccount" on:click="fire('remove', account.name)">
 					{$l10n("subaccountsRemove")}
 				</button>
