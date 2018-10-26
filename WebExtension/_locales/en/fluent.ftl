@@ -17,7 +17,7 @@ headerFavesLine = { $pageType ->
     [featured] This page has *{ $num }* featured faves
    *[allFaves] This page has *{ $num }* faves
     [collection] This Collection has *{ $num }* faves
-    [search] = This page has *{ $num }* search results
+    [search] This page has *{ $num }* search results
 }
 headerArtistsLine = from *{ $num }* different artists!
 
