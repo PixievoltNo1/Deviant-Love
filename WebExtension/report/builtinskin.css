@@ -409,6 +409,7 @@ a img {
 			border-color: hsl(0, 70%, 25%);
 			background-color: hsl(2, 100%, 72%);
 			padding: 0;
+			cursor: pointer;
 		}
 		@media all and (max-width: 379px) {
 			.miniSubaccountsEditor .deviantLink::before {

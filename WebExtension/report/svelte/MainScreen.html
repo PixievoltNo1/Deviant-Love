@@ -28,7 +28,7 @@
 			<button type="button" class="closeButton" on:click="set({mode: 'normal'})">
 				{$l10n("close")}</button>
 			<div class="sectionHeader">{$l10n("subaccountsEditorHeader")}</div>
-			<SubaccountsEditor prefsLoaded={true}/>
+			<SubaccountsEditor prefsLoaded={true} {knownNames}/>
 			<div class="sectionHeader">{$l10n("syncHeader")}</div>
 			<SyncStatus/>
 		{/if}

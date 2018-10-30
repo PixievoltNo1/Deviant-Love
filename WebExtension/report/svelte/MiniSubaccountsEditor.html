@@ -6,7 +6,7 @@
 			<div class="actions">
 				<a class="deviantLink profile" href="{account.baseURL}">{$l10n("profile")}</a>
 				<a class="deviantLink gallery" href="{account.baseURL}gallery/">{$l10n("gallery")}</a>
-				<button type="button" class="removeSubaccount" on:click="fire('remove', account.name)">
+				<button type="button" class="removeSubaccount" on:click="remove()">
 					{$l10n("subaccountsRemove")}
 				</button>
 			</div>
@@ -14,26 +14,27 @@
 	{:else}
 		<!-- TODO: Add subaccount help text -->
 	{/each}
-	<form class="addSubaccount textEntryLine">
+	<form class="addSubaccount textEntryLine" on:submit="add()">
 		<input type="text" bind:value="addMe" required placeholder="{$l10n('subaccountsAddNamePlaceholder')}">
 		<button type="submit" class="confirmAdd" on:click="fire('add')">
 			{$l10n("subaccountsAddConfirm")}
 		</button>
 	</form>
 	{#if warnings.length}
-		<div class="addMessage warning">
+		<div class="notice warning">
 			{#each warnings as [msg, parts]}
 				<p>{$l10n("subaccountsWarning" + msg, parts)}</p>
 			{/each}
 		</div>
 	{/if}
 	{#if error}
-		<div class="addMessage error">{$l10n("subaccountsError" + error[0], error[1])}</div>
+		<div class="notice error">{$l10n("subaccountsError" + error[0], error[1])}</div>
 	{/if}
 </div>
 <script>
 import Avatar from "./Avatar.html";
 import { initMiniSubaccountsEditor } from "../core.module.js";
+import edit from "../../options/subaccountsEditMethod.module.js";
 export default {
 	components: { Avatar },
 	data() { return {
@@ -41,6 +42,21 @@ export default {
 		accounts: [],
 		warnings: [],
 	}; },
+	methods: {
+		add() {
+			var {owner, addMe} = this.get();
+			this.edit("add", {owner, adding: addMe, success: () => {
+				this.set({addMe: ""});
+				this.fire("edited");
+			}});
+		},
+		remove(removing) {
+			this.edit("remove", {owner: this.get().owner, removing}).then( () => {
+				this.fire("edited");
+			} );
+		},
+		edit,
+	},
 	oncreate() {
 		initMiniSubaccountsEditor(this);
 		this.refs.root.addEventListener("submit", (event) => {

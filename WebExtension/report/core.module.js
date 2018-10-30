@@ -166,17 +166,16 @@ function restore(scanData, love) {
 function report(results, ui, love) {
 	var {deviants, totalDeviations, watchedArtists, watchError} = results;
 	deviants.setSubaccounts(store.get().subaccounts);
+	var knownNames = [...deviants.baseMap.keys()];
 
-	// Construct the UI
 	var screen = new MainScreen({
 		target: document.body,
 		store,
 		data: {
-			deviantList: deviants.list, totalDeviations, watchedArtists, watchError,
+			deviantList: deviants.list, totalDeviations, watchedArtists, watchError, knownNames,
 			pageType: love.pageType, mode: "normal"
 		}
 	});
-
 	screen.on("state", ({changed, previous}) => {
 		if (changed.mode && previous.mode == "options") {
 			deviants.setSubaccounts(store.get().subaccounts);
@@ -214,83 +213,21 @@ function report(results, ui, love) {
 			} ) });
 		}
 		setAccounts();
-		// TODO: Most of the rest of this function should get de-duplicated with SubaccountsEditor.html's editorAction
-		editor.on( "add", editorAction.bind(null, async function() {
-			var {name, ownedBy, isOwner} = await nameCheck(editor.get().addMe);
-			if (ownedBy) {
-				throw ["AlreadyOwned", {name: ownedBy}];
-			}
-			if (!(owner in subaccounts)) {
-				subaccounts[owner] = [];
-			}
-			subaccounts[owner].push(name);
-			if (isOwner) {
-				for (let subaccount of subaccounts[name]) {
-					subaccounts[owner].push(subaccount);
-				}
-				delete subaccounts[name];
-			}
-			editor.set({addMe: ""})
-		}) );
-		editor.on( "remove", editorAction.bind(null, (removing) => {
-			subaccounts[owner].splice(subaccounts[owner].indexOf(removing), 1);
-			if (subaccounts[owner].length == 0) {
-				delete subaccounts[owner];
-			}
-		}) );
-		async function editorAction(action, event) {
-			if (editor.get().busy) { return; }
-			editor.set({warning: false, error: false});
-			try {
-				await action(event);
-				store.set({subaccounts});
-				setAccounts();
-				deviants.setSubaccounts(subaccounts);
-				screen.set({mode: "normal", deviantList: deviants.list});
-				screen.refs.normalList.showDeviant(owner);
-				screen.refs.normalList.get().registry.get(owner).set({subaccountsOpen: true});
-				document.getElementById("deviant_" + owner).scrollIntoView();
-			} catch (error) {
-				editor.set({error});
-			} finally {
-				editor.set({busy: false});
-			}
-		}
-		function nameCheck(input) {
-			var name = input.toLowerCase();
-			for (let owner in subaccounts) {
-				if (owner.toLowerCase() == name) {
-					return {name: owner, isOwner: true};
-				}
-				for (let subaccount of subaccounts[owner]) {
-					if (subaccount.toLowerCase() == name) {
-						return {name: subaccount, ownedBy: owner};
-					}
-				}
-			}
-			for (let known of deviants.baseMap.keys()) {
-				if (known.toLowerCase() == name) {
-					return {name: known};
-				}
-			}
-			editor.set({busy: true});
-			return lookUpDeviant(name).then((results) => {
-				if (results.name) {
-					return {name: results.name};
-				} else {
-					warn( ["CantVerifyCasing", {name: input}] );
-					return { name: input };
-				}
-			}, (err) => {
-				throw [err, {name: input}];
-			});
-		}
-		function warn(warning) {
-			var {warnings} = editor.get();
-			warnings.push(warning);
-			editor.set({warnings});
-		}
+		editor.set({knownNames});
+		editor.on("edited", () => {
+			setAccounts();
+			deviants.setSubaccounts(subaccounts);
+			screen.set({deviantList: deviants.list});
+		});
 	};
+	store.on("update", ({changed}) => {
+		if (changed.subaccounts && screen.get().mode == "find") {
+			screen.set({mode: "normal"});
+			screen.refs.normalList.showDeviant(owner);
+			screen.refs.normalList.get().registry.get(owner).set({subaccountsOpen: true});
+			document.getElementById("deviant_" + owner).scrollIntoView();
+		}
+	});
 
 	// Handle requests for a particular deviant that were made elsewhere (e.g. context menu)
 	showDeviant = function(deviantName) {

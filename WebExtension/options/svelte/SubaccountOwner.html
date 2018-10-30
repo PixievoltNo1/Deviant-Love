@@ -18,12 +18,12 @@
 		<div class="actionLine">
 			{#if !showAddSubaccount}
 				<button type="button" class="addSubaccount"
-					on:click="set({showAddSubaccount: true, newSubaccount: ''})">
+					on:click="set({showAddSubaccount: true, adding: ''})">
 					{$l10n("subaccountsEditorAddSubaccount")}
 				</button>
 			{:else}
-				<form class="addSubaccountForm" on:submit="fire('add')">
-					<input bind:value="newSubaccount" required autofocus
+				<form class="addSubaccountForm" on:submit="add()">
+					<input bind:value="adding" required autofocus
 						placeholder="{$l10n('subaccountsEditorAddPlaceholder')}">
 					<button type="submit">{$l10n("subaccountsAddConfirm")}</button>
 				</form>
@@ -55,12 +55,18 @@ export default {
 		};
 	},
 	methods: {
+		add() {
+			var {owner, adding} = this.get();
+			this.fire("add",
+				{ owner, adding, success: () => { this.set({showAddSubaccount: false}); } });
+		},
 		changeOwner() {
-			var {newOwner} = this.get();
+			var {owner, newOwner} = this.get();
 			if (newOwner == "$noChange") {
 				this.set({mode: "normal"});
 			} else {
-				this.fire("changeOwner"); // this object will be destroyed & replaced
+				this.fire("changeOwner", {from: owner, to: newOwner});
+				// this object will be destroyed & replaced
 			}
 		},
 	},
