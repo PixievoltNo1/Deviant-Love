@@ -1,6 +1,6 @@
 <form id="findBar" class="textEntryLine" on:submit="handleSubmit(event)">
 	<input type="text" id="query" bind:value="input" autofocus>
-	<button type="submit" id="goFind"></button>
+	<button type="submit" id="goFind">{$l10n("findGo")}</button>
 	<button type="button" class="closeButton" on:click="fire('close')">
 		{$l10n("close")}</button>
 </form>
@@ -8,7 +8,7 @@
 	<div id="queryError">{$l10n(queryError.errMsg, queryError.parts)}</div>
 {/if}
 <div id="resultsDisplay" style="overflow-y: auto; overflow-x: hidden; position: relative;"
-	class:hasResults="hasResults"> <!-- shorthand form is bugged in Svelte <= 2.13.4 -->
+	class:hasResults>
 	{#if queryResults}
 		{#if queryResults.deviants.length}
 			<div class="sectionHeader">{$l10n("foundDeviants", {num: queryResults.deviants.length})}</div>

@@ -51,7 +51,7 @@ a img {
 .closeButton::before {
 	width: 20px;
 	height: 16px;
-	margin-right: 4px;
+	margin-right: 2px;
 	content: " ";
 	background-size: contain;
 	background-image: url(/images/close.svg);
@@ -430,13 +430,6 @@ a img {
 }
 
 /* Find mode */
-#goFind {
-	width: 20px;
-	background: url("/images/find.svg");
-	background-position: center;
-	background-repeat: no-repeat;
-	border: 0;
-}
 .findMode #lovedArtists {
 	display: flex;
 	flex-direction: column;
@@ -451,14 +444,30 @@ a img {
 #findBar > * {
 	height: 20px;
 }
-#findBar > .closeButton {
-    padding: 0 2px;
-    margin: 0;
-    height: 24px;
-    border: none;
-    border-left: 1px solid hsl(0, 0%, 0%);
-    background: hsl(58, 100%, 72%);
-}
+	#goFind {
+		display: flex;
+		flex-direction: row;
+		align-items: center;
+		font-size: 16px;
+		border-radius: 0; /* Needed for Firefox for Android */
+		border: none;
+		background: none;
+	}
+	#goFind::before {
+		width: 18px;
+		height: 18px;
+		margin-right: 2px;
+		content: " ";
+		background-image: url(/images/find.svg);
+	}
+	#findBar > .closeButton {
+		padding: 0 4px;
+		margin: 0;
+		height: 24px;
+		border: none;
+		border-left: 1px solid hsl(0, 0%, 0%);
+		background: hsl(58, 100%, 72%);
+	}
 #queryError {
 	flex: none;
 	background-color: hsl(55, 96%, 84%);

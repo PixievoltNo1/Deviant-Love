@@ -24,6 +24,7 @@ headerArtistsLine = from *{ $num }* different artists!
 findAction = Find
 optionsAction = Options
 close = Close
+findGo = Go
 findHelp = Find art & artists from the scanned page by name
 findErrorForbiddenCharacter = DeviantArt doesn't allow the use of { $char } in deviant or deviation names.
 findAmpersandHint = The exact phrase you enter in the find bar is treated as one term to search for. To search for multiple terms, separate them with: &
