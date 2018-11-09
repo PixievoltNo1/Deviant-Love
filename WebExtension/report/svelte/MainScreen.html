@@ -33,7 +33,7 @@
 			<SyncStatus/>
 		{/if}
 	</div>
-	{#if mode == "normal" || !mobile}
+	{#if mode == "normal" || !$mobile}
 		<div id="tipOfTheMoment">
 			<img id="totmIcon" alt="" src="/images/{$tip.icon}">
 			<div id="totmText">{@html $tip.html}</div>
