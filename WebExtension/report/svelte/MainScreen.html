@@ -1,5 +1,18 @@
-<div id="mainScreen" class="{mode}Mode" class:usingTouch="$usingTouch">
+<div id="mainScreen" class="{mode}Mode" class:usingTouch="$usingTouch" class:hamburgerMenuOpen>
 	<div id="scanResults">
+		{#if $mobile}
+			<button type="button" id="openHamburgerMenu" on:click="openHamburgerMenu()"></button>
+			{#if hamburgerMenuOpen}
+				<div id="hamburgerMenu" ref:hamburgerMenu>
+					{#each actionList as action}
+						<button type="button" class="action {action}Action" class:current="action == mode"
+							on:click="useAction(action)">{$l10n(action + "Action")}</button>
+					{/each}
+					<button type="button" class="closeDeviantLove"></button>
+					<button type="button" id="closeHamburgerMenu" on:click="closeHamburgerMenu()"></button>
+				</div>
+			{/if}
+		{/if}
 		<div id="favesLine">
 			{favesLineParts[0]}<span class="dynamic">{favesLineParts[1]}</span>{favesLineParts[2]}
 		</div>
@@ -7,12 +20,14 @@
 			{artistsLineParts[0]}<span class="dynamic">{artistsLineParts[1]}</span>{artistsLineParts[2]}
 		</div>
 	</div>
-	<div id="actionBar">
-		{#each ["find", "options"] as action}
-			<button type="button" class="action {action}Action" class:current="action == mode"
-				on:click="useAction(action)">{$l10n(action + "Action")}</button>
-		{/each}
-	</div>
+	{#if !$mobile}
+		<div id="actionBar">
+			{#each actionList as action}
+				<button type="button" class="action {action}Action" class:current="action == mode"
+					on:click="useAction(action)">{$l10n(action + "Action")}</button>
+			{/each}
+		</div>
+	{/if}
 	<div id="lovedArtists" style="overflow-y: auto; overflow-x: hidden; position: relative;">
 		{#if mode == "normal"}
 			{#if watchError}
@@ -47,6 +62,9 @@ import SubaccountsEditor from "../../options/svelte/SubaccountsEditor.html";
 import SyncStatus from "../../options/svelte/SyncStatus.html";
 export default {
 	components: { DeviantList, FindModeContent, SubaccountsEditor, SyncStatus },
+	data() { return {
+		actionList: ["find", "options"],
+	} },
 	computed: {
 		favesLineParts({totalDeviations, pageType, $l10n}) {
 			return $l10n("headerFavesLine", {num: totalDeviations, pageType}).split("*");
@@ -62,7 +80,38 @@ export default {
 			} else {
 				this.set({mode: "normal"});
 			}
+			if (this.get().hamburgerMenuOpen) {
+				this.closeHamburgerMenu();
+			}
 		},
+		openHamburgerMenu() {
+			// TODO: Integrate with browser history
+			if (this.get().hamburgerMenuOpen) { return; }
+			this.set({hamburgerMenuOpen: true});
+			var {hamburgerMenu} = this.refs;
+			var animation = hamburgerMenu.animate({
+				transform: [
+					getComputedStyle(hamburgerMenu).getPropertyValue("--starting-transform") || "none",
+					"none"
+				],
+			}, {
+				duration: 400,
+				fill: "backwards",
+			});
+			this.set({hamburgerMenuAnimation: animation});
+			document.body.addEventListener("click", function detectOutsideClick(event) {
+				// TODO: Detect clicks outside, stop propagation, call this.closeHamburgerMenu, and remove this event listener
+			}, {useCapture: true});
+		},
+		closeHamburgerMenu() {
+			var animation = this.get().hamburgerMenuAnimation;
+			// stop if the menu is already closing
+			if (animation.playbackRate == -1) { return; }
+			animation.reverse();
+			animation.onfinish = () => {
+				this.set({hamburgerMenuOpen: false, hamburgerMenuAnimation: null});
+			};
+		}
 	},
 };
 </script>

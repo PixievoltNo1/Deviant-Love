@@ -125,9 +125,26 @@ a img {
 	padding: 5px;
 	padding-left: 58px;
 }
-#scanResults .dynamic {
-	font-weight: bold;
-}
+	#scanResults .dynamic {
+		font-weight: bold;
+	}
+	#openHamburgerMenu, #hamburgerMenu {
+		position: absolute;
+		top: -2px;
+		left: -2px;
+		border: 2px solid black;
+		border-bottom-right-radius: 12px;
+		background: hsl(35, 100%, 50%);
+		z-index: 1;
+	}
+	#openHamburgerMenu, #closeHamburgerMenu {
+		box-sizing: content-box;
+		width: 54px;
+		height: 54px;
+	}
+	#hamburgerMenu {
+		--starting-transform: translate(-100%, -100%) translate(56px, 56px);
+	}
 #actionBar {
 	display: flex;
 	flex-direction: row;
