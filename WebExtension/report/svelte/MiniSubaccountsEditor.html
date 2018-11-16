@@ -12,7 +12,7 @@
 			</div>
 		</div>
 	{:else}
-		<!-- TODO: Add subaccount help text -->
+		<div class="notice help">{$l10n("subaccountsEditorMiniExplain")}</div>
 	{/each}
 	<form class="addSubaccount textEntryLine" on:submit="add()">
 		<input type="text" bind:value="addMe" required placeholder="{$l10n('subaccountsAddNamePlaceholder')}">

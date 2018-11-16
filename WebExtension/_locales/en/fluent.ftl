@@ -61,6 +61,7 @@ subaccountsWarningCantVerifyCasing = Due to a Deviant Love issue, the correct ca
 subaccountsWarningOwnerAlreadyAdded = You've already added { $owner } as an owner. Deviant Love is adding { $owned } to their subaccounts.
 subaccountsEditorHeader = Subaccounts
 subaccountsEditorExplain = Know a deviant who has multiple accounts? Tell Deviant Love about their subaccounts, and all their artwork will appear under one name!
+subaccountsEditorMiniExplain = If this artist has more than one account, tell Deviant Love about the others and all their artwork will appear under one name!
 subaccountsEditorAddMainAccount = Add owner
 subaccountsEditorChangeMain = Change main
 subaccountsEditorAddSubaccount = Add subaccount
