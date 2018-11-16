@@ -256,8 +256,12 @@ a img {
 	.subaccountsButton.mini.has, .subaccountsButton.mini.editing, .subaccountsButton.mini:hover {
 		display: inline-block;
 	}
+	.usingTouch .subaccountsButton.mini:not(.has) {
+		display: none;
+	}
 	.subaccountsButton.mini.editing {
-		/* TODO */
+		background-position: bottom 2px right 2px, center;
+		background-image: url("/images/close.svg"), url("/images/combine.svg");
 	}
 .closerLook {
 	display: grid;
@@ -310,7 +314,9 @@ a img {
 		cursor: pointer;
 	}
 	.subaccountsButton.touch.editing {
-		/* TODO */
+		padding-left: 24px;
+		background-position: left 12px bottom 2px, left 2px bottom 1px;
+		background-image: url("/images/close.svg"), url("/images/combine.svg");
 	}
 .deviantDetails {
 	grid-area: sidebar;
