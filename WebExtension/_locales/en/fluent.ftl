@@ -13,12 +13,13 @@ watchErrorInternal = Your watch list couldn't be retrieved, likely due to an iss
 # available. They should flow together as a sentence, but if that is not possible, they can also be
 # written as a traditional stats readout, e.g. headerArtistsLine = Number of artists: { $num }.
 # Surround all $num placeables with asterisks so they can be bolded.
-headerFavesLine = { $pageType ->
-    [featured] This page has *{ $num }* featured faves
-   *[allFaves] This page has *{ $num }* faves
-    [collection] This Collection has *{ $num }* faves
-    [search] This page has *{ $num }* search results
-}
+headerFavesLine =
+    { $pageType ->
+        [featured] This page has *{ $num }* featured faves
+       *[allFaves] This page has *{ $num }* faves
+        [collection] This Collection has *{ $num }* faves
+        [search] This page has *{ $num }* search results
+    }
 headerArtistsLine = from *{ $num }* different artists!
 
 findAction = Find
@@ -28,18 +29,20 @@ findGo = Go
 findHelp = Find art & artists from the scanned page by name
 findErrorForbiddenCharacter = DeviantArt doesn't allow the use of { $char } in deviant or deviation names.
 findAmpersandHint = The exact phrase you enter in the find bar is treated as one term to search for. To search for multiple terms, separate them with: &
-foundDeviants = { $num ->
-    [one] Found 1 deviant
-   *[other] Found { $num } deviants
-}
+foundDeviants =
+    { $num ->
+        [one] Found 1 deviant
+       *[other] Found { $num } deviants
+    }
 foundDeviantSubaccount = Found subaccount { $name }
-foundDeviations = Found { $deviations ->
-    [one] 1 deviation
-   *[other] { $deviations } deviations
-} from { $artists ->
-    [one] 1 artist
-   *[other] { $artists } artists
-}
+foundDeviations =
+    Found { $deviations ->
+        [one] 1 deviation
+       *[other] { $deviations } deviations
+    } from { $artists ->
+        [one] 1 artist
+       *[other] { $artists } artists
+    }
 foundDeviationsArtistHeader = From { $name }:
 foundNothing = Sorry, there are no matches!
 artWatched = Watching art
