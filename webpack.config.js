@@ -6,6 +6,7 @@ module.exports = function(env = {}) { return {
 	mode: "none",
 	entry: {
 		core: './WebExtension/report/core.module.js',
+		options: './WebExtension/options/options.module.js',
 	},
 	output: {
 		path: path.resolve(__dirname, 'WebExtension/build'),
@@ -19,12 +20,23 @@ module.exports = function(env = {}) { return {
 				test: /\.html$/,
 				use: {
 					loader: "svelte-loader",
-					options: {
-						store: true,
-					}
 				}
 			},
 		],
+	},
+	optimization: {
+		splitChunks: {
+			minSize: 0,
+			cacheGroups: {
+				shared: {
+					name: "shared",
+					chunks({name}) {
+						return (name == "core" || name == "options");
+					},
+					minChunks: 2,
+				}
+			}
+		},
 	},
 	plugins: [
 		new webpack.optimize.ModuleConcatenationPlugin(),
@@ -38,6 +50,6 @@ module.exports = function(env = {}) { return {
 		] : [] )
 	],
 	stats: {
-		optimizationBailout: true,
+		warningsFilter: "Avoid using autofocus",
 	},
 }; };

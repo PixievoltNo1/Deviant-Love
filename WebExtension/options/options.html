@@ -1,76 +1,9 @@
 <!doctype html>
 <html>
 <head>
-<script src="/lib/jquery.js" defer></script>
-<script src="/apiAdapter.js" defer></script>
-<script src="/htmlLocalizer.js" defer></script>
-<script src="options.js" defer></script>
+<script src="/build/options.js" defer></script>
+<script src="/build/shared.js" defer></script>
 <link rel="stylesheet" href="options.css">
 </head>
-<body>
-<h1 data-l10n="subaccountsEditorHeader"></h1>
-<div id="subaccountsEditor">
-	<div id="subaccountsEditorExplainer" data-l10n="subaccountsEditorExplain"></div>
-	<div class="newOwner">
-		<button type="button" class="openNewOwner" data-l10n="subaccountsEditorAddMainAccount"></button>
-		<form class="subaccountOwner newOwnerForm" hidden>
-			<div class="editorLine ownerLine">
-				<span class="accountName">
-					<input class="newSubaccountOwnerInput" required
-						data-l10n="subaccountsEditorOwnerPlaceholder" data-l10n-attr="placeholder">
-				</span>
-				<button type="button" tabindex="-1" class="cancelOwner" data-l10n="subaccountsEditorCancelOwner"></button>
-			</div>
-			<div class="editorLine firstSubaccount">
-				<input class="subaccountInput" required
-					data-l10n="subaccountsEditorAddPlaceholder" data-l10n-attr="placeholder">
-				<button type="submit" data-l10n="subaccountsAddConfirm"></button>
-			</div>
-		</form>
-	</div>
-</div>
-<div class="subaccountsMessage warning" hidden></div>
-<div class="subaccountsMessage error" hidden></div>
-<h1 data-l10n="syncHeader"></h1>
-<div id="syncStatus"></div>
-<template id="subaccountOwner">
-	<div class="subaccountOwner">
-		<div class="editorLine ownerLine">
-			<span class="accountName"></span>
-			<button type="button" class="changeMainAccount" data-l10n="subaccountsEditorChangeMain"></button>
-		</div>
-		<div class="editorLine subaccountInsertionPoint">
-			<button type="button" class="addSubaccount" data-l10n="subaccountsEditorAddSubaccount"></button>
-			<form class="addSubaccountForm" hidden>
-				<input class="subaccountInput" required
-					data-l10n="subaccountsEditorAddPlaceholder" data-l10n-attr="placeholder">
-				<button type="submit" data-l10n="subaccountsAddConfirm"></button>
-			</form>
-		</div>
-	</div>
-</template>
-<template id="subaccountLine">
-	<div class="editorLine">
-		<span class="accountName"></span>
-		<button type="button" class="removeSubaccount" data-l10n="subaccountsRemove"></button>
-	</div>
-</template>
-<template id="changeSubaccountOwner">
-	<form class="subaccountOwner changeMainAccountForm">
-		<div class="editorLine ownerLine"><label>
-			<input type="radio" name="newOwner" value="$noChange" checked>
-			<span class="accountName"></span>
-		</label></div>
-		<div class="editorLine subaccountInsertionPoint">
-			<button type="submit" data-l10n="subaccountsEditorConfirmMainChange"></button>
-		</div>
-	</form>
-</template>
-<template id="changeSubaccountOwnerOption">
-	<div class="editorLine"><label>
-		<input type="radio" name="newOwner">
-		<span class="accountName"></span>
-	</label></div>
-</template>
-</body>
+<body></body>
 </html>
