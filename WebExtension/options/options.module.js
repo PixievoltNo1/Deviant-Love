@@ -7,30 +7,10 @@ import * as apiAdapter from "../apiAdapter.module.js";
 import Options from "./svelte/Options.html";
 import { Store } from "svelte/store";
 import storePersist from "../storePersist.module.js";
-import "fluent-intl-polyfill";
-import { FluentBundle } from "fluent";
 
 var store = new Store({
-	l10n: () => "",
+	l10n: apiAdapter.getL10nMsg,
 });
-(async function() {
-	let response = await fetch( apiAdapter.getL10nMsg("fileFluent") );
-	let ftl = await response.text();
-	var bundle = new FluentBundle('en-US');
-	var errors = bundle.addMessages(ftl);
-	logAll(errors);
-	store.set({ l10n(msg, args) {
-		var errors = [];
-		var text = bundle.format( bundle.getMessage(msg), args, errors );
-		logAll(errors);
-		return text;
-	} });
-})();
-function logAll(arr) {
-	for (let part of arr) {
-		console.log(part);
-	}
-}
 storePersist(store).then(() => {
 	options.set({prefsLoaded: true});
 });

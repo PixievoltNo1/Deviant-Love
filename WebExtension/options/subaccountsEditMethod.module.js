@@ -13,10 +13,10 @@ export default async function(action, details) {
 			async newOwner({newOwner, firstSubaccount, success}) {
 				var {name, isOwner, ownedBy} = await nameCheck(newOwner);
 				if (ownedBy) {
-					throw ["OwnerIsOwned", {owned: name, owner: ownedBy}];
+					throw ["OwnerIsOwned", [name, ownedBy]];
 				}
 				if (isOwner) {
-					warn(["OwnerAlreadyAdded", {owner: name, owned: firstSubaccount}]);
+					warn(["OwnerAlreadyAdded", [name, firstSubaccount]]);
 				}
 				await addSubaccount(name, firstSubaccount);
 				success();
@@ -50,7 +50,7 @@ export default async function(action, details) {
 	async function addSubaccount(owner, owned) {
 		var {name, ownedBy, isOwner} = await nameCheck(owned);
 		if (ownedBy) {
-			throw ["AlreadyOwned", {name: ownedBy}];
+			throw ["AlreadyOwned", [ownedBy]];
 		}
 		if (!(owner in subaccounts)) {
 			subaccounts[owner] = [];
@@ -85,11 +85,11 @@ export default async function(action, details) {
 			if (results.name) {
 				return {name: results.name};
 			} else {
-				warn( ["CantVerifyCasing", {name: input}] );
+				warn( ["CantVerifyCasing", [input]] );
 				return { name: input };
 			}
 		}, (err) => {
-			throw [err, {name: input}];
+			throw [err, [input]];
 		});
 	}
 	function warn(warning) {

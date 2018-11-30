@@ -3,11 +3,11 @@
 		<p>{$l10n("syncByBrowserUnsupported")}</p>
 	{:elseif overall == "ok"}
 		<p>{$l10n("syncByBrowserOK")}</p>
-		<p>{$l10n("syncLastSaved", {date: lastSavedDisplay})}</p>
+		<p>{$l10n("syncLastSaved", [lastSavedDisplay])}</p>
 	{:elseif overall == "error"}
-		<p>{$l10n("syncByBrowserError", {err: syncError})}</p>
+		<p>{$l10n("syncByBrowserError", [syncError])}</p>
 		{#if lastSaved}
-			<p>{$l10n("syncLastSuccessfulSync", {date: lastSavedDisplay})}</p>
+			<p>{$l10n("syncLastSuccessfulSync", [lastSavedDisplay])}</p>
 		{/if}
 	{/if}
 </div>
