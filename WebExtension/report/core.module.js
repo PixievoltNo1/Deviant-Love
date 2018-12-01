@@ -31,8 +31,16 @@ var prefsLoaded = storePersist(store);
 setUpStoreL10nCache(store);
 var templateContents = {};
 for (let elem of Array.from( document.getElementsByTagName("template") )) {
-	fillL10n(elem.content);
-	templateContents[elem.id] = document.importNode(elem.content, true);
+	var { content, id } = elem;
+	for (let elem of Array.from( content.querySelectorAll("[data-l10n]") )) {
+		var message = adapter.getL10nMsg( elem.dataset.l10n );
+		if (elem.dataset.l10nAttr) {
+			elem.setAttribute(elem.dataset.l10nAttr, message);
+		} else {
+			elem.textContent = message;
+		}
+	}
+	templateContents[id] = document.importNode(content, true);
 }
 
 function Deviant(name) {
@@ -454,7 +462,7 @@ function report(results, ui, love) {
 
 		var deviantDetails = closerLook.find(".deviantDetails");
 		var deviantAvatar = $("<img>", {width: 50, height: 50})
-			.bind("load", function() { this.parentNode.classList.remove("loading"); } );
+			.bind("load error", function() { this.parentNode.classList.remove("loading"); } );
 		deviantDetails.find(".avatar").attr("href", deviant.baseURL).append(deviantAvatar);
 		if (deviant.avatar) {
 			deviantAvatar.attr("src", deviant.avatar);
@@ -495,7 +503,7 @@ function report(results, ui, love) {
 
 export function nextTip() {
 	return Promise.all(
-		[adapter.retrieve("nextTip"), $.getJSON( adapter.getL10nFile("TipOfTheMoment.json") )]
+		[adapter.retrieve("nextTip"), $.getJSON( adapter.getL10nMsg("fileTipOfTheMoment") )]
 	).then(function(results) {
 		var nextTip = results[0].nextTip || 0, tips = results[1];
 		var returnValue = tips[nextTip];

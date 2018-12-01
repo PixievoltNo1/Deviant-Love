@@ -5,6 +5,7 @@
 */
 if (!(window.chrome && chrome.runtime)) { window.chrome = browser; }
 import { beginPreparations, nextTip, tipOfTheMoment } from "./core.module.js";
+import * as apiAdapter from "../apiAdapter.module.js";
 
 export var adapter = Object.assign({
 	prepComplete: function() {
