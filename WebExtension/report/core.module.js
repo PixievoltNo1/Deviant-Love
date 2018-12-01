@@ -186,7 +186,7 @@ function report(results, ui, love) {
 	normalMode();
 	if (lovedArtists.css("position") == "static") { lovedArtists.css("position", "relative") } // Needed for scrollToDeviationList. It's as weird as it to ensure future compatibility with the skinning feature.
 	$("<div>", {id: "tipOfTheMoment"})
-		.append($("<img>", {id: "tOTMIcon"}))
+		.append($("<img>", {id: "tOTMIcon", width: 16, height: 16}))
 		.append($("<div>", {id: "tOTMText"}))
 		.appendTo(mainScreen);
 	tipOfTheMoment(ui.firstTip);
