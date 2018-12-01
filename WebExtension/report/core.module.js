@@ -18,6 +18,7 @@
 import { Store } from "svelte/store";
 import storePersist from "../storePersist.module.js";
 import { setUpStoreL10nCache } from "./l10nCache.module.js";
+import lookUpDeviant from "./lookUpDeviant.module.js";
 import { adapter } from "./environment.module.js";
 export { beginPreparations, tipOfTheMoment };
 import PreparationScreen from "./svelte/PreparationScreen.html";
@@ -338,30 +339,15 @@ function report(results, ui, love) {
 					}
 				}
 			}
-			var request = $.ajax("http://" + lcInput + ".deviantart.com/", {responseType: "text"});
-			return request.then( function(profileHtml) {
-				// <html> and <head> may be filtered
-				var profileElem = $("<div>" + profileHtml + "</div>");
-				var verifiedName = profileElem.find("#gmi-Gruser").attr("gmi-name");
-				if (!verifiedName) {
-					var warn = true;
-					verifiedName = input;
-				}
-				if ($("input[value='thisToInput']").prop("checked")) {
-					var newDeviant = new Deviant(verifiedName);
-					newDeviant.avatar = profileElem.find("link[rel='image_src']").attr("href");
-					deviants.effectiveMap.set(verifiedName, newDeviant);
-				}
-				if (warn) {
+			return lookUpDeviant(lcInput).then((results) => {
+				if (results.name) {
+					return results.name;
+				} else {
 					return { related: input, warning: "CantVerifyCasing", warningPart: input };
 				}
-				return verifiedName;
-			}, function(xhr) {
-				if (xhr.status == 404) {
-					throw "NotFound";
-				}
-				throw "Communcation";
-			} );
+			}, (err) => {
+				throw err;
+			});
 		})() ).then( function(related) {
 			if (typeof related == "object") {
 				var warning = related.warning, warningPart = related.warningPart;
@@ -467,13 +453,11 @@ function report(results, ui, love) {
 		if (deviant.avatar) {
 			deviantAvatar.attr("src", deviant.avatar);
 		} else {
-			$.ajax(deviant.baseURL, {responseType: "text"}).then( function(profileHTML) {
-				var profileDoc = (new DOMParser()).parseFromString(profileHTML, "text/html");
-				var avatarElem = profileDoc.querySelector("link[rel='image_src']");
-				if (avatarElem == null) { throw false; }
-				deviant.avatar = avatarElem.getAttribute("href");
-				deviantAvatar.attr("src", deviant.avatar);
-			} ).fail( function() {
+			lookUpDeviant(deviant.name).then( (results) => {
+				if (!results.avatar) { throw false; }
+				deviant.avatar = results.avatar;
+				deviantAvatar.attr("src", results.avatar);
+			} ).catch( () => {
 				deviantAvatar.parent().removeClass("loading");
 			} );
 		}
