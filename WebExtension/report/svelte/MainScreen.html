@@ -1,5 +1,5 @@
-<div id="mainScreen" class="{mode}Mode" class:usingTouch="$usingTouch" class:hamburgerMenuOpen>
-	<div id="scanResults">
+<div id="mainScreen" class="{mode}Mode" class:usingTouch="$usingTouch" class:hamburgerMenuOpen class:mobile="$mobile">
+	<div id="header">
 		{#if $mobile}
 			<button type="button" id="openHamburgerMenu" on:click="openHamburgerMenu()"></button>
 			{#if hamburgerMenuOpen}
@@ -16,11 +16,13 @@
 				</div>
 			{/if}
 		{/if}
-		<div id="favesLine">
-			{favesLineParts[0]}<span class="dynamic">{favesLineParts[1]}</span>{favesLineParts[2]}
-		</div>
-		<div id="artistsLine">
-			{artistsLineParts[0]}<span class="dynamic">{artistsLineParts[1]}</span>{artistsLineParts[2]}
+		<div id="scanResults">
+			<div id="favesLine">
+				{favesLineParts[0]}<span class="dynamic">{favesLineParts[1]}</span>{favesLineParts[2]}
+			</div>
+			<div id="artistsLine">
+				{artistsLineParts[0]}<span class="dynamic">{artistsLineParts[1]}</span>{artistsLineParts[2]}
+			</div>
 		</div>
 	</div>
 	{#if !$mobile}
