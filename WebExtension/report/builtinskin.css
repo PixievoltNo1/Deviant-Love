@@ -117,17 +117,77 @@ a img {
 #mainScreen > * + * {
 	border-top: 0;
 }
-#scanResults {
-	background: url("/images/heart/scalable.svg"), linear-gradient(to bottom, hsl(40, 100%, 70%), hsl(40, 100%, 50%));
-	background-size: 48px 48px, auto;
-	background-position: 5px center, 0 0;
-	background-repeat: no-repeat, repeat;
-	padding: 5px;
-	padding-left: 58px;
+#header {
+	display: flex;
+	flex-direction: row;
+	align-items: center;
+	background: linear-gradient(to bottom, hsl(40, 100%, 70%), hsl(40, 100%, 50%));
 }
-#scanResults .dynamic {
-	font-weight: bold;
+#header::before {
+	content: " ";
+	width: 48px;
+	height: 48px;
+	background: url("/images/heart/scalable.svg");
+	background-size: 48px 48px;
+	margin-left: 5px;
 }
+.mobile #header {
+	padding-left: 47px;
+}
+.mobile #header::before {
+	content: none;
+}
+	#scanResults {
+		margin: 5px;
+	}
+	#scanResults .dynamic {
+		font-weight: bold;
+	}
+	#openHamburgerMenu, #hamburgerMenu {
+		position: absolute;
+		top: -2px;
+		left: -2px;
+		border: 2px solid black;
+		border-bottom-right-radius: 12px;
+		background: hsl(35, 100%, 50%);
+		z-index: 1;
+	}
+	#openHamburgerMenu, #closeHamburgerMenu {
+		box-sizing: content-box;
+		width: 54px;
+		height: 54px;
+		padding: 0;
+		background-image: url("/images/heart/scalable.svg");
+		background-size: 48px 48px;
+		background-position: center;
+		background-repeat: no-repeat;
+	}
+	#hamburgerMenu {
+		--starting-transform: translate(-100%, -100%) translate(58px, 58px);
+		width: 140px;
+		display: grid;
+		grid-template:
+			"actions actions"
+			"close back" / 1fr auto;
+		--inner-border-color: hsl(23, 100%, 40%);
+	}
+	#hamburgerMenu #actionList {
+		grid-area: actions;
+	}
+	.closeDeviantLove {
+		grid-area: close;
+		border: none;
+		background: none;
+		padding: 3px;
+		font-size: 12px;
+		font-family: inherit;
+	}
+	#closeHamburgerMenu {
+		grid-area: back;
+		border: none;
+		border-left: 1px solid var(--inner-border-color);
+		background-color: transparent;
+	}
 #actionBar {
 	display: flex;
 	flex-direction: row;
@@ -140,18 +200,9 @@ a img {
 	display: flex;
 	flex-direction: row;
 	align-items: center;
-	justify-content: center;
 	background: none;
 	border: none;
 	padding: 0;
-	margin-right: auto;
-	width: 90px;
-	height: 20px;
-	border-radius: 4px;
-	font-size: 15.5px;
-}
-.action:first-child {
-	margin-left: auto;
 }
 :not(.usingTouch) .action:hover {
 	background: hsla(0, 0%, 100%, 0.55);
@@ -170,12 +221,34 @@ a img {
 .action::before {
 	width: 18px;
 	height: 18px;
-	margin-right: 4px;
 	content: " ";
 	background-size: contain;
 }
 .findAction::before { background-image: url(/images/find.svg); }
 .optionsAction::before { background-image: url(/images/iconmonstr/gear-1-recolored.svg); }
+#actionBar .action {
+	justify-content: center;
+	margin-right: auto;
+	width: 90px;
+	height: 20px;
+	border-radius: 4px;
+	font-size: 15.5px;
+}
+#actionBar .action:first-child {
+	margin-left: auto;
+}
+#actionBar .action::before {
+	margin-right: 4px;
+}
+#actionList .action {
+	width: 100%;
+	height: 34px;
+	font-size: 20px;
+	border-bottom: 1px solid var(--inner-border-color);
+}
+#actionList .action::before {
+	margin: 8px;
+}
 #lovedArtists {
 	flex: 1;
 }

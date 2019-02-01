@@ -24,6 +24,7 @@ headerArtistsLine = from *{ $num }* different artists!
 
 findAction = Find
 optionsAction = Options
+closeDeviantLove = Close Deviant Love
 close = Close
 findGo = Go
 findHelp = Find art & artists from the scanned page by name

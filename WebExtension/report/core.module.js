@@ -203,6 +203,7 @@ function report(results, ui, love) {
 			});
 		}
 	});
+	screen.on("closeRequested", env.closeDeviantLove);
 	initMiniSubaccountsEditor = (editor) => {
 		var {owner} = editor.get();
 		var {subaccounts} = store.get();
