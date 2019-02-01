@@ -3,12 +3,15 @@
 		{#if $mobile}
 			<button type="button" id="openHamburgerMenu" on:click="openHamburgerMenu()"></button>
 			{#if hamburgerMenuOpen}
-				<div id="hamburgerMenu" ref:hamburgerMenu>
-					{#each actionList as action}
-						<button type="button" class="action {action}Action" class:current="action == mode"
-							on:click="useAction(action)">{$l10n(action + "Action")}</button>
-					{/each}
-					<button type="button" class="closeDeviantLove"></button>
+				<div id="hamburgerMenu" ref:hamburgerMenu style="position: absolute; z-index: 99;">
+					<div id="actionList">
+						{#each actionList as action}
+							<button type="button" class="action {action}Action" class:current="action == mode"
+								on:click="useAction(action)">{$l10n(action + "Action")}</button>
+						{/each}
+					</div>
+					<button type="button" class="closeDeviantLove"
+						on:click="fire('closeRequested')">{$l10n("closeDeviantLove")}</button>
 					<button type="button" id="closeHamburgerMenu" on:click="closeHamburgerMenu()"></button>
 				</div>
 			{/if}
@@ -55,6 +58,10 @@
 		</div>
 	{/if}
 </div>
+{#if hamburgerMenuOpen}
+	<div id="shield"
+		 style="position: absolute; top: 0; bottom: 0; left: 0; right: 0; z-index: 98;"></div>
+{/if}
 <script>
 import DeviantList from "./DeviantList.html";
 import FindModeContent from "./FindModeContent.html";

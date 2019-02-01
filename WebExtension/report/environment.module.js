@@ -32,6 +32,9 @@ chrome.runtime.onMessage.addListener(function(thing, buddy, callback) {switch (t
 		store.set({mobile: thing.mobile});
 	break;
 }});
+export function closeDeviantLove() {
+	chrome.runtime.sendMessage({action: "echo", echoAction: "spark"});
+}
 
 $(document).delegate("a", "click", function(event) {
 	if (event.button == 0) { window.open(this.href); }
