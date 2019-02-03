@@ -1,0 +1,111 @@
+.optionsMode #lovedArtists {
+	padding: 9px;
+	background: hsl(357, 75%, 62%);
+}
+.optionsMode .closeButton {
+	position: absolute;
+	top: 4px;
+	right: 4px;
+	border: 1px solid black;
+	background: hsl(0, 100%, 88%);
+}
+.optionsMode .sectionHeader {
+	font-size: 22px;
+	font-weight: bold;
+	margin: 7px 0;
+}
+.subaccountsMessage, #syncStatus {
+	padding: 7px;
+	font-size: 12px;
+}
+.optionsMode #lovedArtists .ok { background: hsl(112, 58%, 82%); }
+.optionsMode #lovedArtists .warning { background: hsl(57, 100%, 88%); }
+.optionsMode #lovedArtists .error { background: hsl(0, 100%, 76%); }
+.subaccountsMessage p:first-child, #syncStatus p:first-child { margin-top: 0; }
+.subaccountsMessage p:last-child, #syncStatus p:last-child { margin-bottom: 0; }
+#subaccountsEditor {
+	border: 1px solid black;
+	background: hsl(10, 100%, 55%);
+	font-size: 14px;
+	height: 300px;
+	overflow: auto;
+}
+#subaccountsEditor, .subaccountsMessage {
+	box-sizing: border-box;
+	max-width: 400px;
+}
+#subaccountsEditor.busy {
+    filter: saturate(30%);
+    cursor: wait;
+}
+	#subaccountsEditor > * {
+		margin: 4px;
+	}
+	#subaccountsEditor.busy > * {
+		pointer-events: none;
+	}
+	.subaccountOwner {
+		border: 1px solid black;
+		background-color: white;
+		border-radius: 14px;
+		overflow: hidden;
+	}
+	.accountLine, .actionLine {
+		display: flex;
+		flex-direction: row;
+		align-items: center;
+		padding-left: 24px;
+		height: 24px;
+	}
+	.accountLine {
+		border-bottom: 1px solid hsl(0, 0%, 80%);
+	}
+	.ownerLine {
+		background-color: hsl(48, 100%, 60%);
+		background-image: url(/images/combine.svg);
+		background-size: 18px 18px;
+		background-position: 3px 3px;
+		background-repeat: no-repeat;
+	}
+	.ownerLine .name { font-weight: bold; }
+	.accountLine .name {
+		flex: 1;
+	}
+	.accountLine button {
+		background: none;
+		border: none;
+		text-decoration: underline;
+		color: rgb(0, 0, 238);
+		cursor: pointer;
+	}
+	.accountLine button:focus {
+		outline: 1px dotted black;
+	}
+	#subaccountsEditor button, #subaccountsEditor input {
+		font-size: 12px;
+		padding-top: 1px;
+		padding-bottom: 1px;
+	}
+	.openNewOwner {
+		display: flex;
+		flex-direction: row;
+		align-items: center;
+		font-weight: bold;
+	}
+	.openNewOwner::before {
+		content: " ";
+		width: 22px;
+		height: 18px;
+		background-image: url(/images/add.svg), url(/images/combine.svg);
+		background-size: 12px 12px, 18px 18px;
+		background-position: bottom right, top left;
+		background-repeat: no-repeat;
+		margin-right: 6px;
+	}
+.subaccountsMessage {
+	border: 1px solid black;
+	border-top: none;
+}
+#syncStatus {
+	border: 1px solid black;
+}

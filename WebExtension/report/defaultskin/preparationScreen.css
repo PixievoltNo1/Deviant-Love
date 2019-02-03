@@ -1,0 +1,22 @@
+#preparationScreen {
+	padding: 12px;
+}
+#scanMessage {
+	font-size: 200%;
+	margin-bottom: 10px;
+}
+#scanPercentage {
+	display: flex;
+	flex-direction: row;
+	margin-bottom: 0.5em;
+}
+#scanPercentageText {
+    width: 3em;
+	text-align: center;
+}
+#scanProgressBar {
+    flex: 1;
+}
+#scannedDeviations {
+	margin-bottom: 0.3em;
+}

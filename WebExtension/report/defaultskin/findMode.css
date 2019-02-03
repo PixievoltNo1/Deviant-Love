@@ -1,0 +1,102 @@
+.findMode #lovedArtists {
+	display: flex;
+	flex-direction: column;
+}
+.findMode #lovedArtists > :not(:first-child) {
+	border-top: 1px solid black;
+}
+#findBar {
+	flex: none;
+	background-color: hsl(55, 100%, 55%);
+}
+#findBar > * {
+	height: 20px;
+}
+	#goFind {
+		display: flex;
+		flex-direction: row;
+		align-items: center;
+		font-size: 16px;
+		border-radius: 0; /* Needed for Firefox for Android */
+		border: none;
+		background: none;
+	}
+	#goFind::before {
+		width: 18px;
+		height: 18px;
+		margin-right: 2px;
+		content: " ";
+		background-image: url(/images/find.svg);
+	}
+	#findBar > .closeButton {
+		padding: 0 4px;
+		margin: 0;
+		height: 24px;
+		border: none;
+		border-left: 1px solid hsl(0, 0%, 0%);
+		background: hsl(58, 100%, 72%);
+	}
+#queryError {
+	flex: none;
+	background-color: hsl(55, 96%, 84%);
+	padding: 2px;
+}
+#resultsDisplay {
+	flex: 1;
+	background: hsl(48, 100%, 54%);
+}
+#resultsDisplay.hasResults {
+	background: hsl(46, 100%, 43%);
+}
+#findHelp, #noResults {
+	margin: 20px 40px;
+	font-size: 20px;
+}
+#resultsDisplay > .sectionHeader {
+	padding: 0.1em 0.5em;
+	font-weight: 800;
+	font-size: 120%;
+	text-align: center;
+	background-color: hsl(53, 93%, 75%);
+	border: solid hsl(46, 100%, 43%);
+	border-width: 3px 0 1px;
+}
+#resultsDisplay > .sectionHeader:first-child {
+	border-top-width: 0;
+}
+/* For .deviantList styling, see deviantList.css */
+.deviationResultGroup {
+	display: grid;
+	grid-template-columns: 1fr 80px;
+	grid-template-rows: min-content 1fr;
+	border-top: 1px solid hsl(46, 100%, 43%);
+}
+.sectionHeader + .deviationResultGroup {
+	border-top: none;
+}
+.deviationResultGroupHeader {
+	background-color: hsl(54, 91%, 84%);
+	font-weight: bold;
+	padding: 0 0.2em;
+}
+.deviationResultGroup > .deviationList {
+	background-color: hsl(56, 89%, 93%);
+}
+.deviationResultGroupSidebar {
+	grid-column: 2;
+	grid-row: 1 / -1;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	background-color: hsl(50, 95%, 60%);
+	padding: 6px 4px;
+}
+.deviationResultGroupSidebar > :not(:first-child) {
+	margin-top: 6px;
+}
+.viewDeviant::before {
+	content: "(";
+}
+.viewDeviant::after {
+	content: ")";
+}

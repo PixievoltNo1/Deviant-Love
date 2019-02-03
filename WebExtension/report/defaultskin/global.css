@@ -1,0 +1,80 @@
+* {
+	box-sizing: border-box;
+	line-height: 1.25em;
+}
+body {
+	background-color: hsl(27, 100%, 96%);
+	color: black;
+	font-family: sans-serif;
+	margin: 0;
+}
+body > div {
+	height: 100vh;
+}
+
+a:link { color: rgb(0, 0, 238); }
+a:visited { color: rgb(85, 26, 139); }
+a img {
+	border: 0;
+}
+.avatar {
+	background-color: white;
+	box-shadow: hsla(0, 0%, 0%, 0.8) 2px 2px 2px;
+	position: relative;
+}
+.avatar img {
+	display: block;
+}
+@keyframes spin {
+	0% { transform: none; }
+	100% { transform: rotate(1turn); }
+}
+.avatar.loading::before {
+	display: block;
+	position: absolute;
+	left: 0;
+	top: 0;
+	bottom: 0;
+	z-index: 1;
+	content: url(/images/spinner.svg);
+	animation: 5s linear infinite spin;
+}
+.closeButton {
+	display: flex;
+	flex-direction: row;
+	align-items: center;
+	font-size: 16px;
+	border-radius: 0; /* Needed for Firefox for Android */
+}
+.closeButton::before {
+	width: 20px;
+	height: 16px;
+	margin-right: 2px;
+	content: " ";
+	background-size: contain;
+	background-image: url(/images/close.svg);
+}
+.deviationList {
+	padding: 0 0.2em;
+}
+.notice {
+	margin: 4px;
+	padding: 3px 5px;
+	border-radius: 4px;
+	background-color: hsla(0, 100%, 100%, .6);
+	font-size: 14.5px;
+}
+.textEntryLine {
+	display: flex;
+	flex-direction: row;
+}
+.textEntryLine > * {
+	margin: 2px;
+	padding: 0;
+}
+.textEntryLine > :not(:first-child) {
+	margin-left: 0;
+}
+.textEntryLine > input {
+	flex: 1;
+}
