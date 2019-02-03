@@ -30,6 +30,7 @@
 	content: none;
 }
 	#scanResults {
+		flex: 1;
 		margin: 5px;
 	}
 	#scanResults .dynamic {

@@ -1,5 +1,5 @@
 <div id="preparationScreen" style="{stopped ? '' : 'cursor: wait;'}">
-	<div id="scanMessage">{$l10n(scanMessage)}</div>
+	<div id="scanMessage" use:squishToFit>{$l10n(scanMessage)}</div>
 	{#if !errored}
 		<div id="scanStatus">
 			<div id="scanPercentage">
@@ -23,11 +23,13 @@
 	{/if}
 </div>
 <script>
+import squishToFit from "../squishToFit.module.js";
 export default {
 	data() { return {
 		percent: 0,
 		found: 0,
 	}; },
+	actions: { squishToFit },
 	computed: {
 		scanMessage: ({pageType}) => {
 			return ( {

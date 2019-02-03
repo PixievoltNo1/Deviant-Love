@@ -17,10 +17,10 @@
 			{/if}
 		{/if}
 		<div id="scanResults">
-			<div id="favesLine">
+			<div id="favesLine" use:squishToFit>
 				{favesLineParts[0]}<span class="dynamic">{favesLineParts[1]}</span>{favesLineParts[2]}
 			</div>
-			<div id="artistsLine">
+			<div id="artistsLine" use:squishToFit>
 				{artistsLineParts[0]}<span class="dynamic">{artistsLineParts[1]}</span>{artistsLineParts[2]}
 			</div>
 		</div>
@@ -69,11 +69,13 @@ import DeviantList from "./DeviantList.html";
 import FindModeContent from "./FindModeContent.html";
 import SubaccountsEditor from "../../options/svelte/SubaccountsEditor.html";
 import SyncStatus from "../../options/svelte/SyncStatus.html";
+import squishToFit from "../squishToFit.module.js";
 export default {
 	components: { DeviantList, FindModeContent, SubaccountsEditor, SyncStatus },
 	data() { return {
 		actionList: ["find", "options"],
 	} },
+	actions: { squishToFit },
 	computed: {
 		favesLineParts({totalDeviations, pageType, $l10n}) {
 			return $l10n("headerFavesLine", {num: totalDeviations, pageType}).split("*");
