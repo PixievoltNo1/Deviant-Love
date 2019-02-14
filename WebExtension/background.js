@@ -28,6 +28,17 @@ chrome.runtime.onMessage.addListener( function(thing, buddy, callback) {switch (
 			chrome.pageAction.setTitle({tabId: buddy.tab.id, title: "Deviant Love"});
 		}
 	break;
+	case "setHeartAction":
+		chrome.tabs.query({active: true, lastFocusedWindow: true}, ([currentTab]) => {
+			if (currentTab && buddy.id == currentTab.id) {
+				heartAction = thing.to;
+			}
+			chrome.tabs.sendMessage(buddy.id, {action: "resendHeartAction"});
+		});
+	break;
+	case "checkSidebarSupport":
+		callback( Boolean(browser && browser.sidebarAction && browser.sidebarAction.open) );
+	break;
 	// For communication between panelManager.js and environment.module.js
 	case "echo":
 		thing.action = thing.echoAction;
@@ -39,8 +50,27 @@ chrome.runtime.onMessage.addListener( function(thing, buddy, callback) {switch (
 		return true;
 	break;
 }} );
-chrome.pageAction.onClicked.addListener( function(buddy) {
-	chrome.tabs.sendMessage(buddy.id, {action: "spark"});
+// There is currently no browser that supports both a sidebar and a non-persistent background page.
+// The below will need to be rewritten if Chrome adds a sidebar, or Firefox adds non-persistent background pages.
+var heartAction = "spark";
+chrome.pageAction.onClicked.addListener( (buddy) => {
+	if (heartAction == "spark") {
+		chrome.tabs.sendMessage(buddy.id, {action: "spark"});
+	} else if (heartAction == "openSidebar") {
+		browser.sidebarAction.open();
+		// If the sidebar is already open, what happens next is controlled by the sidebar.
+	} else if (heartAction == "closeSidebar") {
+		browser.sidebarAction.close();
+	}
+} );
+chrome.tabs.onActivated.addListener( ({tabId}) => {
+	chrome.tabs.sendMessage(tabId, {action: "resendHeartAction"});
+} );
+chrome.windows.onFocusChanged.addListener( (windowId) => {
+	chrome.tabs.query({active: true, lastFocusedWindow: true}, ([buddy]) => {
+		if (!buddy) { return; }
+		chrome.tabs.sendMessage(buddy.id, {action: "resendHeartAction"});
+	});
 } );
 
 chrome.runtime.onInstalled.addListener( function onUpdate(info) {
