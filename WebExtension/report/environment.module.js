@@ -4,8 +4,10 @@
 	Check core.module.js for the complete legal stuff.
 */
 import { start, store, showDeviant } from "./core.module.js";
+import NanoEvents from "nanoevents";
 export * from "../apiAdapter.module.js";
 
+export var events = new NanoEvents();
 chrome.runtime.sendMessage({action: "echoWithCallback", echoAction: "getStartData"},
 	async function(startData) {
 		await start(startData);
@@ -15,15 +17,15 @@ chrome.runtime.sendMessage({action: "echoWithCallback", echoAction: "getStartDat
 chrome.runtime.onMessage.addListener(function(thing, buddy, callback) {switch (thing.action) {
 	case "showing":
 		var waitFor = [];
-		store.fire("beforeShow", (waitForThis) => { waitFor.push(waitForThis); });
+		var delay = (waitForThis) => { waitFor.push(waitForThis); };
+		events.emit("visibilityChange", true, delay);
 		Promise.all(waitFor).then(() => {
-			store.set({visible: true});
 			callback();
 		});
 		return true;
 	break;
 	case "hiding":
-		store.set({visible: false});
+		events.emit("visibilityChange", false);
 	break;
 	case "artistRequested":
 		showDeviant(thing.artist);

@@ -32,6 +32,9 @@ export async function start({love, restoreData, firstDeviant, mobile}) {
 		visible: true,
 		mobile,
 	});
+	env.events.on("visibilityChange", (visible) => {
+		store.set({visible});
+	});
 	await storePersist(store);
 	let response = await fetch( env.getL10nMsg("fileFluent") );
 	let ftl = await response.text();
@@ -90,12 +93,10 @@ function prepare(love) {
 	var organized = faves.then(organizeData);
 	var watchResult = scannerController.watched.then(collectWatchlist, watchError);
 	Promise.all([organized, watchResult, nextTip()]).then(finish);
-	var visibilityListener = store.on("state", ({changed, current}) => {
-		if (changed.visible) {
-			scannerController[current.visible ? "resume" : "pause"]();
-		}
+	var removeVisibilityListener = env.events.on("visibilityChange", (visible) => {
+		scannerController[visible ? "resume" : "pause"]();
 	});
-	screen.on("destroy", () => { visibilityListener.cancel(); });
+	screen.on("destroy", removeVisibilityListener);
 	function organizeData(faves) {
 		var deviantMap = new Map();
 		faves.forEach(function(item, pos) {
@@ -239,8 +240,10 @@ function report(results, ui, love) {
 		showDeviant(ui.firstDeviant);
 	}
 
-	store.on("beforeShow", (delay) => {
-		delay( nextTip() );
+	env.events.on("visibilityChange", (visible, delay) => {
+		if (visible) {
+			delay( nextTip() );
+		}
 	});
 }
 
