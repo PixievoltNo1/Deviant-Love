@@ -75,7 +75,7 @@ export default async function(action, details) {
 				}
 			}
 		}
-		for (let known of ui.get().knownNames) {
+		for (let known of knownNames) {
 			if (known.toLowerCase() == name) {
 				return {name: known};
 			}
@@ -98,3 +98,7 @@ export default async function(action, details) {
 		ui.set({warnings});
 	}
 }
+var knownNames = [];
+export function setKnownNames(to) {
+	knownNames = to;
+};

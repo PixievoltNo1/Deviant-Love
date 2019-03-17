@@ -22,6 +22,7 @@ export var showDeviant;
 import PreparationScreen from "./svelte/PreparationScreen.html";
 import MainScreen from "./svelte/MainScreen.html";
 export var initMiniSubaccountsEditor;
+import { setKnownNames } from "../options/subaccountsEditMethod.module.js";
 import lookUpDeviant from "./lookUpDeviant.module.js";
 import "fluent-intl-polyfill";
 import { FluentBundle } from "fluent";
@@ -167,13 +168,13 @@ function restore(scanData, love) {
 function report(results, ui, love) {
 	var {deviants, totalDeviations, watchedArtists, watchError} = results;
 	deviants.setSubaccounts(store.get().subaccounts);
-	var knownNames = [...deviants.baseMap.keys()];
+	setKnownNames([...deviants.baseMap.keys()]);
 
 	var screen = new MainScreen({
 		target: document.body,
 		store,
 		data: {
-			deviantList: deviants.list, totalDeviations, watchedArtists, watchError, knownNames,
+			deviantList: deviants.list, totalDeviations, watchedArtists, watchError,
 			pageType: love.pageType, mode: "normal"
 		}
 	});
@@ -215,7 +216,6 @@ function report(results, ui, love) {
 			} ) });
 		}
 		setAccounts();
-		editor.set({knownNames});
 		editor.on("edited", () => {
 			setAccounts();
 			deviants.setSubaccounts(subaccounts);
