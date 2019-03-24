@@ -1,11 +1,10 @@
-<h1>{$l10n("subaccountsEditorHeader")}</h1>
-<SubaccountsEditor :prefsLoaded/>
-<h1>{$l10n("syncHeader")}</h1>
-<SyncStatus/>
 <script>
 import SubaccountsEditor from "./SubaccountsEditor.html";
 import SyncStatus from "./SyncStatus.html";
-export default {
-	components: { SubaccountsEditor, SyncStatus },
-};
+import l10n from "../../l10nStore.module.js";
 </script>
+
+<h1>{$l10n("subaccountsEditorHeader")}</h1>
+<SubaccountsEditor/>
+<h1>{$l10n("syncHeader")}</h1>
+<SyncStatus/>

@@ -1,9 +1,28 @@
-<div class="subaccountOwner" class:changeOwner=" mode == 'changeOwner' ">
+<script>
+import l10n from "../../l10nStore.module.js";
+export let owner, owned, edit;
+let mode = "normal";
+let showAddSubaccount, adding, newOwner;
+
+function addSubaccount() {
+	edit("add", { owner, adding, success() { showAddSubaccount = false; } });
+}
+function changeOwner() {
+	if (newOwner == "$noChange") {
+		mode = "normal";
+	} else {
+		edit("changeOwner", {from: owner, to: newOwner});
+		// this object will be destroyed & replaced
+	}
+}
+</script>
+
+<div class="subaccountOwner" class:changeOwner="{mode == 'changeOwner'}">
 	{#if mode == "normal"}
 		<div class="accountLine ownerLine">
 			<span class="name">{owner}</span>
 			<button type="button" class="changeMainAccount"
-				on:click="set({mode: 'changeOwner', newOwner: '$noChange'})">
+				on:click="{() => { mode = 'changeOwner'; newOwner = '$noChange'; }}">
 				{$l10n("subaccountsEditorChangeMain")}
 			</button>
 		</div>
@@ -11,33 +30,33 @@
 			<div class="accountLine subaccountLine">
 				<span class="name">{subaccount}</span>
 				<button type="button" class="removeSubaccount"
-					on:click="fire('remove', {owner, removing: subaccount})">
+					on:click="{() => edit('remove', {owner, removing: subaccount})}">
 					{$l10n("subaccountsRemove")}</button>
 			</div>
 		{/each}
 		<div class="actionLine">
 			{#if !showAddSubaccount}
 				<button type="button" class="addSubaccount"
-					on:click="set({showAddSubaccount: true, adding: ''})">
+					on:click="{ () => { showAddSubaccount = true; adding = ''; } }">
 					{$l10n("subaccountsEditorAddSubaccount")}
 				</button>
 			{:else}
-				<form class="addSubaccountForm" on:submit="add()">
-					<input bind:value="adding" required autofocus
+				<form class="addSubaccountForm" on:submit|preventDefault="{addSubaccount}">
+					<input bind:value="{adding}" required autofocus
 						placeholder="{$l10n('subaccountsEditorAddPlaceholder')}">
 					<button type="submit">{$l10n("subaccountsAddConfirm")}</button>
 				</form>
 			{/if}
 		</div>
-	{:elseif mode == "changeOwner"}
-		<form class="changeOwnerForm" on:submit="changeOwner()">
+	{:else if mode == "changeOwner"}
+		<form class="changeOwnerForm" on:submit|preventDefault="{changeOwner}">
 			<div class="accountLine ownerLine"><label>
-				<input type="radio" name="newOwner" bind:group="newOwner" value="$noChange">
+				<input type="radio" name="newOwner" bind:group="{newOwner}" value="$noChange">
 				<span class="name">{owner}</span>
 			</label></div>
 			{#each owned as subaccount}
 				<div class="accountLine"><label>
-					<input type="radio" name="newOwner" bind:group="newOwner" value="{subaccount}">
+					<input type="radio" name="newOwner" bind:group="{newOwner}" value="{subaccount}">
 					<span class="name">{subaccount}</span>
 				</label></div>
 			{/each}
@@ -47,28 +66,3 @@
 		</form>
 	{/if}
 </div>
-<script>
-export default {
-	data() {
-		return {
-			mode: "normal",
-		};
-	},
-	methods: {
-		add() {
-			var {owner, adding} = this.get();
-			this.fire("add",
-				{ owner, adding, success: () => { this.set({showAddSubaccount: false}); } });
-		},
-		changeOwner() {
-			var {owner, newOwner} = this.get();
-			if (newOwner == "$noChange") {
-				this.set({mode: "normal"});
-			} else {
-				this.fire("changeOwner", {from: owner, to: newOwner});
-				// this object will be destroyed & replaced
-			}
-		},
-	},
-};
-</script>

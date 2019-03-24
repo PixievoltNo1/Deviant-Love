@@ -1,67 +1,56 @@
-<div id="subaccountsEditor" class:busy ref:root>
-	{#if prefsLoaded}
-		{#each Object.entries($subaccounts) as [owner, owned] (owner)}
-			<SubaccountOwner {owner} {owned} on:add="edit('add', event)"
-				on:remove="edit('remove', event)" on:changeOwner="edit('changeOwner', event)"/>
-		{:else}
-			<div id="subaccountsEditorExplainer" class="notice">{$l10n("subaccountsEditorExplain")}</div>
-		{/each}
-		{#if !showNewOwnerForm}
-			<button type="button" class="openNewOwner"
-				on:click="set({showNewOwnerForm: true, newOwner: '', firstSubaccount: ''})">
-				{$l10n("subaccountsEditorAddMainAccount")}
-			</button>
-		{:else}
-			<form class="subaccountOwner new" on:submit="newOwner()">
-				<div class="accountLine ownerLine">
-					<span class="name">
-						<input bind:value="newOwner" required autofocus
-							placeholder="{$l10n('subaccountsEditorOwnerPlaceholder')}">
-					</span>
-					<button type="button" tabindex="-1" class="cancelOwner"
-						on:click="set({showNewOwnerForm: false})">
-						{$l10n("subaccountsEditorCancelOwner")}
-					</button>
-				</div>
-				<div class="actionLine">
-					<input bind:value="firstSubaccount" required
-						placeholder="{$l10n('subaccountsEditorAddPlaceholder')}">
-					<button type="submit">{$l10n("subaccountsAddConfirm")}</button>
-				</div>
-			</form>
-		{/if}
+<script>
+import { onMount } from "svelte";
+import SubaccountOwner from "./SubaccountOwner.html";
+import subaccountsEditorCore from "../subaccountsEditorCore.module.js";
+import l10n from "../../l10nStore.module.js";
+import { stores as prefs } from "../../prefStores.module.js";
+
+var {subaccounts} = prefs;
+var {edit, busy, warnings, error} = subaccountsEditorCore();
+var showNewOwnerForm, newOwner, firstSubaccount;
+function addOwner() {
+	edit("newOwner", { newOwner, firstSubaccount, success() { showNewOwnerForm = false; } });
+}
+</script>
+
+<div id="subaccountsEditor" class:busy="{$busy}">
+	{#each Object.entries($subaccounts) as [owner, owned] (owner)}
+		<SubaccountOwner {owner} {owned} {edit}/>
+	{:else}
+		<div id="subaccountsEditorExplainer" class="notice">{$l10n("subaccountsEditorExplain")}</div>
+	{/each}
+	{#if !showNewOwnerForm}
+		<button type="button" class="openNewOwner"
+			on:click="{ () => {showNewOwnerForm = true; newOwner = firstSubaccount = '';} }">
+			{$l10n("subaccountsEditorAddMainAccount")}
+		</button>
+	{:else}
+		<form class="subaccountOwner new" on:submit|preventDefault="{addOwner}">
+			<div class="accountLine ownerLine">
+				<span class="name">
+					<input bind:value="{newOwner}" required autofocus
+						placeholder="{$l10n('subaccountsEditorOwnerPlaceholder')}">
+				</span>
+				<button type="button" tabindex="-1" class="cancelOwner"
+					on:click="{ () => {showNewOwnerForm = false;} }">
+					{$l10n("subaccountsEditorCancelOwner")}
+				</button>
+			</div>
+			<div class="actionLine">
+				<input bind:value="{firstSubaccount}" required
+					placeholder="{$l10n('subaccountsEditorAddPlaceholder')}">
+				<button type="submit">{$l10n("subaccountsAddConfirm")}</button>
+			</div>
+		</form>
 	{/if}
 </div>
-{#if warnings.length}
+{#if $warnings.length}
 	<div class="subaccountsMessage warning">
-		{#each warnings as [msg, parts]}
+		{#each $warnings as [msg, parts]}
 			<p>{$l10n("subaccountsWarning" + msg, parts)}</p>
 		{/each}
 	</div>
 {/if}
-{#if error}
-	<div class="subaccountsMessage error">{$l10n("subaccountsError" + error[0], error[1])}</div>
+{#if $error}
+	<div class="subaccountsMessage error">{$l10n("subaccountsError" + $error[0], $error[1])}</div>
 {/if}
-<script>
-import SubaccountOwner from "./SubaccountOwner.html";
-import edit from "../subaccountsEditMethod.module.js";
-export default {
-	components: { SubaccountOwner },
-	data() { return {
-		warnings: [],
-	}; },
-	methods: {
-		newOwner() {
-			var {newOwner, firstSubaccount} = this.get();
-			var success = () => { this.set({showNewOwnerForm: false}); };
-			this.edit("newOwner", {newOwner, firstSubaccount, success});
-		},
-		edit,
-	},
-	oncreate() {
-		this.refs.root.addEventListener("submit", (event) => {
-			event.preventDefault();
-		});
-	},
-};
-</script>
