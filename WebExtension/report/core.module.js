@@ -15,39 +15,27 @@
 	You should have received a copy of the GNU General Public License
 	along with Deviant Love.  If not, see <http://www.gnu.org/licenses/>.
 */
-import { Store } from "svelte/store";
-import storePersist from "../storePersist.module.js";
+import { writable } from "svelte/store";
+import * as prefs from "../prefStores.module.js";
 import * as env from "./environment.module.js";
 export var showDeviant;
 import PreparationScreen from "./svelte/PreparationScreen.html";
-import MainScreen from "./svelte/MainScreen.html";
+// import MainScreen from "./svelte/MainScreen.html";
 export var initMiniSubaccountsEditor;
-import { setKnownNames } from "../options/subaccountsEditMethod.module.js";
+import * as subaccountsEditorSettings from "../options/subaccountsEditorCore.module.js";
 import lookUpDeviant from "./lookUpDeviant.module.js";
-import "fluent-intl-polyfill";
-import { FluentBundle } from "fluent";
+import { init as initL10n } from "../l10nStore.module.js";
 
-export var store;
+export var visible, mobile;
 export async function start({love, restoreData, firstDeviant, mobile}) {
-	store = new Store({
-		visible: true,
-		mobile,
-	});
+	visible = writable(true);
+	mobile = writable(mobile);
 	env.events.on("visibilityChange", (visible) => {
-		store.set({visible});
+		visible.set(visible);
 	});
-	await storePersist(store);
-	let response = await fetch( env.getL10nMsg("fileFluent") );
-	let ftl = await response.text();
-	var bundle = new FluentBundle('en-US');
-	var errors = bundle.addMessages(ftl);
-	logAll(errors);
-	store.set({ l10n(msg, args) {
-		var errors = [];
-		var text = bundle.format( bundle.getMessage(msg), args, errors );
-		logAll(errors);
-		return text;
-	} });
+	await prefs.init();
+	subaccountsEditorSettings.setSubaccountsStore(prefs.stores.subaccounts);
+	await initL10n();
 	if (restoreData) {
 		restore(restoreData, love);
 	} else {
@@ -55,11 +43,6 @@ export async function start({love, restoreData, firstDeviant, mobile}) {
 	}
 	if (firstDeviant) {
 		showDeviant(firstDeviant);
-	}
-}
-function logAll(arr) {
-	for (let part of arr) {
-		console.log(part);
 	}
 }
 
@@ -79,14 +62,13 @@ Object.defineProperties(Deviant.prototype, {
 function prepare(love) {
 	var screen = new PreparationScreen({
 		target: document.body,
-		store,
-		data: {
+		props: {
 			pageType: love.pageType,
 			maxDeviations: love.maxDeviations,
 		}
 	});
 	var scannerController = researchLove(love.feedHref, love.maxDeviations);
-	scannerController.progress.add((data) => { screen.set(data); });
+	scannerController.progress.add((data) => { screen.$set(data); });
 	var faves = scannerController.faves.catch( function catcher(thrown) {
 		scanError();
 		return thrown.retryResult.catch(catcher);
@@ -97,7 +79,6 @@ function prepare(love) {
 	var removeVisibilityListener = env.events.on("visibilityChange", (visible) => {
 		scannerController[visible ? "resume" : "pause"]();
 	});
-	screen.on("destroy", removeVisibilityListener);
 	function organizeData(faves) {
 		var deviantMap = new Map();
 		faves.forEach(function(item, pos) {
@@ -118,10 +99,10 @@ function prepare(love) {
 	}
 	function scanError() {
 		scannerController.pause();
-		screen.set({errored: true, stopped: true});
+		screen.$set({errored: true, stopped: true});
 	}
-	screen.on("retry", () => {
-		screen.set({errored: false, stopped: false});
+	screen.$on("retry", () => {
+		screen.$set({errored: false, stopped: false});
 		scannerController.resume();
 		scannerController.retry();
 	});
@@ -130,7 +111,7 @@ function prepare(love) {
 		firstDeviant = deviantName;
 	}
 	function collectWatchlist(list) {
-		screen.set({watchStatus: "watchSuccess"});
+		screen.$set({watchStatus: "watchSuccess"});
 		return {watchedArtists: list};
 	}
 	function watchError(thrown) {
@@ -138,7 +119,7 @@ function prepare(love) {
 			scanError();
 			return thrown.retryResult.then(collectWatchlist, watchError);
 		}
-		screen.set( {watchStatus: (thrown.reason == "notLoggedIn") ?
+		screen.$set( {watchStatus: (thrown.reason == "notLoggedIn") ?
 			"watchErrorNotLoggedIn" : "watchErrorInternal"} );
 		return {watchError: thrown.reason};
 	}
@@ -149,7 +130,8 @@ function prepare(love) {
 			watchedArtists,
 			watchError,
 		};
-		screen.destroy();
+		removeVisibilityListener();
+		screen.$destroy();
 		var ui = {firstDeviant};
 		report(results, ui, love);
 	}

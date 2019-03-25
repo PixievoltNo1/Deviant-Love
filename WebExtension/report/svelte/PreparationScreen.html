@@ -1,3 +1,19 @@
+<script>
+import l10n from "../../l10nStore.module.js";
+import squishToFit from "../squishToFit.module.js";
+import { createEventDispatcher } from 'svelte';
+
+const dispatch = createEventDispatcher();
+export let pageType, maxDeviations, percent = 0, found = 0, watchStatus;
+export let stopped, errored;
+$: scanMessage = ( {
+	featured: "scanningFeatured",
+	allFaves: "scanningAll",
+	collection: "scanningCollection",
+	search: "scanningSearch"
+} )[pageType];
+</script>
+
 <div id="preparationScreen" style="{stopped ? '' : 'cursor: wait;'}">
 	<div id="scanMessage" use:squishToFit>{$l10n(scanMessage)}</div>
 	{#if !errored}
@@ -16,29 +32,9 @@
 	{:else}
 		<div id="scanFailed">
 			<div id="scanError">{$l10n("scanError")}</div>
-			<button id="retryButton" type="button" on:click="fire('retry')">
+			<button id="retryButton" type="button" on:click="{() => dispatch('retry')}">
 				{$l10n("scanErrorRetry")}
 			</button>
 		</div>
 	{/if}
 </div>
-<script>
-import squishToFit from "../squishToFit.module.js";
-export default {
-	data() { return {
-		percent: 0,
-		found: 0,
-	}; },
-	actions: { squishToFit },
-	computed: {
-		scanMessage: ({pageType}) => {
-			return ( {
-				featured: "scanningFeatured",
-				allFaves: "scanningAll",
-				collection: "scanningCollection",
-				search: "scanningSearch"
-			} )[pageType];
-		},
-	},
-};
-</script>
