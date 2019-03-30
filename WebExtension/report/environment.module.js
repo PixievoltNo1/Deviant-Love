@@ -3,7 +3,7 @@
 	Copyright Pikadude No. 1
 	Check core.module.js for the complete legal stuff.
 */
-import { start, store, showDeviant } from "./core.module.js";
+import { start, mobile, showDeviant } from "./core.module.js";
 import NanoEvents from "nanoevents";
 export * from "../apiAdapter.module.js";
 
@@ -31,7 +31,7 @@ chrome.runtime.onMessage.addListener(function(thing, buddy, callback) {switch (t
 		showDeviant(thing.artist);
 	break;
 	case "setMobile":
-		store.set({mobile: thing.mobile});
+		mobile.set(thing.mobile);
 	break;
 }});
 export function closeDeviantLove() {

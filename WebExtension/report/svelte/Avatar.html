@@ -1,25 +1,26 @@
-<a class="avatar {loading ? 'loading' : ''}" href="{deviant.baseURL}">
-	<img ref:img width="50" height="50" alt="{deviant.name}"
-		on:load="set({loading: false})" on:error="set({loading: false})">
-</a>
 <script>
-import lookUpDeviant from "../lookUpDeviant.module.js";
-export default {
-	data() {
-		return {loading: true};
-	},
-	oncreate() {
-		var {deviant} = this.get();
-		if (deviant.avatar) {
-			this.refs.img.src = deviant.avatar;
-		} else {
-			lookUpDeviant(deviant.name).then( (results) => {
-				if (!results.avatar) { throw false; }
-				this.refs.img.src = deviant.avatar = results.avatar;
-			} ).catch( () => {
-				this.set({loading: false});
-			} );
-		}
-	},
-};
+import lookUpDeviant from "../lookUpDeviant.module.js"
+import { onMount } from 'svelte';
+
+export let deviant;
+let img;
+let loading = true;
+
+onMount(() => {
+	if (deviant.avatar) {
+		img.src = deviant.avatar;
+	} else {
+		lookUpDeviant(deviant.name).then( (results) => {
+			if (!results.avatar) { throw false; }
+			img.src = deviant.avatar = results.avatar;
+		} ).catch( () => {
+			loading = false;
+		} );
+	}
+});
 </script>
+
+<a class="avatar {loading ? 'loading' : ''}" href="{deviant.baseURL}">
+	<img bind:this={img} width="50" height="50" alt="{deviant.name}"
+		on:load="{() => loading = false}" on:error="{() => loading = false}">
+</a>

@@ -15,21 +15,21 @@
 	You should have received a copy of the GNU General Public License
 	along with Deviant Love.  If not, see <http://www.gnu.org/licenses/>.
 */
-import { writable } from "svelte/store";
+import { writable, get as readStore } from "svelte/store";
 import * as prefs from "../prefStores.module.js";
 import * as env from "./environment.module.js";
 export var showDeviant;
 import PreparationScreen from "./svelte/PreparationScreen.html";
-// import MainScreen from "./svelte/MainScreen.html";
+import MainScreen from "./svelte/MainScreen.html";
 export var initMiniSubaccountsEditor;
 import * as subaccountsEditorSettings from "../options/subaccountsEditorCore.module.js";
 import lookUpDeviant from "./lookUpDeviant.module.js";
 import { init as initL10n } from "../l10nStore.module.js";
 
 export var visible, mobile;
-export async function start({love, restoreData, firstDeviant, mobile}) {
+export async function start({love, restoreData, firstDeviant, mobile: initialMobile}) {
 	visible = writable(true);
-	mobile = writable(mobile);
+	mobile = writable(initialMobile);
 	env.events.on("visibilityChange", (visible) => {
 		visible.set(visible);
 	});
@@ -149,24 +149,23 @@ function restore(scanData, love) {
 }
 function report(results, ui, love) {
 	var {deviants, totalDeviations, watchedArtists, watchError} = results;
-	deviants.setSubaccounts(store.get().subaccounts);
-	setKnownNames([...deviants.baseMap.keys()]);
+	deviants.setSubaccounts( readStore(prefs.stores.subaccounts) );
+	subaccountsEditorSettings.setKnownNames([...deviants.baseMap.keys()]);
 
 	var screen = new MainScreen({
 		target: document.body,
-		store,
-		data: {
+		props: {
 			deviantList: deviants.list, totalDeviations, watchedArtists, watchError,
-			pageType: love.pageType, mode: "normal"
+			pageType: love.pageType,
 		}
 	});
-	screen.on("state", ({changed, previous}) => {
-		if (changed.mode && previous.mode == "options") {
-			deviants.setSubaccounts(store.get().subaccounts);
-			deviants.buildList();
-			screen.set({deviantList: deviants.list});
+	screen.$on("changeScreen", ({ details: {from, to} }) => {
+		if (from == "options") {
+			deviants.setSubaccounts( readStore(prefs.stores.subaccounts) );
+			screen.$set({deviantList: deviants.list});
 		}
 	});
+	/*
 	screen.on("update", ({changed, current}) => {
 		if (changed.mode && current.mode == "find") {
 			var {findModeContent} = screen.refs;
@@ -187,7 +186,9 @@ function report(results, ui, love) {
 			});
 		}
 	});
-	screen.on("closeRequested", env.closeDeviantLove);
+	*/
+	screen.$on("closeRequested", env.closeDeviantLove);
+	/*
 	initMiniSubaccountsEditor = (editor) => {
 		var {owner} = editor.get();
 		var {subaccounts} = store.get();
@@ -212,11 +213,12 @@ function report(results, ui, love) {
 			document.getElementById("deviant_" + owner).scrollIntoView();
 		}
 	});
+	*/
 
 	// Handle requests for a particular deviant that were made elsewhere (e.g. context menu)
 	showDeviant = function(deviantName) {
-		screen.set({mode: "normal"});
-		screen.refs.normalList.showDeviant(deviantName);
+		screen.mode = "normal";
+		screen.normalList.showDeviant(deviantName);
 	}
 	if (ui.firstDeviant) {
 		showDeviant(ui.firstDeviant);
@@ -229,24 +231,30 @@ function report(results, ui, love) {
 	});
 }
 
+export var usingTouch = writable(false);
 document.body.addEventListener("touchstart", () => {
-	store.set({usingTouch: true});
+	usingTouch.set(true);
 }, {passive: true});
 document.body.addEventListener("touchend", function prepareForSwitchToMouse(touchEvent) {
 	document.body.addEventListener("mousemove", function switchToMouse(mouseEvent) {
 		if (touchEvent.timeStamp - 200 < mouseEvent.timeStamp) { return; }
-		store.set({usingTouch: false});
+		usingTouch.set(false);
 		document.body.removeEventListener("mousemove", switchToMouse);
 		document.body.addEventListener("touchend", prepareForSwitchToMouse,
 			{passive: true, once: true});
 	});
 }, {passive: true, once: true});
+usingTouch.subscribe( (val) => {
+	document.body.classList.toggle("usingTouch", val);
+} );
+
+export var tip = writable();
 function nextTip() {
 	return Promise.all(
 		[env.retrieve("nextTip"), $.getJSON( env.getL10nMsg("fileTipOfTheMoment") )]
 	).then(function(results) {
 		var nextTip = results[0].nextTip || 0, tips = results[1];
-		store.set({tip: tips[nextTip]});
+		tip.set(tips[nextTip]);
 		nextTip++;
 		if (nextTip >= tips.length) {nextTip = 0;};
 		env.store("nextTip", nextTip);

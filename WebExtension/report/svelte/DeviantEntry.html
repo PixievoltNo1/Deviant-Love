@@ -1,5 +1,95 @@
-<div class="deviant" class:open class:openedByTouch id="deviant_{deviant.name}" ref:root>
-	<div class="deviantHeader" on:click="fire('openMe')">
+<script>
+import l10n from "../../l10nStore.module.js";
+import { mobile, usingTouch } from "../core.module.js";
+import prefStores from "../../prefStores.module.js";
+import Avatar from "./Avatar.html";
+import DeviationList from "./DeviationList.html";
+// import MiniSubaccountsEditor from "./MiniSubaccountsEditor.html";
+import anime from "animejs";
+import { createEventDispatcher, tick } from 'svelte';
+
+var {subaccounts} = prefStores;
+const dispatch = createEventDispatcher();
+
+const closerLookEasing = [0, 0, .6, 1];
+export let deviant, note, watchedArtists;
+export let subaccountsOpen;
+var opened, closing, openedByTouch;
+
+var root, closerLook;
+
+export async function open(transition) {
+	opened = true, openedByTouch = $usingTouch;
+	await tick();
+	if (transition) {
+		var targetHeight = getComputedStyle(closerLook).height;
+		anime({
+			targets: closerLook,
+			height: [0, targetHeight],
+			duration: 400,
+			easing: closerLookEasing,
+			run: () => {
+				var openedDeviantElem = root;
+				var containerElem = openedDeviantElem.offsetParent;
+				var scroll = containerElem.scrollTop;
+				if (scroll + containerElem.clientHeight <
+					openedDeviantElem.offsetTop + openedDeviantElem.offsetHeight) {
+					scroll = openedDeviantElem.offsetTop + openedDeviantElem.offsetHeight
+						- containerElem.clientHeight;
+				}
+				if (scroll > openedDeviantElem.offsetTop) {
+					scroll = openedDeviantElem.offsetTop;
+				}
+				containerElem.scrollTop = scroll;
+			},
+			complete() {
+				closerLook.style.height = "auto";
+			}
+		});
+	} else {
+		root.scrollIntoView();
+	}
+}
+export function close(transition) {
+	opened = false, closing = transition, subaccountsOpen = false;
+	if (transition) {
+		anime({
+			targets: closerLook,
+			height: 0,
+			duration: 400,
+			easing: closerLookEasing,
+			complete: () => {
+				closing = false;
+			},
+		});
+	}
+}
+function toggleSubaccounts() {
+	if (subaccountsOpen) {
+		subaccountsOpen = true;
+		dispatch("openMe");
+	} else {
+		subaccountsOpen = false;
+	}
+}
+
+// Workaround for https://github.com/sveltejs/svelte/issues/2333
+import { onDestroy } from "svelte";
+export let registry;
+registry[deviant.name] = {
+	open,
+	close,
+	$set(data) {
+		({subaccountsOpen} = data);
+	},
+}
+onDestroy( () => {
+	delete registry[deviant.name];
+} );
+</script>
+
+<div class="deviant" class:open={opened} class:openedByTouch id="deviant_{deviant.name}" bind:this={root}>
+	<div class="deviantHeader" on:click="{() => dispatch('openMe')}">
 		{#if note}
 			<div class="deviantNote">{$l10n(...note)}</div>
 		{/if}
@@ -12,12 +102,12 @@
 		{/if}
 		<span class="deviantFaves">{deviant.deviations.length}</span>
 		<span class="deviantName">{deviant.name}</span>
-		<div class="subaccountsButton mini" on:click="toggleSubaccounts(event)"
-			class:has="deviant.name in $subaccounts" class:editing="subaccountsOpen"
+		<div class="subaccountsButton mini" on:click|stopPropagation="{toggleSubaccounts}"
+			class:has="{deviant.name in $subaccounts}" class:editing="{subaccountsOpen}"
 			title="{$l10n(subaccountsOpen ? 'subaccountsClose' : 'subaccountsOpen')}">&nbsp;</div>
 	</div>
-	{#if open || closing}
-		<div ref:closerLook class="closerLook" style="overflow: hidden; height: auto;">
+	{#if opened || closing}
+		<div bind:this={closerLook} class="closerLook" style="overflow: hidden; height: auto;">
 			{#if openedByTouch}
 				<div class="touchBar">
 					{#if watchedArtists}
@@ -27,8 +117,8 @@
 							<div class="artWatchHint">{$l10n('artNotWatched')}</div>
 						{/if}
 					{/if}
-					<div class="subaccountsButton touch" on:click="toggleSubaccounts(event)"
-						class:has="deviant.name in $subaccounts" class:editing="subaccountsOpen"
+					<div class="subaccountsButton touch" on:click="{toggleSubaccounts}"
+						class:has="{deviant.name in $subaccounts}" class:editing="{subaccountsOpen}"
 						>{$l10n(subaccountsOpen ? 'subaccountsClose' : 'subaccountsOpen')}</div>
 				</div>
 			{/if}
@@ -47,77 +137,3 @@
 		</div>
 	{/if}
 </div>
-<script>
-import Avatar from "./Avatar.html";
-import DeviationList from "./DeviationList.html";
-import MiniSubaccountsEditor from "./MiniSubaccountsEditor.html";
-import anime from "animejs";
-const closerLookEasing = [0, 0, .6, 1];
-export default {
-	components: { Avatar, DeviationList, MiniSubaccountsEditor },
-	onstate({previous}) {
-		if (previous) { return; }
-		this.get().registry.set(this.get().deviant.name, this);
-	},
-	ondestroy() {
-		this.get().registry.delete(this.get().deviant.name);
-	},
-	methods: {
-		open(transition) {
-			this.set({open: true, openedByTouch: this.store.get().usingTouch});
-			if (transition) {
-				var {closerLook} = this.refs;
-				var targetHeight = getComputedStyle(closerLook).height;
-				anime({
-					targets: closerLook,
-					height: [0, targetHeight],
-					duration: 400,
-					easing: closerLookEasing,
-					run: () => {
-						var openedDeviantElem = this.refs.root;
-						var containerElem = openedDeviantElem.offsetParent;
-						var scroll = containerElem.scrollTop;
-						if (scroll + containerElem.clientHeight <
-							openedDeviantElem.offsetTop + openedDeviantElem.offsetHeight) {
-							scroll = openedDeviantElem.offsetTop + openedDeviantElem.offsetHeight
-								- containerElem.clientHeight;
-						}
-						if (scroll > openedDeviantElem.offsetTop) {
-							scroll = openedDeviantElem.offsetTop;
-						}
-						containerElem.scrollTop = scroll;
-					},
-					complete() {
-						closerLook.style.height = "auto";
-					}
-				});
-			} else {
-				this.refs.root.scrollIntoView();
-			}
-		},
-		close(transition) {
-			this.set({open: false, closing: transition, subaccountsOpen: false});
-			if (transition) {
-				anime({
-					targets: this.refs.closerLook,
-					height: 0,
-					duration: 400,
-					easing: closerLookEasing,
-					complete: () => {
-						this.set({closing: false});
-					},
-				});
-			}
-		},
-		toggleSubaccounts(event) {
-			if (event) { event.stopPropagation(); }
-			if (!this.get().subaccountsOpen) {
-				this.set({subaccountsOpen: true});
-				this.fire("openMe");
-			} else {
-				this.set({subaccountsOpen: false});
-			}
-		}
-	},
-};
-</script>

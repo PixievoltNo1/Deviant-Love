@@ -1,37 +1,33 @@
-<div class="deviantList" style="position: static;">
-	{#each deviants as deviant (deviant.name)}
-		<DeviantEntry {deviant} {registry} {watchedArtists} on:openMe="showDeviant(deviant.name)"/>
-	{/each}
-</div>
 <script>
 import DeviantEntry from "./DeviantEntry.html";
-export default {
-	components: { DeviantEntry },
-	data: () => {
-		return {
-			registry: new Map(),
-		};
-	},
-	onstate({changed}) {
-		if (changed.deviants) {
-			this.set({freshEntries: true});
-			Promise.resolve().then(() => { this.set({freshEntries: false}); } );
+import { visible } from "../core.module.js";
+import { afterUpdate } from 'svelte';
+
+export let deviants;
+export let deviant;
+var oldDeviants;
+export let watchedArtists;
+export let opened;
+var oldOpened;
+export const registry = {};
+
+afterUpdate( () => {
+	if (opened != oldOpened) {
+		let showTransition = (deviants == oldDeviants) && $visible;
+		if (oldOpened) {
+			registry[oldOpened].close(showTransition);
 		}
-	},
-	methods: {
-		showDeviant(name) {
-			var showTransition = !this.get().freshEntries && this.store.get().visible;
-			var oldEntry = this.get().opened;
-			var newEntry = this.get().registry.get(name);
-			if (oldEntry == newEntry) {
-				return;
-			}
-			if (oldEntry) {
-				oldEntry.close(showTransition);
-			}
-			newEntry.open(showTransition);
-			this.set({opened: newEntry});
-		}
-	},
-};
+		registry[opened].open(showTransition);
+		oldOpened = opened;
+	}
+	oldDeviants = deviants;
+} );
 </script>
+
+<svelte:options accessors="{true}"/>
+<div class="deviantList" style="position: static;">
+	{#each deviants as deviant (deviant.name)}
+		<DeviantEntry {deviant} {registry} {watchedArtists}
+			on:openMe="{ () => { opened = deviant.name; } }"/>
+	{/each}
+</div>

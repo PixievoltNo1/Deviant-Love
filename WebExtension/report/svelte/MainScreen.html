@@ -1,18 +1,88 @@
-<div id="mainScreen" class="{mode}Mode" class:usingTouch="$usingTouch" class:hamburgerMenuOpen class:mobile="$mobile">
+<script>
+import l10n from "../../l10nStore.module.js";
+import { mobile, tip } from "../core.module.js";
+import DeviantList from "./DeviantList.html";
+// import FindModeContent from "./FindModeContent.html";
+import SubaccountsEditor from "../../options/svelte/SubaccountsEditor.html";
+import SyncStatus from "../../options/svelte/SyncStatus.html";
+import squishToFit from "../squishToFit.module.js";
+import { createEventDispatcher, tick } from 'svelte';
+
+const dispatch = createEventDispatcher();
+
+export let normalList, findModeContent;
+
+export let totalDeviations, pageType, deviantList, watchError, watchedArtists;
+export let queryResults;
+$: favesLineParts = $l10n("headerFavesLine", {num: totalDeviations, pageType}).split("*");
+$: artistsLineParts = $l10n("headerArtistsLine", {num: deviantList.length, pageType}).split("*");
+
+export let mode = "normal";
+const actionList = ["find", "options"];
+function useAction(action) {
+	if (action != mode) {
+		mode = action
+	} else {
+		mode = "normal";
+	}
+}
+$: oldMode = (changeMode(), mode);
+function changeMode() {
+	dispatch("changeMode", {from: oldMode, to: mode});
+	if (hamburgerMenuOpen) {
+		closeHamburgerMenu();
+	}
+}
+
+var hamburgerMenu;
+var hamburgerMenuOpen;
+var hamburgerMenuAnimation;
+async function openHamburgerMenu() {
+	// TODO: Integrate with browser history
+	if (hamburgerMenuOpen) { return; }
+	hamburgerMenuOpen = true;
+	await tick();
+	var animation = hamburgerMenu.animate({
+		transform: [
+			getComputedStyle(hamburgerMenu).getPropertyValue("--starting-transform") || "none",
+			"none"
+		],
+	}, {
+		duration: 400,
+		fill: "backwards",
+	});
+	hamburgerMenuAnimation = animation;
+	document.body.addEventListener("click", function detectOutsideClick(event) {
+		// TODO: Detect clicks outside, stop propagation, call closeHamburgerMenu, and remove this event listener
+	}, {useCapture: true});
+}
+function closeHamburgerMenu() {
+	var animation = hamburgerMenuAnimation;
+	// stop if the menu is already closing
+	if (animation.playbackRate == -1) { return; }
+	animation.reverse();
+	animation.onfinish = () => {
+		hamburgerMenuOpen = false, hamburgerMenuAnimation = null;
+	};
+}
+</script>
+
+<svelte:options accessors="{true}"/>
+<div id="mainScreen" class="{mode}Mode" class:hamburgerMenuOpen class:mobile="{$mobile}">
 	<div id="header">
 		{#if $mobile}
-			<button type="button" id="openHamburgerMenu" on:click="openHamburgerMenu()"></button>
+			<button type="button" id="openHamburgerMenu" on:click="{openHamburgerMenu}"></button>
 			{#if hamburgerMenuOpen}
-				<div id="hamburgerMenu" ref:hamburgerMenu style="position: absolute; z-index: 99;">
+				<div id="hamburgerMenu" bind:this={hamburgerMenu} style="position: absolute; z-index: 99;">
 					<div id="actionList">
 						{#each actionList as action}
-							<button type="button" class="action {action}Action" class:current="action == mode"
-								on:click="useAction(action)">{$l10n(action + "Action")}</button>
+							<button type="button" class="action {action}Action" class:current="{action == mode}"
+								on:click="{() => useAction(action)}">{$l10n(action + "Action")}</button>
 						{/each}
 					</div>
 					<button type="button" class="closeDeviantLove"
-						on:click="fire('closeRequested')">{$l10n("closeDeviantLove")}</button>
-					<button type="button" id="closeHamburgerMenu" on:click="closeHamburgerMenu()"></button>
+						on:click="{() => dispatch('closeRequested')}">{$l10n("closeDeviantLove")}</button>
+					<button type="button" id="closeHamburgerMenu" on:click="{closeHamburgerMenu}"></button>
 				</div>
 			{/if}
 		{/if}
@@ -28,8 +98,8 @@
 	{#if !$mobile}
 		<div id="actionBar">
 			{#each actionList as action}
-				<button type="button" class="action {action}Action" class:current="action == mode"
-					on:click="useAction(action)">{$l10n(action + "Action")}</button>
+				<button type="button" class="action {action}Action" class:current="{action == mode}"
+					on:click="{() => useAction(action)}">{$l10n(action + "Action")}</button>
 			{/each}
 		</div>
 	{/if}
@@ -40,15 +110,15 @@
 					{$l10n(watchError == "notLoggedIn" ? "watchErrorNotLoggedIn" : "watchErrorInternal")}
 				</div>
 			{/if}
-			<DeviantList deviants={deviantList} {watchedArtists} ref:normalList/>
-		{:elseif mode == "find"}
-			<FindModeContent ref:findModeContent {queryResults} {watchedArtists}
-				on:close="set({mode: 'normal'})"/>
-		{:elseif mode == "options"}
-			<button type="button" class="closeButton" on:click="set({mode: 'normal'})">
+			<DeviantList deviants={deviantList} {watchedArtists} bind:this={normalList}/>
+		{:else if mode == "find"}
+			<FindModeContent bind:this={findModeContent} {queryResults} {watchedArtists}
+				on:close="{() => mode = 'normal'}"/>
+		{:else if mode == "options"}
+			<button type="button" class="closeButton" on:click="{() => mode = 'normal'}">
 				{$l10n("close")}</button>
 			<div class="sectionHeader">{$l10n("subaccountsEditorHeader")}</div>
-			<SubaccountsEditor prefsLoaded={true}/>
+			<SubaccountsEditor/>
 			<div class="sectionHeader">{$l10n("syncHeader")}</div>
 			<SyncStatus/>
 		{/if}
@@ -64,65 +134,3 @@
 	<div id="shield"
 		 style="position: absolute; top: 0; bottom: 0; left: 0; right: 0; z-index: 98;"></div>
 {/if}
-<script>
-import DeviantList from "./DeviantList.html";
-import FindModeContent from "./FindModeContent.html";
-import SubaccountsEditor from "../../options/svelte/SubaccountsEditor.html";
-import SyncStatus from "../../options/svelte/SyncStatus.html";
-import squishToFit from "../squishToFit.module.js";
-export default {
-	components: { DeviantList, FindModeContent, SubaccountsEditor, SyncStatus },
-	data() { return {
-		actionList: ["find", "options"],
-	} },
-	actions: { squishToFit },
-	computed: {
-		favesLineParts({totalDeviations, pageType, $l10n}) {
-			return $l10n("headerFavesLine", {num: totalDeviations, pageType}).split("*");
-		},
-		artistsLineParts({deviantList, pageType, $l10n}) {
-			return $l10n("headerArtistsLine", {num: deviantList.length, pageType}).split("*");
-		},
-	},
-	methods: {
-		useAction(action) {
-			if (action != this.get().mode) {
-				this.set({mode: action});
-			} else {
-				this.set({mode: "normal"});
-			}
-			if (this.get().hamburgerMenuOpen) {
-				this.closeHamburgerMenu();
-			}
-		},
-		openHamburgerMenu() {
-			// TODO: Integrate with browser history
-			if (this.get().hamburgerMenuOpen) { return; }
-			this.set({hamburgerMenuOpen: true});
-			var {hamburgerMenu} = this.refs;
-			var animation = hamburgerMenu.animate({
-				transform: [
-					getComputedStyle(hamburgerMenu).getPropertyValue("--starting-transform") || "none",
-					"none"
-				],
-			}, {
-				duration: 400,
-				fill: "backwards",
-			});
-			this.set({hamburgerMenuAnimation: animation});
-			document.body.addEventListener("click", function detectOutsideClick(event) {
-				// TODO: Detect clicks outside, stop propagation, call this.closeHamburgerMenu, and remove this event listener
-			}, {useCapture: true});
-		},
-		closeHamburgerMenu() {
-			var animation = this.get().hamburgerMenuAnimation;
-			// stop if the menu is already closing
-			if (animation.playbackRate == -1) { return; }
-			animation.reverse();
-			animation.onfinish = () => {
-				this.set({hamburgerMenuOpen: false, hamburgerMenuAnimation: null});
-			};
-		}
-	},
-};
-</script>

@@ -6,6 +6,7 @@
 import { writable } from "svelte/store";
 import prefSpec from "./prefSpec.module.js";
 export var stores = {};
+export { stores as default };
 export async function init(prefs = Object.keys(prefSpec)) {
 	var request = {}, wakes = new Map(), sleeps = new Map();
 	for (let key of prefs) {
