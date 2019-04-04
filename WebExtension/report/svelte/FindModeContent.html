@@ -1,7 +1,68 @@
-<form id="findBar" class="textEntryLine" on:submit="handleSubmit(event)">
-	<input type="text" id="query" bind:value="input" autofocus>
+<script>
+import l10n from "../../l10nStore.module.js";
+import { findModeContentHelper as helper } from "../core.module.js";
+import DeviantList from "./DeviantList.html";
+import DeviationList from "./DeviationList.html";
+import Avatar from "./Avatar.html";
+import { afterUpdate, createEventDispatcher } from 'svelte';
+
+const dispatch = createEventDispatcher();
+
+let input = "", submitted;
+let queryResults, oldQueryResults;
+export let watchedArtists;
+let openDeviant;
+
+let deviantList;
+
+// TODO: Make this component reactive to subaccounts changes
+$: queryError = helper.validateQuery(input);
+function handleSubmit() {
+	if (queryError || input == "") { return; }
+	submitted = input;
+	queryResults = helper.submitQuery(submitted);
+	// If results consist of nothing but 1 deviant, open their DeviantEntry
+	if (queryResults.deviants.length == 1 && !queryResults.deviations.length) {
+		openDeviant = queryResults.deviants[0].name;
+	} else {
+		openDeviant = "";
+	}
+}
+afterUpdate(() => {
+	if (queryResults != oldQueryResults) {
+		// Set subaccount notes
+		if (oldQueryResults && oldQueryResults.matchedBySubaccount && deviantList) {
+			for (let deviant of Object.keys(oldQueryResults.matchedBySubaccount)) {
+				let entry = deviantList.registry[deviant];
+				if (!entry) { continue; }
+				entry.$set({note: null});
+			}
+		}
+		if (queryResults.matchedBySubaccount) {
+			for (let [deviant, subaccount] of Object.entries(queryResults.matchedBySubaccount)) {
+				deviantList.registry[deviant].$set(
+					{ note: ["foundDeviantSubaccount", {name: subaccount}] } );
+			}
+		}
+
+		oldQueryResults = queryResults;
+	}
+});
+
+let showAmpersandHint;
+$: {
+	let checkMe = submitted || input;
+	showAmpersandHint = checkMe.indexOf(" ") != -1 && checkMe.indexOf("&") == -1;
+}
+
+$: hasResults = queryResults &&
+	Boolean(queryResults.deviants.length || queryResults.deviations.length);
+</script>
+
+<form id="findBar" class="textEntryLine" on:submit|preventDefault="{handleSubmit}">
+	<input type="text" id="query" bind:value="{input}" autofocus>
 	<button type="submit" id="goFind">{$l10n("findGo")}</button>
-	<button type="button" class="closeButton" on:click="fire('close')">
+	<button type="button" class="closeButton" on:click="{() => dispatch('close')}">
 		{$l10n("close")}</button>
 </form>
 {#if queryError}
@@ -12,7 +73,8 @@
 	{#if queryResults}
 		{#if queryResults.deviants.length}
 			<div class="sectionHeader">{$l10n("foundDeviants", {num: queryResults.deviants.length})}</div>
-			<DeviantList deviants={queryResults.deviants} {watchedArtists} ref:deviantList/>
+			<DeviantList deviants={queryResults.deviants} {watchedArtists} bind:opened={openDeviant}
+				bind:this={deviantList}/>
 		{/if}
 		{#if queryResults.deviations.length}
 			<div class="sectionHeader">
@@ -27,7 +89,7 @@
 					<DeviationList {deviations}/>
 					<div class="deviationResultGroupSidebar">
 						<Avatar {deviant}/>
-						<button type="button" class="viewDeviant" on:click="fire('viewDeviant', deviant.name)">
+						<button type="button" class="viewDeviant" on:click="{() => helper.viewDeviant(deviant.name)}">
 							{deviant.deviations.length}
 						</button>
 					</div>
@@ -44,52 +106,3 @@
 		<div id="ampersandHint" class="notice">{$l10n("findAmpersandHint")}</div>
 	{/if}
 </div>
-<script>
-import DeviantList from "./DeviantList.html";
-import DeviationList from "./DeviationList.html";
-import Avatar from "./Avatar.html";
-export default {
-	components: { DeviantList, DeviationList, Avatar },
-	data() { return {
-		input: "",
-	}; },
-	onupdate({changed, current, previous = {}}) {
-		if (changed.queryResults && this.refs.deviantList) {
-			var currentResults = current.queryResults;
-
-			// Set subaccount notes
-			var entries = this.refs.deviantList.get().registry;
-			if (previous.queryResults) {
-				for (let deviant of Object.keys(previous.queryResults.matchedBySubaccount)) {
-					entries.get(deviant).set({note: null});
-				}
-			}
-			for (let [deviant, subaccount] of Object.entries(currentResults.matchedBySubaccount)) {
-				entries.get(deviant).set({note: ["foundDeviantSubaccount", {name: subaccount}]});
-			}
-
-			// If results consist of nothing but 1 deviant, open their DeviantEntry
-			if (currentResults.deviants.length == 1 && !currentResults.deviations.length) {
-				this.refs.deviantList.showDeviant( currentResults.deviants[0].name );
-			}
-		}
-	},
-	methods: {
-		handleSubmit(event) {
-			event.preventDefault();
-			if (this.get().queryError) { return; }
-			this.set({submitted: this.get().input});
-		},
-	},
-	computed: {
-		showAmpersandHint: function({input, submitted}) {
-			var checkMe = submitted || input;
-			return checkMe.indexOf(" ") != -1 && checkMe.indexOf("&") == -1;
-		},
-		hasResults: function({queryResults}) {
-			if (!queryResults) { return false; }
-			return Boolean(queryResults.deviants.length || queryResults.deviations.length);
-		},
-	},
-}
-</script>

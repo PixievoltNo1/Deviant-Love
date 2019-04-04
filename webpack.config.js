@@ -40,8 +40,7 @@ module.exports = function(env = {}) { return {
 	},
 	plugins: [
 		new webpack.optimize.ModuleConcatenationPlugin(),
-		// Disabled until all Svelte components are upgraded
-		// new webpack.NoEmitOnErrorsPlugin(),
+		new webpack.NoEmitOnErrorsPlugin(),
 		// Workaround for above Firefox/Chrome issue
 		...( !(env.release) ? [
 			new webpack.SourceMapDevToolPlugin({

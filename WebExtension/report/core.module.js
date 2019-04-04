@@ -21,7 +21,6 @@ import * as env from "./environment.module.js";
 export var showDeviant;
 import PreparationScreen from "./svelte/PreparationScreen.html";
 import MainScreen from "./svelte/MainScreen.html";
-export var initMiniSubaccountsEditor;
 import * as subaccountsEditorSettings from "../options/subaccountsEditorCore.module.js";
 import lookUpDeviant from "./lookUpDeviant.module.js";
 import { init as initL10n } from "../l10nStore.module.js";
@@ -147,6 +146,7 @@ function restore(scanData, love) {
 		report(scanData, ui, love);
 	});
 }
+export var findModeContentHelper, miniSubaccountsEditorHelper;
 function report(results, ui, love) {
 	var {deviants, totalDeviations, watchedArtists, watchError} = results;
 	deviants.setSubaccounts( readStore(prefs.stores.subaccounts) );
@@ -159,71 +159,47 @@ function report(results, ui, love) {
 			pageType: love.pageType,
 		}
 	});
-	screen.$on("changeScreen", ({ details: {from, to} }) => {
+	
+	// Handle requests for a particular deviant that were made elsewhere (e.g. context menu)
+	showDeviant = function(deviantName) {
+		screen.$set({mode: "normal", requestedDeviant: deviantName});
+	}
+	if (ui.firstDeviant) {
+		showDeviant(ui.firstDeviant);
+	}
+	
+	screen.$on("changeMode", ({ detail: {from, to} }) => {
 		if (from == "options") {
 			deviants.setSubaccounts( readStore(prefs.stores.subaccounts) );
 			screen.$set({deviantList: deviants.list});
 		}
 	});
-	/*
-	screen.on("update", ({changed, current}) => {
-		if (changed.mode && current.mode == "find") {
-			var {findModeContent} = screen.refs;
-			findModeContent.on("viewDeviant", showDeviant);
-			findModeContent.on("state", ({changed, current, previous}) => {
-				if (changed.input) {
-					if (current.input == "") {
-						findModeContent.set({queryError: false});
-					} else {
-						findModeContent.set( {queryError: queryTroubleCheck(current.input)} );
-					}
-				}
-				if (changed.submitted) {
-					var queryResults = findStuff(current.submitted, deviants);
-					// TODO: Once findModeContent can react to subaccounts changes, set this on screen instead
-					findModeContent.set({queryResults});
-				}
-			});
-		}
-	});
-	*/
 	screen.$on("closeRequested", env.closeDeviantLove);
-	/*
-	initMiniSubaccountsEditor = (editor) => {
-		var {owner} = editor.get();
-		var {subaccounts} = store.get();
-		function setAccounts() {
-			var owned = subaccounts[owner] || [];
-			editor.set({ accounts: owned.map( (accountName) => {
-				return deviants.baseMap.get(accountName) || new Deviant(accountName);
-			} ) });
-		}
-		setAccounts();
-		editor.on("edited", () => {
-			setAccounts();
-			deviants.setSubaccounts(subaccounts);
-			screen.set({deviantList: deviants.list});
-		});
+	findModeContentHelper = {
+		viewDeviant: showDeviant,
+		validateQuery: queryTroubleCheck,
+		submitQuery(query) {
+			return findStuff(query, deviants);
+		},
 	};
-	store.on("update", ({changed}) => {
-		if (changed.subaccounts && screen.get().mode == "find") {
-			screen.set({mode: "normal"});
-			screen.refs.normalList.showDeviant(owner);
-			screen.refs.normalList.get().registry.get(owner).set({subaccountsOpen: true});
-			document.getElementById("deviant_" + owner).scrollIntoView();
+	miniSubaccountsEditorHelper = {
+		getAccountObjects(accounts = []) {
+			return accounts.map( (accountName) => {
+				return deviants.baseMap.get(accountName) || new Deviant(accountName);
+			} );
+		},
+	};
+	var subaccountsSubscriberFirstRun = true;
+	prefs.stores.subaccounts.subscribe( (subaccounts) => {
+		if (subaccountsSubscriberFirstRun) {
+			subaccountsSubscriberFirstRun = false;
+			return;
 		}
-	});
-	*/
-
-	// Handle requests for a particular deviant that were made elsewhere (e.g. context menu)
-	showDeviant = function(deviantName) {
-		screen.mode = "normal";
-		screen.normalList.showDeviant(deviantName);
-	}
-	if (ui.firstDeviant) {
-		showDeviant(ui.firstDeviant);
-	}
-
+		if (screen.mode != "options") {
+			deviants.setSubaccounts(subaccounts);
+			screen.$set({deviantList: deviants.list});
+		}
+	} );
 	env.events.on("visibilityChange", (visible, delay) => {
 		if (visible) {
 			delay( nextTip() );

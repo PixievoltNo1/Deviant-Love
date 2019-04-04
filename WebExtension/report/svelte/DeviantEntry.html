@@ -4,7 +4,7 @@ import { mobile, usingTouch } from "../core.module.js";
 import prefStores from "../../prefStores.module.js";
 import Avatar from "./Avatar.html";
 import DeviationList from "./DeviationList.html";
-// import MiniSubaccountsEditor from "./MiniSubaccountsEditor.html";
+import MiniSubaccountsEditor from "./MiniSubaccountsEditor.html";
 import anime from "animejs";
 import { createEventDispatcher, tick } from 'svelte';
 
@@ -65,7 +65,7 @@ export function close(transition) {
 	}
 }
 function toggleSubaccounts() {
-	if (subaccountsOpen) {
+	if (!subaccountsOpen) {
 		subaccountsOpen = true;
 		dispatch("openMe");
 	} else {
@@ -80,7 +80,7 @@ registry[deviant.name] = {
 	open,
 	close,
 	$set(data) {
-		({subaccountsOpen} = data);
+		({subaccountsOpen, note} = data);
 	},
 }
 onDestroy( () => {

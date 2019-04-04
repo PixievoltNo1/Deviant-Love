@@ -1,4 +1,26 @@
-<div class="miniSubaccountsEditor" ref:root>
+<script>
+import l10n from "../../l10nStore.module.js";
+import prefStores from "../../prefStores.module.js";
+import { miniSubaccountsEditorHelper as helper } from "../core.module.js";
+import subaccountsEditorCore from "../../options/subaccountsEditorCore.module.js";
+import Avatar from "./Avatar.html";
+
+var {subaccounts} = prefStores;
+var {edit, busy, warnings, error} = subaccountsEditorCore();
+export let owner;
+var adding = "";
+
+$: accounts = helper.getAccountObjects( $subaccounts[owner] );
+
+function add() {
+	edit("add", { owner, adding, success: () => { adding = ""; } });
+}
+function remove(removing) {
+	edit("remove", {owner, removing});
+}
+</script>
+
+<div class="miniSubaccountsEditor">
 	{#each accounts as account (account.name)}
 		<div class="entry">
 			<Avatar deviant={account} />
@@ -6,7 +28,7 @@
 			<div class="actions">
 				<a class="deviantLink profile" href="{account.baseURL}">{$l10n("profile")}</a>
 				<a class="deviantLink gallery" href="{account.baseURL}gallery/">{$l10n("gallery")}</a>
-				<button type="button" class="removeSubaccount" on:click="remove()">
+				<button type="button" class="removeSubaccount" on:click="{() => remove(account.name)}">
 					{$l10n("subaccountsRemove")}
 				</button>
 			</div>
@@ -14,54 +36,21 @@
 	{:else}
 		<div class="notice help">{$l10n("subaccountsEditorMiniExplain")}</div>
 	{/each}
-	<form class="addSubaccount textEntryLine" on:submit="add()">
-		<input type="text" bind:value="addMe" required placeholder="{$l10n('subaccountsAddNamePlaceholder')}">
-		<button type="submit" class="confirmAdd" on:click="fire('add')">
+	<form class="addSubaccount textEntryLine" on:submit|preventDefault="{add}">
+		<input type="text" bind:value="{adding}" required
+			placeholder="{$l10n('subaccountsAddNamePlaceholder')}">
+		<button type="submit" class="confirmAdd">
 			{$l10n("subaccountsAddConfirm")}
 		</button>
 	</form>
-	{#if warnings.length}
+	{#if $warnings.length}
 		<div class="notice warning">
-			{#each warnings as [msg, parts]}
+			{#each $warnings as [msg, parts]}
 				<p>{$l10n("subaccountsWarning" + msg, parts)}</p>
 			{/each}
 		</div>
 	{/if}
-	{#if error}
-		<div class="notice error">{$l10n("subaccountsError" + error[0], error[1])}</div>
+	{#if $error}
+		<div class="notice error">{$l10n("subaccountsError" + $error[0], $error[1])}</div>
 	{/if}
 </div>
-<script>
-import Avatar from "./Avatar.html";
-import { initMiniSubaccountsEditor } from "../core.module.js";
-import edit from "../../options/subaccountsEditMethod.module.js";
-export default {
-	components: { Avatar },
-	data() { return {
-		addMe: "",
-		accounts: [],
-		warnings: [],
-	}; },
-	methods: {
-		add() {
-			var {owner, addMe} = this.get();
-			this.edit("add", {owner, adding: addMe, success: () => {
-				this.set({addMe: ""});
-				this.fire("edited");
-			}});
-		},
-		remove(removing) {
-			this.edit("remove", {owner: this.get().owner, removing}).then( () => {
-				this.fire("edited");
-			} );
-		},
-		edit,
-	},
-	oncreate() {
-		initMiniSubaccountsEditor(this);
-		this.refs.root.addEventListener("submit", (event) => {
-			event.preventDefault();
-		});
-	},
-};
-</script>

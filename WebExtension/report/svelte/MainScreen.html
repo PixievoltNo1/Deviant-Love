@@ -2,7 +2,7 @@
 import l10n from "../../l10nStore.module.js";
 import { mobile, tip } from "../core.module.js";
 import DeviantList from "./DeviantList.html";
-// import FindModeContent from "./FindModeContent.html";
+import FindModeContent from "./FindModeContent.html";
 import SubaccountsEditor from "../../options/svelte/SubaccountsEditor.html";
 import SyncStatus from "../../options/svelte/SyncStatus.html";
 import squishToFit from "../squishToFit.module.js";
@@ -10,10 +10,8 @@ import { createEventDispatcher, tick } from 'svelte';
 
 const dispatch = createEventDispatcher();
 
-export let normalList, findModeContent;
-
 export let totalDeviations, pageType, deviantList, watchError, watchedArtists;
-export let queryResults;
+export let requestedDeviant;
 $: favesLineParts = $l10n("headerFavesLine", {num: totalDeviations, pageType}).split("*");
 $: artistsLineParts = $l10n("headerArtistsLine", {num: deviantList.length, pageType}).split("*");
 
@@ -110,10 +108,9 @@ function closeHamburgerMenu() {
 					{$l10n(watchError == "notLoggedIn" ? "watchErrorNotLoggedIn" : "watchErrorInternal")}
 				</div>
 			{/if}
-			<DeviantList deviants={deviantList} {watchedArtists} bind:this={normalList}/>
+			<DeviantList deviants={deviantList} {watchedArtists} bind:request={requestedDeviant}/>
 		{:else if mode == "find"}
-			<FindModeContent bind:this={findModeContent} {queryResults} {watchedArtists}
-				on:close="{() => mode = 'normal'}"/>
+			<FindModeContent {watchedArtists} on:close="{() => mode = 'normal'}"/>
 		{:else if mode == "options"}
 			<button type="button" class="closeButton" on:click="{() => mode = 'normal'}">
 				{$l10n("close")}</button>

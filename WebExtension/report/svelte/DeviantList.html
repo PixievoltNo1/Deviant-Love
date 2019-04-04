@@ -4,20 +4,30 @@ import { visible } from "../core.module.js";
 import { afterUpdate } from 'svelte';
 
 export let deviants;
-export let deviant;
 var oldDeviants;
 export let watchedArtists;
 export let opened;
 var oldOpened;
+export let request;
 export const registry = {};
 
 afterUpdate( () => {
+	if (request) {
+		if (!registry[request]) {
+			// TODO: Handle this error condition
+		} else {
+			opened = request;
+		}
+		request = "";
+	}
 	if (opened != oldOpened) {
 		let showTransition = (deviants == oldDeviants) && $visible;
 		if (oldOpened) {
 			registry[oldOpened].close(showTransition);
 		}
-		registry[opened].open(showTransition);
+		if (opened) {
+			registry[opened].open(showTransition);
+		}
 		oldOpened = opened;
 	}
 	oldDeviants = deviants;
