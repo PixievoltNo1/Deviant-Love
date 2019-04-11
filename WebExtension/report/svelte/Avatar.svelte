@@ -1,5 +1,5 @@
 <script>
-import lookUpDeviant from "../lookUpDeviant.module.js"
+import lookUpDeviant from "../lookUpDeviant.esm.js"
 import { onMount } from 'svelte';
 
 export let deviant;

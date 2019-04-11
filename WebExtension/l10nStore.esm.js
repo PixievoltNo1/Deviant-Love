@@ -1,9 +1,9 @@
 /*
 	This file is part of Deviant Love.
 	Copyright Pikadude No. 1
-	Check core.module.js for the complete legal stuff.
+	Check core.esm.js for the complete legal stuff.
 */
-import { getL10nMsg } from "./apiAdapter.module.js";
+import { getL10nMsg } from "./apiAdapter.esm.js";
 import "fluent-intl-polyfill";
 import { FluentBundle } from "fluent";
 import { writable } from "svelte/store";

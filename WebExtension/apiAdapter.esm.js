@@ -1,7 +1,7 @@
 /*
 	This file is part of Deviant Love.
 	Copyright Pikadude No. 1
-	Check core.module.js for the complete legal stuff.
+	Check core.esm.js for the complete legal stuff.
 */
 export function getL10nMsg(msgName, replacements) {
 	return chrome.i18n.getMessage(msgName, replacements);

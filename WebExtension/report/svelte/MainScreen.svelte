@@ -1,11 +1,11 @@
 <script>
-import l10n from "../../l10nStore.module.js";
-import { mobile, tip } from "../core.module.js";
-import DeviantList from "./DeviantList.html";
-import FindModeContent from "./FindModeContent.html";
-import SubaccountsEditor from "../../options/svelte/SubaccountsEditor.html";
-import SyncStatus from "../../options/svelte/SyncStatus.html";
-import squishToFit from "../squishToFit.module.js";
+import l10n from "../../l10nStore.esm.js";
+import { mobile, tip } from "../core.esm.js";
+import DeviantList from "./DeviantList.svelte";
+import FindModeContent from "./FindModeContent.svelte";
+import SubaccountsEditor from "../../options/svelte/SubaccountsEditor.svelte";
+import SyncStatus from "../../options/svelte/SyncStatus.svelte";
+import squishToFit from "../squishToFit.esm.js";
 import { createEventDispatcher, tick } from 'svelte';
 
 const dispatch = createEventDispatcher();

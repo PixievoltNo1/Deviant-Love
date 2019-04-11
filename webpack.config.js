@@ -5,8 +5,8 @@ var fileUrl = require('file-url');
 module.exports = function(env = {}) { return {
 	mode: "none",
 	entry: {
-		core: './WebExtension/report/core.module.js',
-		options: './WebExtension/options/options.module.js',
+		core: './WebExtension/report/core.esm.js',
+		options: './WebExtension/options/options.esm.js',
 	},
 	output: {
 		path: path.resolve(__dirname, 'WebExtension/build'),
@@ -17,7 +17,7 @@ module.exports = function(env = {}) { return {
 	module: {
 		rules: [
 			{
-				test: /\.html$/,
+				test: /\.svelte$/,
 				use: {
 					loader: "svelte-loader",
 				}

@@ -1,10 +1,10 @@
 /*
 	This file is part of Deviant Love.
 	Copyright Pikadude No. 1
-	Check core.module.js for the complete legal stuff.
+	Check core.esm.js for the complete legal stuff.
 */
 import { writable } from "svelte/store";
-import prefSpec from "./prefSpec.module.js";
+import prefSpec from "./prefSpec.esm.js";
 export var stores = {};
 export { stores as default };
 export async function init(prefs = Object.keys(prefSpec)) {

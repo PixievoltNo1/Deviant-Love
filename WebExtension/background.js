@@ -1,7 +1,7 @@
 /*
 	This file is part of Deviant Love.
 	Copyright Pikadude No. 1
-	Check core.module.js for the complete legal stuff.
+	Check core.esm.js for the complete legal stuff.
 */
 "use strict";
 
@@ -39,7 +39,7 @@ chrome.runtime.onMessage.addListener( function(thing, buddy, callback) {switch (
 	case "checkSidebarSupport":
 		callback( Boolean(browser && browser.sidebarAction && browser.sidebarAction.open) );
 	break;
-	// For communication between panelManager.js and environment.module.js
+	// For communication between panelManager.js and environment.esm.js
 	case "echo":
 		thing.action = thing.echoAction;
 		chrome.tabs.sendMessage(buddy.tab.id, thing);

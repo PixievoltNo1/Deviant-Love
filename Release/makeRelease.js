@@ -8,7 +8,7 @@ var {spawnSync} = require("child_process");
 spawnSync("webpack", ["--env.release"], {stdio: "inherit", shell: true});
 console.log();
 
-var globalIgnore = ["**/*.map", "**/*.module.js", "**/svelte/**"];
+var globalIgnore = ["**/*.map", "**/*.esm.js", "**/svelte/**"];
 var webextDir = path.resolve(process.cwd(), "WebExtension");
 var manifest = JSON.parse( fs.readFileSync("WebExtension/manifest.json") );
 var previewVersion = false;

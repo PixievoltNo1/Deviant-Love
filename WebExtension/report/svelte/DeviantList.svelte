@@ -1,6 +1,6 @@
 <script>
-import DeviantEntry from "./DeviantEntry.html";
-import { visible } from "../core.module.js";
+import DeviantEntry from "./DeviantEntry.svelte";
+import { visible } from "../core.esm.js";
 import { afterUpdate } from 'svelte';
 
 export let deviants;

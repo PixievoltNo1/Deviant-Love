@@ -1,10 +1,10 @@
 <script>
-import l10n from "../../l10nStore.module.js";
-import { mobile, usingTouch } from "../core.module.js";
-import prefStores from "../../prefStores.module.js";
-import Avatar from "./Avatar.html";
-import DeviationList from "./DeviationList.html";
-import MiniSubaccountsEditor from "./MiniSubaccountsEditor.html";
+import l10n from "../../l10nStore.esm.js";
+import { mobile, usingTouch } from "../core.esm.js";
+import prefStores from "../../prefStores.esm.js";
+import Avatar from "./Avatar.svelte";
+import DeviationList from "./DeviationList.svelte";
+import MiniSubaccountsEditor from "./MiniSubaccountsEditor.svelte";
 import anime from "animejs";
 import { createEventDispatcher, tick } from 'svelte';
 

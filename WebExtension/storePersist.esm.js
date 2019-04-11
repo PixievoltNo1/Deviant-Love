@@ -1,4 +1,4 @@
-import prefSpec from './prefSpec.module.js';
+import prefSpec from './prefSpec.esm.js';
 export default async function(store, prefs = Object.keys(prefSpec)) {
 	var request = {}, wakes = new Map(), sleeps = new Map();
 	for (let key of prefs) {

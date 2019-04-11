@@ -16,14 +16,14 @@
 	along with Deviant Love.  If not, see <http://www.gnu.org/licenses/>.
 */
 import { writable, get as readStore } from "svelte/store";
-import * as prefs from "../prefStores.module.js";
-import * as env from "./environment.module.js";
+import * as prefs from "../prefStores.esm.js";
+import * as env from "./environment.esm.js";
 export var showDeviant;
-import PreparationScreen from "./svelte/PreparationScreen.html";
-import MainScreen from "./svelte/MainScreen.html";
-import * as subaccountsEditorSettings from "../options/subaccountsEditorCore.module.js";
-import lookUpDeviant from "./lookUpDeviant.module.js";
-import { init as initL10n } from "../l10nStore.module.js";
+import PreparationScreen from "./svelte/PreparationScreen.svelte";
+import MainScreen from "./svelte/MainScreen.svelte";
+import * as subaccountsEditorSettings from "../options/subaccountsEditorCore.esm.js";
+import lookUpDeviant from "./lookUpDeviant.esm.js";
+import { init as initL10n } from "../l10nStore.esm.js";
 
 export var visible, mobile;
 export async function start({love, restoreData, firstDeviant, mobile: initialMobile}) {

@@ -1,9 +1,9 @@
 <script>
-import l10n from "../../l10nStore.module.js";
-import { findModeContentHelper as helper } from "../core.module.js";
-import DeviantList from "./DeviantList.html";
-import DeviationList from "./DeviationList.html";
-import Avatar from "./Avatar.html";
+import l10n from "../../l10nStore.esm.js";
+import { findModeContentHelper as helper } from "../core.esm.js";
+import DeviantList from "./DeviantList.svelte";
+import DeviationList from "./DeviationList.svelte";
+import Avatar from "./Avatar.svelte";
 import { afterUpdate, createEventDispatcher } from 'svelte';
 
 const dispatch = createEventDispatcher();

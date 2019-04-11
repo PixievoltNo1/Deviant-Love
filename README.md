@@ -10,7 +10,7 @@ After you obtain this repo's files for the first time, or whenever I update pack
 
 After setup, if you just want to build the files needed to try Deviant Love, run `npm run build`.
 
-If you want to help develop Deviant Love, start `npm run watch` - it'll watch the [ES6 modules](https://hacks.mozilla.org/2015/08/es6-in-depth-modules/) (\*.module.js) and [Svelte](https://svelte.technology/) templates (svelte/\*.html) that this project uses, and rebuild the appropriate files when they change.
+If you want to help develop Deviant Love, start `npm run watch` - it'll watch the [ES6 modules](https://hacks.mozilla.org/2015/08/es6-in-depth-modules/) (.esm.js) and [Svelte](https://svelte.technology/) templates (.svelte) that this project uses, and rebuild the appropriate files when they change.
 
 If you'd like to tinker with the build process itself, check with [Webpack](https://webpack.js.org/) for the docs on webpack.config.js.
 

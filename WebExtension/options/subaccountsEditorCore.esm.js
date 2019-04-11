@@ -1,5 +1,5 @@
 import { writable, get as readStore } from "svelte/store";
-import lookUpDeviant from "../report/lookUpDeviant.module.js";
+import lookUpDeviant from "../report/lookUpDeviant.esm.js";
 export default function() {
 	var busy = writable(false), error = writable(null), warnings = writable([]);
 

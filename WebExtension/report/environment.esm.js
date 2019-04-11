@@ -1,11 +1,11 @@
 /*
 	This file is part of Deviant Love.
 	Copyright Pikadude No. 1
-	Check core.module.js for the complete legal stuff.
+	Check core.esm.js for the complete legal stuff.
 */
-import { start, mobile, showDeviant } from "./core.module.js";
+import { start, mobile, showDeviant } from "./core.esm.js";
 import NanoEvents from "nanoevents";
-export * from "../apiAdapter.module.js";
+export * from "../apiAdapter.esm.js";
 
 export var events = new NanoEvents();
 chrome.runtime.sendMessage({action: "echoWithCallback", echoAction: "getStartData"},
