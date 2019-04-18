@@ -4,32 +4,47 @@ import { findModeContentHelper as helper } from "../core.esm.js";
 import DeviantList from "./DeviantList.svelte";
 import DeviationList from "./DeviationList.svelte";
 import Avatar from "./Avatar.svelte";
-import { afterUpdate, createEventDispatcher } from 'svelte';
+import { beforeUpdate, afterUpdate, createEventDispatcher } from 'svelte';
 
 const dispatch = createEventDispatcher();
 
-let input = "", submitted;
-let queryResults, oldQueryResults;
+let queryResults = helper.resultsStore;
+let oldQueryResults;
+let input = $queryResults ? $queryResults.for : "";
+let submitted = input;
 export let watchedArtists;
 let openDeviant;
 
 let deviantList;
 
-// TODO: Make this component reactive to subaccounts changes
-$: queryError = helper.validateQuery(input);
+$: queryError = queryTroubleCheck(input);
+function queryTroubleCheck(query) {
+	var invalidChar = query.search(/[^a-zA-Z0-9 \_\'\"\+\.\,\$\?\:\-\!\=\~\`\@\#\%\^\*\[\]\(\)\/\{\}\\\|\&]/);
+	if (invalidChar != -1) {
+		return { errMsg: "findErrorForbiddenCharacter", parts: {char: query.charAt(invalidChar)} };
+	}
+	return false;
+}
 function handleSubmit() {
 	if (queryError || input == "") { return; }
 	submitted = input;
-	queryResults = helper.submitQuery(submitted);
-	// If results consist of nothing but 1 deviant, open their DeviantEntry
-	if (queryResults.deviants.length == 1 && !queryResults.deviations.length) {
-		openDeviant = queryResults.deviants[0].name;
-	} else {
-		openDeviant = "";
-	}
+	helper.submitQuery(submitted);
 }
+beforeUpdate(() => {
+	if ($queryResults != oldQueryResults) {
+		// If the new results are for a new query
+		if ($queryResults.for != (oldQueryResults && oldQueryResults.for)) {
+			// If results consist of nothing but 1 deviant, open their DeviantEntry
+			if ($queryResults.deviants.length == 1 && !$queryResults.deviations.length) {
+				openDeviant = $queryResults.deviants[0].name;
+			} else { // Otherwise, just reset openDeviant
+				openDeviant = "";
+			}
+		}
+	}
+});
 afterUpdate(() => {
-	if (queryResults != oldQueryResults) {
+	if ($queryResults != oldQueryResults) {
 		// Set subaccount notes
 		if (oldQueryResults && oldQueryResults.matchedBySubaccount && deviantList) {
 			for (let deviant of Object.keys(oldQueryResults.matchedBySubaccount)) {
@@ -38,14 +53,14 @@ afterUpdate(() => {
 				entry.$set({note: null});
 			}
 		}
-		if (queryResults.matchedBySubaccount) {
-			for (let [deviant, subaccount] of Object.entries(queryResults.matchedBySubaccount)) {
+		if ($queryResults.matchedBySubaccount) {
+			for (let [deviant, subaccount] of Object.entries($queryResults.matchedBySubaccount)) {
 				deviantList.registry[deviant].$set(
 					{ note: ["foundDeviantSubaccount", {name: subaccount}] } );
 			}
 		}
 
-		oldQueryResults = queryResults;
+		oldQueryResults = $queryResults;
 	}
 });
 
@@ -55,8 +70,8 @@ $: {
 	showAmpersandHint = checkMe.indexOf(" ") != -1 && checkMe.indexOf("&") == -1;
 }
 
-$: hasResults = queryResults &&
-	Boolean(queryResults.deviants.length || queryResults.deviations.length);
+$: hasResults = $queryResults &&
+	Boolean($queryResults.deviants.length || $queryResults.deviations.length);
 </script>
 
 <form id="findBar" class="textEntryLine" on:submit|preventDefault="{handleSubmit}">
@@ -70,18 +85,18 @@ $: hasResults = queryResults &&
 {/if}
 <div id="resultsDisplay" style="overflow-y: auto; overflow-x: hidden; position: relative;"
 	class:hasResults>
-	{#if queryResults}
-		{#if queryResults.deviants.length}
-			<div class="sectionHeader">{$l10n("foundDeviants", {num: queryResults.deviants.length})}</div>
-			<DeviantList deviants={queryResults.deviants} {watchedArtists} bind:opened={openDeviant}
+	{#if $queryResults}
+		{#if $queryResults.deviants.length}
+			<div class="sectionHeader">{$l10n("foundDeviants", {num: $queryResults.deviants.length})}</div>
+			<DeviantList deviants={$queryResults.deviants} {watchedArtists} bind:opened={openDeviant}
 				bind:this={deviantList}/>
 		{/if}
-		{#if queryResults.deviations.length}
+		{#if $queryResults.deviations.length}
 			<div class="sectionHeader">
 				{$l10n("foundDeviations",
-					{deviations: queryResults.deviationTotal, artists: queryResults.deviations.length})}
+					{deviations: $queryResults.deviationTotal, artists: $queryResults.deviations.length})}
 			</div>
-			{#each queryResults.deviations as {deviant, deviations} (deviant.name)}
+			{#each $queryResults.deviations as {deviant, deviations} (deviant.name)}
 				<div class="deviationResultGroup">
 					<div class="deviationResultGroupHeader">
 						{$l10n("foundDeviationsArtistHeader", {name: deviant.name})}

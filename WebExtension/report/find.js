@@ -3,10 +3,21 @@
 	Copyright Pikadude No. 1
 	Check core.esm.js for the complete legal stuff.
 */
-function findStuff(queryText, deviants) {
-	if (queryTroubleCheck(queryText) != false) { return };
+importScripts("deviantCollection.js");
+var deviants;
+onmessage = ({ data: {deviantsMap, subaccounts, query} }) => {
+	if (deviantsMap) {
+		deviants = new DeviantCollection(deviantsMap);
+	}
+	if (subaccounts) {
+		deviants.setSubaccounts(subaccounts);
+	}
+	if (query) {
+		postMessage(findStuff(query));
+	}
+}
+function findStuff(queryText) {
 	var queryChunks = queryText.split("&");
-
 	queryChunks = queryChunks.map( function(chunk) {return chunk.trim().toLowerCase()} );
 	var checkDeviants = queryChunks.every( function(chunk) {
 		return !(/[^a-zA-Z0-9\-]/).test(chunk);
@@ -16,43 +27,37 @@ function findStuff(queryText, deviants) {
 	var matchedBySubaccount = {};
 	var deviationMatches = [];
 	var deviationTotal = 0;
-	deviants.list.forEach( function(deviant) {
-		if (checkDeviants && isMatch(deviant.name)) {
-			deviantMatches.push(deviant);
-		} else if (checkDeviants && deviant.name in deviants.subaccounts) {
-			deviants.subaccounts[deviant.name].some( function(subaccountName) {
+	for (let deviant of deviants.list) {
+		let {name} = deviant;
+		if (checkDeviants && isMatch(name)) {
+			deviantMatches.push(name);
+		} else if (checkDeviants && name in deviants.subaccounts) {
+			deviants.subaccounts[name].some( function(subaccountName) {
 				if (isMatch(subaccountName)) {
-					deviantMatches.push(deviant);
-					matchedBySubaccount[deviant.name] = subaccountName;
+					deviantMatches.push(name);
+					matchedBySubaccount[name] = subaccountName;
 					return true;
 				}
 			} );
 		}
-		var deviantDeviationMatches = [];
-		deviant.deviations.forEach( function(deviation) {
+		let deviantDeviationMatches = [];
+		for (let deviation of deviant.deviations) {
 			if (isMatch(deviation.name)) {
 				++deviationTotal;
 				deviantDeviationMatches.push(deviation);
 			}
-		} );
-		if (deviantDeviationMatches.length > 0) {
-			deviationMatches.push({"deviant": deviant, "deviations": deviantDeviationMatches});
 		}
-	} );
+		if (deviantDeviationMatches.length > 0) {
+			deviationMatches.push({"deviant": name, "deviations": deviantDeviationMatches});
+		}
+	}
 	function isMatch(needle) {
 		needle = needle.toLowerCase();
 		return queryChunks.every( function(chunk) {
 			return needle.indexOf(chunk) != -1;
 		} );
 	}
-	return {deviants: deviantMatches, matchedBySubaccount,
+	return { for: queryText,
+		deviants: deviantMatches, matchedBySubaccount,
 		deviations: deviationMatches, deviationTotal};
-}
-function queryTroubleCheck(query) {
-	var invalidChar = query.search(/[^a-zA-Z0-9 \_\'\"\+\.\,\$\?\:\-\!\=\~\`\@\#\%\^\*\[\]\(\)\/\{\}\\\|\&]/);
-	if (invalidChar != -1) {
-		return { errMsg: "findErrorForbiddenCharacter", parts: {char: query.charAt(invalidChar)} };
-	}
-
-	return false;
 }

@@ -159,7 +159,7 @@ function report(results, ui, love) {
 			pageType: love.pageType,
 		}
 	});
-	
+
 	// Handle requests for a particular deviant that were made elsewhere (e.g. context menu)
 	showDeviant = function(deviantName) {
 		screen.$set({mode: "normal", requestedDeviant: deviantName});
@@ -167,8 +167,28 @@ function report(results, ui, love) {
 	if (ui.firstDeviant) {
 		showDeviant(ui.firstDeviant);
 	}
-	
+
+	var findWorker;
 	screen.$on("changeMode", ({ detail: {from, to} }) => {
+		if (to == "find") {
+			findWorker = new Worker("find.js");
+			findWorker.postMessage({
+				deviantsMap: deviants.baseMap,
+				subaccounts: deviants.subaccounts,
+			});
+			findWorker.onmessage = ({data}) => {
+				data.deviants = data.deviants.map( (deviant) => {
+					return deviants.effectiveMap.get(deviant);
+				} );
+				for (let resultSet of data.deviations) {
+					resultSet.deviant = deviants.effectiveMap.get(resultSet.deviant);
+				}
+				findModeContentHelper.resultsStore.set(data);
+			};
+		}
+		if (from == "find") {
+			findWorker.terminate();
+		}
 		if (from == "options") {
 			deviants.setSubaccounts( readStore(prefs.stores.subaccounts) );
 			screen.$set({deviantList: deviants.list});
@@ -177,10 +197,10 @@ function report(results, ui, love) {
 	screen.$on("closeRequested", env.closeDeviantLove);
 	findModeContentHelper = {
 		viewDeviant: showDeviant,
-		validateQuery: queryTroubleCheck,
 		submitQuery(query) {
-			return findStuff(query, deviants);
+			findWorker.postMessage({query});
 		},
+		resultsStore: writable(null),
 	};
 	miniSubaccountsEditorHelper = {
 		getAccountObjects(accounts = []) {
@@ -198,6 +218,9 @@ function report(results, ui, love) {
 		if (screen.mode != "options") {
 			deviants.setSubaccounts(subaccounts);
 			screen.$set({deviantList: deviants.list});
+		}
+		if (screen.mode == "find") {
+			findWorker.postMessage({subaccounts: deviants.subaccounts});
 		}
 	} );
 	env.events.on("visibilityChange", (visible, delay) => {
