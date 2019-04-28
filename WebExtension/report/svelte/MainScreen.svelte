@@ -3,6 +3,7 @@ import l10n from "../../l10nStore.esm.js";
 import { mobile, tip } from "../core.esm.js";
 import DeviantList from "./DeviantList.svelte";
 import FindModeContent from "./FindModeContent.svelte";
+import GeneralOptions from "../../options/svelte/GeneralOptions.svelte";
 import SubaccountsEditor from "../../options/svelte/SubaccountsEditor.svelte";
 import SyncStatus from "../../options/svelte/SyncStatus.svelte";
 import squishToFit from "../squishToFit.esm.js";
@@ -114,6 +115,8 @@ function closeHamburgerMenu() {
 		{:else if mode == "options"}
 			<button type="button" class="closeButton" on:click="{() => mode = 'normal'}">
 				{$l10n("close")}</button>
+			<div class="sectionHeader">{$l10n("generalOptionsHeader")}</div>
+			<GeneralOptions/>
 			<div class="sectionHeader">{$l10n("subaccountsEditorHeader")}</div>
 			<SubaccountsEditor/>
 			<div class="sectionHeader">{$l10n("syncHeader")}</div>

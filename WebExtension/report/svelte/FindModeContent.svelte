@@ -1,5 +1,6 @@
 <script>
 import l10n from "../../l10nStore.esm.js";
+import prefStores from "../../prefStores.esm.js";
 import { findModeContentHelper as helper } from "../core.esm.js";
 import DeviantList from "./DeviantList.svelte";
 import DeviationList from "./DeviationList.svelte";
@@ -11,27 +12,33 @@ const dispatch = createEventDispatcher();
 let queryResults = helper.resultsStore;
 let oldQueryResults;
 let input = $queryResults ? $queryResults.for : "";
-let submitted = input;
+let queryError;
 export let watchedArtists;
 let openDeviant;
+let {findAsYouType} = prefStores;
 
 let deviantList;
 
-$: queryError = queryTroubleCheck(input);
-function queryTroubleCheck(query) {
+$: handleInput(input);
+function handleInput(query) {
 	var invalidChar = query.search(/[^a-zA-Z0-9 \_\'\"\+\.\,\$\?\:\-\!\=\~\`\@\#\%\^\*\[\]\(\)\/\{\}\\\|\&]/);
 	if (invalidChar != -1) {
-		return { errMsg: "findErrorForbiddenCharacter", parts: {char: query.charAt(invalidChar)} };
+		queryError = { errMsg: "findErrorForbiddenCharacter", parts: {char: query.charAt(invalidChar)} };
+		return;
 	}
-	return false;
+	queryError = undefined;
+	if ($findAsYouType && query.length != 1) { handleSubmit(); }
 }
 function handleSubmit() {
-	if (queryError || input == "") { return; }
-	submitted = input;
-	helper.submitQuery(submitted);
+	if (queryError) { return; }
+	if (input == "") {
+		$queryResults = null;
+		return;
+	}
+	helper.submitQuery(input);
 }
 beforeUpdate(() => {
-	if ($queryResults != oldQueryResults) {
+	if ($queryResults && $queryResults != oldQueryResults) {
 		// If the new results are for a new query
 		if ($queryResults.for != (oldQueryResults && oldQueryResults.for)) {
 			// If results consist of nothing but 1 deviant, open their DeviantEntry
@@ -46,14 +53,14 @@ beforeUpdate(() => {
 afterUpdate(() => {
 	if ($queryResults != oldQueryResults) {
 		// Set subaccount notes
-		if (oldQueryResults && oldQueryResults.matchedBySubaccount && deviantList) {
-			for (let deviant of Object.keys(oldQueryResults.matchedBySubaccount)) {
-				let entry = deviantList.registry[deviant];
-				if (!entry) { continue; }
-				entry.$set({note: null});
+		if (deviantList) { // implies ($queryResults && $queryResults.deviants.length)
+			if (oldQueryResults && oldQueryResults.matchedBySubaccount) {
+				for (let deviant of Object.keys(oldQueryResults.matchedBySubaccount)) {
+					let entry = deviantList.registry[deviant];
+					if (!entry) { continue; }
+					entry.$set({note: null});
+				}
 			}
-		}
-		if ($queryResults.matchedBySubaccount) {
 			for (let [deviant, subaccount] of Object.entries($queryResults.matchedBySubaccount)) {
 				deviantList.registry[deviant].$set(
 					{ note: ["foundDeviantSubaccount", {name: subaccount}] } );
@@ -66,7 +73,7 @@ afterUpdate(() => {
 
 let showAmpersandHint;
 $: {
-	let checkMe = submitted || input;
+	let checkMe = $queryResults ? $queryResults.for : input;
 	showAmpersandHint = checkMe.indexOf(" ") != -1 && checkMe.indexOf("&") == -1;
 }
 
@@ -74,9 +81,12 @@ $: hasResults = $queryResults &&
 	Boolean($queryResults.deviants.length || $queryResults.deviations.length);
 </script>
 
-<form id="findBar" class="textEntryLine" on:submit|preventDefault="{handleSubmit}">
+<form id="findBar" class="textEntryLine" class:findAsYouType="{$findAsYouType}"
+	on:submit|preventDefault="{handleSubmit}">
 	<input type="text" id="query" bind:value="{input}" autofocus>
-	<button type="submit" id="goFind">{$l10n("findGo")}</button>
+	{#if !$findAsYouType}
+		<button type="submit" id="goFind">{$l10n("findGo")}</button>
+	{/if}
 	<button type="button" class="closeButton" on:click="{() => dispatch('close')}">
 		{$l10n("close")}</button>
 </form>

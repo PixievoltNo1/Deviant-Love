@@ -4,4 +4,7 @@ export default {
 		sleep: JSON.stringify,
 		wake: JSON.parse
 	},
+	findAsYouType: {
+		default: true,
+	},
 };

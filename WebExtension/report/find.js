@@ -4,7 +4,7 @@
 	Check core.esm.js for the complete legal stuff.
 */
 importScripts("deviantCollection.js");
-var deviants;
+var deviants, savedQuery;
 onmessage = ({ data: {deviantsMap, subaccounts, query} }) => {
 	if (deviantsMap) {
 		deviants = new DeviantCollection(deviantsMap);
@@ -12,8 +12,11 @@ onmessage = ({ data: {deviantsMap, subaccounts, query} }) => {
 	if (subaccounts) {
 		deviants.setSubaccounts(subaccounts);
 	}
-	if (query) {
-		postMessage(findStuff(query));
+	if (query !== undefined) {
+		savedQuery = query;
+	}
+	if (savedQuery) {
+		postMessage(findStuff(savedQuery));
 	}
 }
 function findStuff(queryText) {

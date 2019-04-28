@@ -172,9 +172,11 @@ function report(results, ui, love) {
 	screen.$on("changeMode", ({ detail: {from, to} }) => {
 		if (to == "find") {
 			findWorker = new Worker("find.js");
+			let prevResults = readStore(findModeContentHelper.resultsStore);
 			findWorker.postMessage({
 				deviantsMap: deviants.baseMap,
 				subaccounts: deviants.subaccounts,
+				query: prevResults && prevResults.for,
 			});
 			findWorker.onmessage = ({data}) => {
 				data.deviants = data.deviants.map( (deviant) => {
