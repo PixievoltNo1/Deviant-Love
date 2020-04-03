@@ -29,8 +29,8 @@ export var visible, mobile;
 export async function start({love, restoreData, firstDeviant, mobile: initialMobile}) {
 	visible = writable(true);
 	mobile = writable(initialMobile);
-	env.events.on("visibilityChange", (visible) => {
-		visible.set(visible);
+	env.events.on("visibilityChange", (newVisibility) => {
+		visible.set(newVisibility);
 	});
 	await prefs.init();
 	subaccountsEditorSettings.setSubaccountsStore(prefs.stores.subaccounts);
