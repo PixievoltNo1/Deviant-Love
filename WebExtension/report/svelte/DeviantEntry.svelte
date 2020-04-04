@@ -72,20 +72,6 @@ function toggleSubaccounts() {
 		subaccountsOpen = false;
 	}
 }
-
-// Workaround for https://github.com/sveltejs/svelte/issues/2333
-import { onDestroy } from "svelte";
-export let registry;
-registry[deviant.name] = {
-	open,
-	close,
-	$set(data) {
-		({subaccountsOpen, note} = data);
-	},
-}
-onDestroy( () => {
-	delete registry[deviant.name];
-} );
 </script>
 
 <div class="deviant" class:open={opened} class:openedByTouch id="deviant_{deviant.name}" bind:this={root}>

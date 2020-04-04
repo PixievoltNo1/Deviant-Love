@@ -34,10 +34,9 @@ afterUpdate( () => {
 } );
 </script>
 
-<svelte:options accessors="{true}"/>
 <div class="deviantList" style="position: static;">
 	{#each deviants as deviant (deviant.name)}
-		<DeviantEntry {deviant} {registry} {watchedArtists}
+		<DeviantEntry {deviant} bind:this={registry[deviant.name]} {watchedArtists}
 			on:openMe="{ () => { opened = deviant.name; } }"/>
 	{/each}
 </div>
