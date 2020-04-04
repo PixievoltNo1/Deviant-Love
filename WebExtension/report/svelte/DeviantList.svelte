@@ -29,6 +29,8 @@ afterUpdate( () => {
 			registry[opened].open(showTransition);
 		}
 		oldOpened = opened;
+	} else if (opened && deviants != oldDeviants) {
+		registry[opened].scrollIntoView();
 	}
 	oldDeviants = deviants;
 } );

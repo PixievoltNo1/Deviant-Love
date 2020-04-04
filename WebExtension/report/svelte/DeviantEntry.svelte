@@ -64,6 +64,9 @@ export function close(transition) {
 		});
 	}
 }
+export function scrollIntoView() {
+	root.scrollIntoView();
+}
 function toggleSubaccounts() {
 	if (!subaccountsOpen) {
 		subaccountsOpen = true;
