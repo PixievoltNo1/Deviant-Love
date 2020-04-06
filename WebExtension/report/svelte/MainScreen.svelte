@@ -12,7 +12,6 @@ import { createEventDispatcher, tick } from 'svelte';
 const dispatch = createEventDispatcher();
 
 export let totalDeviations, pageType, deviantList, watchError, watchedArtists;
-export let requestedDeviant;
 $: favesLineParts = $l10n("headerFavesLine", {num: totalDeviations, pageType}).split("*");
 $: artistsLineParts = $l10n("headerArtistsLine", {num: deviantList.length, pageType}).split("*");
 
@@ -64,6 +63,18 @@ function closeHamburgerMenu() {
 		hamburgerMenuOpen = false, hamburgerMenuAnimation = null;
 	};
 }
+
+let normalDeviantList;
+export async function showDeviantInMain(deviantName) {
+	if (!normalDeviantList) {
+		mode = "normal";
+		await tick();
+	}
+	let result = normalDeviantList.showDeviant(deviantName);
+	if (result == "alreadyOpened") {
+		normalDeviantList.registry[deviantName].scrollIntoView();
+	}
+}
 </script>
 
 <svelte:options accessors="{true}"/>
@@ -109,9 +120,9 @@ function closeHamburgerMenu() {
 					{$l10n(watchError == "notLoggedIn" ? "watchErrorNotLoggedIn" : "watchErrorInternal")}
 				</div>
 			{/if}
-			<DeviantList deviants={deviantList} {watchedArtists} bind:request={requestedDeviant}/>
+			<DeviantList deviants={deviantList} {watchedArtists} bind:this={normalDeviantList}/>
 		{:else if mode == "find"}
-			<FindModeContent {watchedArtists} on:close="{() => mode = 'normal'}"/>
+			<FindModeContent {watchedArtists} close="{() => mode = 'normal'}" {showDeviantInMain}/>
 		{:else if mode == "options"}
 			<button type="button" class="closeButton" on:click="{() => mode = 'normal'}">
 				{$l10n("close")}</button>

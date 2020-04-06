@@ -5,9 +5,9 @@ import { findModeContentHelper as helper } from "../core.esm.js";
 import DeviantList from "./DeviantList.svelte";
 import DeviationList from "./DeviationList.svelte";
 import Avatar from "./Avatar.svelte";
-import { beforeUpdate, afterUpdate, createEventDispatcher } from 'svelte';
+import { beforeUpdate, afterUpdate, tick } from 'svelte';
 
-const dispatch = createEventDispatcher();
+export var close, showDeviantInMain;
 
 let queryResults = helper.resultsStore;
 let oldQueryResults;
@@ -37,15 +37,17 @@ function handleSubmit() {
 	}
 	helper.submitQuery(input);
 }
-beforeUpdate(() => {
+beforeUpdate(async () => {
 	if ($queryResults && $queryResults != oldQueryResults) {
 		// If the new results are for a new query
 		if ($queryResults.for != (oldQueryResults && oldQueryResults.for)) {
+			if (deviantList) {
+				deviantList.reset();
+			}
+			await tick();
 			// If results consist of nothing but 1 deviant, open their DeviantEntry
 			if ($queryResults.deviants.length == 1 && !$queryResults.deviations.length) {
-				openDeviant = $queryResults.deviants[0].name;
-			} else { // Otherwise, just reset openDeviant
-				openDeviant = "";
+				deviantList.showDeviant($queryResults.deviants[0].name);
 			}
 		}
 	}
@@ -87,7 +89,7 @@ $: hasResults = $queryResults &&
 	{#if !$findAsYouType}
 		<button type="submit" id="goFind">{$l10n("findGo")}</button>
 	{/if}
-	<button type="button" class="closeButton" on:click="{() => dispatch('close')}">
+	<button type="button" class="closeButton" on:click={close}>
 		{$l10n("close")}</button>
 </form>
 {#if queryError}
@@ -98,8 +100,7 @@ $: hasResults = $queryResults &&
 	{#if $queryResults}
 		{#if $queryResults.deviants.length}
 			<div class="sectionHeader">{$l10n("foundDeviants", {num: $queryResults.deviants.length})}</div>
-			<DeviantList deviants={$queryResults.deviants} {watchedArtists} bind:opened={openDeviant}
-				bind:this={deviantList}/>
+			<DeviantList deviants={$queryResults.deviants} {watchedArtists} bind:this={deviantList}/>
 		{/if}
 		{#if $queryResults.deviations.length}
 			<div class="sectionHeader">
@@ -114,7 +115,7 @@ $: hasResults = $queryResults &&
 					<DeviationList {deviations}/>
 					<div class="deviationResultGroupSidebar">
 						<Avatar {deviant}/>
-						<button type="button" class="viewDeviant" on:click="{() => helper.viewDeviant(deviant.name)}">
+						<button type="button" class="viewDeviant" on:click="{() => showDeviantInMain(deviant.name)}">
 							{deviant.deviations.length}
 						</button>
 					</div>

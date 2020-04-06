@@ -35,10 +35,13 @@ export async function start({love, restoreData, firstDeviant, mobile: initialMob
 	await prefs.init();
 	subaccountsEditorSettings.setSubaccountsStore(prefs.stores.subaccounts);
 	await initL10n();
+	showDeviant = function (deviantName) {
+		firstDeviant = deviantName;
+	}
 	if (restoreData) {
-		restore(restoreData, love);
+		await restore(restoreData, love);
 	} else {
-		prepare(love);
+		await prepare(love);
 	}
 	if (firstDeviant) {
 		showDeviant(firstDeviant);
@@ -74,7 +77,6 @@ function prepare(love) {
 	} );
 	var organized = faves.then(organizeData);
 	var watchResult = scannerController.watched.then(collectWatchlist, watchError);
-	Promise.all([organized, watchResult, nextTip()]).then(finish);
 	var removeVisibilityListener = env.events.on("visibilityChange", (visible) => {
 		scannerController[visible ? "resume" : "pause"]();
 	});
@@ -105,10 +107,6 @@ function prepare(love) {
 		scannerController.resume();
 		scannerController.retry();
 	});
-	var firstDeviant;
-	showDeviant = function(deviantName) {
-		firstDeviant = deviantName;
-	}
 	function collectWatchlist(list) {
 		screen.$set({watchStatus: "watchSuccess"});
 		return {watchedArtists: list};
@@ -122,6 +120,7 @@ function prepare(love) {
 			"watchErrorNotLoggedIn" : "watchErrorInternal"} );
 		return {watchError: thrown.reason};
 	}
+	return Promise.all([organized, watchResult, nextTip()]).then(finish);
 	function finish([organizedFaves, {watchedArtists = null, watchError = false}]) {
 		let results = {
 			deviants: new DeviantCollection(organizedFaves.deviantMap, Deviant),
@@ -131,23 +130,17 @@ function prepare(love) {
 		};
 		removeVisibilityListener();
 		screen.$destroy();
-		var ui = {firstDeviant};
-		report(results, ui, love);
+		report(results, love);
 	}
 }
 function restore(scanData, love) {
-	var firstDeviant;
-	showDeviant = function(deviantName) {
-		firstDeviant = deviantName;
-	};
 	// TODO: Wake scanData.deviants
-	Promise.all([nextTip()]).then(function() {
-		var ui = {firstDeviant: firstDeviant};
-		report(scanData, ui, love);
+	return Promise.all([nextTip()]).then(function() {
+		report(scanData, love);
 	});
 }
 export var findModeContentHelper, miniSubaccountsEditorHelper;
-function report(results, ui, love) {
+function report(results, love) {
 	var {deviants, totalDeviations, watchedArtists, watchError} = results;
 	deviants.setSubaccounts( readStore(prefs.stores.subaccounts) );
 	subaccountsEditorSettings.setKnownNames([...deviants.baseMap.keys()]);
@@ -162,10 +155,14 @@ function report(results, ui, love) {
 
 	// Handle requests for a particular deviant that were made elsewhere (e.g. context menu)
 	showDeviant = function(deviantName) {
-		screen.$set({mode: "normal", requestedDeviant: deviantName});
+		if (!deviants.effectiveMap.has(deviantName)) {
+			if (deviants.ownerships.has(deviantName)) {
+				deviantName = deviants.ownerships.get(deviantName).name;
+			} else {
+				// TODO: Handle this error condition
+			}
 	}
-	if (ui.firstDeviant) {
-		showDeviant(ui.firstDeviant);
+		screen.showDeviantInMain(deviantName);
 	}
 
 	var findWorker;
@@ -198,7 +195,6 @@ function report(results, ui, love) {
 	});
 	screen.$on("closeRequested", env.closeDeviantLove);
 	findModeContentHelper = {
-		viewDeviant: showDeviant,
 		submitQuery(query) {
 			findWorker.postMessage({query});
 		},

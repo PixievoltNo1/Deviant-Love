@@ -6,14 +6,13 @@ import Avatar from "./Avatar.svelte";
 import DeviationList from "./DeviationList.svelte";
 import MiniSubaccountsEditor from "./MiniSubaccountsEditor.svelte";
 import anime from "animejs";
-import { createEventDispatcher, tick } from 'svelte';
+import { tick } from 'svelte';
 
 var {subaccounts} = prefStores;
-const dispatch = createEventDispatcher();
 
 const closerLookEasing = [0, 0, .6, 1];
-export let deviant, note, watchedArtists;
-export let subaccountsOpen;
+export let deviant, note, watchedArtists, showDeviant;
+let subaccountsOpen = false;
 var opened, closing, openedByTouch;
 
 var root, closerLook;
@@ -70,7 +69,7 @@ export function scrollIntoView() {
 function toggleSubaccounts() {
 	if (!subaccountsOpen) {
 		subaccountsOpen = true;
-		dispatch("openMe");
+		showDeviant(deviant.name);
 	} else {
 		subaccountsOpen = false;
 	}
@@ -78,7 +77,7 @@ function toggleSubaccounts() {
 </script>
 
 <div class="deviant" class:open={opened} class:openedByTouch id="deviant_{deviant.name}" bind:this={root}>
-	<div class="deviantHeader" on:click="{() => dispatch('openMe')}">
+	<div class="deviantHeader" on:click="{() => showDeviant(deviant.name)}">
 		{#if note}
 			<div class="deviantNote">{$l10n(...note)}</div>
 		{/if}
