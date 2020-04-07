@@ -28,6 +28,7 @@ function addOwner() {
 		<form class="subaccountOwner new" on:submit|preventDefault="{addOwner}">
 			<div class="accountLine ownerLine">
 				<span class="name">
+					<!-- svelte-ignore a11y-autofocus -->
 					<input bind:value="{newOwner}" required autofocus
 						placeholder="{$l10n('subaccountsEditorOwnerPlaceholder')}">
 				</span>

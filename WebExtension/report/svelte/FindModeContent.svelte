@@ -85,6 +85,7 @@ $: hasResults = $queryResults &&
 
 <form id="findBar" class="textEntryLine" class:findAsYouType="{$findAsYouType}"
 	on:submit|preventDefault="{handleSubmit}">
+	<!-- svelte-ignore a11y-autofocus -->
 	<input type="text" id="query" bind:value="{input}" autofocus>
 	{#if !$findAsYouType}
 		<button type="submit" id="goFind">{$l10n("findGo")}</button>

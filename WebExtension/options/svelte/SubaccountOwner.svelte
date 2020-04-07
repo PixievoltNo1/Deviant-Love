@@ -42,6 +42,7 @@ function changeOwner() {
 				</button>
 			{:else}
 				<form class="addSubaccountForm" on:submit|preventDefault="{addSubaccount}">
+					<!-- svelte-ignore a11y-autofocus -->
 					<input bind:value="{adding}" required autofocus
 						placeholder="{$l10n('subaccountsEditorAddPlaceholder')}">
 					<button type="submit">{$l10n("subaccountsAddConfirm")}</button>

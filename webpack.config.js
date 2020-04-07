@@ -49,7 +49,4 @@ module.exports = function(env = {}) { return {
 			}),
 		] : [] )
 	],
-	stats: {
-		warningsFilter: "Avoid using autofocus",
-	},
 }; };
