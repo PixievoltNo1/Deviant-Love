@@ -26,7 +26,11 @@
 	},
 	"options_page": "options/options.html",
 	"content_scripts": [{
-		"matches": ["*://www.deviantart.com/*/favourites/*"],
+		"matches": [
+			"*://www.deviantart.com/*/favourites",
+			"*://www.deviantart.com/*/favourites/*",
+			"*://www.deviantart.com/*/favourites?*"
+		],
 		"js": ["favesPages/detector.js", "favesPages/panelManager.js", "favesPages/artistNames.js"],
 		"css": ["favesPages/favesPages.css"],
 		"run_at": "document_end"
@@ -34,11 +38,11 @@
 	"web_accessible_resources": ["report/popup.html", "images/heart/*"],
 
 	"permissions": ["contextMenus", "storage", "*://*.deviantart.com/", "*://sta.sh/*"],
-	"minimum_chrome_version": "57",
+	"minimum_chrome_version": "61",
 	"applications": {
 		"gecko": {
 			"id": "deviantlove@pikadudeno1.com",
-			"strict_min_version": "52.0"
+			"strict_min_version": "53.0"
 		}
 	},
 	"manifest_version": 2

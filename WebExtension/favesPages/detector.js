@@ -10,23 +10,55 @@ function findLove(win = window) {
 	var location = win.location;
 	var love = {};
 
-	love.feedHref = document.querySelector('link[rel="alternate"][type="application/rss+xml"]').href;
-	if (location.pathname.endsWith("/favourites/") && location.search == "") {
-		love.pageType = "featured";
-	} else if (location.search == "?catpath=/") {
-		love.pageType = "allFaves";
-	} else if ((/\/\d+\//).test(location.pathname) || (/\?\d+/).test(location.search)) {
+	var eclipseCollections = document.querySelector(`[data-hook="gallection_folder"]`);
+	
+	var folderId;
+	var folderIdMatch = (/\/(\d+)\//).exec(location.pathname) || (/\?(\d+)$/).exec(location.search);
+	if (folderIdMatch) {
 		love.pageType = "collection";
+		folderId = folderIdMatch[1];
+	} else if ( (/\/favourites\/?$/).test(location) ) {
+		love.pageType = "featured";
+		if (eclipseCollections) {
+			// TODO: Determine the Featured folder's ID
+		}
+	} else if (location.toString().endsWith("/all") || location.search == "?catpath=/") {
+		love.pageType = "allFaves";
 	} else {
 		// Assume search results
 		love.pageType = "search";
 	}
-	// While the mechanism for declaring RSS feeds is standardized, the dA layout is not and can change. Be careful!
-	var element = document.querySelector("#gallery_pager");
-	love.maxDeviations = element ? Number(element.getAttribute("gmi-limit")) : null;
-	// "1" is a junk value DeviantArt uses when it doesn't know
-	if (love.maxDeviations == 1) {
-		love.maxDeviations = null;
+
+	var feed = document.querySelector('link[rel="alternate"][type="application/rss+xml"]');
+	if (feed) {
+		love.feedHref = feed.href;
+	} else {
+		var deviantName = (/^\/([^\/]*)/).exec(location.pathname)[1];
+		if (love.pageType == "allFaves" || love.pageType == "search") {
+			var deviantId; // TODO: Scrape this
+			if (love.pageType == "allFaves") {
+				love.feedHref = "https://backend.deviantart.com/rss.xml?" +
+					`q=favedbyid%3A${deviantId}&type=deviation`;
+			} else {
+				let searchText = ( new URLSearchParams(location.search) ).get("q");
+				love.feedHref = "https://backend.deviantart.com/rss.xml?" +
+					`q=(${encodeURIComponent(searchText)})+AND+(favedbyid%3A${deviantId})&type=deviation`;
+			}
+		} else {
+			love.feedHref = "https://backend.deviantart.com/rss.xml?" +
+				`q=favby%3A${deviantName}%2F${folderId}&type=deviation`;
+		}
+	}
+	
+	if (eclipseCollections) {
+		// TODO: Get the current page's <a> and scan .innerText for the number of deviations
+	} else {
+		var element = document.querySelector("#gallery_pager");
+		love.maxDeviations = element ? Number(element.getAttribute("gmi-limit")) : null;
+		// "1" is a junk value DeviantArt uses when it doesn't know
+		if (love.maxDeviations == 1) {
+			love.maxDeviations = null;
+		}
 	}
 
 	return love;
