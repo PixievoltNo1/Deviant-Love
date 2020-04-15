@@ -20,7 +20,7 @@ function findLove(win = window) {
 	} else if ( (/\/favourites\/?$/).test(location) ) {
 		love.pageType = "featured";
 		if (eclipseCollections) {
-			// TODO: Determine the Featured folder's ID
+			folderId = document.querySelector("#sub-folder-gallery > [id]").id;
 		}
 	} else if (location.toString().endsWith("/all") || location.search == "?catpath=/") {
 		love.pageType = "allFaves";
@@ -51,7 +51,9 @@ function findLove(win = window) {
 	}
 	
 	if (eclipseCollections) {
-		// TODO: Get the current page's <a> and scan .innerText for the number of deviations
+		if (love.pageType == "featured" || love.pageType == "collection") {
+			// TODO: Get the current page's <a> and scan .innerText for the number of deviations
+		}
 	} else {
 		var element = document.querySelector("#gallery_pager");
 		love.maxDeviations = element ? Number(element.getAttribute("gmi-limit")) : null;

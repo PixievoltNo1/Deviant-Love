@@ -6,31 +6,36 @@
 "use strict";
 
 var artistNames = new Set();
-var container = document.querySelector(".torpedo-container");
-for (let thumb of Array.from( container.querySelectorAll(".thumb") )) {
-	artistNames.add(getArtistFromThumb(thumb));
+var container, linkSelector, getArtistFromLink;
+container = document.querySelector("#sub-folder-gallery > :last-child");
+if (container) {
+	// Eclipse
+	linkSelector = ".user-link";
+	getArtistFromLink = (linkElem) => linkElem.dataset.username;
+} else {
+	// Pre-Eclipse
+	container = document.querySelector(".torpedo-container");
+	linkSelector = "a.username";
+	getArtistFromLink = (linkElem) => linkElem.textContent;
 }
-chrome.runtime.sendMessage({action: "addArtistNames", names: [...artistNames]});
-(new MutationObserver(processMutations)).observe(container, {childList: true});
-function processMutations(records) {
-	var newNodes = [], newNames = [];
-	for (let record of records) {
-		newNodes.push(...Array.from(record.addedNodes));
-	}
-	for (let node of newNodes) {
-		if (!(node instanceof Element && node.classList.contains("thumb"))) { continue; }
-		let name = getArtistFromThumb(node);
+for ( let link of container.querySelectorAll(linkSelector) ) {
+	artistNames.add( getArtistFromLink(link) );
+}
+chrome.runtime.sendMessage({ action: "addArtistNames", names: [...artistNames] });
+(new MutationObserver(findAdditions)).observe(container, { childList: true });
+function findAdditions() {
+	var newNames = [];
+	for (let link of container.querySelectorAll(linkSelector)) {
+		let name = getArtistFromLink(node);
 		if (artistNames.has(name)) { continue; }
 		artistNames.add(name);
 		newNames.push(name);
 	}
 	if (newNames.length) {
-		chrome.runtime.sendMessage({action: "addArtistNames", names: newNames});
+		chrome.runtime.sendMessage({ action: "addArtistNames", names: newNames });
 	}
 }
-function getArtistFromThumb(thumb) {
-	return thumb.querySelector(".info .username").textContent;
-}
+
 chrome.runtime.onMessage.addListener(({action}, buddy, callback) => {
 	if (action == "getArtistNames") { callback([...artistNames]); }
 });
