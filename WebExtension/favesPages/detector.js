@@ -33,9 +33,12 @@ function findLove(win = window) {
 	if (feed) {
 		love.feedHref = feed.href;
 	} else {
-		var deviantName = (/^\/([^\/]*)/).exec(location.pathname)[1];
+		let deviantName = (/^\/([^\/]*)/).exec(location.pathname)[1];
 		if (love.pageType == "allFaves" || love.pageType == "search") {
-			var deviantId; // TODO: Scrape this
+			let deviantElem = document.querySelector(
+				`.user-link[href="https://www.deviantart.com/${deviantName}"]`
+			);
+			let deviantId = deviantElem.dataset.userid;
 			if (love.pageType == "allFaves") {
 				love.feedHref = "https://backend.deviantart.com/rss.xml?" +
 					`q=favedbyid%3A${deviantId}&type=deviation`;
@@ -51,11 +54,19 @@ function findLove(win = window) {
 	}
 	
 	if (eclipseCollections) {
-		if (love.pageType == "featured" || love.pageType == "collection") {
-			// TODO: Get the current page's <a> and scan .innerText for the number of deviations
-		}
+		love.maxDeviations = ( () => {
+			if (love.pageType == "search") { return null; }
+			var linkUrl = (love.pageType == "featured")
+				? `${location}/${folderId}/featured`
+				: location.toString();
+			var linkElem = eclipseCollections.querySelector(`a[href="${linkUrl}"]`);
+			if (!linkElem) { return null; }
+			var deviationsMatch = (/\n(\d+) deviations/).exec( linkElem.innerText );
+			if (!deviationsMatch) { return null; }
+			return deviationsMatch[1];
+		} )();
 	} else {
-		var element = document.querySelector("#gallery_pager");
+		let element = document.querySelector("#gallery_pager");
 		love.maxDeviations = element ? Number(element.getAttribute("gmi-limit")) : null;
 		// "1" is a junk value DeviantArt uses when it doesn't know
 		if (love.maxDeviations == 1) {

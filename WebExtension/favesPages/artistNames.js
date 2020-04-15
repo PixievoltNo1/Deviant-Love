@@ -7,7 +7,9 @@
 
 var artistNames = new Set();
 var container, linkSelector, getArtistFromLink;
-container = document.querySelector("#sub-folder-gallery > :last-child");
+// First selector gets the All/collection container, second selector gets the search results container
+container = document.querySelector("#sub-folder-gallery > :last-child,"
+	+ "[data-hook='gallection_folder'] ~ :last-child");
 if (container) {
 	// Eclipse
 	linkSelector = ".user-link";
@@ -26,7 +28,7 @@ chrome.runtime.sendMessage({ action: "addArtistNames", names: [...artistNames] }
 function findAdditions() {
 	var newNames = [];
 	for (let link of container.querySelectorAll(linkSelector)) {
-		let name = getArtistFromLink(node);
+		let name = getArtistFromLink(link);
 		if (artistNames.has(name)) { continue; }
 		artistNames.add(name);
 		newNames.push(name);

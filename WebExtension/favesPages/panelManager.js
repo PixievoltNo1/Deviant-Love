@@ -5,6 +5,7 @@
 */
 "use strict";
 
+// TODO: Respond to the page state changing
 var panel = document.createElement("iframe");
 panel.id = "DeviantLovePanel";
 panel.classList.add("hide");
