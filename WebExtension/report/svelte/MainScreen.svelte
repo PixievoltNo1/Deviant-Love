@@ -66,7 +66,7 @@ function closeHamburgerMenu() {
 
 let normalDeviantList;
 export async function showDeviantInMain(deviantName) {
-	if (!normalDeviantList) {
+	if (mode != "normal") {
 		mode = "normal";
 		await tick();
 	}

@@ -39,11 +39,11 @@ export async function start({love, restoreData, firstDeviant, mobile: initialMob
 		firstDeviant = deviantName;
 	};
 	(async () => {
-		if (restoreData) {
-			await restore(restoreData, love);
-		} else {
-			await prepare(love);
-		}
+		var [results] = await Promise.all([
+			restoreData ? restore(restoreData, love) : prepare(love),
+			nextTip(),
+		]);
+		report(results, love);
 		if (firstDeviant) {
 			showDeviant(firstDeviant);
 		}
@@ -122,7 +122,7 @@ function prepare(love) {
 			"watchErrorNotLoggedIn" : "watchErrorInternal"} );
 		return {watchError: thrown.reason};
 	}
-	return Promise.all([organized, watchResult, nextTip()]).then(finish);
+	return Promise.all([organized, watchResult]).then(finish);
 	function finish([organizedFaves, {watchedArtists = null, watchError = false}]) {
 		let results = {
 			deviants: new DeviantCollection(organizedFaves.deviantMap, Deviant),
@@ -132,14 +132,12 @@ function prepare(love) {
 		};
 		removeVisibilityListener();
 		screen.$destroy();
-		report(results, love);
+		return results;
 	}
 }
 function restore(scanData, love) {
 	// TODO: Wake scanData.deviants
-	return Promise.all([nextTip()]).then(function() {
-		report(scanData, love);
-	});
+	return scanData;
 }
 export var findModeContentHelper, miniSubaccountsEditorHelper;
 function report(results, love) {
@@ -163,7 +161,7 @@ function report(results, love) {
 			} else {
 				// TODO: Handle this error condition
 			}
-	}
+		}
 		screen.showDeviantInMain(deviantName);
 	}
 
