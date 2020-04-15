@@ -4,17 +4,29 @@
 	Check core.esm.js for the complete legal stuff.
 */
 export default async function(name) {
+	var apiToken;
 	var results = {};
 	try {
-		let response = await fetch(`https://www.deviantart.com/${name}/`);
-		if (!response.ok) {
-			if (response.status == 404) {
+		let tokenFetch = await fetch( "https://www.deviantart.com/oauth2/token?" + new URLSearchParams({
+			grant_type: "client_credentials",
+			client_id: "7926",
+			client_secret: "7e9e2374a223c479f70e1bf18874f8c3",
+		}) );
+		({access_token: apiToken} = await tokenFetch.json());
+		let profileFetch = await fetch(
+			`https://www.deviantart.com/api/v1/oauth2/user/profile/${name}?${ new URLSearchParams({
+				access_token: apiToken,
+			}) }`
+		);
+		if (!profileFetch.ok) {
+			if (profileFetch.status == 400) {
 				throw "NotFound";
 			} else {
 				throw "Communication";
 			}
 		}
-		var profileHtml = await response.text();
+		let { username, usericon } = ( await profileFetch.json() ).user;
+		return { name: username, avatar: usericon };
 	} catch (error) {
 		if (typeof error != "string") {
 			throw "Communication";
@@ -22,14 +34,4 @@ export default async function(name) {
 			throw error;
 		}
 	}
-	var profileDoc = (new DOMParser()).parseFromString(profileHtml, "text/html");
-	var nameElem = profileDoc.getElementById("gmi-Gruser");
-	if (nameElem) {
-		results.name = nameElem.getAttribute("gmi-name");
-	}
-	var avatarElem = profileDoc.querySelector("link[rel='image_src']");
-	if (avatarElem) {
-		results.avatar = avatarElem.getAttribute("href");
-	}
-	return results;
 }
