@@ -37,15 +37,17 @@ export async function start({love, restoreData, firstDeviant, mobile: initialMob
 	await initL10n();
 	showDeviant = function (deviantName) {
 		firstDeviant = deviantName;
-	}
-	if (restoreData) {
-		await restore(restoreData, love);
-	} else {
-		await prepare(love);
-	}
-	if (firstDeviant) {
-		showDeviant(firstDeviant);
-	}
+	};
+	(async () => {
+		if (restoreData) {
+			await restore(restoreData, love);
+		} else {
+			await prepare(love);
+		}
+		if (firstDeviant) {
+			showDeviant(firstDeviant);
+		}
+	})();
 }
 
 function Deviant(name) {
