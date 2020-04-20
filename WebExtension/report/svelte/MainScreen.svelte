@@ -1,6 +1,6 @@
 <script>
 import l10n from "../../l10nStore.esm.js";
-import { mobile, tip } from "../core.esm.js";
+import { mobile, visible, tip } from "../core.esm.js";
 import DeviantList from "./DeviantList.svelte";
 import FindModeContent from "./FindModeContent.svelte";
 import GeneralOptions from "../../options/svelte/GeneralOptions.svelte";
@@ -62,6 +62,9 @@ function closeHamburgerMenu() {
 	animation.onfinish = () => {
 		hamburgerMenuOpen = false, hamburgerMenuAnimation = null;
 	};
+}
+$: if (hamburgerMenuOpen && !$visible) {
+	hamburgerMenuOpen = false, hamburgerMenuAnimation = null;
 }
 
 let normalDeviantList;
@@ -142,6 +145,6 @@ export async function showDeviantInMain(deviantName) {
 	{/if}
 </div>
 {#if hamburgerMenuOpen}
-	<div id="shield"
+	<div id="shield" on:click="{closeHamburgerMenu}"
 		 style="position: absolute; top: 0; bottom: 0; left: 0; right: 0; z-index: 98;"></div>
 {/if}
