@@ -50,9 +50,6 @@ async function openHamburgerMenu() {
 		fill: "backwards",
 	});
 	hamburgerMenuAnimation = animation;
-	document.body.addEventListener("click", function detectOutsideClick(event) {
-		// TODO: Detect clicks outside, stop propagation, call closeHamburgerMenu, and remove this event listener
-	}, {useCapture: true});
 }
 function closeHamburgerMenu() {
 	var animation = hamburgerMenuAnimation;
