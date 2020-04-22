@@ -1,6 +1,9 @@
 .deviantList, .closerLook {
 	background: hsl(357, 90%, 54%);
 }
+.deviant {
+	contain: content;
+}
 .deviant + .deviant {
 	margin-top: 1px;
 }
