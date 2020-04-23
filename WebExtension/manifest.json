@@ -38,11 +38,11 @@
 	"web_accessible_resources": ["report/popup.html", "images/heart/*"],
 
 	"permissions": ["contextMenus", "storage", "*://*.deviantart.com/", "*://sta.sh/*"],
-	"minimum_chrome_version": "61",
+	"minimum_chrome_version": "63",
 	"applications": {
 		"gecko": {
 			"id": "deviantlove@pikadudeno1.com",
-			"strict_min_version": "53.0"
+			"strict_min_version": "58.0"
 		}
 	},
 	"manifest_version": 2

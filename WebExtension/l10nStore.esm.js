@@ -4,8 +4,7 @@
 	Check core.esm.js for the complete legal stuff.
 */
 import { getL10nMsg } from "./apiAdapter.esm.js";
-import "fluent-intl-polyfill";
-import { FluentBundle } from "fluent";
+import { FluentBundle } from "@fluent/bundle";
 import { writable } from "svelte/store";
 var store = writable( () => "" );
 export { store as default };

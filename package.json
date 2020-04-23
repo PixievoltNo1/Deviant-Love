@@ -5,10 +5,9 @@
     "makeRelease": "node Release/makeRelease.js"
   },
   "devDependencies": {
+    "@fluent/bundle": "0.13.0",
     "animejs": "^2.2.0",
     "file-url": "^2.0.2",
-    "fluent": "^0.8.1",
-    "fluent-intl-polyfill": "^0.1.0",
     "nanoevents": "^1.0.8",
     "svelte": "^3.20.1",
     "svelte-loader": "^2.13.6",
