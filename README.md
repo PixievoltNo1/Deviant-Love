@@ -24,4 +24,4 @@ With all the built files ready, use the WebExtension folder with the instruction
 
 Your browser may complain about parts of manifest.json it doesn't recognize. This won't cause problems.
 
-If you'd like to contact me, feel free to either [send me a DA Note](http://www.deviantart.com/messages/notes/#to=pikadudeno1) or leave a comment on [the Group page](https://deviantlovesoftware.deviantart.com/).
+If you'd like to contact me, feel free to either [send me a DA Note](https://www.deviantart.com/messages/notes/#to=PixievoltNo1) or leave a comment on [the Group page](https://www.deviantart.com/deviantlovesoftware/).

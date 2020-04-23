@@ -1,6 +1,6 @@
 /*
 	This file is part of Deviant Love.
-	Copyright Pikadude No. 1
+	Copyright Pixievolt No. 1
 
 	Deviant Love is free software: you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
