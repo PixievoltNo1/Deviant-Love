@@ -35,10 +35,12 @@ function changeMode() {
 var hamburgerMenu;
 var hamburgerMenuOpen;
 var hamburgerMenuAnimation;
+const hamburgerMenuHistoryState = {};
 async function openHamburgerMenu() {
-	// TODO: Integrate with browser history
 	if (hamburgerMenuOpen) { return; }
 	hamburgerMenuOpen = true;
+	history.pushState(hamburgerMenuHistoryState, "");
+	window.addEventListener("popstate", closeHamburgerMenu);
 	await tick();
 	var animation = hamburgerMenu.animate({
 		transform: [
@@ -55,6 +57,10 @@ function closeHamburgerMenu() {
 	var animation = hamburgerMenuAnimation;
 	// stop if the menu is already closing
 	if (animation.playbackRate == -1) { return; }
+	window.removeEventListener("popstate", closeHamburgerMenu);
+	if (history.state == hamburgerMenuHistoryState) {
+		history.back();
+	}
 	animation.reverse();
 	animation.onfinish = () => {
 		hamburgerMenuOpen = false, hamburgerMenuAnimation = null;
@@ -62,6 +68,9 @@ function closeHamburgerMenu() {
 }
 $: if (hamburgerMenuOpen && !$visible) {
 	hamburgerMenuOpen = false, hamburgerMenuAnimation = null;
+	if (history.state == hamburgerMenuHistoryState) {
+		history.back();
+	}
 }
 
 let normalDeviantList;

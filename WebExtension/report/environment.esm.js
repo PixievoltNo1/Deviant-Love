@@ -14,6 +14,7 @@ chrome.runtime.sendMessage({action: "echoWithCallback", echoAction: "getStartDat
 		chrome.runtime.sendMessage({action: "echo", echoAction: "panelReady"});
 	}
 );
+var historyVisibleState = true;
 chrome.runtime.onMessage.addListener(function(thing, buddy, callback) {switch (thing.action) {
 	case "showing":
 		var waitFor = [];
@@ -22,10 +23,15 @@ chrome.runtime.onMessage.addListener(function(thing, buddy, callback) {switch (t
 		Promise.all(waitFor).then(() => {
 			callback();
 		});
+		historyVisibleState = true;
 		return true;
 	break;
 	case "hiding":
 		events.emit("visibilityChange", false);
+		if (history.state != null) {
+			history.back();
+		}
+		historyVisibleState = false;
 	break;
 	case "artistRequested":
 		showDeviant(thing.artist);
@@ -41,4 +47,10 @@ export function closeDeviantLove() {
 $(document).delegate("a", "click", function(event) {
 	if (event.button == 0) { window.open(this.href); }
 	event.preventDefault();
-} );
+});
+history.pushState(true, "");
+window.addEventListener("popstate", () => {
+	if ( (history.state != null) != historyVisibleState ) {
+		chrome.runtime.sendMessage({ action: "echo", echoAction: "spark" });
+	}
+});
