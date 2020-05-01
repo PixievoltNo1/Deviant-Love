@@ -75,6 +75,15 @@
 		font-size: 12px;
 		font-family: inherit;
 	}
+	.closeDeviantLove::before {
+		content: "";
+		display: inline-block;
+		width: 15px;
+		height: 12px;
+		background-image: url(/images/close.svg);
+		background-size: contain;
+		margin-right: 0.2em;
+	}
 	#closeHamburgerMenu {
 		grid-area: back;
 		border: none;
