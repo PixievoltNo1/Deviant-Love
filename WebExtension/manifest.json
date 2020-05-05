@@ -27,12 +27,11 @@
 	"options_page": "options/options.html",
 	"content_scripts": [{
 		"matches": [
-			"*://www.deviantart.com/*/favourites",
-			"*://www.deviantart.com/*/favourites/*",
-			"*://www.deviantart.com/*/favourites?*"
+			"*://www.deviantart.com/*"
 		],
-		"js": ["favesPages/detector.js", "favesPages/panelManager.js", "favesPages/artistNames.js"],
-		"css": ["favesPages/favesPages.css"],
+		"js": ["contentScript/findLove.js", "contentScript/panel.js", "contentScript/artistNames.js",
+			"contentScript/favesPages.js", "contentScript/contentScriptCore.js"],
+		"css": ["contentScript/panel.css"],
 		"run_at": "document_end"
 	}],
 	"web_accessible_resources": ["report/popup.html", "images/heart/*"],

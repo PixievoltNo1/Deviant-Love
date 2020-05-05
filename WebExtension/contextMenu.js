@@ -7,7 +7,7 @@
 
 if (chrome.contextMenus) {
 	chrome.runtime.onMessage.addListener(({action, names}, buddy, callback) => {
-		if (action == "addArtistNames" && buddy.tab.selected) { processNames(names); }
+		if (action == "addArtistNames" && buddy.tab.active) { processNames(names); }
 	});
 	chrome.tabs.onActivated.addListener(({tabId}) => {
 		chrome.contextMenus.removeAll(() => {

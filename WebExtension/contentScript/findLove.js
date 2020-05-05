@@ -14,20 +14,23 @@ function findLove(win = window) {
 	
 	var folderId;
 	var folderIdMatch = (/\/(\d+)\//).exec(location.pathname) || (/\?(\d+)$/).exec(location.search);
-	if (folderIdMatch) {
-		love.pageType = "collection";
-		folderId = folderIdMatch[1];
-	} else if ( (/\/favourites\/?$/).test(location) ) {
-		love.pageType = "featured";
-		if (eclipseCollections) {
-			folderId = document.querySelector("#sub-folder-gallery > [id]").id;
+	var searchText = ( new URLSearchParams(location.search) ).get("q");
+	love.pageType = ( () => {
+		if (folderIdMatch) {
+			folderId = folderIdMatch[1];
+			return "collection";
+		} else if ( (/\/favourites\/?$/).test(location) ) {
+			if (eclipseCollections) {
+				folderId = document.querySelector("#sub-folder-gallery > [id]").id;
+			}
+			return "featured";
+		} else if (location.toString().endsWith("/all") || location.search == "?catpath=/") {
+			return "allFaves";
+		} else if (searchText) {
+			return "search";
 		}
-	} else if (location.toString().endsWith("/all") || location.search == "?catpath=/") {
-		love.pageType = "allFaves";
-	} else {
-		// Assume search results
-		love.pageType = "search";
-	}
+		throw new Error("Can't determine page type");
+	} )();
 
 	var feed = document.querySelector('link[rel="alternate"][type="application/rss+xml"]');
 	if (feed) {
@@ -43,18 +46,21 @@ function findLove(win = window) {
 				love.feedHref = "https://backend.deviantart.com/rss.xml?" +
 					`q=favedbyid%3A${deviantId}&type=deviation`;
 			} else {
-				let searchText = ( new URLSearchParams(location.search) ).get("q");
 				love.feedHref = "https://backend.deviantart.com/rss.xml?" +
 					`q=(${encodeURIComponent(searchText)})+AND+(favedbyid%3A${deviantId})&type=deviation`;
 			}
 		} else {
+			if (!folderId) {
+				throw new Error("Can't determine feed URL");
+			}
 			love.feedHref = "https://backend.deviantart.com/rss.xml?" +
 				`q=favby%3A${deviantName}%2F${folderId}&type=deviation`;
 		}
 	}
 	
-	if (eclipseCollections) {
-		love.maxDeviations = ( () => {
+	// Optional value. Do not attempt to throw if it can't be determined.
+	love.maxDeviations = ( () => {
+		if (eclipseCollections) {
 			if (love.pageType == "search") { return null; }
 			var linkUrl = (love.pageType == "featured")
 				? `${location}/${folderId}/featured`
@@ -64,21 +70,14 @@ function findLove(win = window) {
 			var deviationsMatch = (/\n(\d+) deviations/).exec( linkElem.innerText );
 			if (!deviationsMatch) { return null; }
 			return deviationsMatch[1];
-		} )();
-	} else {
-		let element = document.querySelector("#gallery_pager");
-		love.maxDeviations = element ? Number(element.getAttribute("gmi-limit")) : null;
-		// "1" is a junk value DeviantArt uses when it doesn't know
-		if (love.maxDeviations == 1) {
-			love.maxDeviations = null;
+		} else {
+			let element = document.querySelector("#gallery_pager");
+			let candidateValue = element ? Number(element.getAttribute("gmi-limit")) : null;
+			// "1" is a junk value DeviantArt uses when it doesn't know
+			if (candidateValue == 1) { return null; }
+			return candidateValue;
 		}
-	}
+	} )();
 
 	return love;
 }
-
-chrome.runtime.sendMessage({action: "showLove"});
-// Workaround for https://bugzilla.mozilla.org/show_bug.cgi?id=1485863
-window.addEventListener("pagehide", () => {
-	chrome.runtime.sendMessage({action: "hideLove"});
-});

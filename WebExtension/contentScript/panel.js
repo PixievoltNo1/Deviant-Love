@@ -5,7 +5,8 @@
 */
 "use strict";
 
-// TODO: Respond to the page state changing
+function panelSetup(love) {
+
 var panel = document.createElement("iframe");
 panel.id = "DeviantLovePanel";
 panel.classList.add("hide");
@@ -33,21 +34,27 @@ var panelState = "inactive";
 var panelInitialized = false;
 var extraStartData = {};
 
-chrome.runtime.onMessage.addListener( function(thing, buddy, callback) {switch (thing.action) {
-	case "spark":
-		if (panelState == "inactive") {activate()} else
-		if (panelState == "active") {deactivate()};
-	break;
-	case "artistRequested":
-		if (panelState == "inactive") {activate(thing.artist)}
-	break;
-	case "getStartData":
-		callback( Object.assign({
-			love: findLove(),
-			mobile: mobileCheck.matches,
-		}, extraStartData) );
-	break;
-}} );
+chrome.runtime.onMessage.addListener(messageHandler);
+function messageHandler(thing, buddy, callback) {
+	switch (thing.action) {
+		case "spark":
+			if (panelState == "inactive") {
+				activate();
+			} else if (panelState == "active") {
+				deactivate();
+			}
+			break;
+		case "artistRequested":
+			if (panelState == "inactive") { activate(thing.artist); }
+			break;
+		case "getStartData":
+			callback(Object.assign({
+				love,
+				mobile: mobileCheck.matches,
+			}, extraStartData));
+			break;
+	}
+}
 
 function handleMobile() {
 	var {matches} = mobileCheck;
@@ -57,6 +64,12 @@ function handleMobile() {
 }
 handleMobile();
 mobileCheck.addListener(handleMobile);
+
+return () => {
+	panel.remove();
+	shield.remove();
+	chrome.runtime.onMessage.removeListener(messageHandler);
+};
 
 function activate(firstDeviant) {
 	panelState = "preparing";
@@ -107,4 +120,6 @@ function deactivate() {
 		document.head.appendChild(icon);
 	}
 	document.title = document.title.replace("Deviant Love - ", "");
+}
+
 }

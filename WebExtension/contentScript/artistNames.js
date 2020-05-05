@@ -5,29 +5,30 @@
 */
 "use strict";
 
+function artistNamesSetup() {
+
 var artistNames = new Set();
-var container, linkSelector, getArtistFromLink;
-// First selector gets the All/collection container, second selector gets the search results container
-container = document.querySelector("#sub-folder-gallery > :last-child,"
-	+ "[data-hook='gallection_folder'] ~ :last-child");
-if (container) {
+var root, linkSelector, getArtistFromLink;
+var landmark = document.querySelector("[data-hook='gallection_folder']");
+if (landmark) {
 	// Eclipse
+	root = landmark.parentElement.parentElement;
 	linkSelector = ".user-link";
 	getArtistFromLink = (linkElem) => linkElem.dataset.username;
 } else {
 	// Pre-Eclipse
-	container = document.querySelector(".torpedo-container");
+	root = document.querySelector(".torpedo-container");
 	linkSelector = "a.username";
 	getArtistFromLink = (linkElem) => linkElem.textContent;
 }
-for ( let link of container.querySelectorAll(linkSelector) ) {
+for ( let link of root.querySelectorAll(linkSelector) ) {
 	artistNames.add( getArtistFromLink(link) );
 }
 chrome.runtime.sendMessage({ action: "addArtistNames", names: [...artistNames] });
-(new MutationObserver(findAdditions)).observe(container, { childList: true });
+(new MutationObserver(findAdditions)).observe(root, { childList: true, subtree: true });
 function findAdditions() {
 	var newNames = [];
-	for (let link of container.querySelectorAll(linkSelector)) {
+	for (let link of root.querySelectorAll(linkSelector)) {
 		let name = getArtistFromLink(link);
 		if (artistNames.has(name)) { continue; }
 		artistNames.add(name);
@@ -38,6 +39,13 @@ function findAdditions() {
 	}
 }
 
-chrome.runtime.onMessage.addListener(({action}, buddy, callback) => {
+chrome.runtime.onMessage.addListener(messageHandler);
+function messageHandler({ action }, buddy, callback) {
 	if (action == "getArtistNames") { callback([...artistNames]); }
-});
+}
+
+return () => {
+	chrome.runtime.onMessage.removeListener(messageHandler);
+}
+
+}
