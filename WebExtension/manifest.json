@@ -24,7 +24,6 @@
 		"chrome_style": true,
 		"browser_style": true
 	},
-	"options_page": "options/options.html",
 	"content_scripts": [{
 		"matches": [
 			"*://www.deviantart.com/*"
