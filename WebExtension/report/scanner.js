@@ -6,7 +6,9 @@
 "use strict";
 
 function researchLove(favesURL, maxDeviations) {
-	var currentXHRs = new Set(), paused = false, onResume = [grabMorePages], onRetry = [];
+	var paused = false, onResume = [grabMorePages], onRetry = [];
+	var globalAborter = new AbortController(), { signal } = globalAborter;
+	var parser = new DOMParser();
 
 	var favesResult = $.Deferred(), watchedResult = $.Deferred();
 	var api = {
@@ -14,9 +16,7 @@ function researchLove(favesURL, maxDeviations) {
 		progress: $.Callbacks(),
 		watched: Promise.resolve(watchedResult),
 		cancel: function() {
-			for (var XHR of currentXHRs) {
-				XHR.abort();
-			}
+			globalAborter.abort();
 		},
 		retry: function() {
 			onRetry.forEach( function(handler) { handler(); } );
@@ -29,29 +29,30 @@ function researchLove(favesURL, maxDeviations) {
 			onResume = [grabMorePages];
 		}
 	};
-	function registerXHR(XHR) {
-		currentXHRs.add(XHR);
-		return XHR.always( function() { currentXHRs.delete(XHR); } );
-	}
 
-	var favesPerPage, allowedXHRs = 6, requestedPages = 0, processedPages = 0, totalPages,
-		pageXHRs = [], pageData = [], found = 0;
-	function retrieveFaves(page) {
-		var xhr = registerXHR( $.get(favesURL +
-			( page > 1 ? "&offset=" + ((page - 1) * favesPerPage) : "") ) );
-		xhr.page = page;
-		pageXHRs[page - 1] = xhr;
-		--allowedXHRs;
+	var favesPerPage, allowedFetches = 6, requestedPages = 0, processedPages = 0, totalPages,
+		pageData = [], found = 0, pageAborters = [];
+	async function retrieveFaves(page) {
+		var aborter = pageAborters[page - 1] = new AbortController();
+		signal.addEventListener("abort", () => { aborter.abort(); });
+		--allowedFetches;
 		++requestedPages;
-
-		xhr.done(processFavesXML).fail(collectFailedPage).always( function() {
-			++allowedXHRs;
-		} );
+		try {
+			let reponse = await fetch(favesURL + "&offset=" + ((page - 1) * favesPerPage),
+				{ signal: aborter.signal });
+			let xmlDoc = parser.parseFromString(await reponse.text(), "text/xml");
+			processFavesXML(xmlDoc, page);
+		} catch (o_o) {
+			if (o_o instanceof AbortError) { return; }
+			collectFailedPage(page);
+		} finally {
+			++allowedFetches;
+		}
 	}
-	function processFavesXML(feed, status, xhr) {
-		if (xhr.page > totalPages) { return; }
+	function processFavesXML(doc, page) {
+		if (page > totalPages) { return; }
 		if (!totalPages) {
-			var linkToNext = $('channel > [rel="next"]', feed);
+			var linkToNext = $('channel > [rel="next"]', doc);
 			if (linkToNext.length) {
 				if (!favesPerPage) {
 					var offsetCheckResults = linkToNext.attr("href").match(/offset\=(\d+)/);
@@ -61,17 +62,16 @@ function researchLove(favesURL, maxDeviations) {
 					}
 				}
 			} else {
-				totalPages = xhr.page;
+				totalPages = page;
 				favesPerPage = maxDeviations;
-				for (let laterXHR of pageXHRs.slice(xhr.page)) {
-					laterXHR.expectedFail = true;
-					laterXHR.abort();
+				for (let aborter of pageAborters.slice(page)) {
+					aborter.abort();
 				}
 			}
 		}
 		grabMorePages();
 		var items = [];
-		$("item", feed).each( function() {
+		$("item", doc).each( function() {
 			var item = {
 				deviationName: $("title:eq(0)", this).text(),
 				deviationPage: $("link", this).text(),
@@ -81,7 +81,7 @@ function researchLove(favesURL, maxDeviations) {
 			items.push(item);
 			++found;
 		} );
-		pageData[xhr.page - 1] = items;
+		pageData[page - 1] = items;
 		++processedPages;
 		var progressData = { found: found };
 		if (maxDeviations) {
@@ -95,13 +95,12 @@ function researchLove(favesURL, maxDeviations) {
 	retrieveFaves(1);
 	function grabMorePages() {
 		if (favesPerPage == null || paused) { return; }
-		while (allowedXHRs > 0 && (!totalPages || requestedPages < totalPages)) {
+		while (allowedFetches > 0 && (!totalPages || requestedPages < totalPages)) {
 			retrieveFaves(requestedPages + 1);
 		}
 	}
 	var firstFail = true;
-	function collectFailedPage(xhr) {
-		if (xhr.expectedFail) { return; }
+	function collectFailedPage(page) {
 		if (firstFail) {
 			firstFail = false;
 			onRetry.push( function() { firstFail = true; } );
@@ -109,41 +108,44 @@ function researchLove(favesURL, maxDeviations) {
 			favesResult.reject({ retryResult: Promise.resolve(retryResult) });
 			favesResult = retryResult;
 		}
-		onRetry.push( retrieveFaves.bind(null, xhr.page) );
+		onRetry.push( retrieveFaves.bind(null, page) );
 	}
 
 	var watchlistPage = 0, greatOnes = new Set();
-	function retrieveWatchlist() {
-		registerXHR( $.getJSON("http://my.deviantart.com/global/difi/?c%5B%5D=%22Friends%22%2C%22getFriendsList%22%2C%5Btrue%2C"
-			+ watchlistPage + "%5D&t=json") )
-			.done(processWatchJSON).fail( function(jqXHR, status) {
-				if (status == "timeout" || status == "abort") {
-					var retryResult = $.Deferred();
-					watchedResult.reject({ reason: "netError", retryResult: Promise.resolve(retryResult) });
-					watchedResult = retryResult;
-					onRetry.push(retrieveWatchlist);
-				} else {
-					watchedResult.reject({ reason: "scannerIssue" });
-				}
-			}  );
+	async function retrieveWatchlist() {
+		try {
+			var response = await fetch("http://my.deviantart.com/global/difi/"
+				+ "?c%5B%5D=%22Friends%22%2C%22getFriendsList%22%2C%5Btrue%2C"
+				+ watchlistPage + "%5D&t=json", {signal});
+			var json = await response.text(); 
+		} catch (o_o) {
+			var retryResult = $.Deferred();
+			watchedResult.reject({ reason: "netError", retryResult: Promise.resolve(retryResult) });
+			watchedResult = retryResult;
+			onRetry.push(retrieveWatchlist);
+			return;
+		}
+		try {
+			processWatchJSON( JSON.parse(json) );
+		} catch (o_o) {
+			if (o_o.reason) {
+				watchedResult.reject(o_o);
+			} else {
+				console.error(o_o);
+				watchedResult.reject({ reason: "scannerIssue" });
+			}
+		}
 	}
 	function processWatchJSON(digHere) {
 		var response = digHere.DiFi.response.calls[0].response;
 		if (response.status === "NOEXEC_HALT") {
-			watchedResult.reject({ reason: "notLoggedIn" });
-			return;
+			throw { reason: "notLoggedIn" };
 		}
-		try {
-			response.content[0].forEach( function(deviant) {
-				if (deviant.attributes & 2) {
-					greatOnes.add(deviant.username);
-				}
-			} );
-		} catch(e) {
-			console.error(e);
-			watchedResult.reject({ reason: "scannerIssue" });
-			return;
-		}
+		response.content[0].forEach( function(deviant) {
+			if (deviant.attributes & 2) {
+				greatOnes.add(deviant.username);
+			}
+		} );
 		if (response.content[0].length == 100) { // That means there may be more friends
 			++watchlistPage;
 			if (!paused) {
