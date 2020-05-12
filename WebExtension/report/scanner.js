@@ -10,11 +10,11 @@ function researchLove(favesURL, maxDeviations) {
 	var globalAborter = new AbortController(), { signal } = globalAborter;
 	var parser = new DOMParser();
 
-	var favesResult = $.Deferred(), watchedResult = $.Deferred();
+	var favesResolve, favesReject, watchedResolve, watchedReject;
 	var api = {
-		faves: Promise.resolve(favesResult),
+		faves: new Promise( (res, rej) => { favesResolve = res, favesReject = rej; } ),
 		progress: $.Callbacks(),
-		watched: Promise.resolve(watchedResult),
+		watched: new Promise( (res, rej) => { watchedResolve = res, watchedReject = rej; } ),
 		cancel: function() {
 			globalAborter.abort();
 		},
@@ -89,7 +89,7 @@ function researchLove(favesURL, maxDeviations) {
 		}
 		api.progress.fire(progressData);
 		if (processedPages >= totalPages) {
-			favesResult.resolve( Array.prototype.concat.apply([], pageData) );
+			favesResolve( [].concat(...pageData) );
 		}
 	}
 	retrieveFaves(1);
@@ -104,9 +104,9 @@ function researchLove(favesURL, maxDeviations) {
 		if (firstFail) {
 			firstFail = false;
 			onRetry.push( function() { firstFail = true; } );
-			var retryResult = $.Deferred();
-			favesResult.reject({ retryResult: Promise.resolve(retryResult) });
-			favesResult = retryResult;
+			let oldReject = favesReject;
+			let retryResult = new Promise( (res, rej) => { favesResolve = res, favesReject = rej; } );
+			oldReject({retryResult});
 		}
 		onRetry.push( retrieveFaves.bind(null, page) );
 	}
@@ -119,9 +119,9 @@ function researchLove(favesURL, maxDeviations) {
 				+ watchlistPage + "%5D&t=json", {signal});
 			var json = await response.text(); 
 		} catch (o_o) {
-			var retryResult = $.Deferred();
-			watchedResult.reject({ reason: "netError", retryResult: Promise.resolve(retryResult) });
-			watchedResult = retryResult;
+			let oldReject = watchedReject;
+			let retryResult = new Promise((res, rej) => { watchedResolve = res, watchedReject = rej; });
+			oldReject({ reason: "netError", retryResult });
 			onRetry.push(retrieveWatchlist);
 			return;
 		}
@@ -129,10 +129,10 @@ function researchLove(favesURL, maxDeviations) {
 			processWatchJSON( JSON.parse(json) );
 		} catch (o_o) {
 			if (o_o.reason) {
-				watchedResult.reject(o_o);
+				watchedReject(o_o);
 			} else {
 				console.error(o_o);
-				watchedResult.reject({ reason: "scannerIssue" });
+				watchedReject({ reason: "scannerIssue" });
 			}
 		}
 	}
@@ -154,7 +154,7 @@ function researchLove(favesURL, maxDeviations) {
 				onResume.push(retrieveWatchlist)
 			}
 		} else {
-			watchedResult.resolve(greatOnes);
+			watchedResolve(greatOnes);
 		}
 	}
 	retrieveWatchlist();
