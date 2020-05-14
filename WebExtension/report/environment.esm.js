@@ -44,8 +44,10 @@ export function closeDeviantLove() {
 	chrome.runtime.sendMessage({action: "echo", echoAction: "spark"});
 }
 
-$(document).delegate("a", "click", function(event) {
-	if (event.button == 0) { window.open(this.href); }
+document.addEventListener("click", (event) => {
+	var link = event.target.closest("a");
+	if (!link) { return; }
+	window.open(link.href);
 	event.preventDefault();
 });
 history.pushState(true, "");
