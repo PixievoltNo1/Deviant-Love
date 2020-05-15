@@ -7,7 +7,7 @@ export function getL10nMsg(msgName, replacements) {
 	return chrome.i18n.getMessage(msgName, replacements);
 }
 export function retrieve(keys) {
-	var request = new $.Deferred();
+	var resolve, promise = new Promise( (resolveFn) => { resolve = resolveFn; } );
 	chrome.storage.local.get(keys, function(data) {
 		for (var key in data) {
 			var item = data[key];
@@ -15,9 +15,9 @@ export function retrieve(keys) {
 				data[key] = JSON.parse(item);
 			}
 		}
-		request.resolve(data);
+		resolve(data);
 	});
-	return request.promise();
+	return promise;
 }
 export function store(key, data) {
 	if (typeof data != "number" && typeof data != "boolean") {

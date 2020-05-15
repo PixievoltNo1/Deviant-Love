@@ -18,11 +18,11 @@
 import { writable, get as readStore } from "svelte/store";
 import * as prefs from "../prefStores.esm.js";
 import * as env from "./environment.esm.js";
+import researchLove from "./scanner.esm.js";
 export var showDeviant;
 import PreparationScreen from "./svelte/PreparationScreen.svelte";
 import MainScreen from "./svelte/MainScreen.svelte";
 import * as subaccountsEditorSettings from "../options/subaccountsEditorCore.esm.js";
-import lookUpDeviant from "./lookUpDeviant.esm.js";
 import { init as initL10n } from "../l10nStore.esm.js";
 
 export var visible, mobile;
@@ -64,15 +64,15 @@ Object.defineProperties(Deviant.prototype, {
 	}
 });
 function prepare(love) {
+	var scannerController = researchLove(love.feedHref, love.maxDeviations);
 	var screen = new PreparationScreen({
 		target: document.body,
 		props: {
 			pageType: love.pageType,
 			maxDeviations: love.maxDeviations,
+			progress: scannerController.progress,
 		}
 	});
-	var scannerController = researchLove(love.feedHref, love.maxDeviations);
-	scannerController.progress.add((data) => { screen.$set(data); });
 	var faves = scannerController.faves.catch( function catcher(thrown) {
 		scanError();
 		return thrown.retryResult.catch(catcher);
@@ -246,14 +246,13 @@ usingTouch.subscribe( (val) => {
 } );
 
 export var tip = writable();
-function nextTip() {
-	return Promise.all(
-		[env.retrieve("nextTip"), $.getJSON( env.getL10nMsg("fileTipOfTheMoment") )]
-	).then(function(results) {
-		var nextTip = results[0].nextTip || 0, tips = results[1];
-		tip.set(tips[nextTip]);
-		nextTip++;
-		if (nextTip >= tips.length) {nextTip = 0;};
-		env.store("nextTip", nextTip);
-	});
+async function nextTip() {
+	var [nextTip, tips] = await Promise.all([
+		env.retrieve("nextTip").then( (result) => { return result.nextTip || 0; } ),
+		fetch( env.getL10nMsg("fileTipOfTheMoment") ).then( (request) => request.json() ),
+	]);
+	tip.set(tips[nextTip]);
+	nextTip++;
+	if (nextTip >= tips.length) {nextTip = 0;};
+	env.store("nextTip", nextTip);
 }

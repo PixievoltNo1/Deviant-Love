@@ -3,9 +3,9 @@
 	Copyright Pixievolt No. 1
 	Check core.esm.js for the complete legal stuff.
 */
-"use strict";
+import { writable } from "svelte/store";
 
-function researchLove(favesURL, maxDeviations) {
+export default function researchLove(favesURL, maxDeviations) {
 	var paused = false, onResume = [grabMorePages], onRetry = [];
 	var globalAborter = new AbortController(), { signal } = globalAborter;
 	var parser = new DOMParser();
@@ -13,7 +13,7 @@ function researchLove(favesURL, maxDeviations) {
 	var favesResolve, favesReject, watchedResolve, watchedReject;
 	var api = {
 		faves: new Promise( (res, rej) => { favesResolve = res, favesReject = rej; } ),
-		progress: $.Callbacks(),
+		progress: writable({ found: 0, percent: 0 }),
 		watched: new Promise( (res, rej) => { watchedResolve = res, watchedReject = rej; } ),
 		cancel: function() {
 			globalAborter.abort();
@@ -52,10 +52,10 @@ function researchLove(favesURL, maxDeviations) {
 	function processFavesXML(doc, page) {
 		if (page > totalPages) { return; }
 		if (!totalPages) {
-			var linkToNext = $('channel > [rel="next"]', doc);
-			if (linkToNext.length) {
+			var linkToNext = doc.querySelector('channel > [rel="next"]');
+			if (linkToNext) {
 				if (!favesPerPage) {
-					var offsetCheckResults = linkToNext.attr("href").match(/offset\=(\d+)/);
+					var offsetCheckResults = linkToNext.getAttribute("href").match(/offset\=(\d+)/);
 					favesPerPage = Number(offsetCheckResults[1]);
 					if (maxDeviations) {
 						totalPages = Math.ceil(maxDeviations / favesPerPage);
@@ -71,23 +71,24 @@ function researchLove(favesURL, maxDeviations) {
 		}
 		grabMorePages();
 		var items = [];
-		$("item", doc).each( function() {
-			var item = {
-				deviationName: $("title:eq(0)", this).text(),
-				deviationPage: $("link", this).text(),
-				artistName: $('[role="author"]:eq(0)', this).text(),
-				artistAvatar: $('[role="author"]:eq(1)', this).text()
+		for ( let itemElem of doc.querySelectorAll("item") ) {
+			let authorElems = itemElem.querySelectorAll('[role="author"]');
+			let item = {
+				deviationName: itemElem.querySelector("title").textContent,
+				deviationPage: itemElem.querySelector("link").textContent,
+				artistName: authorElems[0].textContent,
+				artistAvatar: authorElems[1].textContent,
 			};
 			items.push(item);
 			++found;
-		} );
+		}
 		pageData[page - 1] = items;
 		++processedPages;
 		var progressData = { found: found };
 		if (maxDeviations) {
 			progressData.percent = Math.min( (processedPages * favesPerPage) / maxDeviations, 1);
 		}
-		api.progress.fire(progressData);
+		api.progress.set(progressData);
 		if (processedPages >= totalPages) {
 			favesResolve( [].concat(...pageData) );
 		}
