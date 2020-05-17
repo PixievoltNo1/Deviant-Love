@@ -55,6 +55,20 @@
 		background-position: center;
 		background-repeat: no-repeat;
 	}
+	#openHamburgerMenu::before, #closeHamburgerMenu::before {
+		content: "";
+		display: block;
+		position: absolute;
+		right: 4px;
+		bottom: 4px;
+		width: 9px;
+		height: 9px;
+		opacity: 0.5;
+		background-size: contain;
+		background-repeat: no-repeat;
+	}
+	#openHamburgerMenu::before { background-image: url(/images/hamburger.svg); }
+	#closeHamburgerMenu::before { background-image: url(/images/collapse.svg); }
 	#hamburgerMenu {
 		--starting-transform: translate(-100%, -100%) translate(58px, 58px);
 		width: 140px;
