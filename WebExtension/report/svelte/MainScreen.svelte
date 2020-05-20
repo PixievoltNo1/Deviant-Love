@@ -117,6 +117,9 @@ export async function showDeviantInMain(deviantName) {
 					<button type="button" id="closeHamburgerMenu" on:click="{closeHamburgerMenu}"></button>
 				</div>
 			{/if}
+		{:else}
+			<button type="button" class="action optionsAction" class:current="{'options' == mode}"
+				on:click="{() => useAction('options')}"></button>
 		{/if}
 		<div id="scanResults">
 			<div id="favesLine" use:squishToFit>

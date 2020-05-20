@@ -104,13 +104,6 @@
 		border-left: 1px solid var(--inner-border-color);
 		background-color: transparent;
 	}
-#actionBar {
-	display: flex;
-	flex-direction: row;
-	align-items: center;
-    background: hsl(35, 100%, 50%);
-	height: 25px; /* include 1px border */
-}
 .action {
 	flex: none;
 	display: flex;
@@ -120,7 +113,7 @@
 	border: none;
 	padding: 0;
 }
-:not(.usingTouch) .action:hover {
+body:not(.usingTouch) .action:hover:not(:active):not(.current) {
 	background: hsla(0, 0%, 100%, 0.55);
 }
 .action:active {
@@ -128,8 +121,6 @@
 }
 .action.current {
 	background: hsla(0, 0%, 100%, 0.70);
-    height: 22px;
-    border: 1px solid hsla(0, 0%, 0%, 0.4);
 }
 .action.current:active {
 	background: hsla(0, 0%, 80%, 0.70);
@@ -142,19 +133,28 @@
 }
 .findAction::before { background-image: url(/images/find.svg); }
 .optionsAction::before { background-image: url(/images/iconmonstr/gear-1-recolored.svg); }
-#actionBar .action {
-	justify-content: center;
-	margin-right: auto;
-	width: 90px;
-	height: 20px;
-	border-radius: 4px;
-	font-size: 15.5px;
+#header > .optionsAction {
+	position: absolute;
+	top: -2px;
+	right: 0;
+	border: 2px solid black;
+	border-right: none;
+	border-bottom-left-radius: 8px;
+	padding: 4px;
+	background: hsl(35, 100%, 50%);
+	z-index: 1;
 }
-#actionBar .action:first-child {
-	margin-left: auto;
+#header > .optionsAction + #scanResults {
+	margin-right: 24px;
 }
-#actionBar .action::before {
-	margin-right: 4px;
+body:not(.usingTouch) #header > .optionsAction:hover:not(:active):not(.current) {
+	background: hsl(35, 100%, 65%);
+}
+#header > .optionsAction:active {
+	background: hsl(35, 100%, 40%);
+}
+#header > .optionsAction.current:not(:active) {
+	background: hsl(35, 100%, 80%);
 }
 #actionList .action {
 	width: 100%;
