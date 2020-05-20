@@ -25,6 +25,18 @@ p:last-child { margin-bottom: 0; }
 	font-size: 14.5px;
 }
 
+#DeviantLoveLinks {
+	margin: 0.3em 0;
+	list-style: none;
+	padding: 0;
+}
+	#DeviantLoveLinks li {
+		display: inline-block;
+	}
+	#DeviantLoveLinks li:not(:last-child)::after { content: " | "; }
+	#groupLink a::before { content: "🏠 "; }
+	#sponsorLink a::before { content: "💸 "; }
+
 #subaccountsEditor {
 	border: 1px solid black;
 	background: hsl(218, 100%, 62%);

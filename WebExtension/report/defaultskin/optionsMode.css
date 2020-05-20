@@ -18,6 +18,17 @@
 	font-weight: bold;
 	margin: 7px 0;
 }
+#DeviantLoveLinks {
+	margin: 0.3em 0;
+	list-style: none;
+	padding: 0;
+}
+	#DeviantLoveLinks li {
+		display: inline-block;
+	}
+	#DeviantLoveLinks li:not(:last-child)::after { content: " | "; }
+	#groupLink a::before { content: "🏠 "; }
+	#sponsorLink a::before { content: "💸 "; }
 .subaccountsMessage, #syncStatus {
 	padding: 7px;
 	font-size: 12px;
