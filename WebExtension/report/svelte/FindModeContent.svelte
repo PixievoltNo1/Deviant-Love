@@ -7,14 +7,13 @@ import DeviationList from "./DeviationList.svelte";
 import Avatar from "./Avatar.svelte";
 import { beforeUpdate, afterUpdate, tick } from 'svelte';
 
-export var close, showDeviantInMain;
+export let close, showDeviantInMain;
+export let watchedArtists;
 
 let queryResults = helper.resultsStore;
 let oldQueryResults;
 let input = $queryResults ? $queryResults.for : "";
 let queryError;
-export let watchedArtists;
-let openDeviant;
 let {findAsYouType} = prefStores;
 
 let deviantList;
