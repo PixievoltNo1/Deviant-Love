@@ -79,8 +79,8 @@ function closeHamburgerMenu() {
 		hamburgerMenuOpen = false, hamburgerMenuClosing = false, hamburgerMenuAnimation = null;
 	};
 }
-$: if (hamburgerMenuOpen && !$visible) {
-	hamburgerMenuOpen = false, hamburgerMenuAnimation = null;
+$: if ( hamburgerMenuOpen && (!$visible || !$mobile) ) {
+	hamburgerMenuOpen = false, hamburgerMenuClosing = false, hamburgerMenuAnimation = null;
 	if (history.state == hamburgerMenuHistoryState) {
 		history.back();
 	}
