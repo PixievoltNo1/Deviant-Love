@@ -14,6 +14,7 @@ chrome.runtime.sendMessage({action: "echoWithCallback", echoAction: "getStartDat
 		chrome.runtime.sendMessage({action: "echo", echoAction: "panelReady"});
 	}
 );
+history.pushState(true, "");
 var historyVisibleState = true;
 chrome.runtime.onMessage.addListener(function(thing, buddy, callback) {switch (thing.action) {
 	case "showing":
@@ -23,6 +24,9 @@ chrome.runtime.onMessage.addListener(function(thing, buddy, callback) {switch (t
 		Promise.all(waitFor).then(() => {
 			callback();
 		});
+		if (history.state == null) {
+			history.pushState(true, "");
+		}
 		historyVisibleState = true;
 		return true;
 	break;
@@ -50,7 +54,6 @@ document.addEventListener("click", (event) => {
 	window.open(link.href);
 	event.preventDefault();
 });
-history.pushState(true, "");
 window.addEventListener("popstate", () => {
 	if ( (history.state != null) != historyVisibleState ) {
 		chrome.runtime.sendMessage({ action: "echo", echoAction: "spark" });

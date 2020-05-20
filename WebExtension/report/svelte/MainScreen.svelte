@@ -34,12 +34,13 @@ function changeMode() {
 
 var hamburgerMenu;
 var hamburgerMenuOpen;
+var hamburgerMenuClosing;
 var hamburgerMenuAnimation;
-const hamburgerMenuHistoryState = {};
+const hamburgerMenuEasing = "cubic-bezier(0, 0, .6, 1)";
 async function openHamburgerMenu() {
 	if (hamburgerMenuOpen) { return; }
 	hamburgerMenuOpen = true;
-	history.pushState(hamburgerMenuHistoryState, "");
+	history.pushState({hamburgerMenu: true}, "");
 	window.addEventListener("popstate", closeHamburgerMenu);
 	await tick();
 	var animation = hamburgerMenu.animate({
@@ -49,21 +50,32 @@ async function openHamburgerMenu() {
 		],
 	}, {
 		duration: 400,
+		easing: hamburgerMenuEasing,
 		fill: "backwards",
 	});
 	hamburgerMenuAnimation = animation;
 }
 function closeHamburgerMenu() {
-	var animation = hamburgerMenuAnimation;
-	// stop if the menu is already closing
-	if (animation.playbackRate == -1) { return; }
+	if (hamburgerMenuClosing) { return; }
+	hamburgerMenuClosing = true;
 	window.removeEventListener("popstate", closeHamburgerMenu);
-	if (history.state == hamburgerMenuHistoryState) {
+	if (typeof history.state == "object" && history.state.hamburgerMenu) {
 		history.back();
 	}
-	animation.reverse();
+	var oldTransform = getComputedStyle(hamburgerMenu).transform;
+	hamburgerMenuAnimation.cancel();
+	var animation = hamburgerMenu.animate({
+		transform: [
+			oldTransform,
+			getComputedStyle(hamburgerMenu).getPropertyValue("--starting-transform") || "none"
+		],
+	}, {
+		duration: 400,
+		easing: hamburgerMenuEasing,
+		fill: "backwards",
+	});
 	animation.onfinish = () => {
-		hamburgerMenuOpen = false, hamburgerMenuAnimation = null;
+		hamburgerMenuOpen = false, hamburgerMenuClosing = false, hamburgerMenuAnimation = null;
 	};
 }
 $: if (hamburgerMenuOpen && !$visible) {
