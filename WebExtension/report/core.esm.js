@@ -16,6 +16,7 @@
 	along with Deviant Love.  If not, see <http://www.gnu.org/licenses/>.
 */
 import { writable, get as readStore } from "svelte/store";
+import { tick } from "svelte";
 import * as prefs from "../prefStores.esm.js";
 import * as env from "./environment.esm.js";
 import researchLove from "./scanner.esm.js";
@@ -195,7 +196,9 @@ function report(results, love) {
 	});
 	screen.$on("closeRequested", env.closeDeviantLove);
 	findModeContentHelper = {
-		submitQuery(query) {
+		async submitQuery(query) {
+			screen.$set({mode: "find"});
+			await tick();
 			findWorker.postMessage({query});
 		},
 		resultsStore: writable(null),

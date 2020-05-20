@@ -12,6 +12,13 @@
 #findBar > * {
 	height: 20px;
 }
+	#findBar.findAsYouType #query {
+		padding-left: 1.4em;
+		background-image: url(/images/find.svg);
+		background-size: 1em 1em;
+		background-repeat: no-repeat;
+		background-position: 0.2em center;
+	}
 	#goFind {
 		display: flex;
 		flex-direction: row;

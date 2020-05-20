@@ -7,35 +7,14 @@ import DeviationList from "./DeviationList.svelte";
 import Avatar from "./Avatar.svelte";
 import { beforeUpdate, afterUpdate, tick } from 'svelte';
 
-export let close, showDeviantInMain;
+export let showDeviantInMain;
 export let watchedArtists;
 
 let queryResults = helper.resultsStore;
 let oldQueryResults;
-let input = $queryResults ? $queryResults.for : "";
-let queryError;
-let {findAsYouType} = prefStores;
 
 let deviantList;
 
-$: handleInput(input);
-function handleInput(query) {
-	var invalidChar = query.search(/[^a-zA-Z0-9 \_\'\"\+\.\,\$\?\:\-\!\=\~\`\@\#\%\^\*\[\]\(\)\/\{\}\\\|\&]/);
-	if (invalidChar != -1) {
-		queryError = { errMsg: "findErrorForbiddenCharacter", parts: {char: query.charAt(invalidChar)} };
-		return;
-	}
-	queryError = undefined;
-	if ($findAsYouType && query.length != 1) { handleSubmit(); }
-}
-function handleSubmit() {
-	if (queryError) { return; }
-	if (input == "") {
-		$queryResults = null;
-		return;
-	}
-	helper.submitQuery(input);
-}
 beforeUpdate(async () => {
 	if ($queryResults && $queryResults != oldQueryResults) {
 		// If the new results are for a new query
@@ -74,7 +53,7 @@ afterUpdate(() => {
 
 let showAmpersandHint;
 $: {
-	let checkMe = $queryResults ? $queryResults.for : input;
+	let checkMe = $queryResults ? $queryResults.for : "";
 	showAmpersandHint = checkMe.indexOf(" ") != -1 && checkMe.indexOf("&") == -1;
 }
 
@@ -82,19 +61,6 @@ $: hasResults = $queryResults &&
 	Boolean($queryResults.deviants.length || $queryResults.deviations.length);
 </script>
 
-<form id="findBar" class="textEntryLine" class:findAsYouType="{$findAsYouType}"
-	on:submit|preventDefault="{handleSubmit}">
-	<!-- svelte-ignore a11y-autofocus -->
-	<input type="text" id="query" bind:value="{input}" autofocus>
-	{#if !$findAsYouType}
-		<button type="submit" id="goFind">{$l10n("findGo")}</button>
-	{/if}
-	<button type="button" class="closeButton" on:click={close}>
-		{$l10n("close")}</button>
-</form>
-{#if queryError}
-	<div id="queryError">{$l10n(queryError.errMsg, queryError.parts)}</div>
-{/if}
 <div id="resultsDisplay" style="overflow-y: auto; overflow-x: hidden; position: relative;"
 	class:hasResults>
 	{#if $queryResults}
@@ -125,8 +91,6 @@ $: hasResults = $queryResults &&
 		{#if !hasResults}
 			<div id="noResults">{$l10n("foundNothing")}</div>
 		{/if}
-	{:else}
-		<div id="findHelp">{$l10n("findHelp")}</div>
 	{/if}
 	{#if showAmpersandHint}
 		<div id="ampersandHint" class="notice">{$l10n("findAmpersandHint")}</div>

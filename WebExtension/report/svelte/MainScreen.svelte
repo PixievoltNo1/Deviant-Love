@@ -2,6 +2,7 @@
 import l10n from "../../l10nStore.esm.js";
 import { mobile, visible, tip } from "../core.esm.js";
 import DeviantList from "./DeviantList.svelte";
+import FindBar from "./FindBar.svelte";
 import FindModeContent from "./FindModeContent.svelte";
 import GeneralOptions from "../../options/svelte/GeneralOptions.svelte";
 import SubaccountsEditor from "../../options/svelte/SubaccountsEditor.svelte";
@@ -127,12 +128,7 @@ export async function showDeviantInMain(deviantName) {
 		</div>
 	</div>
 	{#if !$mobile}
-		<div id="actionBar">
-			{#each actionList as action}
-				<button type="button" class="action {action}Action" class:current="{action == mode}"
-					on:click="{() => useAction(action)}">{$l10n(action + "Action")}</button>
-			{/each}
-		</div>
+		<FindBar close="{() => mode = 'normal'}" showClose={mode == "find"}/>
 	{/if}
 	<div id="lovedArtists" style="overflow-y: auto; overflow-x: hidden; position: relative;">
 		{#if mode == "normal"}
@@ -143,7 +139,10 @@ export async function showDeviantInMain(deviantName) {
 			{/if}
 			<DeviantList deviants={deviantList} {watchedArtists} bind:this={normalDeviantList}/>
 		{:else if mode == "find"}
-			<FindModeContent {watchedArtists} close="{() => mode = 'normal'}" {showDeviantInMain}/>
+			{#if $mobile}
+				<FindBar close="{() => mode = 'normal'}" showClose={true} autofocus={true}/>
+			{/if}
+			<FindModeContent {watchedArtists} {showDeviantInMain}/>
 		{:else if mode == "options"}
 			<button type="button" class="closeButton" on:click="{() => mode = 'normal'}">
 				{$l10n("close")}</button>
