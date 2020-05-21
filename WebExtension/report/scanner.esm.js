@@ -43,7 +43,7 @@ export default function researchLove(favesURL, maxDeviations) {
 			let xmlDoc = parser.parseFromString(await reponse.text(), "text/xml");
 			processFavesXML(xmlDoc, page);
 		} catch (o_o) {
-			if (o_o instanceof AbortError) { return; }
+			if (o_o instanceof DOMException && o_o.name == "AbortError") { return; }
 			collectFailedPage(page);
 		} finally {
 			++allowedFetches;
