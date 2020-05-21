@@ -8,24 +8,14 @@
 function artistNamesSetup() {
 
 var artistNames = new Set();
-var root, linkSelector, getArtistFromLink;
-var landmark = document.querySelector("[data-hook='gallection_folder']");
-if (landmark) {
-	// Eclipse
-	root = landmark.parentElement.parentElement;
-	linkSelector = ".user-link";
-	getArtistFromLink = (linkElem) => linkElem.dataset.username;
-} else {
-	// Pre-Eclipse
-	root = document.querySelector(".torpedo-container");
-	linkSelector = "a.username";
-	getArtistFromLink = (linkElem) => linkElem.textContent;
-}
+var linkSelector = "section[data-hook='deviation_std_thumb'] .user-link";
+var getArtistFromLink = (linkElem) => linkElem.dataset.username;
 for ( let link of root.querySelectorAll(linkSelector) ) {
 	artistNames.add( getArtistFromLink(link) );
 }
 chrome.runtime.sendMessage({ action: "addArtistNames", names: [...artistNames] });
-(new MutationObserver(findAdditions)).observe(root, { childList: true, subtree: true });
+var pageObserver = new MutationObserver(findAdditions);
+pageObserver.observe(document.body, { childList: true, subtree: true });
 function findAdditions() {
 	var newNames = [];
 	for (let link of root.querySelectorAll(linkSelector)) {
@@ -45,6 +35,7 @@ function messageHandler({ action }, buddy, callback) {
 }
 
 return () => {
+	pageObserver.disconnect();
 	chrome.runtime.onMessage.removeListener(messageHandler);
 }
 

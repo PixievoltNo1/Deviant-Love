@@ -11,6 +11,7 @@ function findLove(win = window) {
 	var love = {};
 
 	var eclipseCollections = document.querySelector(`[data-hook="gallection_folder"]`);
+	var eclipseFolderGallery = document.querySelector("#sub-folder-gallery");
 	
 	var folderId;
 	var folderIdMatch = (/\/(\d+)\//).exec(location.pathname) || (/\?(\d+)$/).exec(location.search);
@@ -20,7 +21,7 @@ function findLove(win = window) {
 			folderId = folderIdMatch[1];
 			return "collection";
 		} else if ( (/\/favourites\/?$/).test(location) ) {
-			if (eclipseCollections) {
+			if (eclipseFolderGallery) {
 				folderId = document.querySelector("#sub-folder-gallery > [id]").id;
 			}
 			return "featured";
@@ -61,6 +62,7 @@ function findLove(win = window) {
 	// Optional value. Do not attempt to throw if it can't be determined.
 	love.maxDeviations = ( () => {
 		if (eclipseCollections) {
+			// TODO: Revise this to work around collections no longer having links
 			if (love.pageType == "search") { return null; }
 			var linkUrl = (love.pageType == "featured")
 				? `${location}/${folderId}/featured`
@@ -70,12 +72,6 @@ function findLove(win = window) {
 			var deviationsMatch = (/\n(\d+) deviations/).exec( linkElem.innerText );
 			if (!deviationsMatch) { return null; }
 			return deviationsMatch[1];
-		} else {
-			let element = document.querySelector("#gallery_pager");
-			let candidateValue = element ? Number(element.getAttribute("gmi-limit")) : null;
-			// "1" is a junk value DeviantArt uses when it doesn't know
-			if (candidateValue == 1) { return null; }
-			return candidateValue;
 		}
 	} )();
 
