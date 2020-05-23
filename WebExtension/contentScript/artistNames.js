@@ -10,7 +10,7 @@ function artistNamesSetup() {
 var artistNames = new Set();
 var linkSelector = "section[data-hook='deviation_std_thumb'] .user-link";
 var getArtistFromLink = (linkElem) => linkElem.dataset.username;
-for ( let link of root.querySelectorAll(linkSelector) ) {
+for ( let link of document.body.querySelectorAll(linkSelector) ) {
 	artistNames.add( getArtistFromLink(link) );
 }
 chrome.runtime.sendMessage({ action: "addArtistNames", names: [...artistNames] });
@@ -18,7 +18,7 @@ var pageObserver = new MutationObserver(findAdditions);
 pageObserver.observe(document.body, { childList: true, subtree: true });
 function findAdditions() {
 	var newNames = [];
-	for (let link of root.querySelectorAll(linkSelector)) {
+	for (let link of document.body.querySelectorAll(linkSelector)) {
 		let name = getArtistFromLink(link);
 		if (artistNames.has(name)) { continue; }
 		artistNames.add(name);

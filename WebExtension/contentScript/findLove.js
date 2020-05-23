@@ -61,18 +61,19 @@ function findLove(win = window) {
 	
 	// Optional value. Do not attempt to throw if it can't be determined.
 	love.maxDeviations = ( () => {
-		if (eclipseCollections) {
-			// TODO: Revise this to work around collections no longer having links
-			if (love.pageType == "search") { return null; }
-			var linkUrl = (love.pageType == "featured")
-				? `${location}/${folderId}/featured`
-				: location.toString();
-			var linkElem = eclipseCollections.querySelector(`a[href="${linkUrl}"]`);
-			if (!linkElem) { return null; }
-			var deviationsMatch = (/\n(\d+) deviations/).exec( linkElem.innerText );
-			if (!deviationsMatch) { return null; }
+		if (!eclipseFolderGallery || !eclipseCollections) { return null; }
+		try {
+			let collectionNameMatch = /^Current folder\: (.+)$/
+				.exec(eclipseFolderGallery.querySelector("h2").textContent);
+			var collectionElem = eclipseCollections
+				.querySelector(`[title="${collectionNameMatch[1]}"]`)
+				.closest("[data-hook^='gallection_folder']");
+			var deviationsMatch = (/\n(\d+) deviations$/).exec(collectionElem.innerText);
 			return deviationsMatch[1];
-		}
+		} catch (o_o) {
+			console.warn(o_o);
+			return null;
+		};
 	} )();
 
 	return love;
