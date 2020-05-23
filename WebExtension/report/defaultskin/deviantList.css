@@ -51,12 +51,13 @@
 	.artWatch {
 		grid-area: artWatch;
 		width: 22px;
-		background: url("/images/deviantart/DeviationWatch.png");
 		background-position: center;
 		background-repeat: no-repeat;
 	}
+	.artWatch.true { background-image: url("/images/deviantart/DeviationWatch.png"); }
 	.artWatch:not(.true) {
-		filter: brightness(0%) opacity(30%);
+		background-image: radial-gradient(circle at left 9px top 50%,
+			hsla(0, 0%, 0%, 0.3), hsla(0, 0%, 0%, 0.3) 3px, transparent 3px, transparent);
 	}
 	.subaccountsButton.mini {
 		grid-area: subaccounts;
