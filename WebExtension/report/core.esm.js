@@ -235,9 +235,11 @@ export var usingTouch = writable(false);
 document.body.addEventListener("touchstart", () => {
 	usingTouch.set(true);
 }, {passive: true});
-document.body.addEventListener("touchend", function prepareForSwitchToMouse(touchEvent) {
+document.body.addEventListener("touchend", function prepareForSwitchToMouse(lastTouch) {
+	document.body.addEventListener("touchend", updateLastTouch);
+	function updateLastTouch(touchEvent) { lastTouch = touchEvent; }
 	document.body.addEventListener("mousemove", function switchToMouse(mouseEvent) {
-		if (touchEvent.timeStamp - 200 < mouseEvent.timeStamp) { return; }
+		if (lastTouch.timeStamp + 350 > mouseEvent.timeStamp) { return; }
 		usingTouch.set(false);
 		document.body.removeEventListener("mousemove", switchToMouse);
 		document.body.addEventListener("touchend", prepareForSwitchToMouse,
