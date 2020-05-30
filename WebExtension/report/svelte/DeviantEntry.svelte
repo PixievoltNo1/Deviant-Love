@@ -1,24 +1,21 @@
 <script>
-import l10n from "../../l10nStore.esm.js";
-import { mobile, usingTouch } from "../core.esm.js";
-import prefStores from "../../prefStores.esm.js";
+import { usingTouch } from "../core.esm.js";
 import Avatar from "./Avatar.svelte";
 import DeviationList from "./DeviationList.svelte";
 import MiniSubaccountsEditor from "./MiniSubaccountsEditor.svelte";
 import anime from "animejs";
-import { tick } from 'svelte';
-
-var {subaccounts} = prefStores;
+import { tick } from "svelte";
+import { get } from "svelte/store";
 
 const closerLookEasing = [0, 0, .6, 1];
-export let deviant, note, watchedArtists, showDeviant;
+export let deviant, note, watchedArtists, showDeviant, l10n, hasSubaccounts;
 let subaccountsOpen = false;
 var opened, closing, openedByTouch;
 
 var root, closerLook;
 
 export async function open(transition) {
-	opened = true, openedByTouch = $usingTouch;
+	opened = true, openedByTouch = get(usingTouch);
 	await tick();
 	if (transition) {
 		var targetHeight = getComputedStyle(closerLook).height;
@@ -79,20 +76,20 @@ function toggleSubaccounts() {
 <div class="deviant" class:open={opened} class:openedByTouch id="deviant_{deviant.name}" bind:this={root}>
 	<div class="deviantHeader" on:click="{() => showDeviant(deviant.name)}">
 		{#if note}
-			<div class="deviantNote">{$l10n(...note)}</div>
+			<div class="deviantNote">{l10n(...note)}</div>
 		{/if}
 		{#if watchedArtists}
 			{#if watchedArtists.has(deviant.name)}
-				<div class="artWatch true" title="{$l10n('artWatched')}">&nbsp;</div>
+				<div class="artWatch true" title="{l10n('artWatched')}">&nbsp;</div>
 			{:else}
-				<div class="artWatch" title="{$l10n('artNotWatched')}">&nbsp;</div>
+				<div class="artWatch" title="{l10n('artNotWatched')}">&nbsp;</div>
 			{/if}
 		{/if}
 		<span class="deviantFaves">{deviant.deviations.length}</span>
 		<span class="deviantName">{deviant.name}</span>
 		<div class="subaccountsButton mini" on:click|stopPropagation="{toggleSubaccounts}"
-			class:has="{deviant.name in $subaccounts}" class:editing="{subaccountsOpen}"
-			title="{$l10n(subaccountsOpen ? 'subaccountsClose' : 'subaccountsOpen')}">&nbsp;</div>
+			class:has="{hasSubaccounts}" class:editing="{subaccountsOpen}"
+			title="{l10n(subaccountsOpen ? 'subaccountsClose' : 'subaccountsOpen')}">&nbsp;</div>
 	</div>
 	{#if opened || closing}
 		<div bind:this={closerLook} class="closerLook" style="overflow: hidden; height: auto;">
@@ -100,22 +97,22 @@ function toggleSubaccounts() {
 				<div class="touchBar">
 					{#if watchedArtists}
 						{#if watchedArtists.has(deviant.name)}
-							<div class="artWatchHint true">{$l10n('artWatched')}</div>
+							<div class="artWatchHint true">{l10n('artWatched')}</div>
 						{:else}
-							<div class="artWatchHint">{$l10n('artNotWatched')}</div>
+							<div class="artWatchHint">{l10n('artNotWatched')}</div>
 						{/if}
 					{/if}
 					<div class="subaccountsButton touch" on:click="{toggleSubaccounts}"
-						class:has="{deviant.name in $subaccounts}" class:editing="{subaccountsOpen}"
-						>{$l10n(subaccountsOpen ? 'subaccountsClose' : 'subaccountsOpen')}</div>
+						class:has="{hasSubaccounts}" class:editing="{subaccountsOpen}"
+						>{l10n(subaccountsOpen ? 'subaccountsClose' : 'subaccountsOpen')}</div>
 				</div>
 			{/if}
 			<div class="deviantDetails">
 				<Avatar {deviant}/>
 				<div class="deviantLinks">
-					<a class="deviantLink profile" href="{deviant.baseURL}">{$l10n("profile")}</a>
-					<a class="deviantLink gallery" href="{deviant.baseURL}gallery/">{$l10n("gallery")}</a>
-					<a class="deviantLink favourites" href="{deviant.baseURL}favourites/">{$l10n("favourites")}</a>
+					<a class="deviantLink profile" href="{deviant.baseURL}">{l10n("profile")}</a>
+					<a class="deviantLink gallery" href="{deviant.baseURL}gallery/">{l10n("gallery")}</a>
+					<a class="deviantLink favourites" href="{deviant.baseURL}favourites/">{l10n("favourites")}</a>
 				</div>
 			</div>
 			<DeviationList deviations={deviant.deviations}/>

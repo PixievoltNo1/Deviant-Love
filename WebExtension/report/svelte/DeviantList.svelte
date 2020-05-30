@@ -1,13 +1,17 @@
 <script>
+import l10n from "../../l10nStore.esm.js";
+import prefStores from "../../prefStores.esm.js";
 import DeviantEntry from "./DeviantEntry.svelte";
 import { visible } from "../core.esm.js";
 import { afterUpdate } from 'svelte';
+
+let { subaccounts } = prefStores;
 
 export let deviants;
 var oldDeviants;
 export let watchedArtists;
 let opened;
-export const registry = new Proxy({}, {
+export const registry = new Proxy(Object.create(null), {
 	// Workaround for a Svelte 3.20.1 bug (report pending)
 	set(target, property, value) {
 		if (value == null) {
@@ -57,6 +61,7 @@ export function reset() {
 
 <div class="deviantList" style="position: static;">
 	{#each deviants as deviant (deviant.name)}
-		<DeviantEntry {deviant} bind:this={registry[deviant.name]} {watchedArtists} {showDeviant}/>
+		<DeviantEntry {deviant} bind:this={registry[deviant.name]} {watchedArtists} {showDeviant}
+			l10n={$l10n} hasSubaccounts={deviant.name in $subaccounts}/>
 	{/each}
 </div>
