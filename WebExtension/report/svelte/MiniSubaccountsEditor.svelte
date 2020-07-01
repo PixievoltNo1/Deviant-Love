@@ -13,9 +13,6 @@ var adding = "";
 $: accounts = helper.getAccountObjects( $subaccounts[owner] );
 
 function add() {
-	// Workaround for duplicate event handlers in Svelte 3.20.1 (report pending)
-	if (adding == "") { return; }
-
 	edit("add", { owner, adding, success: () => { adding = ""; } });
 }
 function remove(removing) {
