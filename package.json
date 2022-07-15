@@ -9,7 +9,7 @@
     "animejs": "^2.2.0",
     "file-url": "^2.0.2",
     "nanoevents": "^1.0.8",
-    "svelte": "^3.20.1",
+    "svelte": "^3.49.0",
     "svelte-loader": "^2.13.6",
     "webpack": "4.28.4",
     "webpack-cli": "^3.3.11"
