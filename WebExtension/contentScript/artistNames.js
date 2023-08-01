@@ -8,7 +8,7 @@
 function artistNamesSetup() {
 
 var artistNames = new Set();
-var linkSelector = "section[data-hook='deviation_std_thumb'] .user-link";
+var linkSelector = "#sub-folder-gallery .user-link";
 var getArtistFromLink = (linkElem) => linkElem.dataset.username;
 for ( let link of document.body.querySelectorAll(linkSelector) ) {
 	artistNames.add( getArtistFromLink(link) );
