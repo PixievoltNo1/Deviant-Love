@@ -1,17 +1,21 @@
 {
   "scripts": {
-    "build": "webpack",
-    "watch": "webpack --watch",
-    "makeRelease": "node Release/makeRelease.js"
+    "clean": "rimraf WebExtension/build",
+    "prebuild": "npm run clean",
+    "build": "rollup -c",
+    "prewatch": "npm run clean",
+    "watch": "rollup -c --watch",
+    "premakeRelease": "npm run clean",
+    "makeRelease": "node Release/makeRelease.mjs"
   },
   "devDependencies": {
     "@fluent/bundle": "0.13.0",
-    "animejs": "^2.2.0",
-    "file-url": "^2.0.2",
-    "nanoevents": "^1.0.8",
-    "svelte": "^3.23.2",
-    "svelte-loader": "^2.13.6",
-    "webpack": "4.28.4",
-    "webpack-cli": "^3.3.12"
+    "@rollup/plugin-node-resolve": "^15.1.0",
+    "animejs": "^3.2.1",
+    "nanoevents": "^6.0.2",
+    "rimraf": "^5.0.1",
+    "rollup": "^3.27.0",
+    "rollup-plugin-svelte": "^7.1.6",
+    "svelte": "^4.1.2"
   }
 }

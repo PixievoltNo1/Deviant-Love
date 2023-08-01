@@ -1,12 +1,15 @@
 // Run using npm run makeRelease in the repo root
-var archiver = require("archiver");
-var fs = require("fs");
-var path = require("path");
-var spawn = require("cross-spawn");
-var {spawnSync} = require("child_process");
+import archiver from "archiver";
+import fs from "fs";
+import path from "path";
+import { rollup } from "rollup";
+import rollupConfig from "../rollup.config.mjs";
 
-spawnSync("webpack", ["--env.release"], {stdio: "inherit", shell: true});
-console.log();
+let outputOptions = rollupConfig.output;
+outputOptions.sourcemap = false;
+let bundle = await rollup(rollupConfig);
+await bundle.write(outputOptions);
+await bundle.close();
 
 var globalIgnore = ["**/*.map", "**/*.esm.js", "**/svelte/**"];
 var webextDir = path.resolve(process.cwd(), "WebExtension");

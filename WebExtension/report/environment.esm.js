@@ -4,10 +4,10 @@
 	Check core.esm.js for the complete legal stuff.
 */
 import { start, mobile, showDeviant } from "./core.esm.js";
-import NanoEvents from "nanoevents";
+import { createNanoEvents } from "nanoevents";
 export * from "../apiAdapter.esm.js";
 
-export var events = new NanoEvents();
+export var events = createNanoEvents();
 chrome.runtime.sendMessage({action: "echoWithCallback", echoAction: "getStartData"},
 	async function(startData) {
 		await start(startData);

@@ -24,7 +24,7 @@ export async function open(transition) {
 			height: [0, targetHeight],
 			duration: 400,
 			easing: closerLookEasing,
-			run: () => {
+			change() {
 				var openedDeviantElem = root;
 				var containerElem = openedDeviantElem.offsetParent;
 				var scroll = containerElem.scrollTop;
