@@ -7,7 +7,7 @@ import anime from "animejs";
 import { tick } from "svelte";
 import { get } from "svelte/store";
 
-const closerLookEasing = [0, 0, .6, 1];
+const closerLookEasing = "cubicBezier(0, 0, .6, 1)";
 export let deviant, note, watchedArtists, showDeviant, l10n, hasSubaccounts;
 let subaccountsOpen = false;
 var opened, closing, openedByTouch;
