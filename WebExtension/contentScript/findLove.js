@@ -15,20 +15,20 @@ function findLove(win = window) {
 	
 	var folderId;
 	var folderIdMatch = (/\/(\d+)\//).exec(location.pathname) || (/\?(\d+)$/).exec(location.search);
-	var searchText = ( new URLSearchParams(location.search) ).get("q");
 	love.pageType = ( () => {
-		if (folderIdMatch) {
-			folderId = folderIdMatch[1];
-			return "collection";
-		} else if ( (/\/favourites\/?$/).test(location) ) {
-			if (eclipseFolderGallery) {
-				folderId = document.querySelector("#sub-folder-gallery > [id]").id;
+		if ( (/\/(?:favourites\/?|featured)$/).test(location.pathname) ) {
+			if (folderIdMatch) {
+				folderId = folderIdMatch[1];
+			} else if (eclipseCollections) {
+				let link = eclipseCollections.querySelector(`a[href$="/featured"]`)
+				folderId = (/\/(\d+)\//).exec(link.href)[1];
 			}
 			return "featured";
-		} else if (location.toString().endsWith("/all") || location.search == "?catpath=/") {
+		} else if (folderIdMatch) {
+			folderId = folderIdMatch[1];
+			return "collection";
+		} else if (location.pathname.endsWith("/all") || location.search == "?catpath=/") {
 			return "allFaves";
-		} else if (searchText) {
-			return "search";
 		}
 		throw new Error("Can't determine page type");
 	} )();
@@ -38,18 +38,9 @@ function findLove(win = window) {
 		love.feedHref = feed.href;
 	} else {
 		let deviantName = (/^\/([^\/]*)/).exec(location.pathname)[1];
-		if (love.pageType == "allFaves" || love.pageType == "search") {
-			let deviantElem = document.querySelector(
-				`.user-link[href="https://www.deviantart.com/${deviantName}"]`
-			);
-			let deviantId = deviantElem.dataset.userid;
-			if (love.pageType == "allFaves") {
-				love.feedHref = "https://backend.deviantart.com/rss.xml?" +
-					`q=favedbyid%3A${deviantId}&type=deviation`;
-			} else {
-				love.feedHref = "https://backend.deviantart.com/rss.xml?" +
-					`q=(${encodeURIComponent(searchText)})+AND+(favedbyid%3A${deviantId})&type=deviation`;
-			}
+		if (love.pageType == "allFaves") {
+			love.feedHref = "https://backend.deviantart.com/rss.xml?" +
+				`q=favby%3A${deviantName}&type=deviation`;
 		} else {
 			if (!folderId) {
 				throw new Error("Can't determine feed URL");

@@ -1,7 +1,6 @@
 scanningFeatured = Scanning featured faves...
 scanningAll = Scanning all faves...
 scanningCollection = Scanning Collection...
-scanningSearch = Scanning search results...
 scannedDeviations = { $num } deviations scanned
 scanError = Communication with DeviantArt was unsuccessful.
 scanErrorRetry = Try again
@@ -18,7 +17,6 @@ headerFavesLine =
         [featured] This page has *{ $num }* featured faves
        *[allFaves] This page has *{ $num }* faves
         [collection] This Collection has *{ $num }* faves
-        [search] This page has *{ $num }* search results
     }
 headerArtistsLine = from *{ $num }* different artists!
 

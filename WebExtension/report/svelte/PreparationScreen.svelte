@@ -9,8 +9,7 @@ export let stopped, errored;
 $: scanMessage = ( {
 	featured: "scanningFeatured",
 	allFaves: "scanningAll",
-	collection: "scanningCollection",
-	search: "scanningSearch"
+	collection: "scanningCollection"
 } )[pageType];
 </script>
 
