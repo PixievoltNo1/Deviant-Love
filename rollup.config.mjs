@@ -6,7 +6,7 @@ export default {
 		core: "./WebExtension/report/core.esm.js",
 		options: "./WebExtension/options/options.esm.js",
 	},
-	plugins: [svelte(), resolve()],
+	plugins: [svelte(), resolve({browser: true})],
 	output: {
 		dir: "./WebExtension/build",
 		sourcemap: true,
