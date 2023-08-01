@@ -10,9 +10,9 @@ After you obtain this repo's files for the first time, or whenever I update pack
 
 After setup, if you just want to build the files needed to try Deviant Love, run `npm run build`.
 
-If you want to help develop Deviant Love, start `npm run watch` - it'll watch the [ES6 modules](https://hacks.mozilla.org/2015/08/es6-in-depth-modules/) (.esm.js) and [Svelte](https://svelte.technology/) templates (.svelte) that this project uses, and rebuild the appropriate files when they change.
+If you want to help develop Deviant Love, start `npm run watch` - it'll watch the [ES6 modules](https://hacks.mozilla.org/2015/08/es6-in-depth-modules/) (.esm.js) and [Svelte](https://svelte.dev/) templates (.svelte) that this project uses, and rebuild the appropriate files when they change.
 
-If you'd like to tinker with the build process itself, check with [Webpack](https://webpack.js.org/) for the docs on webpack.config.js.
+If you'd like to tinker with the build process itself, check the [Rollup docs](https://webpack.js.org/) for info on rollup.config.js.
 
 # Testing the built extension
 
@@ -23,5 +23,3 @@ With all the built files ready, use the WebExtension folder with the instruction
 * Edge: https://docs.microsoft.com/en-us/microsoft-edge/extensions/guides/adding-and-removing-extensions
 
 Your browser may complain about parts of manifest.json it doesn't recognize. This won't cause problems.
-
-If you'd like to contact me, feel free to either [send me a DA Note](https://www.deviantart.com/messages/notes/#to=PixievoltNo1) or leave a comment on [the Group page](https://www.deviantart.com/deviantlovesoftware/).
