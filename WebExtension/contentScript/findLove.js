@@ -11,7 +11,6 @@ function findLove(win = window) {
 	var love = {};
 
 	var eclipseCollections = document.querySelector(`[data-hook="gallection_folder"]`);
-	var eclipseFolderGallery = document.querySelector("#sub-folder-gallery");
 	
 	var folderId;
 	var folderIdMatch = (/\/(\d+)\//).exec(location.pathname) || (/\?(\d+)$/).exec(location.search);
@@ -52,13 +51,11 @@ function findLove(win = window) {
 	
 	// Optional value. Do not attempt to throw if it can't be determined.
 	love.maxDeviations = ( () => {
-		if (!eclipseFolderGallery || !eclipseCollections) { return null; }
+		if (!eclipseCollections) { return null; }
 		try {
-			let collectionNameMatch = /^Current folder\: (.+)$/
-				.exec(eclipseFolderGallery.querySelector("h2").textContent);
+			let urlPart = (love.pageType == "allFaves") ? "all" : folderId + "/";
 			var collectionElem = eclipseCollections
-				.querySelector(`[title="${collectionNameMatch[1]}"]`)
-				.closest("[data-hook^='gallection_folder']");
+				.querySelector(`a[href*="/favourites/${urlPart}"]`);
 			var deviationsMatch = (/\n(\d+) deviations$/).exec(collectionElem.innerText);
 			return deviationsMatch[1];
 		} catch (o_o) {
