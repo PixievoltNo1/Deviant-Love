@@ -15,6 +15,9 @@ function favesPageSetup() {
 		try {
 			var love = findLove();
 		} catch (o_o) {
+			console.error(o_o);
+		}
+		if (!love) {
 			oldUrl = "";
 			return;
 		}

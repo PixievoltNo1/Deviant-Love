@@ -14,23 +14,23 @@ function findLove(win = window) {
 	
 	var folderId;
 	var folderIdMatch = (/\/(\d+)\//).exec(location.pathname) || (/\?(\d+)$/).exec(location.search);
-	love.pageType = ( () => {
-		if ( (/\/(?:favourites\/?|featured)$/).test(location.pathname) ) {
-			if (folderIdMatch) {
-				folderId = folderIdMatch[1];
-			} else if (eclipseCollections) {
-				let link = eclipseCollections.querySelector(`a[href$="/featured"]`)
-				folderId = (/\/(\d+)\//).exec(link.href)[1];
-			}
-			return "featured";
-		} else if (folderIdMatch) {
+	if ( (/\/(?:favourites\/?|featured)$/).test(location.pathname) ) {
+		if (folderIdMatch) {
 			folderId = folderIdMatch[1];
-			return "collection";
-		} else if (location.pathname.endsWith("/all") || location.search == "?catpath=/") {
-			return "allFaves";
+		} else if (eclipseCollections) {
+			let link = eclipseCollections.querySelector(`a[href$="/featured"]`)
+			folderId = (/\/(\d+)\//).exec(link.href)[1];
 		}
-		throw new Error("Can't determine page type");
-	} )();
+		love.pageType = "featured";
+	} else if (folderIdMatch) {
+		folderId = folderIdMatch[1];
+		love.pageType = "collection";
+	} else if (location.pathname.endsWith("/all") || location.search == "?catpath=/") {
+		love.pageType = "allFaves";
+	}
+	if (!love.pageType) {
+		return false; // Doesn't seem to be a DeviantArt faves page
+	}
 
 	var feed = document.querySelector('link[rel="alternate"][type="application/rss+xml"]');
 	if (feed) {
