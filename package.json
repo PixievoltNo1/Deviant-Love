@@ -17,5 +17,8 @@
     "rollup": "^3.27.0",
     "rollup-plugin-svelte": "^7.1.6",
     "svelte": "^4.1.2"
+  },
+  "webExt": {
+    "sourceDir": "WebExtension/"
   }
 }

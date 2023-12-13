@@ -12,14 +12,15 @@ After setup, if you just want to build the files needed to try Deviant Love, run
 
 If you want to help develop Deviant Love, start `npm run watch` - it'll watch the [ES6 modules](https://hacks.mozilla.org/2015/08/es6-in-depth-modules/) (.esm.js) and [Svelte](https://svelte.dev/) templates (.svelte) that this project uses, and rebuild the appropriate files when they change.
 
-If you'd like to tinker with the build process itself, check the [Rollup docs](https://webpack.js.org/) for info on rollup.config.js.
+If you'd like to tinker with the build process itself, check the [Rollup docs](https://rollupjs.org/configuration-options/) for info on rollup.config.js.
 
 # Testing the built extension
 
 With all the built files ready, use the WebExtension folder with the instructions for your browser:
 
 * Firefox: https://developer.mozilla.org/en-US/Add-ons/WebExtensions/Temporary_Installation_in_Firefox
-* Chrome: https://developer.chrome.com/extensions/getstarted#unpacked
-* Edge: https://docs.microsoft.com/en-us/microsoft-edge/extensions/guides/adding-and-removing-extensions
+	* (or use web-ext: https://extensionworkshop.com/documentation/develop/getting-started-with-web-ext/ )
+* Chrome: https://developer.chrome.com/docs/extensions/get-started/tutorial/hello-world#load-unpacked
+* Edge: https://learn.microsoft.com/en-us/microsoft-edge/extensions-chromium/getting-started/extension-sideloading
 
 Your browser may complain about parts of manifest.json it doesn't recognize. This won't cause problems.
