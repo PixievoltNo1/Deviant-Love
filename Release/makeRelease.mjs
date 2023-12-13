@@ -68,6 +68,6 @@ archive.glob("WebExtension/**", {ignore: ["WebExtension/build/**"]})
 	.glob("Release/**", {ignore: ["Release/node_modules/**"]})
 	.file("package.json")
 	.file("package-lock.json")
-	.file("webpack.config.js")
+	.file("rollup.config.mjs")
 	.file("Release/Readme for AMO.txt", {name: "README.txt"});
 archive.finalize();
