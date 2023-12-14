@@ -64,7 +64,7 @@ function findLove(document = window.document, location = window.location) {
 			let urlPart = (love.pageType == "allFaves") ? "all" : folderId + "/";
 			var collectionElem = eclipseCollections
 				.querySelector(`a[href*="/favourites/${urlPart}"]`);
-			var deviationsMatch = (/\n(\d+) deviations$/).exec(collectionElem.innerText);
+			var deviationsMatch = (/(\d+) deviations$/).exec(collectionElem.innerText);
 			return deviationsMatch[1];
 		} catch (o_o) {
 			console.warn(o_o);
