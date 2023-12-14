@@ -5,9 +5,7 @@
 */
 "use strict";
 
-function findLove(win = window) {
-	var document = win.document;
-	var location = win.location;
+function findLove(document = window.document, location = window.location) {
 	var love = {};
 
 	var eclipseCollections = document.querySelector(`[data-hook="gallection_folder"]`);
@@ -30,6 +28,16 @@ function findLove(win = window) {
 	}
 	if (!love.pageType) {
 		return false; // Doesn't seem to be a DeviantArt faves page
+	}
+
+	if (!eclipseCollections && document.body.matches(".mobile")) {
+		love.getFullInfo = async function getFullInfo() {
+			let desktopUA = navigator.userAgent.replace(/Android \d+; Mobile/, "X11; Linux x86_64");
+			let response = await fetch(location.href, {headers: {"User-Agent": desktopUA}});
+			let document = (new DOMParser).parseFromString(await response.text(), "text/html");
+			return findLove(document);
+		}
+		return love;
 	}
 
 	var feed = document.querySelector('link[rel="alternate"][type="application/rss+xml"]');

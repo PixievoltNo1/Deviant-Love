@@ -71,9 +71,12 @@ return () => {
 	chrome.runtime.onMessage.removeListener(messageHandler);
 };
 
-function activate(firstDeviant) {
+async function activate(firstDeviant) {
 	panelState = "preparing";
 	if (!panelInitialized) {
+		if (love.getFullInfo) {
+			love = await love.getFullInfo();
+		}
 		extraStartData.firstDeviant = firstDeviant;
 		chrome.runtime.onMessage.addListener( function startHelper(thing) {
 			if (thing.action == "panelReady") {
