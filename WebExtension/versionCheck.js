@@ -13,17 +13,16 @@ if (window.browser && browser.runtime.getBrowserInfo) {
 	allowSyncByBrowser = versionCheckResults.then((results) => { return !results.disableSyncByBrowser; });
 }
 
-function versionCheck({name, version}) {
+async function versionCheck() {
 	var results = {};
-	// Firefox for Android <56 doesn't implement chrome.pageAction.show correctly. Older versions have more deficiencies.
-	if (name == "Fennec" && parseInt(version) < 56) {
-		browser.management.uninstallSelf({
-			showConfirmDialog: true,
-			dialogMessage: "Deviant Love will not run correctly in versions of Firefox for Android older than 56. Please update your browser before using Deviant Love."
-		});
-	}
+	var {name, version} = await browser.runtime.getBrowserInfo();
+	var {os} = await browser.runtime.getPlatformInfo();
 	// Firefox for Android's chrome.storage.sync won't actually sync until an unknown future version.
-	if (name == "Fennec" && parseInt(version) < Infinity) {
+	if (name == "Firefox" && os == "android" && parseInt(version) < Infinity) {
+		results.disableSyncByBrowser = true;
+	}
+	// "Fennec" (old Android Firefox) never synced chrome.storage.sync.
+	if (name == "Fennec") {
 		results.disableSyncByBrowser = true;
 	}
 	return results;
