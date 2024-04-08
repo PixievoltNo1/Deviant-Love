@@ -9,10 +9,10 @@
     "makeRelease": "node Release/makeRelease.mjs"
   },
   "devDependencies": {
-    "@fluent/bundle": "0.13.0",
+    "@fluent/bundle": "^0.18.0",
     "@rollup/plugin-node-resolve": "^15.2.3",
     "animejs": "^3.2.2",
-    "nanoevents": "^6.0.2",
+    "nanoevents": "^9.0.0",
     "rimraf": "^5.0.5",
     "rollup": "^4.14.1",
     "rollup-plugin-svelte": "^7.2.0",
