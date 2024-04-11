@@ -51,7 +51,7 @@ export function close(transition) {
 	if (transition) {
 		anime({
 			targets: closerLook,
-			height: 0,
+			height: [getComputedStyle(closerLook).height, 0],
 			duration: 400,
 			easing: closerLookEasing,
 			complete: () => {

@@ -11,20 +11,7 @@ export let deviants;
 var oldDeviants;
 export let watchedArtists;
 let opened;
-export const registry = new Proxy(Object.create(null), {
-	// Workaround for a Svelte 3.23.2 bug (report pending)
-	set(target, property, value) {
-		if (value == null) {
-			for (let {name} of deviants) {
-				if (property == name) {
-					return true;
-				}
-			}
-		}
-		target[property] = value;
-		return true;
-	},
-});;
+export const registry = {};
 let fresh = true;
 
 afterUpdate( () => {
