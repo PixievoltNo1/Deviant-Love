@@ -8,7 +8,15 @@
 function findLove(document = window.document, location = window.location) {
 	var love = {};
 
-	var eclipseCollections = document.querySelector(`[data-hook="gallection_folder"]`);
+	var eclipseCollections = ( () => {
+		var candidate = document.querySelector(`a[href$="/favourites/all"]`);
+		if (!candidate) { return; }
+		while (candidate = candidate.parentElement) {
+			if (candidate.querySelectorAll("a").length > 1) {
+				return candidate;
+			}
+		}
+	} )();
 	
 	var folderId;
 	var folderIdMatch = (/\/(\d+)\//).exec(location.pathname) || (/\?(\d+)$/).exec(location.search);
