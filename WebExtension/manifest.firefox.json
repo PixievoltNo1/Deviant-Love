@@ -36,7 +36,6 @@
 	"web_accessible_resources": ["report/popup.html", "images/heart/*"],
 
 	"permissions": ["contextMenus", "storage", "*://*.deviantart.com/"],
-	"minimum_chrome_version": "66",
 	"applications": {
 		"gecko": {
 			"id": "deviantlove@pikadudeno1.com",

@@ -6,7 +6,7 @@ npm install
 Then, in this folder, run this command:
 npm run makeRelease
 
-For stable releases, this builds the extension in a file named "Deviant Love.zip". For alphas/betas/RCs, the file is a .xpi with the version number.
+For stable releases, either the build-firefox directory or the "Deviant Love for Firefox [version].zip" file may be compared to the extension offered for download. For alphas/betas/RCs, only the latter will match exactly.
 
 Some irrelevant files from the repo are omitted from this ZIP. For the full repo, see:
 https://github.com/PixievoltNo1/Deviant-Love

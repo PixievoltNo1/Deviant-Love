@@ -1,15 +1,16 @@
 {
   "scripts": {
-    "clean": "rimraf WebExtension/build",
+    "clean": "rimraf build-firefox build-chrome",
     "prebuild": "npm run clean",
     "build": "rollup -c",
     "prewatch": "npm run clean",
     "watch": "rollup -c --watch",
-    "premakeRelease": "npm run clean",
+    "premakeRelease": "npm run build -- --no-sourcemap",
     "makeRelease": "node Release/makeRelease.mjs"
   },
   "devDependencies": {
     "@fluent/bundle": "^0.18.0",
+    "@guanghechen/rollup-plugin-copy": "^6.0.0-alpha.8",
     "@rollup/plugin-node-resolve": "^15.2.3",
     "animejs": "^3.2.2",
     "nanoevents": "^9.0.0",
