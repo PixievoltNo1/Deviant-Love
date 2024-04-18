@@ -2,7 +2,7 @@
 import l10n from "../../l10nStore.esm.js";
 import prefStores from "../../prefStores.esm.js";
 import DeviantEntry from "./DeviantEntry.svelte";
-import { visible } from "../core.esm.js";
+import { visible } from "../environment.esm.js";
 import { afterUpdate } from 'svelte';
 
 let { subaccounts } = prefStores;

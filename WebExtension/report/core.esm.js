@@ -20,33 +20,27 @@ import { tick } from "svelte";
 import * as prefs from "../prefStores.esm.js";
 import * as env from "./environment.esm.js";
 import researchLove from "./scanner.esm.js";
-export var showDeviant;
 import PreparationScreen from "./svelte/PreparationScreen.svelte";
 import MainScreen from "./svelte/MainScreen.svelte";
 import * as subaccountsEditorSettings from "../options/subaccountsEditorCore.esm.js";
-import { init as initL10n } from "../l10nStore.esm.js";
+import { init as initL10n } from "../l10nStore.esm.js"
+import { nextTip } from "./svelte/TipOfTheMoment.svelte";
 
-export var visible, mobile;
-export async function start({love, restoreData, firstDeviant, mobile: initialMobile}) {
-	visible = writable(true);
-	mobile = writable(initialMobile);
-	env.events.on("visibilityChange", (newVisibility) => {
-		visible.set(newVisibility);
-	});
+export async function start({love, restoreData}) {
+	let firstDeviant;
+	let removeListener = env.events.on("artistRequested", (artist) => firstDeviant = artist);
 	await prefs.init();
 	subaccountsEditorSettings.setSubaccountsStore(prefs.stores.subaccounts);
 	await initL10n();
-	showDeviant = function (deviantName) {
-		firstDeviant = deviantName;
-	};
 	(async () => {
 		var [results] = await Promise.all([
 			restoreData ? restore(restoreData, love) : prepare(love),
 			nextTip(),
 		]);
+		removeListener();
 		report(results, love);
 		if (firstDeviant) {
-			showDeviant(firstDeviant);
+			env.events.emit("artistRequested", firstDeviant);
 		}
 	})();
 }
@@ -65,6 +59,7 @@ Object.defineProperties(Deviant.prototype, {
 	}
 });
 function prepare(love) {
+	var cleanup = new Set();
 	var scannerController = researchLove(love.feedHref, love.maxDeviations);
 	var screen = new PreparationScreen({
 		target: document.body,
@@ -74,15 +69,15 @@ function prepare(love) {
 			progress: scannerController.progress,
 		}
 	});
+	cleanup.add( () => screen.$destroy() );
 	var faves = scannerController.faves.catch( function catcher(thrown) {
 		scanError();
 		return thrown.retryResult.catch(catcher);
 	} );
 	var organized = faves.then(organizeData);
 	var watchResult = scannerController.watched.then(collectWatchlist, watchError);
-	var removeVisibilityListener = env.events.on("visibilityChange", (visible) => {
-		scannerController[visible ? "resume" : "pause"]();
-	});
+	cleanup.add( env.events.on("hide", () => scannerController.pause()) );
+	cleanup.add( env.events.on("show", () => scannerController.resume()) );
 	function organizeData(faves) {
 		var deviantMap = new Map();
 		faves.forEach(function(item, pos) {
@@ -131,8 +126,7 @@ function prepare(love) {
 			watchedArtists,
 			watchError,
 		};
-		removeVisibilityListener();
-		screen.$destroy();
+		for (let fn of cleanup) { fn(); }
 		return results;
 	}
 }
@@ -155,7 +149,7 @@ function report(results, love) {
 	});
 
 	// Handle requests for a particular deviant that were made elsewhere (e.g. context menu)
-	showDeviant = function(deviantName) {
+	env.events.on("artistRequested", function(deviantName) {
 		if (!deviants.effectiveMap.has(deviantName)) {
 			if (deviants.ownerships.has(deviantName)) {
 				deviantName = deviants.ownerships.get(deviantName).name;
@@ -164,7 +158,7 @@ function report(results, love) {
 			}
 		}
 		screen.showDeviantInMain(deviantName);
-	}
+	});
 
 	var findWorker;
 	screen.$on("changeMode", ({ detail: {from, to} }) => {
@@ -224,11 +218,7 @@ function report(results, love) {
 			findWorker.postMessage({subaccounts: deviants.subaccounts});
 		}
 	} );
-	env.events.on("visibilityChange", (visible, delay) => {
-		if (visible) {
-			delay( nextTip() );
-		}
-	});
+	env.events.on("show", (delay) => delay( nextTip() ));
 }
 
 export var usingTouch = writable(false);
@@ -249,15 +239,3 @@ document.body.addEventListener("touchend", function prepareForSwitchToMouse(last
 usingTouch.subscribe( (val) => {
 	document.body.classList.toggle("usingTouch", val);
 } );
-
-export var tip = writable();
-async function nextTip() {
-	var [nextTip, tips] = await Promise.all([
-		env.retrieve("nextTip").then( (result) => { return result.nextTip || 0; } ),
-		fetch( env.getL10nMsg("fileTipOfTheMoment") ).then( (request) => request.json() ),
-	]);
-	tip.set(tips[nextTip]);
-	nextTip++;
-	if (nextTip >= tips.length) {nextTip = 0;};
-	env.store("nextTip", nextTip);
-}

@@ -1,9 +1,10 @@
 <script>
 import l10n from "../../l10nStore.esm.js";
-import { mobile, visible, tip } from "../core.esm.js";
+import { mobile, visible } from "../environment.esm.js";
 import DeviantList from "./DeviantList.svelte";
 import FindBar from "./FindBar.svelte";
 import FindModeContent from "./FindModeContent.svelte";
+import TipOfTheMoment from "./TipOfTheMoment.svelte";
 import GeneralOptions from "../../options/svelte/GeneralOptions.svelte";
 import SubaccountsEditor from "../../options/svelte/SubaccountsEditor.svelte";
 import SyncStatus from "../../options/svelte/SyncStatus.svelte";
@@ -158,10 +159,7 @@ export async function showDeviantInMain(deviantName) {
 		{/if}
 	</div>
 	{#if mode == "normal" || !$mobile}
-		<div id="tipOfTheMoment">
-			<img id="totmIcon" alt="" width="16" height="16" src="/images/{$tip.icon}">
-			<div id="totmText">{@html $tip.html}</div>
-		</div>
+		<TipOfTheMoment/>
 	{/if}
 </div>
 {#if hamburgerMenuOpen}

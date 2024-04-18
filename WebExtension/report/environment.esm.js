@@ -3,14 +3,18 @@
 	Copyright Pixievolt No. 1
 	Check core.esm.js for the complete legal stuff.
 */
-import { start, mobile, showDeviant } from "./core.esm.js";
+import { start } from "./core.esm.js";
 import { createNanoEvents } from "nanoevents";
-export * from "../apiAdapter.esm.js";
+import { writable } from "svelte/store";
 
 export var events = createNanoEvents();
+export var visible = writable(true);
+export var mobile = writable(false);
 chrome.runtime.sendMessage({action: "echoWithCallback", echoAction: "getStartData"},
-	async function(startData) {
-		await start(startData);
+	async function({love, mobile: mobileVal, firstDeviant}) {
+		mobile.set(mobileVal);
+		await start({love});
+		if (firstDeviant) { events.emit("artistRequested", firstDeviant); }
 		chrome.runtime.sendMessage({action: "echo", echoAction: "panelReady"});
 	}
 );
@@ -20,7 +24,8 @@ chrome.runtime.onMessage.addListener(function(thing, buddy, callback) {switch (t
 	case "showing":
 		var waitFor = [];
 		var delay = (waitForThis) => { waitFor.push(waitForThis); };
-		events.emit("visibilityChange", true, delay);
+		visible.set(true);
+		events.emit("show", delay);
 		Promise.all(waitFor).then(() => {
 			callback();
 		});
@@ -31,14 +36,15 @@ chrome.runtime.onMessage.addListener(function(thing, buddy, callback) {switch (t
 		return true;
 	break;
 	case "hiding":
-		events.emit("visibilityChange", false);
+		visible.set(false);
+		events.emit("hide");
 		if (history.state != null) {
 			history.back();
 		}
 		historyVisibleState = false;
 	break;
 	case "artistRequested":
-		showDeviant(thing.artist);
+		events.emit("artistRequested", thing.artist);
 	break;
 	case "setMobile":
 		mobile.set(thing.mobile);
