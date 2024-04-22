@@ -1,6 +1,7 @@
 <script>
 import l10n from "../../l10nStore.esm.js";
 import prefStores from "../../prefStores.esm.js";
+import { target } from "../../keyboardNavigation.esm.js";
 import { findModeContentHelper as helper } from "../core.esm.js";
 import DeviantList from "./DeviantList.svelte";
 import DeviationList from "./DeviationList.svelte";
@@ -81,7 +82,8 @@ $: hasResults = $queryResults &&
 					<DeviationList {deviations}/>
 					<div class="deviationResultGroupSidebar">
 						<Avatar {deviant}/>
-						<button type="button" class="viewDeviant" on:click="{() => showDeviantInMain(deviant.name)}">
+						<button type="button" class="viewDeviant"
+							use:target={ {activate() {showDeviantInMain(deviant.name)} } }>
 							{deviant.deviations.length}
 						</button>
 					</div>

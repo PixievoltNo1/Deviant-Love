@@ -1,6 +1,7 @@
 <script>
 import l10n from "../../l10nStore.esm.js";
 import prefStores from "../../prefStores.esm.js";
+import { target } from "../../keyboardNavigation.esm.js";
 import { miniSubaccountsEditorHelper as helper } from "../core.esm.js";
 import subaccountsEditorCore from "../../options/subaccountsEditorCore.esm.js";
 import Avatar from "./Avatar.svelte";
@@ -26,9 +27,9 @@ function remove(removing) {
 			<Avatar deviant={account} />
 			<div class="name">{account.name}</div>
 			<div class="actions">
-				<a class="deviantLink profile" href="{account.baseURL}">{$l10n("profile")}</a>
-				<a class="deviantLink gallery" href="{account.baseURL}gallery/">{$l10n("gallery")}</a>
-				<button type="button" class="removeSubaccount" on:click="{() => remove(account.name)}">
+				<a class="deviantLink profile" href="{account.baseURL}" use:target>{$l10n("profile")}</a>
+				<a class="deviantLink gallery" href="{account.baseURL}gallery/" use:target>{$l10n("gallery")}</a>
+				<button type="button" class="removeSubaccount" use:target={ {activate() { remove(account.name) }} }>
 					{$l10n("subaccountsRemove")}
 				</button>
 			</div>
@@ -37,9 +38,9 @@ function remove(removing) {
 		<div class="notice help">{$l10n("subaccountsEditorMiniExplain")}</div>
 	{/each}
 	<form class="addSubaccount textEntryLine" on:submit|preventDefault="{add}">
-		<input type="text" bind:value="{adding}" required
+		<input type="text" bind:value="{adding}" required use:target
 			placeholder="{$l10n('subaccountsAddNamePlaceholder')}">
-		<button type="submit" class="confirmAdd">
+		<button type="submit" class="confirmAdd" use:target>
 			{$l10n("subaccountsAddConfirm")}
 		</button>
 	</form>

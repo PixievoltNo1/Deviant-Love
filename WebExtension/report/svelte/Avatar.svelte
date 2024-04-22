@@ -1,6 +1,7 @@
 <script>
 import lookUpDeviant from "../lookUpDeviant.esm.js"
-import { onMount } from 'svelte';
+import { onMount } from "svelte";
+import { target } from "../../keyboardNavigation.esm.js";
 
 export let deviant;
 let img;
@@ -20,7 +21,7 @@ onMount(() => {
 });
 </script>
 
-<a class="avatar {loading ? 'loading' : ''}" href="{deviant.baseURL}">
+<a class="avatar {loading ? 'loading' : ''}" href="{deviant.baseURL}" use:target>
 	<img bind:this={img} width="50" height="50" alt="{deviant.name}"
 		on:load="{() => loading = false}" on:error="{() => loading = false}">
 </a>

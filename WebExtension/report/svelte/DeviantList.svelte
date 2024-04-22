@@ -37,6 +37,10 @@ export function showDeviant(deviantName) {
 	registry[deviantName].open(showTransition);
 	opened = deviantName;
 }
+function closeDeviant() {
+	registry[opened]?.close(true);
+	opened = "";
+}
 export function reset() {
 	if (opened) {
 		registry[opened].close(false);
@@ -48,7 +52,7 @@ export function reset() {
 
 <div class="deviantList" style="position: static;">
 	{#each deviants as deviant (deviant.name)}
-		<DeviantEntry {deviant} bind:this={registry[deviant.name]} {watchedArtists} {showDeviant}
-			l10n={$l10n} hasSubaccounts={deviant.name in $subaccounts}/>
+		<DeviantEntry {deviant} bind:this={registry[deviant.name]} {watchedArtists}
+			{showDeviant} {closeDeviant} l10n={$l10n} hasSubaccounts={deviant.name in $subaccounts}/>
 	{/each}
 </div>

@@ -1,5 +1,6 @@
 <script>
 import l10n from "../../l10nStore.esm.js";
+import { makeNavRoot } from "../../keyboardNavigation.esm.js";
 import { mobile, visible } from "../environment.esm.js";
 import DeviantList from "./DeviantList.svelte";
 import FindBar from "./FindBar.svelte";
@@ -134,7 +135,7 @@ export async function showDeviantInMain(deviantName) {
 	{#if !$mobile}
 		<FindBar close="{() => mode = 'normal'}" showClose={mode == "find"}/>
 	{/if}
-	<div id="lovedArtists" style="overflow-y: auto; overflow-x: hidden; position: relative;">
+	<div id="lovedArtists" style="overflow-y: auto; overflow-x: hidden; position: relative;" use:makeNavRoot>
 		{#if mode == "normal"}
 			{#if watchError}
 				<div id="watchFailure" class="notice">
@@ -163,6 +164,8 @@ export async function showDeviantInMain(deviantName) {
 	{/if}
 </div>
 {#if hamburgerMenuOpen}
+	<!-- svelte-ignore a11y-click-events-have-key-events -->
+	<!-- svelte-ignore a11y-no-static-element-interactions -->
 	<div id="shield" on:click="{closeHamburgerMenu}"
 		 style="position: absolute; top: 0; bottom: 0; left: 0; right: 0; z-index: 98;"></div>
 {/if}
