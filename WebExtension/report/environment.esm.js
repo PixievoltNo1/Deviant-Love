@@ -11,10 +11,9 @@ export var events = createNanoEvents();
 export var visible = writable(true);
 export var mobile = writable(false);
 chrome.runtime.sendMessage({action: "echoWithCallback", echoAction: "getStartData"},
-	async function({love, mobile: mobileVal, firstDeviant}) {
+	async function({love, mobile: mobileVal}) {
 		mobile.set(mobileVal);
 		await start({love});
-		if (firstDeviant) { events.emit("artistRequested", firstDeviant); }
 		chrome.runtime.sendMessage({action: "echo", echoAction: "panelReady"});
 	}
 );

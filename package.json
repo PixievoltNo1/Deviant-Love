@@ -20,6 +20,6 @@
     "svelte": "^4.2.12"
   },
   "webExt": {
-    "sourceDir": "WebExtension/"
+    "sourceDir": "build-firefox/"
   }
 }

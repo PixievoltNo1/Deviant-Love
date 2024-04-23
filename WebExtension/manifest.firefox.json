@@ -36,15 +36,13 @@
 	"web_accessible_resources": ["report/popup.html", "images/heart/*"],
 
 	"permissions": ["contextMenus", "storage", "*://*.deviantart.com/"],
-	"applications": {
+	"browser_specific_settings": {
 		"gecko": {
 			"id": "deviantlove@pikadudeno1.com",
-			"strict_min_version": "60.0"
-		}
-	},
-	"browser_specific_settings": {
+			"strict_min_version": "98.0"
+		},
 		"gecko_android": {
-			"strict_min_version": "113.0"
+			"strict_min_version": "98.0"
 		}
 	},
 	"manifest_version": 2

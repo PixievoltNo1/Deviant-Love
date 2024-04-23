@@ -7,14 +7,15 @@
 
 function panelSetup(love) {
 
+var modal = document.createElement("dialog");
+modal.id = "DeviantLoveModal";
+document.body.appendChild(modal);
 var panel = document.createElement("iframe");
 panel.id = "DeviantLovePanel";
-panel.classList.add("hide");
-document.body.appendChild(panel);
 var shield = document.createElement("div");
 shield.id = "DeviantLoveShield";
-shield.classList.add("hide");
-document.body.appendChild(shield);
+shield.addEventListener("click", () => modal.close());
+modal.append(shield, panel);
 var heartIcons = [
 	Object.assign(document.createElement("link"), {
 		href: chrome.runtime.getURL("images/heart/48.png"),
@@ -29,10 +30,8 @@ var heartIcons = [
 	}),
 ];
 var normalIcons = Array.from(document.querySelectorAll("link[rel~=icon]"));
-var mobileCheck = matchMedia("not all and (min-width: 550px)");
 var panelState = "inactive";
 var panelInitialized = false;
-var extraStartData = {};
 
 chrome.runtime.onMessage.addListener(messageHandler);
 function messageHandler(thing, buddy, callback) {
@@ -41,21 +40,19 @@ function messageHandler(thing, buddy, callback) {
 			if (panelState == "inactive") {
 				activate();
 			} else if (panelState == "active") {
-				deactivate();
+				modal.close();
 			}
 			break;
 		case "artistRequested":
 			if (panelState == "inactive") { activate(thing.artist); }
 			break;
 		case "getStartData":
-			callback(Object.assign({
-				love,
-				mobile: mobileCheck.matches,
-			}, extraStartData));
+			callback({ love, mobile: mobileCheck.matches });
 			break;
 	}
 }
 
+var mobileCheck = matchMedia("not all and (min-width: 550px)");
 function handleMobile() {
 	var {matches} = mobileCheck;
 	panel.classList.toggle("mobile", matches);
@@ -63,13 +60,7 @@ function handleMobile() {
 	chrome.runtime.sendMessage({action: "echo", echoAction: "setMobile", mobile: matches});
 }
 handleMobile();
-mobileCheck.addListener(handleMobile);
-
-return () => {
-	panel.remove();
-	shield.remove();
-	chrome.runtime.onMessage.removeListener(messageHandler);
-};
+mobileCheck.addEventListener("change", handleMobile);
 
 async function activate(firstDeviant) {
 	panelState = "preparing";
@@ -77,11 +68,14 @@ async function activate(firstDeviant) {
 		if (love.getFullInfo) {
 			love = await love.getFullInfo();
 		}
-		extraStartData.firstDeviant = firstDeviant;
 		chrome.runtime.onMessage.addListener( function startHelper(thing) {
 			if (thing.action == "panelReady") {
-				delete extraStartData.firstDeviant;
 				panelInitialized = true;
+				if (firstDeviant) {
+					chrome.runtime.sendMessage(
+						{action: "echo", echoAction: "artistRequested", artist: firstDeviant}
+					);
+				}
 				reveal();
 				chrome.runtime.onMessage.removeListener(startHelper);
 			}
@@ -91,11 +85,9 @@ async function activate(firstDeviant) {
 		chrome.runtime.sendMessage({action: "echoWithCallback", echoAction: "showing"}, reveal);
 	}
 	function reveal() {
-		panel.classList.remove("hide");
-		shield.classList.remove("hide");
+		modal.showModal();
 		panelState = "active";
 		chrome.runtime.sendMessage({action: "showX"});
-		shield.addEventListener("click", deactivate, false);
 		for (let icon of normalIcons) {
 			icon.remove();
 		}
@@ -105,15 +97,8 @@ async function activate(firstDeviant) {
 		document.title = "Deviant Love - " + document.title;
 	}
 }
-function deactivate() {
-	shield.removeEventListener("click", deactivate, false);
-	panel.addEventListener("transitionend", function hide() {
-		panel.removeEventListener("transitionend", hide, false);
-		panelState = "inactive";
-	}, false);
-	panel.classList.add("hide");
-	shield.classList.add("hide");
-	panelState = "deactivating";
+modal.addEventListener("close", () => {
+	panelState = "inactive";
 	chrome.runtime.sendMessage({action: "noX"});
 	chrome.runtime.sendMessage({action: "echo", echoAction: "hiding"});
 	for (let icon of heartIcons) {
@@ -123,6 +108,12 @@ function deactivate() {
 		document.head.appendChild(icon);
 	}
 	document.title = document.title.replace("Deviant Love - ", "");
-}
+});
+
+return () => {
+	modal.remove();
+	chrome.runtime.onMessage.removeListener(messageHandler);
+	mobileCheck.removeEventListener(handleMobile);
+};
 
 }

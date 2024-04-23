@@ -1,3 +1,18 @@
+#DeviantLoveModal {
+	all: initial;
+	display: block;
+	z-index: 999;
+	visibility: hidden;
+}
+#DeviantLoveModal[open] > * { visibility: visible; }
+#DeviantLoveModal, #DeviantLoveShield {
+	position: fixed;
+	top: 0;
+	bottom: 0;
+	left: 0;
+	right: 0;
+}
+
 #DeviantLovePanel {
 	box-sizing: border-box;
 	border: 2px solid black;
@@ -7,37 +22,34 @@
 	position: fixed;
 	right: 50px;
 	top: 0;
-	z-index: 501;
-	transition: 0.6s ease-out;
 }
 #DeviantLovePanel.mobile {
 	border: 0;
 	height: 100%;
 	width: 100%;
 	right: 0;
-	transition: 0.3s ease-out;
 }
-#DeviantLovePanel.hide {
-	transform: translateY(-100%);
-	visibility: hidden;
+@media (prefers-reduced-motion: no-preference) {
+	#DeviantLovePanel { transition: 0.6s ease-out; }
+	#DeviantLoveModal:not([open]) > #DeviantLovePanel {
+		transform: translateY(-100%);
+	}
+	#DeviantLovePanel.mobile { transition: 0.3s ease-out; }
+	#DeviantLoveModal:not([open]) > #DeviantLovePanel.mobile {
+		transform: scale(1.2);
+		opacity: 0;
+	}
 }
-#DeviantLovePanel.mobile.hide {
-	transform: scale(1.2);
-	opacity: 0;
-}
+
 #DeviantLoveShield {
-	position: fixed;
-	top: 0;
-	bottom: 0;
-	left: 0;
-	right: 0;
 	background: white;
-	z-index: 500;
 	opacity: 0.4;
-	transition: 0.6s linear;
-}
-#DeviantLoveShield.hide {
-	opacity: 0;
-	visibility: hidden;
 }
 #DeviantLoveShield.mobile { display: none; }
+
+@media (prefers-reduced-motion: no-preference) {
+	#DeviantLoveShield { transition: 0.6s linear; }
+	#DeviantLoveModal:not([open]) > #DeviantLoveShield {
+		opacity: 0;
+	}
+}
