@@ -3,7 +3,9 @@
 	Copyright Pixievolt No. 1
 	Check core.esm.js for the complete legal stuff.
 */
-"use strict";
+import "./contextMenu.mjs";
+import "./syncByBrowser.mjs";
+import "./versionCheck.mjs";
 
 chrome.runtime.onMessage.addListener( function(thing, buddy, callback) {switch (thing.action) {
 	case "showLove":

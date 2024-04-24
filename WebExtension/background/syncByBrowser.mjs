@@ -3,8 +3,7 @@
 	Copyright Pixievolt No. 1
 	Check core.esm.js for the complete legal stuff.
 */
-"use strict";
-
+import { allowSyncByBrowser } from "./versionCheck.mjs";
 var mirrorBlacklist = ["syncError"];
 function checkForUnsync(changes, areaName) {
 	if (Object.keys(changes).every( (key) => { return mirrorBlacklist.includes(key); } )) {

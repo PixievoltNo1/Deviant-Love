@@ -3,11 +3,10 @@
 	Copyright Pixievolt No. 1
 	Check core.esm.js for the complete legal stuff.
 */
-"use strict";
 // Some WebExtension features are not easily feature-detected. Anything that must be gated by browser & version will be dealt with here.
 // There are currently no checks that concern browsers that don't support Promise-returning browser.* APIs.
 
-var allowSyncByBrowser = Promise.resolve(true);
+export let allowSyncByBrowser = Promise.resolve(true);
 if (window.browser && browser.runtime.getBrowserInfo) {
 	let versionCheckResults = browser.runtime.getBrowserInfo().then(versionCheck);
 	allowSyncByBrowser = versionCheckResults.then((results) => { return !results.disableSyncByBrowser; });

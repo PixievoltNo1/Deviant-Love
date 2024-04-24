@@ -3,8 +3,6 @@
 	Copyright Pixievolt No. 1
 	Check core.esm.js for the complete legal stuff.
 */
-"use strict";
-
 if (chrome.contextMenus) {
 	chrome.runtime.onMessage.addListener(({action, names}, buddy, callback) => {
 		if (action == "addArtistNames" && buddy.tab.active) { processNames(names); }
