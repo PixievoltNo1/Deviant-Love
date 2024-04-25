@@ -113,7 +113,7 @@ modal.addEventListener("close", () => {
 return () => {
 	modal.remove();
 	chrome.runtime.onMessage.removeListener(messageHandler);
-	mobileCheck.removeEventListener(handleMobile);
+	mobileCheck.removeEventListener("change", handleMobile);
 };
 
 }
