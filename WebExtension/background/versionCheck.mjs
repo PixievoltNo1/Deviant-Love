@@ -7,7 +7,7 @@
 // There are currently no checks that concern browsers that don't support Promise-returning browser.* APIs.
 
 export let allowSyncByBrowser = Promise.resolve(true);
-if (window.browser && browser.runtime.getBrowserInfo) {
+if (globalThis.browser?.runtime?.getBrowserInfo) {
 	let versionCheckResults = browser.runtime.getBrowserInfo().then(versionCheck);
 	allowSyncByBrowser = versionCheckResults.then((results) => { return !results.disableSyncByBrowser; });
 }
@@ -26,6 +26,6 @@ async function versionCheck() {
 	}
 	return results;
 }
-(window.browser || chrome).runtime.onMessage.addListener(({action}, buddy, callback) => {
+chrome.runtime.onMessage.addListener(({action}, buddy, callback) => {
 	if (action == "checkSyncByBrowserSupport") { allowSyncByBrowser.then(callback); return true; }
 });

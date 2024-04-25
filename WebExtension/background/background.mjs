@@ -7,39 +7,36 @@ import "./contextMenu.mjs";
 import "./syncByBrowser.mjs";
 import "./versionCheck.mjs";
 
+let pageAction = chrome.action ?? browser.pageAction;
+if (chrome.action) {
+	chrome.runtime.onInstalled.addListener( () => chrome.action.disable() );
+	chrome.runtime.onStartup.addListener( () =>  chrome.action.disable() );
+	chrome.runtime.onMessage.addListener( function(thing, buddy, callback) {switch (thing.action) {
+		case "showLove":
+			pageAction.enable(buddy.tab.id);
+		break;
+		case "hideLove":
+			pageAction.disable(buddy.tab.id);
+		break;
+	}} );
+} else {
+	chrome.runtime.onMessage.addListener( function(thing, buddy, callback) {switch (thing.action) {
+		case "showLove":
+			pageAction.show(buddy.tab.id);
+		break;
+		case "hideLove":
+			pageAction.hide(buddy.tab.id);
+		break;
+	}} );
+}
 chrome.runtime.onMessage.addListener( function(thing, buddy, callback) {switch (thing.action) {
-	case "showLove":
-		chrome.pageAction.show(buddy.tab.id);
-	break;
-	case "hideLove":
-		chrome.pageAction.hide(buddy.tab.id);
-	break;
 	case "showX":
-		if (chrome.pageAction.setIcon) {
-			chrome.pageAction.setIcon({tabId: buddy.tab.id, path: "/images/heart/32Close.png"});
-		}
-		if (chrome.pageAction.setTitle) {
-			chrome.pageAction.setTitle({tabId: buddy.tab.id, title: chrome.i18n.getMessage("heartX")});
-		}
+		pageAction.setIcon({tabId: buddy.tab.id, path: "/images/heart/32Close.png"})
+		pageAction.setTitle({tabId: buddy.tab.id, title: chrome.i18n.getMessage("heartX")});
 	break;
 	case "noX":
-		if (chrome.pageAction.setIcon) {
-			chrome.pageAction.setIcon({tabId: buddy.tab.id, path: "/images/heart/32.png"});
-		}
-		if (chrome.pageAction.setTitle) {
-			chrome.pageAction.setTitle({tabId: buddy.tab.id, title: "Deviant Love"});
-		}
-	break;
-	case "setHeartAction":
-		chrome.tabs.query({active: true, lastFocusedWindow: true}, ([currentTab]) => {
-			if (currentTab && buddy.id == currentTab.id) {
-				heartAction = thing.to;
-			}
-			chrome.tabs.sendMessage(buddy.id, {action: "resendHeartAction"});
-		});
-	break;
-	case "checkSidebarSupport":
-		callback( Boolean(browser && browser.sidebarAction && browser.sidebarAction.open) );
+		pageAction.setIcon({tabId: buddy.tab.id, path: "/images/heart/32.png"});
+		pageAction.setTitle({tabId: buddy.tab.id, title: "Deviant Love"});
 	break;
 	// For communication between panelManager.js and environment.esm.js
 	case "echo":
@@ -52,14 +49,6 @@ chrome.runtime.onMessage.addListener( function(thing, buddy, callback) {switch (
 		return true;
 	break;
 }} );
-chrome.pageAction.onClicked.addListener( (buddy) => {
+pageAction.onClicked.addListener( (buddy) => {
 	chrome.tabs.sendMessage(buddy.id, {action: "spark"});
-} );
-
-chrome.runtime.onInstalled.addListener( function onUpdate(info) {
-	if (info.reason != "update") { return; }
-	if (localStorage.nextTip) {
-		chrome.storage.local.set({nextTip: localStorage.nextTip - 1});
-		localStorage.clear();
-	}
 } );

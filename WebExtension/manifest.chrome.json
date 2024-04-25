@@ -12,17 +12,16 @@
 	"default_locale": "en",
 
 	"background": {
-		"scripts": ["versionCheck.js", "background.js", "syncByBrowser.js", "contextMenu.js"],
-		"persistent": false
+		"service_worker": "background/background.mjs",
+		"type": "module"
 	},
-	"page_action": {
+	"action": {
 		"default_icon": { "32": "images/heart/32.png" },
 		"default_title": "Deviant Love"
 	},
 	"options_ui": {
 		"page": "options/options.html",
-		"chrome_style": true,
-		"browser_style": true
+		"open_in_tab": false
 	},
 	"content_scripts": [{
 		"matches": [
@@ -33,9 +32,13 @@
 		"css": ["contentScript/panel.css"],
 		"run_at": "document_end"
 	}],
-	"web_accessible_resources": ["report/popup.html", "images/heart/*"],
+	"web_accessible_resources": [{
+		"resources": ["report/popup.html", "images/heart/*"],
+		"matches": ["*://www.deviantart.com/*"]
+	}],
 
-	"permissions": ["contextMenus", "storage", "*://*.deviantart.com/"],
-	"minimum_chrome_version": "66",
-	"manifest_version": 2
+	"permissions": ["contextMenus", "storage"],
+	"host_permissions": ["*://*.deviantart.com/"],
+	"minimum_chrome_version": "100",
+	"manifest_version": 3
 }
