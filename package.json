@@ -10,14 +10,14 @@
   },
   "devDependencies": {
     "@fluent/bundle": "^0.18.0",
-    "@guanghechen/rollup-plugin-copy": "^6.0.0-alpha.8",
+    "@guanghechen/rollup-plugin-copy": "^6.0.0-alpha.9",
     "@rollup/plugin-node-resolve": "^15.2.3",
     "animejs": "^3.2.2",
     "nanoevents": "^9.0.0",
     "rimraf": "^5.0.5",
-    "rollup": "^4.14.1",
+    "rollup": "^4.16.4",
     "rollup-plugin-svelte": "^7.2.0",
-    "svelte": "^4.2.12"
+    "svelte": "^4.2.15"
   },
   "webExt": {
     "sourceDir": "build-firefox/"
