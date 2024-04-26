@@ -6,27 +6,7 @@
 export function getL10nMsg(msgName, replacements) {
 	return chrome.i18n.getMessage(msgName, replacements);
 }
-export function retrieve(keys) {
-	var resolve, promise = new Promise( (resolveFn) => { resolve = resolveFn; } );
-	chrome.storage.local.get(keys, function(data) {
-		for (var key in data) {
-			var item = data[key];
-			if (typeof item == "string") {
-				data[key] = JSON.parse(item);
-			}
-		}
-		resolve(data);
-	});
-	return promise;
-}
-export function store(key, data) {
-	if (typeof data != "number" && typeof data != "boolean") {
-		data = JSON.stringify(data);
-	}
-	var item = {};
-	item[key] = data;
-	chrome.storage.local.set(item);
-}
+export var storageArea = chrome.storage.local;
 export async function subscribeToSyncStatus(callback) {
 	var localGet = new Promise((resolve) => { chrome.storage.local.get("syncError", resolve); });
 	var syncGet = new Promise((resolve) => { chrome.storage.sync.get("lastSaved", resolve); });
