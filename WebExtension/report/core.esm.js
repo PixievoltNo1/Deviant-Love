@@ -29,8 +29,7 @@ import { nextTip } from "./svelte/TipOfTheMoment.svelte";
 export async function start({love, restoreData}) {
 	let firstDeviant;
 	let removeListener = env.events.on("artistRequested", (artist) => firstDeviant = artist);
-	await prefs.init();
-	subaccountsEditorSettings.setSubaccountsStore(prefs.stores.subaccounts);
+	await prefs.ready;
 	await initL10n();
 	(async () => {
 		var [results] = await Promise.all([

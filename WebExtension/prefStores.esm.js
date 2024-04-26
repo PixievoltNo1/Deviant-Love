@@ -6,20 +6,17 @@
 import webextStorageAdapter from "svelte-webext-storage-adapter";
 import writableDerived from "svelte-writable-derived";
 import { storageArea } from "./apiAdapter.esm.js";
-export var stores;
-export { stores as default };
-export function init() {
-	let keys = {
-		findAsYouType: true,
-		subaccounts: "{}",
-	};
-	let {stores: rawStores, ready} = webextStorageAdapter(storageArea, keys);
-	stores = {...rawStores,
-		subaccounts: writableDerived(
-			rawStores.subaccounts,
-			(json) => JSON.parse(json),
-			(obj) => JSON.stringify(obj),
-		),
-	};
-	return ready;
-}
+
+let keys = {
+	findAsYouType: true,
+	subaccounts: "{}",
+};
+let {stores: rawStores, ready} = webextStorageAdapter(storageArea, keys);
+export var stores = {...rawStores,
+	subaccounts: writableDerived(
+		rawStores.subaccounts,
+		(json) => JSON.parse(json),
+		(obj) => JSON.stringify(obj),
+	),
+};
+export { stores as default, ready };

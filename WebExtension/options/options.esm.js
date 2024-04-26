@@ -6,11 +6,6 @@
 import Options from "./svelte/Options.svelte";
 import * as prefs from "../prefStores.esm.js";
 import { init as initL10n } from "../l10nStore.esm.js";
-import * as subaccountsEditorSettings from "./subaccountsEditorCore.esm.js";
 
-(async function() {
-	await prefs.init();
-	subaccountsEditorSettings.setSubaccountsStore(prefs.stores.subaccounts);
-	await initL10n();
-	new Options({ target: document.body });
-})();
+await Promises.all[prefs.ready, initL10n()];
+new Options({ target: document.body });
