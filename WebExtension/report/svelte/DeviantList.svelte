@@ -1,3 +1,6 @@
+<script context="module">
+let prefersReducedMotion = matchMedia("(prefers-reduced-motion)");
+</script>
 <script>
 import l10n from "../../l10nStore.esm.js";
 import prefStores from "../../prefStores.esm.js";
@@ -30,7 +33,7 @@ export function showDeviant(deviantName) {
 	if (deviantName == oldOpened) {
 		return "alreadyOpened";
 	}
-	let showTransition = !fresh && $visible;
+	let showTransition = !fresh && $visible && !prefersReducedMotion.matches;
 	if (oldOpened) {
 		registry[oldOpened].close(showTransition);
 	}
@@ -38,7 +41,7 @@ export function showDeviant(deviantName) {
 	opened = deviantName;
 }
 function closeDeviant() {
-	registry[opened]?.close(true);
+	registry[opened]?.close(!prefersReducedMotion.matches);
 	opened = "";
 }
 export function reset() {
