@@ -1,12 +1,12 @@
 <script>
-import { usingTouch } from "../core.esm.js";
+import { usingTouch } from "../core.src.mjs";
 import Avatar from "./Avatar.svelte";
 import DeviationList from "./DeviationList.svelte";
 import MiniSubaccountsEditor from "./MiniSubaccountsEditor.svelte";
 import anime from "animejs";
 import { tick } from "svelte";
 import { get } from "svelte/store";
-import { target } from "../../keyboardNavigation.esm.js";
+import { target } from "../../keyboardNavigation.src.mjs";
 
 const closerLookEasing = "cubicBezier(0, 0, .6, 1)";
 export let deviant, note, watchedArtists, showDeviant, l10n, hasSubaccounts;

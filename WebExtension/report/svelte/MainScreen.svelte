@@ -1,7 +1,7 @@
 <script>
-import l10n from "../../l10nStore.esm.js";
-import { makeNavRoot } from "../../keyboardNavigation.esm.js";
-import { mobile, visible } from "../environment.esm.js";
+import l10n from "../../l10nStore.src.mjs";
+import { makeNavRoot } from "../../keyboardNavigation.src.mjs";
+import { mobile, visible } from "../environment.src.mjs";
 import DeviantList from "./DeviantList.svelte";
 import FindBar from "./FindBar.svelte";
 import FindModeContent from "./FindModeContent.svelte";
@@ -9,7 +9,7 @@ import TipOfTheMoment from "./TipOfTheMoment.svelte";
 import GeneralOptions from "../../options/svelte/GeneralOptions.svelte";
 import SubaccountsEditor from "../../options/svelte/SubaccountsEditor.svelte";
 import SyncStatus from "../../options/svelte/SyncStatus.svelte";
-import squishToFit from "../squishToFit.esm.js";
+import squishToFit from "../squishToFit.src.mjs";
 import { createEventDispatcher, tick } from 'svelte';
 
 const dispatch = createEventDispatcher();

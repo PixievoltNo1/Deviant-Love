@@ -1,6 +1,6 @@
 <script>
-import l10n from "../../l10nStore.esm.js";
-import { subscribeToSyncStatus } from "../../apiAdapter.esm.js";
+import l10n from "../../l10nStore.src.mjs";
+import { subscribeToSyncStatus } from "../../apiAdapter.src.mjs";
 let status = {};
 let overall = "checking";
 let lastSavedDisplay;

@@ -1,6 +1,6 @@
 <script>
-import l10n from "../../l10nStore.esm.js";
-import prefStores from "../../prefStores.esm.js";
+import l10n from "../../l10nStore.src.mjs";
+import prefStores from "../../prefStores.src.mjs";
 let {findAsYouType} = prefStores;
 </script>
 

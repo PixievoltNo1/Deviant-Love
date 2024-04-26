@@ -1,9 +1,9 @@
 /*
 	This file is part of Deviant Love.
 	Copyright Pixievolt No. 1
-	Check core.esm.js for the complete legal stuff.
+	Check core.src.mjs for the complete legal stuff.
 */
-import { start } from "./core.esm.js";
+import { start } from "./core.src.mjs";
 import { createNanoEvents } from "nanoevents";
 import { writable } from "svelte/store";
 

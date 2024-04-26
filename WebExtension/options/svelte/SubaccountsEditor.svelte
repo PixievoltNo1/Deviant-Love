@@ -1,9 +1,9 @@
 <script>
 import { onMount } from "svelte";
 import SubaccountOwner from "./SubaccountOwner.svelte";
-import subaccountsEditorCore from "../subaccountsEditorCore.esm.js";
-import l10n from "../../l10nStore.esm.js";
-import prefStores from "../../prefStores.esm.js";
+import subaccountsEditorCore from "../subaccountsEditorCore.src.mjs";
+import l10n from "../../l10nStore.src.mjs";
+import prefStores from "../../prefStores.src.mjs";
 
 var {subaccounts} = prefStores;
 var {edit, busy, warnings, error} = subaccountsEditorCore();

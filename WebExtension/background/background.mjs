@@ -1,7 +1,7 @@
 /*
 	This file is part of Deviant Love.
 	Copyright Pixievolt No. 1
-	Check core.esm.js for the complete legal stuff.
+	Check core.src.mjs for the complete legal stuff.
 */
 import "./contextMenu.mjs";
 import "./syncByBrowser.mjs";
@@ -38,7 +38,7 @@ chrome.runtime.onMessage.addListener( function(thing, buddy, callback) {switch (
 		pageAction.setIcon({tabId: buddy.tab.id, path: "/images/heart/32.png"});
 		pageAction.setTitle({tabId: buddy.tab.id, title: "Deviant Love"});
 	break;
-	// For communication between panelManager.js and environment.esm.js
+	// For communication between panelManager.js and environment.src.mjs
 	case "echo":
 		thing.action = thing.echoAction;
 		chrome.tabs.sendMessage(buddy.tab.id, thing);

@@ -1,7 +1,7 @@
 <script>
-import l10n from "../../l10nStore.esm.js";
-import prefStores from "../../prefStores.esm.js";
-import { findModeContentHelper as helper } from "../core.esm.js";
+import l10n from "../../l10nStore.src.mjs";
+import prefStores from "../../prefStores.src.mjs";
+import { findModeContentHelper as helper } from "../core.src.mjs";
 
 export let close, showClose, autofocus = false;
 

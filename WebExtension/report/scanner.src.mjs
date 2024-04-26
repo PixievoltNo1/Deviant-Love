@@ -1,7 +1,7 @@
 /*
 	This file is part of Deviant Love.
 	Copyright Pixievolt No. 1
-	Check core.esm.js for the complete legal stuff.
+	Check core.src.mjs for the complete legal stuff.
 */
 import { writable } from "svelte/store";
 
@@ -118,7 +118,7 @@ export default function researchLove(favesURL, maxDeviations) {
 			var response = await fetch("http://my.deviantart.com/global/difi/"
 				+ "?c%5B%5D=%22Friends%22%2C%22getFriendsList%22%2C%5Btrue%2C"
 				+ watchlistPage + "%5D&t=json", {signal});
-			var json = await response.text(); 
+			var json = await response.text();
 		} catch (o_o) {
 			let oldReject = watchedReject;
 			let retryResult = new Promise((res, rej) => { watchedResolve = res, watchedReject = rej; });

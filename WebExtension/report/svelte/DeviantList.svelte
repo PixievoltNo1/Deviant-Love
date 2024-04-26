@@ -2,10 +2,10 @@
 let prefersReducedMotion = matchMedia("(prefers-reduced-motion)");
 </script>
 <script>
-import l10n from "../../l10nStore.esm.js";
-import prefStores from "../../prefStores.esm.js";
+import l10n from "../../l10nStore.src.mjs";
+import prefStores from "../../prefStores.src.mjs";
 import DeviantEntry from "./DeviantEntry.svelte";
-import { visible } from "../environment.esm.js";
+import { visible } from "../environment.src.mjs";
 import { afterUpdate } from 'svelte';
 
 let { subaccounts } = prefStores;

@@ -1,6 +1,6 @@
 <script>
-import l10n from "../../l10nStore.esm.js";
-import squishToFit from "../squishToFit.esm.js";
+import l10n from "../../l10nStore.src.mjs";
+import squishToFit from "../squishToFit.src.mjs";
 import { createEventDispatcher } from 'svelte';
 
 const dispatch = createEventDispatcher();

@@ -1,9 +1,9 @@
 /*
 	This file is part of Deviant Love.
 	Copyright Pixievolt No. 1
-	Check core.esm.js for the complete legal stuff.
+	Check core.src.mjs for the complete legal stuff.
 */
-import { getL10nMsg } from "./apiAdapter.esm.js";
+import { getL10nMsg } from "./apiAdapter.src.mjs";
 import { FluentBundle, FluentResource } from "@fluent/bundle";
 import { writable } from "svelte/store";
 var store = writable( () => "" );

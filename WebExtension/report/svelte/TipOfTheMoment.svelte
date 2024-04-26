@@ -1,5 +1,5 @@
 <script context="module">
-import { storageArea, getL10nMsg } from "../../apiAdapter.esm";
+import { storageArea, getL10nMsg } from "../../apiAdapter.src.mjs";
 import { writable } from "svelte/store";
 var tip = writable();
 export async function nextTip() {

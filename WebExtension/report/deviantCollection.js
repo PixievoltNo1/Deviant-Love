@@ -1,7 +1,7 @@
 /*
 	This file is part of Deviant Love.
 	Copyright Pixievolt No. 1
-	Check core.esm.js for the complete legal stuff.
+	Check core.src.mjs for the complete legal stuff.
 */
 function DeviantCollection(from, deviantType = Object) {
 	this.deviantType = deviantType;

@@ -2,7 +2,7 @@
 import GeneralOptions from "./GeneralOptions.svelte";
 import SubaccountsEditor from "./SubaccountsEditor.svelte";
 import SyncStatus from "./SyncStatus.svelte";
-import l10n from "../../l10nStore.esm.js";
+import l10n from "../../l10nStore.src.mjs";
 </script>
 
 <h1>{$l10n("generalOptionsHeader")}</h1>

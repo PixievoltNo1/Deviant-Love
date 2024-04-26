@@ -5,15 +5,15 @@ import path from "node:path";
 /** @type {import('rollup').RollupOptions} */
 export default {
 	input: {
-		core: "./WebExtension/report/core.esm.js",
-		options: "./WebExtension/options/options.esm.js",
+		core: "./WebExtension/report/core.src.mjs",
+		options: "./WebExtension/options/options.src.mjs",
 	},
 	plugins: [
 		svelte(),
 		resolve({browser: true}),
 		copy({targets: [
 			{
-				src: ["WebExtension/**/*.*", "!**/*.{esm.js,svelte}", "!WebExtension/manifest.*.json"],
+				src: ["WebExtension/**/*.*", "!**/*.{src.*,svelte}", "!WebExtension/manifest.*.json"],
 				dest: ["build-firefox", "build-chrome"],
 				rename: (name, ext, srcPath) => path.relative("WebExtension", srcPath),
 			},

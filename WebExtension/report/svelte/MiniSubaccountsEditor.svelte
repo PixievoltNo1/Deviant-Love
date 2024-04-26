@@ -1,9 +1,9 @@
 <script>
-import l10n from "../../l10nStore.esm.js";
-import prefStores from "../../prefStores.esm.js";
-import { target } from "../../keyboardNavigation.esm.js";
-import { miniSubaccountsEditorHelper as helper } from "../core.esm.js";
-import subaccountsEditorCore from "../../options/subaccountsEditorCore.esm.js";
+import l10n from "../../l10nStore.src.mjs";
+import prefStores from "../../prefStores.src.mjs";
+import { target } from "../../keyboardNavigation.src.mjs";
+import { miniSubaccountsEditorHelper as helper } from "../core.src.mjs";
+import subaccountsEditorCore from "../../options/subaccountsEditorCore.src.mjs";
 import Avatar from "./Avatar.svelte";
 
 var {subaccounts} = prefStores;

@@ -1,8 +1,8 @@
 <script>
-import l10n from "../../l10nStore.esm.js";
-import prefStores from "../../prefStores.esm.js";
-import { target } from "../../keyboardNavigation.esm.js";
-import { findModeContentHelper as helper } from "../core.esm.js";
+import l10n from "../../l10nStore.src.mjs";
+import prefStores from "../../prefStores.src.mjs";
+import { target } from "../../keyboardNavigation.src.mjs";
+import { findModeContentHelper as helper } from "../core.src.mjs";
 import DeviantList from "./DeviantList.svelte";
 import DeviationList from "./DeviationList.svelte";
 import Avatar from "./Avatar.svelte";

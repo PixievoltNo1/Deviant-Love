@@ -1,5 +1,5 @@
 <script>
-import l10n from "../../l10nStore.esm.js";
+import l10n from "../../l10nStore.src.mjs";
 export let owner, owned, edit;
 let mode = "normal";
 let showAddSubaccount, adding, newOwner;

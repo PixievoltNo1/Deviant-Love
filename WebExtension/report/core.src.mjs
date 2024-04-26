@@ -17,13 +17,13 @@
 */
 import { writable, get as readStore } from "svelte/store";
 import { tick } from "svelte";
-import * as prefs from "../prefStores.esm.js";
-import * as env from "./environment.esm.js";
-import researchLove from "./scanner.esm.js";
+import * as prefs from "../prefStores.src.mjs";
+import * as env from "./environment.src.mjs";
+import researchLove from "./scanner.src.mjs";
 import PreparationScreen from "./svelte/PreparationScreen.svelte";
 import MainScreen from "./svelte/MainScreen.svelte";
-import * as subaccountsEditorSettings from "../options/subaccountsEditorCore.esm.js";
-import { init as initL10n } from "../l10nStore.esm.js"
+import * as subaccountsEditorSettings from "../options/subaccountsEditorCore.src.mjs";
+import { init as initL10n } from "../l10nStore.src.mjs"
 import { nextTip } from "./svelte/TipOfTheMoment.svelte";
 
 export async function start({love, restoreData}) {

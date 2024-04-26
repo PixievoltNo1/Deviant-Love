@@ -1,6 +1,6 @@
 import { writable, get as readStore } from "svelte/store";
-import lookUpDeviant from "../report/lookUpDeviant.esm.js";
-import prefStores from "../prefStores.esm.js";
+import lookUpDeviant from "../report/lookUpDeviant.src.mjs";
+import prefStores from "../prefStores.src.mjs";
 let {subaccounts: subaccountsStore} = prefStores;
 export default function() {
 	var busy = writable(false), error = writable(null), warnings = writable([]);

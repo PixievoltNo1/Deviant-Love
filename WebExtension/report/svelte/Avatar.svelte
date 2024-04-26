@@ -1,7 +1,7 @@
 <script>
-import lookUpDeviant from "../lookUpDeviant.esm.js"
+import lookUpDeviant from "../lookUpDeviant.src.mjs"
 import { onMount } from "svelte";
-import { target } from "../../keyboardNavigation.esm.js";
+import { target } from "../../keyboardNavigation.src.mjs";
 
 export let deviant;
 let img;

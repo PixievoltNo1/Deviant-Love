@@ -1,7 +1,7 @@
 /*
 	This file is part of Deviant Love.
 	Copyright Pixievolt No. 1
-	Check core.esm.js for the complete legal stuff.
+	Check core.src.mjs for the complete legal stuff.
 */
 "use strict";
 
@@ -17,7 +17,7 @@ function findLove(document = window.document, location = window.location) {
 			}
 		}
 	} )();
-	
+
 	var folderId;
 	var folderIdMatch = (/\/(\d+)\//).exec(location.pathname) || (/\?(\d+)$/).exec(location.search);
 	if ( (/\/(?:favourites\/?|featured)$/).test(location.pathname) ) {
@@ -64,7 +64,7 @@ function findLove(document = window.document, location = window.location) {
 				`q=favby%3A${deviantName}%2F${folderId}&type=deviation`;
 		}
 	}
-	
+
 	// Optional value. Do not attempt to throw if it can't be determined.
 	love.maxDeviations = ( () => {
 		if (!eclipseCollections) { return null; }

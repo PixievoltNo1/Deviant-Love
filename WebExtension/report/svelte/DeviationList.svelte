@@ -1,5 +1,5 @@
 <script>
-import { target } from "../../keyboardNavigation.esm";
+import { target } from "../../keyboardNavigation.src.mjs";
 export let deviations;
 export let root = undefined;
 </script>
