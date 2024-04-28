@@ -3,7 +3,7 @@
 	Copyright Pixievolt No. 1
 	Check core.src.mjs for the complete legal stuff.
 */
-function DeviantCollection(from, deviantType = Object) {
+export default function DeviantCollection(from, deviantType = Object) {
 	this.deviantType = deviantType;
 	this.subaccounts = {};
 	this.ownerships = new Map();

@@ -3,7 +3,7 @@
 	Copyright Pixievolt No. 1
 	Check core.src.mjs for the complete legal stuff.
 */
-importScripts("deviantCollection.js");
+import DeviantCollection from "./deviantCollection.src.mjs";
 var deviants, savedQuery;
 onmessage = ({ data: {deviantsMap, subaccounts, query} }) => {
 	if (deviantsMap) {

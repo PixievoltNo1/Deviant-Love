@@ -7,6 +7,7 @@ export default {
 	input: {
 		core: "./WebExtension/report/core.src.mjs",
 		options: "./WebExtension/options/options.src.mjs",
+		find: "./WebExtension/report/find.src.mjs",
 	},
 	plugins: [
 		svelte(),

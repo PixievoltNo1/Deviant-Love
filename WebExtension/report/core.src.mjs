@@ -20,10 +20,11 @@ import { tick } from "svelte";
 import * as prefs from "../prefStores.src.mjs";
 import * as env from "./environment.src.mjs";
 import researchLove from "./scanner.src.mjs";
+import DeviantCollection from "./deviantCollection.src.mjs";
 import PreparationScreen from "./svelte/PreparationScreen.svelte";
 import MainScreen from "./svelte/MainScreen.svelte";
 import * as subaccountsEditorSettings from "../options/subaccountsEditorCore.src.mjs";
-import { init as initL10n } from "../l10nStore.src.mjs"
+import { init as initL10n } from "../l10nStore.src.mjs";
 import { nextTip } from "./svelte/TipOfTheMoment.svelte";
 
 export async function start({love, restoreData}) {
@@ -162,7 +163,7 @@ function report(results, love) {
 	var findWorker;
 	screen.$on("changeMode", ({ detail: {from, to} }) => {
 		if (to == "find") {
-			findWorker = new Worker("find.js");
+			findWorker = new Worker(new URL("find.js", import.meta.url), {type: "module"});
 			let prevResults = readStore(findModeContentHelper.resultsStore);
 			findWorker.postMessage({
 				deviantsMap: deviants.baseMap,
