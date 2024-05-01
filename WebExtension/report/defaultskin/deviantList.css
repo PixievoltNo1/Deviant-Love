@@ -4,6 +4,12 @@
 .deviant {
 	contain: content;
 }
+.deviant:focus-within {
+	/* This rule is needed for Firefox to show the focus ring */
+	contain: layout style;
+	position: relative;
+	z-index: 1;
+}
 .deviant + .deviant {
 	margin-top: 1px;
 }
@@ -19,7 +25,7 @@
 	background: hsl(357, 90%, 76%);
 	cursor: pointer;
 }
-.deviant:not(.open) .deviantHeader:hover, .deviant:not(.open) .deviantHeader:active {
+.deviant:not(.open) .deviantHeader:is(:hover, :active, :focus-visible) {
 	background: linear-gradient(to bottom, hsl(357, 90%, 88%), hsl(357, 90%, 82%));
 }
 .deviant.open .deviantHeader {

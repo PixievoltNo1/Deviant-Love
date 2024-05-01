@@ -1,22 +1,21 @@
 <script>
-import { usingTouch } from "../core.src.mjs";
+import { usingTouch, usingKeyboard } from "../core.src.mjs";
 import Avatar from "./Avatar.svelte";
 import DeviationList from "./DeviationList.svelte";
 import MiniSubaccountsEditor from "./MiniSubaccountsEditor.svelte";
 import anime from "animejs";
 import { tick } from "svelte";
-import { get } from "svelte/store";
 import { target } from "../../keyboardNavigation.src.mjs";
 
 const closerLookEasing = "cubicBezier(0, 0, .6, 1)";
-export let deviant, note, watchedArtists, showDeviant, l10n, hasSubaccounts;
+export let deviant, note, watchedArtists, showDeviant, closeDeviant, l10n, hasSubaccounts;
 let subaccountsOpen = false;
-var opened, closing, openedByTouch;
+var opened, closing, openedByNonMouse;
 
 var root, closerLook;
 
 export async function open(transition) {
-	opened = true, openedByTouch = get(usingTouch);
+	opened = true, openedByNonMouse = usingTouch || usingKeyboard;
 	await tick();
 	if (transition) {
 		var targetHeight = getComputedStyle(closerLook).height;
@@ -64,6 +63,13 @@ export function close(transition) {
 export function scrollIntoView() {
 	root.scrollIntoView();
 }
+function activateHeader(event) {
+	if (!opened) {
+		showDeviant(deviant.name);
+	} else if (event.type == "keydown") {
+		closeDeviant();
+	}
+}
 function toggleSubaccounts() {
 	if (!subaccountsOpen) {
 		subaccountsOpen = true;
@@ -72,10 +78,12 @@ function toggleSubaccounts() {
 		subaccountsOpen = false;
 	}
 }
+let deviationListElem;
+$: if (deviationListElem) { deviationListElem.inert = subaccountsOpen; }
 </script>
 
-<div class="deviant" class:open={opened} class:openedByTouch id="deviant_{deviant.name}" bind:this={root}>
-	<div class="deviantHeader" use:target={ {activate: () => showDeviant(deviant.name)} }>
+<div class="deviant" class:open={opened} id="deviant_{deviant.name}" bind:this={root}>
+	<div class="deviantHeader" use:target={ {activate: activateHeader} }>
 		{#if note}
 			<div class="deviantNote">{l10n(...note)}</div>
 		{/if}
@@ -96,7 +104,7 @@ function toggleSubaccounts() {
 	</div>
 	{#if opened || closing}
 		<div bind:this={closerLook} class="closerLook" style="overflow: hidden; height: auto;">
-			{#if openedByTouch}
+			{#if openedByNonMouse}
 				<div class="touchBar">
 					{#if watchedArtists}
 						{#if watchedArtists.has(deviant.name)}
@@ -121,7 +129,7 @@ function toggleSubaccounts() {
 						>{l10n("favourites")}</a>
 				</div>
 			</div>
-			<DeviationList deviations={deviant.deviations}/>
+			<DeviationList deviations={deviant.deviations} bind:root={deviationListElem}/>
 			{#if subaccountsOpen}
 				<MiniSubaccountsEditor owner={deviant.name} />
 			{/if}

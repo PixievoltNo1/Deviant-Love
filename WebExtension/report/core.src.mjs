@@ -221,21 +221,23 @@ function report(results, love) {
 	env.events.on("show", (delay) => delay( nextTip() ));
 }
 
-export var usingTouch = writable(false);
+export var usingTouch = false;
 document.body.addEventListener("touchstart", () => {
-	usingTouch.set(true);
+	usingTouch = true;
+	document.body.classList.add("usingTouch");
 }, {passive: true});
 document.body.addEventListener("touchend", function prepareForSwitchToMouse(lastTouch) {
 	document.body.addEventListener("touchend", updateLastTouch);
 	function updateLastTouch(touchEvent) { lastTouch = touchEvent; }
 	document.body.addEventListener("mousemove", function switchToMouse(mouseEvent) {
 		if (lastTouch.timeStamp + 350 > mouseEvent.timeStamp) { return; }
-		usingTouch.set(false);
+		usingTouch = false;
+		document.body.classList.remove("usingTouch");
 		document.body.removeEventListener("mousemove", switchToMouse);
 		document.body.addEventListener("touchend", prepareForSwitchToMouse,
 			{passive: true, once: true});
 	});
 }, {passive: true, once: true});
-usingTouch.subscribe( (val) => {
-	document.body.classList.toggle("usingTouch", val);
-} );
+export var usingKeyboard = false;
+document.body.addEventListener("keydown", () => { usingKeyboard = true; });
+document.body.addEventListener("pointerdown", () => { usingKeyboard = false; });

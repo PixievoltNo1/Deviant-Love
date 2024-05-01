@@ -1,22 +1,29 @@
 /** @type {import("svelte/action").Action} */
 export function makeNavRoot(root) {
 	root.querySelector("[tabindex]")?.setAttribute("tabindex", 0);
+	root.tabIndex = -1;
 	root.addEventListener("focusin", (event) => {
-		if (event.target.tabIndex == 0) { return; }
+		if (event.target.tabIndex == 0 || event.target == root) { return; }
 		root.querySelector(`[tabindex="0"]`)?.setAttribute("tabindex", -1);
 		event.target.tabIndex = 0;
 	});
-	function navigateTo(elem) {
-		// TODO: Scroll if needed
-		elem.focus({focusVisible: true});
-	}
-	root.addEventListener("keydown", (event) => {
+	root.addEventListener("keydown", function verticalNav(event) {
 		let {key, target} = event;
 		if (key == "ArrowDown") {
 			event.preventDefault();
+			arrowNav("nextElementSibling", (elem) => elem.querySelector(`[tabindex]`));
+		} else if (key == "ArrowUp") {
+			event.preventDefault();
+			arrowNav("previousElementSibling", (elem) => {
+				let candidates = elem.querySelectorAll(`[tabindex]`);
+				return candidates[candidates.length - 1];
+			});
+		}
+		/** @type {(siblingProp: string, findDestination: (elem: Element) => Element | null) => null} */
+		function arrowNav(siblingProp, findDestination) {
 			let destination;
 			while (!destination) {
-				let nextElement = target.nextElementSibling;
+				let nextElement = target[siblingProp];
 				if (!nextElement) {
 					target = target.parentElement;
 					if (target == root) { return; }
@@ -26,39 +33,25 @@ export function makeNavRoot(root) {
 				if (target.matches(`[tabindex]`)) {
 					destination = target;
 				} else {
-					destination = target.querySelector(`[tabindex]`);
+					destination = findDestination(target);
+				}
+				if (destination) {
+					let skipMe = destination.closest(".skipVerticalNav, [inert]");
+					if (skipMe) {
+						target = skipMe;
+						destination = undefined;
+						continue;
+					}
+					// TODO: Scroll if needed
+					destination.focus({focusVisible: true});
 				}
 			}
-			if (destination) { navigateTo(destination); }
-			return;
-		}
-		if (key == "ArrowUp") {
-			event.preventDefault();
-			let destination;
-			while (!destination) {
-				let prevElement = target.previousElementSibling;
-				if (!prevElement) {
-					target = target.parentElement;
-					if (target == root) { return; }
-					continue;
-				}
-				target = prevElement;
-				if (target.matches(`[tabindex]`)) {
-					destination = target;
-				} else {
-					let candidates = target.querySelectorAll(`[tabindex]`);
-					destination = candidates[candidates.length - 1];
-				}
-			}
-			if (destination) { navigateTo(destination); }
-			return;
 		}
 	});
 
-	// Detect if the current nav target is removed
+	// If there's no current nav target, select a new one
 	let observer = new MutationObserver( (mutations) => {
 		if (root.querySelector(`[tabindex="0"]`)) { return; }
-		// TODO: Find out where [tabindex="0"] was removed from and choose a suitable replacement
 		root.querySelector("[tabindex]")?.setAttribute("tabindex", 0);
 	});
 	observer.observe(root, {childList: true, subtree: true});
@@ -67,10 +60,10 @@ export function makeNavRoot(root) {
 export function target(elem, {activate} = {}) {
 	elem.tabIndex = -1;
 	if (activate) {
-		elem.addEventListener("click", () => activate("pointer"));
+		elem.addEventListener("click", activate);
 		elem.addEventListener("keydown", (event) => {
 			if (event.key == "Enter" || event.key == " ") {
-				activate("keyboard");
+				activate(event);
 				event.preventDefault();
 			}
 		});
