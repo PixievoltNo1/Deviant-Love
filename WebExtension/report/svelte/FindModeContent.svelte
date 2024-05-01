@@ -62,8 +62,7 @@ $: hasResults = $queryResults &&
 	Boolean($queryResults.deviants.length || $queryResults.deviations.length);
 </script>
 
-<div id="resultsDisplay" style="overflow-y: auto; overflow-x: hidden; position: relative;"
-	class:hasResults>
+<div id="resultsDisplay" class:hasResults>
 	{#if $queryResults}
 		{#if $queryResults.deviants.length}
 			<div class="sectionHeader">{$l10n("foundDeviants", {num: $queryResults.deviants.length})}</div>
