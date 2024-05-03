@@ -195,7 +195,8 @@
 .miniSubaccountsEditor {
 	grid-area: main;
 	z-index: 1;
-	background: hsla(0, 0%, 0%, 0.95);
+	background: hsla(0, 0%, 0%, 0.85);
+	backdrop-filter: blur(4px);
 }
 	.miniSubaccountsEditor .entry {
 		display: grid;
