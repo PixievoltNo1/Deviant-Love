@@ -10,9 +10,11 @@ import { target } from "../../keyboardNavigation.src.mjs";
 const closerLookEasing = "cubicBezier(0, 0, .6, 1)";
 export let deviant, note, watchedArtists, showDeviant, closeDeviant, l10n, hasSubaccounts;
 let subaccountsOpen = false;
-var opened, closing, openedByNonMouse;
+let opened, closing, openedByNonMouse;
 
-var root, closerLook;
+let /** @type {HTMLElement} */ root, /** @type {HTMLElement} */ closerLook,
+	/** @type {HTMLElement} */ deviationListElem, /** @type {HTMLElement} */ subaccountsElem;
+$: if (deviationListElem) { deviationListElem.inert = subaccountsOpen; }
 
 export async function open(transition) {
 	opened = true, openedByNonMouse = usingTouch || usingKeyboard;
@@ -63,6 +65,25 @@ export function close(transition) {
 export function scrollIntoView() {
 	root.scrollIntoView();
 }
+function keyboardNav(event) {
+	if (event.key == "ArrowLeft") {
+		if (deviationListElem?.contains(event.target) || subaccountsElem?.contains(event.target)) {
+			root.querySelector(".deviantLinks a").focus();
+			event.stopPropagation();
+		}
+	} else if (event.key == "ArrowRight") {
+		if (event.target.closest(".deviantDetails")) {
+			(subaccountsElem ?? deviationListElem).querySelector("[tabindex]").focus();
+			event.stopPropagation();
+		}
+	} else if (event.key == "ArrowDown") {
+		if (event.target.matches(".deviantLinks :last-child")) {
+			let eventClone = new KeyboardEvent("keydown", event);
+			closerLook.dispatchEvent(eventClone);
+			event.stopPropagation();
+		}
+	}
+}
 function activateHeader(event) {
 	if (!opened) {
 		showDeviant(deviant.name);
@@ -78,11 +99,10 @@ function toggleSubaccounts() {
 		subaccountsOpen = false;
 	}
 }
-let deviationListElem;
-$: if (deviationListElem) { deviationListElem.inert = subaccountsOpen; }
 </script>
 
-<div class="deviant" class:open={opened} id="deviant_{deviant.name}" bind:this={root}>
+<!-- svelte-ignore a11y-no-static-element-interactions -->
+<div class="deviant" class:open={opened} id="deviant_{deviant.name}" bind:this={root} on:keydown={keyboardNav}>
 	<div class="deviantHeader" use:target={ {activate: activateHeader} }>
 		{#if note}
 			<div class="deviantNote">{l10n(...note)}</div>
@@ -118,8 +138,8 @@ $: if (deviationListElem) { deviationListElem.inert = subaccountsOpen; }
 						>{l10n(subaccountsOpen ? 'subaccountsClose' : 'subaccountsOpen')}</div>
 				</div>
 			{/if}
-			<div class="deviantDetails">
-				<Avatar {deviant}/>
+			<div class="deviantDetails skipVerticalNav">
+				<Avatar {deviant} skipVerticalNav={true}/>
 				<div class="deviantLinks">
 					<a class="deviantLink profile" href="{deviant.baseURL}" use:target
 						>{l10n("profile")}</a>
@@ -131,7 +151,7 @@ $: if (deviationListElem) { deviationListElem.inert = subaccountsOpen; }
 			</div>
 			<DeviationList deviations={deviant.deviations} bind:root={deviationListElem}/>
 			{#if subaccountsOpen}
-				<MiniSubaccountsEditor owner={deviant.name} />
+				<MiniSubaccountsEditor owner={deviant.name} bind:root={subaccountsElem}/>
 			{/if}
 		</div>
 	{/if}

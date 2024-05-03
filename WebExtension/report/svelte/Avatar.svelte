@@ -3,7 +3,7 @@ import lookUpDeviant from "../lookUpDeviant.src.mjs"
 import { onMount } from "svelte";
 import { target } from "../../keyboardNavigation.src.mjs";
 
-export let deviant;
+export let deviant, skipVerticalNav = false;
 let img;
 let loading = true;
 
@@ -21,7 +21,7 @@ onMount(() => {
 });
 </script>
 
-<a class="avatar {loading ? 'loading' : ''}" href="{deviant.baseURL}" use:target>
+<a class="avatar" class:loading class:skipVerticalNav href="{deviant.baseURL}" use:target>
 	<img bind:this={img} width="50" height="50" alt="{deviant.name}"
 		on:load="{() => loading = false}" on:error="{() => loading = false}">
 </a>

@@ -8,7 +8,7 @@ import Avatar from "./Avatar.svelte";
 
 var {subaccounts} = prefStores;
 var {edit, busy, warnings, error} = subaccountsEditorCore();
-export let owner;
+export let owner, root = undefined;
 var adding = "";
 
 $: accounts = helper.getAccountObjects( $subaccounts[owner] );
@@ -16,22 +16,27 @@ $: accounts = helper.getAccountObjects( $subaccounts[owner] );
 function add() {
 	edit("add", { owner, adding, success: () => { adding = ""; } });
 }
-function remove(removing) {
+function remove(event, removing) {
 	edit("remove", {owner, removing});
+	if (event.type == "keydown") {
+		// focus target is about to be removed; choose a new one
+		let simulatedKey = new KeyboardEvent("keydown", {key: "ArrowDown"});
+		event.target.dispatchEvent(simulatedKey);
+	}
 }
 </script>
 
-<div class="miniSubaccountsEditor">
+<div class="miniSubaccountsEditor" bind:this={root}>
 	{#each accounts as account (account.name)}
 		<div class="entry">
-			<Avatar deviant={account} />
+			<Avatar deviant={account} skipVerticalNav={true}/>
 			<div class="name">{account.name}</div>
 			<div class="actions">
 				<a class="deviantLink profile" href="{account.baseURL}" use:target>{$l10n("profile")}</a>
 				<a class="deviantLink gallery" href="{account.baseURL}gallery/" use:target>{$l10n("gallery")}</a>
-				<button type="button" class="removeSubaccount" use:target={ {activate() { remove(account.name) }} }>
-					{$l10n("subaccountsRemove")}
-				</button>
+				<button type="button" class="removeSubaccount"
+					use:target={ {activate(event) { remove(event, account.name) }} }
+					>{$l10n("subaccountsRemove")}</button>
 			</div>
 		</div>
 	{:else}

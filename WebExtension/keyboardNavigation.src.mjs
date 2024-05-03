@@ -36,8 +36,9 @@ export function makeNavRoot(root) {
 					destination = findDestination(target);
 				}
 				if (destination) {
-					let skipMe = destination.closest(".skipVerticalNav, [inert]");
-					if (skipMe) {
+					let skipMe = findSkippableParent(destination);
+					// Forbid vertical nav into, but not within, a skippable element
+					if (skipMe && skipMe != findSkippableParent(event.target)) {
 						target = skipMe;
 						destination = undefined;
 						continue;
@@ -46,6 +47,9 @@ export function makeNavRoot(root) {
 					destination.focus({focusVisible: true});
 				}
 			}
+		}
+		function findSkippableParent(elem) {
+			return elem.closest(".skipVerticalNav, [inert]");
 		}
 	});
 
