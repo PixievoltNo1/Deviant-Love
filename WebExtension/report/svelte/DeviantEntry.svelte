@@ -62,9 +62,7 @@ export function close(transition) {
 		});
 	}
 }
-export function scrollIntoView() {
-	root.scrollIntoView();
-}
+export function getElem() { return root; }
 function keyboardNav(event) {
 	if (event.key == "ArrowLeft") {
 		if (deviationListElem?.contains(event.target) || subaccountsElem?.contains(event.target)) {
@@ -73,7 +71,9 @@ function keyboardNav(event) {
 		}
 	} else if (event.key == "ArrowRight") {
 		if (event.target.closest(".deviantDetails")) {
-			(subaccountsElem ?? deviationListElem).querySelector("[tabindex]").focus();
+			// Navigate to the deviation list or mini subaccounts editor
+			let navEvent = new KeyboardEvent("keydown", {key: "ArrowDown", bubbles: true});
+			root.querySelector(".deviantDetails").dispatchEvent(navEvent);
 			event.stopPropagation();
 		}
 	} else if (event.key == "ArrowDown") {

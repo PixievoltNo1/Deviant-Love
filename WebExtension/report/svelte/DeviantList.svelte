@@ -23,7 +23,9 @@ afterUpdate( () => {
 			Promise.resolve().then( () => { fresh = false; } );
 		}
 		if (opened) {
-			registry[opened].scrollIntoView();
+			let elem = registry[opened].getElem();
+			elem.scrollIntoView();
+			elem.querySelector(`[tabindex="0"]`)?.focus({preventScroll: true});
 		}
 		oldDeviants = deviants;
 	}

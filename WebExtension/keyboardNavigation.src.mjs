@@ -3,17 +3,24 @@ export function makeNavRoot(root) {
 	root.querySelector("[tabindex]")?.setAttribute("tabindex", 0);
 	root.tabIndex = -1;
 	root.addEventListener("focusin", (event) => {
-		if (event.target.tabIndex == 0 || event.target == root) { return; }
+		if (event.target.tabIndex == 0) { return; }
+		if (event.target == root) {
+			root.querySelector(`[tabindex="0"]`)?.focus({preventScroll: true})
+			return;
+		}
 		root.querySelector(`[tabindex="0"]`)?.setAttribute("tabindex", -1);
 		event.target.tabIndex = 0;
 	});
+	root.addEventListener("keydown", function(event) {
+		if (["ArrowDown", "ArrowUp", " "].includes(event.key)) {
+			event.preventDefault();
+		}
+	}, {capture: true});
 	root.addEventListener("keydown", function verticalNav(event) {
 		let {key, target} = event;
 		if (key == "ArrowDown") {
-			event.preventDefault();
 			arrowNav("nextElementSibling", (elem) => elem.querySelector(`[tabindex]`));
 		} else if (key == "ArrowUp") {
-			event.preventDefault();
 			arrowNav("previousElementSibling", (elem) => {
 				let candidates = elem.querySelectorAll(`[tabindex]`);
 				return candidates[candidates.length - 1];
@@ -70,6 +77,10 @@ export function target(elem, {activate} = {}) {
 				activate(event);
 				event.preventDefault();
 			}
+		});
+	} else if (elem instanceof HTMLAnchorElement) {
+		elem.addEventListener("keydown", (event) => {
+			if (event.key == " ") { elem.click(); }
 		});
 	}
 }

@@ -13,6 +13,51 @@ var adding = "";
 
 $: accounts = helper.getAccountObjects( $subaccounts[owner] );
 
+/** @type {(this: HTMLElement, event: KeyboardEvent) => void} */
+function entryKeyboardNav(event) {
+	let getActions = (entry) => entry.querySelector(".actions").children;
+	if (event.key == "ArrowUp") {
+		if (!this.previousElementSibling) {
+			let eventClone = new KeyboardEvent("keydown", event);
+			root.dispatchEvent(eventClone);
+			event.stopPropagation();
+		} else {
+			let actionIndex = Array.prototype.indexOf.call(getActions(this), event.target);
+			getActions(this.previousElementSibling)[actionIndex].focus();
+			event.stopPropagation();
+		}
+	} else if (event.key == "ArrowDown") {
+		if (this.nextElementSibling.matches(".entry")) {
+			let actionIndex = Array.prototype.indexOf.call(getActions(this), event.target);
+			getActions(this.nextElementSibling)[actionIndex].focus();
+			event.stopPropagation();
+		} else {
+			root.querySelector(".addSubaccount input").focus();
+			event.stopPropagation();
+		}
+	} else if (event.key == "ArrowLeft") {
+		if (event.target.previousElementSibling) {
+			event.target.previousElementSibling.focus();
+			event.stopPropagation();
+		}
+	} else if (event.key == "ArrowRight") {
+		if (event.target.nextElementSibling) {
+			event.target.nextElementSibling.focus();
+			event.stopPropagation();
+		}
+	}
+}
+function inputKeyboardNav(event) {
+	if (event.key == "ArrowUp") {
+		let entries = root.querySelectorAll(".entry");
+		if (entries.length) {
+			entries[entries.length - 1].querySelector(".profile").focus();
+			event.stopPropagation();
+		}
+	} else if (event.key == "ArrowLeft" || event.key == "ArrowRight") {
+		event.stopPropagation();
+	}
+}
 function add() {
 	edit("add", { owner, adding, success: () => { adding = ""; } });
 }
@@ -20,7 +65,7 @@ function remove(event, removing) {
 	edit("remove", {owner, removing});
 	if (event.type == "keydown") {
 		// focus target is about to be removed; choose a new one
-		let simulatedKey = new KeyboardEvent("keydown", {key: "ArrowDown"});
+		let simulatedKey = new KeyboardEvent("keydown", {key: "ArrowDown", bubbles: true});
 		event.target.dispatchEvent(simulatedKey);
 	}
 }
@@ -28,7 +73,8 @@ function remove(event, removing) {
 
 <div class="miniSubaccountsEditor" bind:this={root}>
 	{#each accounts as account (account.name)}
-		<div class="entry">
+		<!-- svelte-ignore a11y-no-static-element-interactions -->
+		<div class="entry" on:keydown={entryKeyboardNav}>
 			<Avatar deviant={account} skipVerticalNav={true}/>
 			<div class="name">{account.name}</div>
 			<div class="actions">
@@ -43,9 +89,9 @@ function remove(event, removing) {
 		<div class="notice help">{$l10n("subaccountsEditorMiniExplain")}</div>
 	{/each}
 	<form class="addSubaccount textEntryLine" on:submit|preventDefault="{add}">
-		<input type="text" bind:value="{adding}" required use:target
+		<input type="text" bind:value="{adding}" required use:target on:keydown={inputKeyboardNav}
 			placeholder="{$l10n('subaccountsAddNamePlaceholder')}">
-		<button type="submit" class="confirmAdd" use:target>
+		<button type="submit" class="confirmAdd skipVerticalNav" use:target>
 			{$l10n("subaccountsAddConfirm")}
 		</button>
 	</form>
