@@ -1,7 +1,7 @@
 <script>
 import l10n from "../../l10nStore.src.mjs";
 import prefStores from "../../prefStores.src.mjs";
-import { findModeContentHelper as helper } from "../core.src.mjs";
+import { submitFindQuery } from "../core.src.mjs";
 
 export let close, showClose, autofocus = false;
 
@@ -24,7 +24,7 @@ function handleSubmit() {
 	if (input == "") {
 		return;
 	}
-	helper.submitQuery(input);
+	submitFindQuery(input);
 }
 </script>
 

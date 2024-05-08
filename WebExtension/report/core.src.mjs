@@ -15,7 +15,7 @@
 	You should have received a copy of the GNU General Public License
 	along with Deviant Love.  If not, see <http://www.gnu.org/licenses/>.
 */
-import { writable, get as readStore } from "svelte/store";
+import { get as readStore } from "svelte/store";
 import { tick } from "svelte";
 import * as prefs from "../prefStores.src.mjs";
 import * as env from "./environment.src.mjs";
@@ -26,6 +26,7 @@ import MainScreen from "./svelte/MainScreen.svelte";
 import * as subaccountsEditorSettings from "../options/subaccountsEditorCore.src.mjs";
 import { init as initL10n } from "../l10nStore.src.mjs";
 import { nextTip } from "./svelte/TipOfTheMoment.svelte";
+import { findResults } from "./svelte/FindModeContent.svelte";
 
 export async function start({love, restoreData}) {
 	let firstDeviant;
@@ -134,7 +135,7 @@ function restore(scanData, love) {
 	// TODO: Wake scanData.deviants
 	return scanData;
 }
-export var findModeContentHelper, miniSubaccountsEditorHelper;
+export var submitFindQuery, miniSubaccountsEditorHelper;
 function report(results, love) {
 	var {deviants, totalDeviations, watchedArtists, watchError} = results;
 	deviants.setSubaccounts( readStore(prefs.stores.subaccounts) );
@@ -164,7 +165,7 @@ function report(results, love) {
 	screen.$on("changeMode", ({ detail: {from, to} }) => {
 		if (to == "find") {
 			findWorker = new Worker(new URL("find.js", import.meta.url), {type: "module"});
-			let prevResults = readStore(findModeContentHelper.resultsStore);
+			let prevResults = readStore(findResults);
 			findWorker.postMessage({
 				deviantsMap: deviants.baseMap,
 				subaccounts: deviants.subaccounts,
@@ -177,7 +178,7 @@ function report(results, love) {
 				for (let resultSet of data.deviations) {
 					resultSet.deviant = deviants.effectiveMap.get(resultSet.deviant);
 				}
-				findModeContentHelper.resultsStore.set(data);
+				findResults.set(data);
 			};
 		}
 		if (from == "find") {
@@ -189,13 +190,10 @@ function report(results, love) {
 		}
 	});
 	screen.$on("closeRequested", env.closeDeviantLove);
-	findModeContentHelper = {
-		async submitQuery(query) {
-			screen.$set({mode: "find"});
-			await tick();
-			findWorker.postMessage({query});
-		},
-		resultsStore: writable(null),
+	submitFindQuery = async (query) => {
+		screen.$set({mode: "find"});
+		await tick();
+		findWorker.postMessage({query});
 	};
 	miniSubaccountsEditorHelper = {
 		getAccountObjects(accounts = []) {

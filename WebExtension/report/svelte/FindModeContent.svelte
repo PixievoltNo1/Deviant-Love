@@ -1,8 +1,10 @@
+<script context="module">
+import { writable } from "svelte/store";
+export var findResults = writable(null);
+</script>
 <script>
 import l10n from "../../l10nStore.src.mjs";
-import prefStores from "../../prefStores.src.mjs";
 import { target } from "../../keyboardNavigation.src.mjs";
-import { findModeContentHelper as helper } from "../core.src.mjs";
 import DeviantList from "./DeviantList.svelte";
 import DeviationList from "./DeviationList.svelte";
 import Avatar from "./Avatar.svelte";
@@ -10,70 +12,67 @@ import { beforeUpdate, afterUpdate, tick } from 'svelte';
 
 export let showDeviantInMain;
 export let watchedArtists;
-
-let queryResults = helper.resultsStore;
-let oldQueryResults;
-
+let oldFindResults;
 let deviantList;
 
 beforeUpdate(async () => {
-	if ($queryResults && $queryResults != oldQueryResults) {
+	if ($findResults && $findResults != oldFindResults) {
 		// If the new results are for a new query
-		if ($queryResults.for != (oldQueryResults && oldQueryResults.for)) {
+		if ($findResults.for != (oldFindResults && oldFindResults.for)) {
 			if (deviantList) {
 				deviantList.reset();
 			}
 			await tick();
 			// If results consist of nothing but 1 deviant, open their DeviantEntry
-			if ($queryResults.deviants.length == 1 && !$queryResults.deviations.length) {
-				deviantList.showDeviant($queryResults.deviants[0].name);
+			if ($findResults.deviants.length == 1 && !$findResults.deviations.length) {
+				deviantList.showDeviant($findResults.deviants[0].name);
 			}
 		}
 	}
 });
 afterUpdate(() => {
-	if ($queryResults != oldQueryResults) {
+	if ($findResults != oldFindResults) {
 		// Set subaccount notes
 		if (deviantList) { // implies ($queryResults && $queryResults.deviants.length)
-			if (oldQueryResults && oldQueryResults.matchedBySubaccount) {
-				for (let deviant of Object.keys(oldQueryResults.matchedBySubaccount)) {
+			if (oldFindResults && oldFindResults.matchedBySubaccount) {
+				for (let deviant of Object.keys(oldFindResults.matchedBySubaccount)) {
 					let entry = deviantList.registry[deviant];
 					if (!entry) { continue; }
 					entry.$set({note: null});
 				}
 			}
-			for (let [deviant, subaccount] of Object.entries($queryResults.matchedBySubaccount)) {
+			for (let [deviant, subaccount] of Object.entries($findResults.matchedBySubaccount)) {
 				deviantList.registry[deviant].$set(
 					{ note: ["foundDeviantSubaccount", {name: subaccount}] } );
 			}
 		}
 
-		oldQueryResults = $queryResults;
+		oldFindResults = $findResults;
 	}
 });
 
 let showAmpersandHint;
 $: {
-	let checkMe = $queryResults ? $queryResults.for : "";
+	let checkMe = $findResults ? $findResults.for : "";
 	showAmpersandHint = checkMe.indexOf(" ") != -1 && checkMe.indexOf("&") == -1;
 }
 
-$: hasResults = $queryResults &&
-	Boolean($queryResults.deviants.length || $queryResults.deviations.length);
+$: hasResults = $findResults &&
+	Boolean($findResults.deviants.length || $findResults.deviations.length);
 </script>
 
 <div id="resultsDisplay" class:hasResults>
-	{#if $queryResults}
-		{#if $queryResults.deviants.length}
-			<div class="sectionHeader">{$l10n("foundDeviants", {num: $queryResults.deviants.length})}</div>
-			<DeviantList deviants={$queryResults.deviants} {watchedArtists} bind:this={deviantList}/>
+	{#if $findResults}
+		{#if $findResults.deviants.length}
+			<div class="sectionHeader">{$l10n("foundDeviants", {num: $findResults.deviants.length})}</div>
+			<DeviantList deviants={$findResults.deviants} {watchedArtists} bind:this={deviantList}/>
 		{/if}
-		{#if $queryResults.deviations.length}
+		{#if $findResults.deviations.length}
 			<div class="sectionHeader">
 				{$l10n("foundDeviations",
-					{deviations: $queryResults.deviationTotal, artists: $queryResults.deviations.length})}
+					{deviations: $findResults.deviationTotal, artists: $findResults.deviations.length})}
 			</div>
-			{#each $queryResults.deviations as {deviant, deviations} (deviant.name)}
+			{#each $findResults.deviations as {deviant, deviations} (deviant.name)}
 				<div class="deviationResultGroup">
 					<div class="deviationResultGroupHeader">
 						{$l10n("foundDeviationsArtistHeader", {name: deviant.name})}
