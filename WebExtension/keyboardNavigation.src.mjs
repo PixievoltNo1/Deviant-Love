@@ -12,7 +12,7 @@ export function makeNavRoot(root) {
 		event.target.tabIndex = 0;
 	});
 	root.addEventListener("keydown", function(event) {
-		if (["ArrowDown", "ArrowUp", " "].includes(event.key)) {
+		if (["ArrowDown", "ArrowUp", " ", "Home", "End"].includes(event.key)) {
 			event.preventDefault();
 		}
 	}, {capture: true});
@@ -25,6 +25,16 @@ export function makeNavRoot(root) {
 				let candidates = elem.querySelectorAll(`[tabindex]`);
 				return candidates[candidates.length - 1];
 			});
+		} else if (key == "Home") {
+			root.scrollTo({top: 0});
+			let elem = Array.prototype.find.call(root.querySelectorAll("[tabindex]"),
+				(elem) => !findSkippableParent(elem));
+			elem?.focus({focusVisible: true, preventScroll: true});
+		} else if (key == "End") {
+			root.scrollTo({top: root.scrollHeight});
+			let elem = Array.prototype.findLast.call(root.querySelectorAll("[tabindex]"),
+				(elem) => !findSkippableParent(elem));
+			elem?.focus({focusVisible: true, preventScroll: true});
 		}
 		/** @type {(siblingProp: string, findDestination: (elem: Element) => Element | null) => null} */
 		function arrowNav(siblingProp, findDestination) {
