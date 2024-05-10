@@ -51,14 +51,36 @@ afterUpdate(() => {
 	}
 });
 
-let showAmpersandHint;
-$: {
-	let checkMe = $findResults ? $findResults.for : "";
-	showAmpersandHint = checkMe.indexOf(" ") != -1 && checkMe.indexOf("&") == -1;
-}
-
+$: showAmpersandHint = $findResults && /[ &]/.test($findResults.for);
 $: hasResults = $findResults &&
 	Boolean($findResults.deviants.length || $findResults.deviations.length);
+
+function deviationResultsKeyboardNav(event) {
+	if (event.target.closest(".deviationResultGroupSidebar")) {
+		if (event.key == "ArrowLeft") {
+			this.querySelector("[tabindex]").focus();
+			event.stopPropagation();
+		}
+		if (event.key == "ArrowUp" || event.key == "ArrowDown") {
+			let allSidebarTargets = document.querySelectorAll(".deviationResultGroupSidebar [tabindex]");
+			let i = Array.prototype.indexOf.call(allSidebarTargets, event.target);
+			i += (event.key == "ArrowUp") ? -1 : 1;
+			if (i in allSidebarTargets) {
+				allSidebarTargets[i].focus();
+				event.stopPropagation();
+			} else if (event.key == "ArrowUp") {
+				let eventClone = new KeyboardEvent("keydown", event);
+				this.dispatchEvent(eventClone);
+				event.stopPropagation();
+			}
+		}
+	} else { // In the deviations list
+		if (event.key == "ArrowRight") {
+			this.querySelector(".deviationResultGroupSidebar [tabindex]").focus();
+			event.stopPropagation();
+		}
+	}
+}
 </script>
 
 <div id="resultsDisplay" class:hasResults>
@@ -73,12 +95,13 @@ $: hasResults = $findResults &&
 					{deviations: $findResults.deviationTotal, artists: $findResults.deviations.length})}
 			</div>
 			{#each $findResults.deviations as {deviant, deviations} (deviant.name)}
-				<div class="deviationResultGroup">
+				<!-- svelte-ignore a11y-no-static-element-interactions -->
+				<div class="deviationResultGroup" on:keydown={deviationResultsKeyboardNav}>
 					<div class="deviationResultGroupHeader">
 						{$l10n("foundDeviationsArtistHeader", {name: deviant.name})}
 					</div>
 					<DeviationList {deviations}/>
-					<div class="deviationResultGroupSidebar">
+					<div class="deviationResultGroupSidebar skipVerticalNav">
 						<Avatar {deviant}/>
 						<button type="button" class="viewDeviant"
 							use:target={ {activate() {showDeviantInMain(deviant.name)} } }>
