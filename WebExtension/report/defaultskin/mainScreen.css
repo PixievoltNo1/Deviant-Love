@@ -165,10 +165,10 @@ body:not(.usingTouch) #header > .optionsAction:hover:not(:active):not(.current) 
 #actionList .action::before {
 	margin: 8px;
 }
-#lovedArtists {
+.mainContent {
 	flex: 1;
 }
-#lovedArtists {
+.mainContent.lovedArtists {
 	background: hsl(357, 90%, 54%);
 }
 #watchFailure {

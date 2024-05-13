@@ -102,7 +102,7 @@ export async function showDeviantInMain(deviantName) {
 </script>
 
 <svelte:options accessors="{true}"/>
-<div id="mainScreen" class="{mode}Mode" class:hamburgerMenuOpen class:mobile="{$mobile}">
+<div id="mainScreen" class:hamburgerMenuOpen class:mobile="{$mobile}">
 	<div id="header">
 		{#if $mobile}
 			<button type="button" id="openHamburgerMenu" on:click="{openHamburgerMenu}"></button>
@@ -135,20 +135,23 @@ export async function showDeviantInMain(deviantName) {
 	{#if !$mobile}
 		<FindBar close="{() => mode = 'normal'}" showClose={mode == "find"}/>
 	{/if}
-	<div id="lovedArtists" style="overflow-y: auto; overflow-x: hidden; position: relative;" use:makeNavRoot>
-		{#if mode == "normal"}
+
+	{#if mode == "normal"}
+		<div class="lovedArtists mainContent" style="overflow: hidden auto; position: relative;" use:makeNavRoot>
 			{#if watchError}
 				<div id="watchFailure" class="notice">
 					{$l10n(watchError == "notLoggedIn" ? "watchErrorNotLoggedIn" : "watchErrorInternal")}
 				</div>
 			{/if}
 			<DeviantList deviants={deviantList} {watchedArtists} bind:this={normalDeviantList}/>
-		{:else if mode == "find"}
-			{#if $mobile}
-				<FindBar close="{() => mode = 'normal'}" showClose={true} autofocus={true}/>
-			{/if}
-			<FindModeContent {watchedArtists} {showDeviantInMain}/>
-		{:else if mode == "options"}
+		</div>
+	{:else if mode == "find"}
+		{#if $mobile}
+			<FindBar close="{() => mode = 'normal'}" showClose={true} autofocus={true}/>
+		{/if}
+		<FindModeContent {watchedArtists} {showDeviantInMain}/>
+	{:else if mode == "options"}
+		<div class="optionsMode mainContent" style="overflow: hidden auto;">
 			<button type="button" class="closeButton" on:click="{() => mode = 'normal'}">
 				{$l10n("close")}</button>
 			<div class="sectionHeader">{$l10n("generalOptionsHeader")}</div>
@@ -157,8 +160,9 @@ export async function showDeviantInMain(deviantName) {
 			<SubaccountsEditor/>
 			<div class="sectionHeader">{$l10n("syncHeader")}</div>
 			<SyncStatus/>
-		{/if}
-	</div>
+		</div>
+	{/if}
+
 	{#if mode == "normal" || !$mobile}
 		<TipOfTheMoment/>
 	{/if}

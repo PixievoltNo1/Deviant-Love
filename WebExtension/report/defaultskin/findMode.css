@@ -1,10 +1,3 @@
-.findMode #lovedArtists {
-	display: flex;
-	flex-direction: column;
-}
-.findMode #lovedArtists > :not(:first-child) {
-	border-top: 1px solid black;
-}
 #findBar {
 	flex: none;
 	background-color: hsl(55, 100%, 55%);
@@ -48,18 +41,17 @@
 	background-color: hsl(55, 96%, 84%);
 	padding: 2px;
 }
-#resultsDisplay {
-	flex: 1;
+.mainContent.findMode {
 	background: hsl(48, 100%, 54%);
 }
-#resultsDisplay.hasResults {
+.mainContent.findMode.hasResults {
 	background: hsl(46, 100%, 43%);
 }
-#findHelp, #noResults {
+#noResults {
 	margin: 20px 40px;
 	font-size: 20px;
 }
-#resultsDisplay > .sectionHeader {
+.mainContent.findMode > .sectionHeader {
 	padding: 0.1em 0.5em;
 	font-weight: 800;
 	font-size: 120%;
@@ -68,7 +60,7 @@
 	border: solid hsl(46, 100%, 43%);
 	border-width: 3px 0 1px;
 }
-#resultsDisplay > .sectionHeader:first-child {
+.mainContent.findMode > .sectionHeader:first-child {
 	border-top-width: 0;
 }
 /* For .deviantList styling, see deviantList.css */

@@ -1,8 +1,8 @@
-.optionsMode #lovedArtists {
+.mainContent.optionsMode {
 	padding: 9px;
 	background: hsl(357, 75%, 62%);
 }
-.optionsMode .closeButton {
+.mainContent.optionsMode .closeButton {
 	position: sticky;
 	top: -5px;
 	right: -5px;
@@ -13,7 +13,7 @@
 	border: 1px solid black;
 	background: hsl(0, 100%, 88%);
 }
-.optionsMode .sectionHeader {
+.mainContent.optionsMode .sectionHeader {
 	font-size: 22px;
 	font-weight: bold;
 	margin: 7px 0;
@@ -33,9 +33,9 @@
 	padding: 7px;
 	font-size: 12px;
 }
-.optionsMode #lovedArtists .ok { background: hsl(112, 58%, 82%); }
-.optionsMode #lovedArtists .warning { background: hsl(57, 100%, 88%); }
-.optionsMode #lovedArtists .error { background: hsl(0, 100%, 76%); }
+.mainContent.optionsMode .ok { background: hsl(112, 58%, 82%); }
+.mainContent.optionsMode .warning { background: hsl(57, 100%, 88%); }
+.mainContent.optionsMode .error { background: hsl(0, 100%, 76%); }
 .subaccountsMessage p:first-child, #syncStatus p:first-child { margin-top: 0; }
 .subaccountsMessage p:last-child, #syncStatus p:last-child { margin-bottom: 0; }
 #subaccountsEditor {

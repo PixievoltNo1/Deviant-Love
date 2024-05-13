@@ -4,7 +4,7 @@ export var findResults = writable(null);
 </script>
 <script>
 import l10n from "../../l10nStore.src.mjs";
-import { target } from "../../keyboardNavigation.src.mjs";
+import { makeNavRoot, target } from "../../keyboardNavigation.src.mjs";
 import DeviantList from "./DeviantList.svelte";
 import DeviationList from "./DeviationList.svelte";
 import Avatar from "./Avatar.svelte";
@@ -83,7 +83,8 @@ function deviationResultsKeyboardNav(event) {
 }
 </script>
 
-<div id="resultsDisplay" class:hasResults>
+<div class="findMode mainContent" class:hasResults
+	style="overflow: hidden auto; position: relative;" use:makeNavRoot>
 	{#if $findResults}
 		{#if $findResults.deviants.length}
 			<div class="sectionHeader">{$l10n("foundDeviants", {num: $findResults.deviants.length})}</div>
