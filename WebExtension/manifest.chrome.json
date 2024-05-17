@@ -30,7 +30,7 @@
 		"js": ["contentScript/findLove.js", "contentScript/panel.js", "contentScript/artistNames.js",
 			"contentScript/favesPages.js", "contentScript/contentScriptCore.js"],
 		"css": ["contentScript/panel.css"],
-		"run_at": "document_end"
+		"run_at": "document_start"
 	}],
 	"web_accessible_resources": [{
 		"resources": ["report/popup.html", "images/heart/*"],

@@ -65,8 +65,8 @@ mobileCheck.addEventListener("change", handleMobile);
 async function activate(firstDeviant) {
 	panelState = "preparing";
 	if (!panelInitialized) {
-		if (love.getFullInfo) {
-			love = await love.getFullInfo();
+		if (love.fetch) {
+			love = await love.fetch();
 		}
 		chrome.runtime.onMessage.addListener( function startHelper(thing) {
 			if (thing.action == "panelReady") {

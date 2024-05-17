@@ -5,7 +5,7 @@
 */
 "use strict";
 
-function findLove(document = window.document, location = window.location) {
+function findLove({document = window.document, location = window.location, strict} = {}) {
 	var love = {};
 
 	var eclipseCollections = ( () => {
@@ -35,17 +35,11 @@ function findLove(document = window.document, location = window.location) {
 		love.pageType = "allFaves";
 	}
 	if (!love.pageType) {
-		return false; // Doesn't seem to be a DeviantArt faves page
+		return ["broken", {error: "unknownPageType"}];
 	}
 
 	if (!eclipseCollections && document.body.matches(".mobile")) {
-		love.getFullInfo = async function getFullInfo() {
-			let desktopUA = navigator.userAgent.replace(/Android \d+; Mobile/, "X11; Linux x86_64");
-			let response = await fetch(location.href, {headers: {"User-Agent": desktopUA}});
-			let document = (new DOMParser).parseFromString(await response.text(), "text/html");
-			return findLove(document);
-		}
-		return love;
+
 	}
 
 	var feed = document.querySelector('link[rel="alternate"][type="application/rss+xml"]');
@@ -56,29 +50,44 @@ function findLove(document = window.document, location = window.location) {
 		if (love.pageType == "allFaves") {
 			love.feedHref = "https://backend.deviantart.com/rss.xml?" +
 				`q=favby%3A${deviantName}&type=deviation`;
-		} else {
-			if (!folderId) {
-				throw new Error("Can't determine feed URL");
-			}
+		} else if (folderId) {
 			love.feedHref = "https://backend.deviantart.com/rss.xml?" +
 				`q=favby%3A${deviantName}%2F${folderId}&type=deviation`;
 		}
 	}
 
-	// Optional value. Do not attempt to throw if it can't be determined.
-	love.maxDeviations = ( () => {
-		if (!eclipseCollections) { return null; }
+	if (eclipseCollections) {
 		try {
 			let urlPart = (love.pageType == "allFaves") ? "all" : folderId + "/";
-			var collectionElem = eclipseCollections
+			let collectionElem = eclipseCollections
 				.querySelector(`a[href*="/favourites/${urlPart}"]`);
-			var deviationsMatch = (/(\d+) deviations$/).exec(collectionElem.innerText);
-			return deviationsMatch[1];
+			let deviationsMatch = (/(\d+) deviations$/).exec(collectionElem.innerText);
+			love.maxDeviations = deviationsMatch[1];
 		} catch (o_o) {
 			console.warn(o_o);
-			return null;
-		};
-	} )();
+		}
+	}
 
-	return love;
+	if (!love.feedHref || !love.maxDeviations) {
+		if (strict) {
+			// maxDeviations is optional
+			if (!love.feedHref) {
+				return ["broken", {error: "couldntFindFeed"}];
+			} else {
+				return ["complete", love];
+			}
+		} else {
+			return ["fetchable", {
+				async fetch() {
+					let desktopUA = navigator.userAgent.replace(/Android \d+; Mobile/, "X11; Linux x86_64");
+					let response = await fetch(location.href, {headers: {"User-Agent": desktopUA}});
+					let document = (new DOMParser).parseFromString(await response.text(), "text/html");
+					return findLove({document, strict: true});
+				},
+				retryable: !document.body.matches(".mobile"),
+			}];
+		}
+	}
+
+	return ["complete", love];
 }

@@ -6,25 +6,18 @@
 "use strict";
 
 function favesPageSetup() {
-	var oldUrl = "", panelTeardown = null, artistNamesTeardown = null;
+	var oldUrl = "", retryFindLove = false, panelTeardown = null, artistNamesTeardown = null;
 	var pageObserver = new MutationObserver(reactToPage);
 	pageObserver.observe(document.body, { childList: true, subtree: true });
 	function reactToPage() {
-		if (location.toString() == oldUrl) { return; }
+		if (location.toString() == oldUrl && retryFindLove == false) { return; }
 		uiTeardown();
-		try {
-			var love = findLove();
-		} catch (o_o) {
-			console.error(o_o);
-		}
-		if (!love) {
-			oldUrl = "";
-			return;
-		}
+		let [status, love] = findLove();
+		retryFindLove = (status == "fetchable" && love.retryable);
 		oldUrl = location.toString();
 		chrome.runtime.sendMessage({ action: "showLove" });
 		panelTeardown = panelSetup(love);
-		artistNamesTeardown = artistNamesSetup();
+		artistNamesTeardown = (status != "broken") && artistNamesSetup();
 	}
 	reactToPage();
 	function uiTeardown() {
