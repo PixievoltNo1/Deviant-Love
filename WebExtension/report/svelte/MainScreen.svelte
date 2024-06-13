@@ -137,7 +137,7 @@ export async function showDeviantInMain(deviantName) {
 	{/if}
 
 	{#if mode == "normal"}
-		<div class="lovedArtists mainContent" style="overflow: hidden auto; position: relative;" use:makeNavRoot>
+		<div class="lovedArtists mainContent" style="overflow: hidden auto; contain: strict;" use:makeNavRoot>
 			{#if watchError}
 				<div id="watchFailure" class="notice">
 					{$l10n(watchError == "notLoggedIn" ? "watchErrorNotLoggedIn" : "watchErrorInternal")}

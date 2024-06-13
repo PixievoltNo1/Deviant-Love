@@ -1,15 +1,6 @@
 .deviantList, .closerLook {
 	background: hsl(357, 90%, 54%);
 }
-.deviant {
-	contain: content;
-}
-.deviant:focus-within {
-	/* This rule is needed for Firefox to show the focus ring */
-	contain: layout style;
-	position: relative;
-	z-index: 1;
-}
 .deviant + .deviant {
 	margin-top: 1px;
 }

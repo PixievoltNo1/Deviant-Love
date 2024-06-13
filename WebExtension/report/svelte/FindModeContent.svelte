@@ -84,7 +84,7 @@ function deviationResultsKeyboardNav(event) {
 </script>
 
 <div class="findMode mainContent" class:hasResults
-	style="overflow: hidden auto; position: relative;" use:makeNavRoot>
+	style="overflow: hidden auto; contain: strict;" use:makeNavRoot>
 	{#if $findResults}
 		{#if $findResults.deviants.length}
 			<div class="sectionHeader">{$l10n("foundDeviants", {num: $findResults.deviants.length})}</div>

@@ -17,14 +17,17 @@ export function makeNavRoot(root) {
 		}
 	}, {capture: true});
 	root.addEventListener("keydown", function verticalNav(event) {
+		const SCROLL_MARGIN = 40;
 		let {key, target} = event;
 		if (key == "ArrowDown") {
 			arrowNav("nextElementSibling", (elem) => elem.querySelector(`[tabindex]`));
+			maintainBottomScrollMargin();
 		} else if (key == "ArrowUp") {
 			arrowNav("previousElementSibling", (elem) => {
 				let candidates = elem.querySelectorAll(`[tabindex]`);
 				return candidates[candidates.length - 1];
 			});
+			maintainTopScrollMargin();
 		} else if (key == "Home") {
 			root.scrollTo({top: 0});
 			let elem = Array.prototype.find.call(root.querySelectorAll("[tabindex]"),
@@ -60,13 +63,22 @@ export function makeNavRoot(root) {
 						destination = undefined;
 						continue;
 					}
-					// TODO: Scroll if needed
 					destination.focus({focusVisible: true});
 				}
 			}
 		}
 		function findSkippableParent(elem) {
 			return elem.closest(".skipVerticalNav, [inert]");
+		}
+		function maintainTopScrollMargin() {
+			let maxScrollTop = document.activeElement.offsetTop - SCROLL_MARGIN;
+			if (root.scrollTop > maxScrollTop) { root.scrollTop = maxScrollTop; }
+		}
+		function maintainBottomScrollMargin() {
+			let elemHeight = document.activeElement.getBoundingClientRect().height;
+			let minScrollTop = document.activeElement.offsetTop + elemHeight + SCROLL_MARGIN
+				- root.clientHeight;
+			if (root.scrollTop < minScrollTop) { root.scrollTop = minScrollTop; }
 		}
 	});
 
