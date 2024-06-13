@@ -79,3 +79,15 @@ syncByBrowserError = Failed to save sync data with this error: { $err }
 syncByBrowserUnsupported = Sync isn't available in this version of this browser.
 syncLastSaved = Sync data last saved on: { $date }
 syncLastSuccessfulSync = Last successful sync on: { $date }
+
+detectErrorUnknownPageType =
+    Deviant Love couldn't determine what kind of page this is and couldn't determine how to scan it.
+    Make sure this issue is reported to
+    <a href="https://github.com/PixievoltNo1/Deviant-Love/issues">the issue tracker</a>, and be sure
+    to include the URL of the page where this happened.
+detectErrorCouldntFindFeed =
+    Deviant Love couldn't gather the info needed to start the scan. Make sure this issue is reported
+    to <a href="https://github.com/PixievoltNo1/Deviant-Love/issues">the issue tracker</a>.
+detectErrorCouldntFindFeaturedFeed =
+    { detectErrorCouldntFindFeed } Until this issue is fixed, you may be able to work around it by
+    scanning the All page.

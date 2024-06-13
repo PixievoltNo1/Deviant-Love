@@ -35,11 +35,7 @@ function findLove({document = window.document, location = window.location, stric
 		love.pageType = "allFaves";
 	}
 	if (!love.pageType) {
-		return ["broken", {error: "unknownPageType"}];
-	}
-
-	if (!eclipseCollections && document.body.matches(".mobile")) {
-
+		return ["broken", {error: "UnknownPageType"}];
 	}
 
 	var feed = document.querySelector('link[rel="alternate"][type="application/rss+xml"]');
@@ -72,7 +68,8 @@ function findLove({document = window.document, location = window.location, stric
 		if (strict) {
 			// maxDeviations is optional
 			if (!love.feedHref) {
-				return ["broken", {error: "couldntFindFeed"}];
+				let error = (love.pageType == "featured") ? "CouldntFindFeaturedFeed" : "CouldntFindFeed";
+				return ["broken", {error}];
 			} else {
 				return ["complete", love];
 			}

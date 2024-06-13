@@ -24,7 +24,7 @@ import DeviantCollection from "./deviantCollection.src.mjs";
 import PreparationScreen from "./svelte/PreparationScreen.svelte";
 import MainScreen from "./svelte/MainScreen.svelte";
 import * as subaccountsEditorSettings from "../options/subaccountsEditorCore.src.mjs";
-import { init as initL10n } from "../l10nStore.src.mjs";
+import { init as initL10n, default as l10nStore } from "../l10nStore.src.mjs";
 import { nextTip } from "./svelte/TipOfTheMoment.svelte";
 import { findResults } from "./svelte/FindModeContent.svelte";
 
@@ -44,6 +44,12 @@ export async function start({love, restoreData}) {
 			env.events.emit("artistRequested", firstDeviant);
 		}
 	})();
+}
+export async function showDetectError(error) {
+	await initL10n();
+	let errorElem = document.body.appendChild( document.createElement("div") );
+	errorElem.id = "preparationScreen";
+	errorElem.innerHTML = readStore(l10nStore)("detectError" + error);
 }
 
 function Deviant(name) {

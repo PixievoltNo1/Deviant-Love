@@ -3,7 +3,7 @@
 	Copyright Pixievolt No. 1
 	Check core.src.mjs for the complete legal stuff.
 */
-import { start } from "./core.src.mjs";
+import { start, showDetectError } from "./core.src.mjs";
 import { createNanoEvents } from "nanoevents";
 import { writable } from "svelte/store";
 
@@ -13,7 +13,11 @@ export var mobile = writable(false);
 chrome.runtime.sendMessage({action: "echoWithCallback", echoAction: "getStartData"},
 	async function({love, mobile: mobileVal}) {
 		mobile.set(mobileVal);
-		await start({love});
+		if (love.error) {
+			await showDetectError(love.error);
+		} else {
+			await start({love});
+		}
 		chrome.runtime.sendMessage({action: "echo", echoAction: "panelReady"});
 	}
 );
