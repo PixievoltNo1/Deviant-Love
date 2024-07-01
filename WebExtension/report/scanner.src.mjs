@@ -3,18 +3,12 @@
 	Copyright Pixievolt No. 1
 	Check core.src.mjs for the complete legal stuff.
 */
-import { writable } from "svelte/store";
-
-export default function researchLove(favesURL, maxDeviations) {
+export default function researchLove(favesURL, maxDeviations, callbacks) {
 	var paused = false, onResume = [grabMorePages], onRetry = [];
 	var globalAborter = new AbortController(), { signal } = globalAborter;
 	var parser = new DOMParser();
 
-	var favesResolve, favesReject, watchedResolve, watchedReject;
 	var api = {
-		faves: new Promise( (res, rej) => { favesResolve = res, favesReject = rej; } ),
-		progress: writable({ found: 0, percent: 0 }),
-		watched: new Promise( (res, rej) => { watchedResolve = res, watchedReject = rej; } ),
 		cancel: function() {
 			globalAborter.abort();
 		},
@@ -38,9 +32,9 @@ export default function researchLove(favesURL, maxDeviations) {
 		--allowedFetches;
 		++requestedPages;
 		try {
-			let reponse = await fetch(favesURL + "&offset=" + ((page - 1) * favesPerPage),
+			let response = await fetch(favesURL + "&offset=" + ((page - 1) * favesPerPage),
 				{ signal: aborter.signal });
-			let xmlDoc = parser.parseFromString(await reponse.text(), "text/xml");
+			let xmlDoc = parser.parseFromString(await response.text(), "text/xml");
 			processFavesXML(xmlDoc, page);
 		} catch (o_o) {
 			if (o_o instanceof DOMException && o_o.name == "AbortError") { return; }
@@ -88,9 +82,9 @@ export default function researchLove(favesURL, maxDeviations) {
 		if (maxDeviations) {
 			progressData.percent = Math.min( (processedPages * favesPerPage) / maxDeviations, 1);
 		}
-		api.progress.set(progressData);
+		callbacks.favesProgress(progressData);
 		if (processedPages >= totalPages) {
-			favesResolve( [].concat(...pageData) );
+			callbacks.favesData( [].concat(...pageData) );
 		}
 	}
 	retrieveFaves(1);
@@ -105,9 +99,7 @@ export default function researchLove(favesURL, maxDeviations) {
 		if (firstFail) {
 			firstFail = false;
 			onRetry.push( function() { firstFail = true; } );
-			let oldReject = favesReject;
-			let retryResult = new Promise( (res, rej) => { favesResolve = res, favesReject = rej; } );
-			oldReject({retryResult});
+			callbacks.favesError({});
 		}
 		onRetry.push( retrieveFaves.bind(null, page) );
 	}
@@ -115,14 +107,12 @@ export default function researchLove(favesURL, maxDeviations) {
 	var watchlistPage = 0, greatOnes = new Set();
 	async function retrieveWatchlist() {
 		try {
-			var response = await fetch("http://my.deviantart.com/global/difi/"
+			var response = await fetch("https://www.deviantart.com/global/difi/"
 				+ "?c%5B%5D=%22Friends%22%2C%22getFriendsList%22%2C%5Btrue%2C"
 				+ watchlistPage + "%5D&t=json", {signal});
 			var json = await response.text();
 		} catch (o_o) {
-			let oldReject = watchedReject;
-			let retryResult = new Promise((res, rej) => { watchedResolve = res, watchedReject = rej; });
-			oldReject({ reason: "netError", retryResult });
+			callbacks.watchlistError({ reason: "netError" });
 			onRetry.push(retrieveWatchlist);
 			return;
 		}
@@ -130,10 +120,10 @@ export default function researchLove(favesURL, maxDeviations) {
 			processWatchJSON( JSON.parse(json) );
 		} catch (o_o) {
 			if (o_o.reason) {
-				watchedReject(o_o);
+				callbacks.watchlistError(o_o);
 			} else {
 				console.error(o_o);
-				watchedReject({ reason: "scannerIssue" });
+				callbacks.watchlistError({ reason: "scannerIssue" });
 			}
 		}
 	}
@@ -155,7 +145,7 @@ export default function researchLove(favesURL, maxDeviations) {
 				onResume.push(retrieveWatchlist)
 			}
 		} else {
-			watchedResolve(greatOnes);
+			callbacks.watchlistData(greatOnes);
 		}
 	}
 	retrieveWatchlist();

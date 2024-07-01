@@ -4,7 +4,7 @@ import squishToFit from "../squishToFit.src.mjs";
 import { createEventDispatcher } from 'svelte';
 
 const dispatch = createEventDispatcher();
-export let pageType, maxDeviations, progress, watchStatus;
+export let pageType, maxDeviations, progress = {found: 0, percent: 0}, watchStatus;
 export let stopped, errored;
 $: scanMessage = ( {
 	featured: "scanningFeatured",
@@ -19,13 +19,13 @@ $: scanMessage = ( {
 		<div id="scanStatus">
 			<div id="scanPercentage">
 				{#if maxDeviations}
-					<progress id="scanProgressBar" value="{$progress.percent}"></progress>
-					<div id="scanPercentageText">{Math.floor($progress.percent * 100)}%</div>
+					<progress id="scanProgressBar" value="{progress.percent}"></progress>
+					<div id="scanPercentageText">{Math.floor(progress.percent * 100)}%</div>
 				{:else}
 					<progress id="scanProgressBar"></progress>
 				{/if}
 			</div>
-			<div id="scannedDeviations">{$l10n("scannedDeviations", {num: $progress.found})}</div>
+			<div id="scannedDeviations">{$l10n("scannedDeviations", {num: progress.found})}</div>
 			<div id="watchStatus">{watchStatus ? $l10n(watchStatus) : ""}</div>
 		</div>
 	{:else}

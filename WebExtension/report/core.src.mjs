@@ -67,25 +67,38 @@ Object.defineProperties(Deviant.prototype, {
 });
 function prepare(love) {
 	var cleanup = new Set();
-	var scannerController = researchLove(love.feedHref, love.maxDeviations);
+	var favesResolve, favesPromise = new Promise( (res) => favesResolve = res );
+	var watchlistResolve, watchlistPromise = new Promise( (res) => watchlistResolve = res );
 	var screen = new PreparationScreen({
 		target: document.body,
 		props: {
 			pageType: love.pageType,
 			maxDeviations: love.maxDeviations,
-			progress: scannerController.progress,
 		}
 	});
+	var scannerCallbacks = {
+		favesData(data) { favesResolve(data); },
+		favesProgress(progress) { screen.$set({progress}); },
+		favesError() { scanError(); },
+		watchlistData(data) {
+			screen.$set({watchStatus: "watchSuccess"});
+			watchlistResolve({watchedArtists: data});
+		},
+		watchlistError(error) {
+			if (error.reason == "netError") {
+				scanError();
+				return;
+			}
+			screen.$set( {watchStatus: (error.reason == "notLoggedIn") ?
+				"watchErrorNotLoggedIn" : "watchErrorInternal"} );
+			watchlistResolve({watchError: error.reason});
+		}
+	};
+	var scannerController = researchLove(love.feedHref, love.maxDeviations, scannerCallbacks);
 	cleanup.add( () => screen.$destroy() );
-	var faves = scannerController.faves.catch( function catcher(thrown) {
-		scanError();
-		return thrown.retryResult.catch(catcher);
-	} );
-	var organized = faves.then(organizeData);
-	var watchResult = scannerController.watched.then(collectWatchlist, watchError);
 	cleanup.add( env.events.on("hide", () => scannerController.pause()) );
 	cleanup.add( env.events.on("show", () => scannerController.resume()) );
-	function organizeData(faves) {
+	var organized = favesPromise.then( function organizeData(faves) {
 		var deviantMap = new Map();
 		faves.forEach(function(item, pos) {
 			if (!deviantMap.has(item.artistName)) {
@@ -102,7 +115,7 @@ function prepare(love) {
 		var totalDeviations = faves.length;
 
 		return {deviantMap, totalDeviations};
-	}
+	} );
 	function scanError() {
 		scannerController.pause();
 		screen.$set({errored: true, stopped: true});
@@ -112,20 +125,7 @@ function prepare(love) {
 		scannerController.resume();
 		scannerController.retry();
 	});
-	function collectWatchlist(list) {
-		screen.$set({watchStatus: "watchSuccess"});
-		return {watchedArtists: list};
-	}
-	function watchError(thrown) {
-		if (thrown.reason == "netError") {
-			scanError();
-			return thrown.retryResult.then(collectWatchlist, watchError);
-		}
-		screen.$set( {watchStatus: (thrown.reason == "notLoggedIn") ?
-			"watchErrorNotLoggedIn" : "watchErrorInternal"} );
-		return {watchError: thrown.reason};
-	}
-	return Promise.all([organized, watchResult]).then(finish);
+	return Promise.all([organized, watchlistPromise]).then(finish);
 	function finish([organizedFaves, {watchedArtists = null, watchError = false}]) {
 		let results = {
 			deviants: new DeviantCollection(organizedFaves.deviantMap, Deviant),
