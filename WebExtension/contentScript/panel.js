@@ -49,7 +49,23 @@ function messageHandler(thing, buddy, callback) {
 		case "getStartData":
 			callback({ love, mobile: mobileCheck.matches });
 			break;
+		case "scanForMe":
+			delegatedScan();
+			break;
 	}
+}
+async function delegatedScan() {
+	let {port1, port2} = new MessageChannel();
+	let panelOrigin = (new URL( chrome.runtime.getURL("report/popup.html") )).origin;
+	panel.contentWindow.postMessage("scan", panelOrigin, [port2]);
+	let researchLove = (await import( chrome.runtime.getURL("report/scanner.mjs") )).default;
+	let callbacks = new Proxy({}, { get(_, eventName) {
+		return (data) => port1.postMessage([eventName, data]);
+	} });
+	let scannerController = researchLove(love.feedHref, love.maxDeviations, callbacks);
+	port1.onmessage = ({data: commandName}) => {
+		scannerController[commandName]();
+	};
 }
 
 var mobileCheck = matchMedia("not all and (min-width: 550px)");

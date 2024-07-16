@@ -5,10 +5,11 @@ import path from "node:path";
 /** @type {import('rollup').RollupOptions} */
 export default {
 	input: {
-		core: "./WebExtension/report/core.src.mjs",
-		options: "./WebExtension/options/options.src.mjs",
-		find: "./WebExtension/report/find.src.mjs",
+		"build/core": "./WebExtension/report/core.src.mjs",
+		"build/options": "./WebExtension/options/options.src.mjs",
+		"build/find": "./WebExtension/report/find.src.mjs",
 	},
+	external: [path.resolve("WebExtension/report/scanner.mjs")],
 	plugins: [
 		svelte(),
 		resolve({browser: true}),
@@ -32,11 +33,11 @@ export default {
 	],
 	output: [
 		{
-			dir: "build-firefox/build",
+			dir: "build-firefox",
 			sourcemap: true,
 		},
 		{
-			dir: "build-chrome/build",
+			dir: "build-chrome",
 			sourcemap: true,
 		},
 	]

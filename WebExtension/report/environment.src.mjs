@@ -57,6 +57,28 @@ export function closeDeviantLove() {
 	chrome.runtime.sendMessage({action: "echo", echoAction: "spark"});
 }
 
+export function needsDelegatedScan() {
+	// If we don't have full extension privileges, we may not be able to scan with the correct
+	// partitioned cookies.
+	return !("tabs" in chrome);
+}
+export function delegateScan(_, _2, callbacks) {
+	let resolve, promise = new Promise( (res) => resolve = res );
+	window.addEventListener("message", (event) => {
+		if (event.data != "scan") { return; }
+		let port = event.ports[0];
+		port.onmessage = ({data: [eventName, data]}) => callbacks[eventName](data);
+		resolve({
+			cleanup() { port.close(); },
+			scannerController: new Proxy({}, { get(_, commandName) {
+				return () => port.postMessage(commandName);
+			} }),
+		})
+	});
+	chrome.runtime.sendMessage({action: "echo", echoAction: "scanForMe"});
+	return promise;
+}
+
 document.addEventListener("click", (event) => {
 	var link = event.target.closest("a");
 	if (!link) { return; }

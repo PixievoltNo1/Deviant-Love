@@ -19,7 +19,7 @@ import { get as readStore } from "svelte/store";
 import { tick } from "svelte";
 import * as prefs from "../prefStores.src.mjs";
 import * as env from "./environment.src.mjs";
-import researchLove from "./scanner.src.mjs";
+import researchLove from "./scanner.mjs";
 import DeviantCollection from "./deviantCollection.src.mjs";
 import PreparationScreen from "./svelte/PreparationScreen.svelte";
 import MainScreen from "./svelte/MainScreen.svelte";
@@ -65,7 +65,7 @@ Object.defineProperties(Deviant.prototype, {
 		}
 	}
 });
-function prepare(love) {
+async function prepare(love) {
 	var cleanup = new Set();
 	var favesResolve, favesPromise = new Promise( (res) => favesResolve = res );
 	var watchlistResolve, watchlistPromise = new Promise( (res) => watchlistResolve = res );
@@ -76,6 +76,7 @@ function prepare(love) {
 			maxDeviations: love.maxDeviations,
 		}
 	});
+	cleanup.add( () => screen.$destroy() );
 	var scannerCallbacks = {
 		favesData(data) { favesResolve(data); },
 		favesProgress(progress) { screen.$set({progress}); },
@@ -94,8 +95,14 @@ function prepare(love) {
 			watchlistResolve({watchError: error.reason});
 		}
 	};
-	var scannerController = researchLove(love.feedHref, love.maxDeviations, scannerCallbacks);
-	cleanup.add( () => screen.$destroy() );
+	var scannerController;
+	if (!env.needsDelegatedScan()) {
+		scannerController = researchLove(love.feedHref, love.maxDeviations, scannerCallbacks);
+	} else {
+		let scan = await env.delegateScan(love.feedHref, love.maxDeviations, scannerCallbacks);
+		({scannerController} = scan);
+		cleanup.add(scan.cleanup);
+	}
 	cleanup.add( env.events.on("hide", () => scannerController.pause()) );
 	cleanup.add( env.events.on("show", () => scannerController.resume()) );
 	var organized = favesPromise.then( function organizeData(faves) {
@@ -125,17 +132,15 @@ function prepare(love) {
 		scannerController.resume();
 		scannerController.retry();
 	});
-	return Promise.all([organized, watchlistPromise]).then(finish);
-	function finish([organizedFaves, {watchedArtists = null, watchError = false}]) {
-		let results = {
-			deviants: new DeviantCollection(organizedFaves.deviantMap, Deviant),
-			totalDeviations: organizedFaves.totalDeviations,
-			watchedArtists,
-			watchError,
-		};
-		for (let fn of cleanup) { fn(); }
-		return results;
-	}
+	var results = await Promise.all([organized, watchlistPromise]);
+	var [organizedFaves, {watchedArtists = null, watchError = false}] = results;
+	for (let fn of cleanup) { fn(); }
+	return {
+		deviants: new DeviantCollection(organizedFaves.deviantMap, Deviant),
+		totalDeviations: organizedFaves.totalDeviations,
+		watchedArtists,
+		watchError,
+	};
 }
 function restore(scanData, love) {
 	// TODO: Wake scanData.deviants
