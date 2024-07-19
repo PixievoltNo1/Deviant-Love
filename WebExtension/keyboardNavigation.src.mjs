@@ -12,7 +12,7 @@ export function makeNavRoot(root) {
 		event.target.tabIndex = 0;
 	});
 	root.addEventListener("keydown", function(event) {
-		if (["ArrowDown", "ArrowUp", " ", "Home", "End"].includes(event.key)) {
+		if (["ArrowDown", "ArrowUp", " ", "Home", "End", "PageUp", "PageDown"].includes(event.key)) {
 			event.preventDefault();
 		}
 	}, {capture: true});
@@ -38,6 +38,22 @@ export function makeNavRoot(root) {
 			let elem = Array.prototype.findLast.call(root.querySelectorAll("[tabindex]"),
 				(elem) => !findSkippableParent(elem));
 			elem?.focus({focusVisible: true, preventScroll: true});
+		} else if (key == "PageUp") {
+			// simulate scrolling up by root.clientHeight - SCROLL_MARGIN and finding the first
+			// element a distance of SCROLL_MARGIN from the top
+			let targetPos = root.scrollTop - (root.clientHeight - SCROLL_MARGIN * 2);
+			let elem = Array.prototype.find.call(root.querySelectorAll("[tabindex]"),
+				(elem) => !findSkippableParent(elem) && elem.offsetTop >= targetPos);
+			elem?.focus({focusVisible: true, preventScroll: true});
+			maintainTopScrollMargin();
+		} else if (key == "PageDown") {
+			// simulate scrolling down by root.clientHeight - SCROLL_MARGIN and finding the last
+			// element a distance of SCROLL_MARGIN from the bottom
+			let targetPos = root.scrollTop + root.clientHeight * 2 - SCROLL_MARGIN * 2;
+			let elem = Array.prototype.findLast.call(root.querySelectorAll("[tabindex]"),
+				(elem) => !findSkippableParent(elem) && elem.offsetTop <= targetPos);
+			elem?.focus({focusVisible: true, preventScroll: true});
+			maintainBottomScrollMargin();
 		}
 		/** @type {(siblingProp: string, findDestination: (elem: Element) => Element | null) => null} */
 		function arrowNav(siblingProp, findDestination) {
