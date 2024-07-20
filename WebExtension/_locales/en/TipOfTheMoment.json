@@ -1,12 +1,9 @@
 [
-{"icon": "deviantart/Random.png", "html": "Visit a <a href='https://www.deviantart.com/random/deviant'>random deviant</a> and find new art to love."},
-{"icon": "SilkIcons/heart.png", "html": "Love everything. Join <a href='https://www.deviantart.com/deviantheart'>deviantHEART</a>."},
-{"icon": "pixievolt.svg", "html": "You can show your love for Deviant Love at <a href='http://fav.me/d2my13o'>its deviation page</a>."},
 {"icon": "SilkIcons/medal_gold_2.png", "html": "There's lots of love-worthy art to be found at <a href='https://www.deviantart.com/daily-deviations'>Daily Deviations</a>."},
+{"icon": "heart/scalable.svg", "html": "You can show your love for Deviant Love at <a href='http://fav.me/d2my13o'>its deviation page</a>."},
 {"icon": "deviantart/Watch.png", "html": "Keep the love going with additions to your <a href='https://www.deviantart.com/watching/'>Watch</a>."},
-{"icon": "deviantart/News.png", "html": "Your fellow deviants are expressing their love with <a href='https://www.deviantart.com/journals/artfeatures/'>Art Features</a>."},
 {"icon": "SilkIcons/comments.png", "html": "Love Deviant Love? Help decide its future at <a href='https://www.deviantart.com/deviantlovesoftware'>DeviantLoveSoftware</a>."},
 {"icon": "deviantart/People.png", "html": "The DA staff are listed on <a href='https://about.deviantart.com/'>About Us</a> - show them some love."},
-{"icon": "SilkIcons/user_add.png", "html": "Show some love to new artists at the <a href='https://forum.deviantart.com/devart/welcome/'>Welcome Center</a>."},
-{"icon": "sponsus.png", "html": "The developer would appreciate your love & support on <a href='https://sponsus.org/u/pixievoltno1'>Sponsus</a>."}
+{"icon": "SilkIcons/user_add.png", "html": "The <a href='https://www.deviantart.com/forum/devart/welcome'>New Deviants forum</a> has new artists to love."},
+{"icon": "pixievolt.svg", "html": "The developer would appreciate your love & support on <a href='https://ko-fi.com/pixievoltno1'>Ko-Fi</a>."}
 ]
